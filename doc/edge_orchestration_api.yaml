@@ -1,0 +1,68 @@
+swagger: '2.0'
+info:
+  title: Edge Orchestration API
+  description: >-
+    
+    This provides functionality to execute a service on a remote edge device. 
+    
+    
+    Requirement)
+    
+    1. Two or more Edge Orchestration devices.
+    
+    2. Each devices should be connected at same WIFI network.   
+    
+  version: v1-20190611
+schemes:
+  - http
+tags:
+  - name: Service Execution
+    description: Execute a Service on the other Device based on Score
+paths:
+  '/api/v1/orchestration/services':
+    post:
+      tags:
+        - Service Execution
+      description: Execute a Service on the other Device
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Name is Service Category, declared in config file and it determines which scoring method will be applied.
+        
+        
+        Args is a list of Shell Command to execute Service."
+        
+        required: true
+        schema:
+          $ref: "#/definitions/service"
+      responses:
+        '200':
+          description: Successful operation, return handle, as a client ID    
+          schema:     
+            $ref: "#/definitions/handle"   
+definitions:
+  service:
+    required:
+      - Name
+      - Args
+    properties:
+      Name:
+        type: string
+        example: container_service
+      Args:
+        type: array
+        items:
+          type: string
+        example: ["docker", "run", "-v", "/var/run:/var/run:rw", "hello-world"]
+  handle:
+    required:
+      - Handle
+    properties:
+      Handle:
+        type: integer
+        format: int32
+        example: 7
