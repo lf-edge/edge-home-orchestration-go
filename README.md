@@ -109,7 +109,7 @@ Usage:
  
 ## API Document ##
 Edge Orchestration provides only one REST API for its operation. Description for the APIs are stored in <root>/doc folder.
-- **[edge_orchestration_api.yaml](https://github.sec.samsung.net/RS7-EdgeComputing/edge-home-orchestration-go/blob/master/doc/edge_orchestration_api.yaml)**
+- **[edge_orchestration_api.yaml](https://./doc/edge_orchestration_api.yaml)**
 
 Note that you can visit [Swagger Editor](https://editor.swagger.io/) to graphically investigate the REST API in YAML.
 
