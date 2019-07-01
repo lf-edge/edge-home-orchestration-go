@@ -69,7 +69,7 @@ $ docker run -it -d \
 
 ## How to build ##
 
-This project offers Docker image build as a defualt build option. 
+This project offers Docker image build as a default build option. 
 
 ```shell
 $ ./build.sh 
