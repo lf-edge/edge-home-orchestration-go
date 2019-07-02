@@ -18,6 +18,7 @@
 package container
 
 import (
+	"common/errors"
 	"common/resourceutil"
 	resourceUtilMock "common/resourceutil/mocks"
 	"testing"
@@ -28,7 +29,7 @@ import (
 var getter resourceutil.Command
 
 var (
-	dummyError           = resourceutil.SystemError{Message: "dummyError"}
+	dummyError           = errors.SystemError{Message: "dummyError"}
 	expectedSuccessScore = float64(0.59487547603619805)
 	expectedFailScore    = float64(0.0)
 )
