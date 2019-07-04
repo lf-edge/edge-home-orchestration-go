@@ -15,6 +15,7 @@
  *
  *******************************************************************************/
 
+// Package errors defines error cases of edge-orchestration.
 package errors
 
 // InvalidParam will be used for return case of error
@@ -57,6 +58,16 @@ func (e NotFound) Error() string {
 	return "not found error : " + e.Message
 }
 
+// DBConnectionError will be used for return case of error
+type DBConnectionError struct {
+	Message string
+}
+
+// Error sets an error message of system error
+func (e DBConnectionError) Error() string {
+	return "db connection error : " + e.Message
+}
+
 // DBOperationError will be used for return case of error
 type DBOperationError struct {
 	Message string
@@ -65,4 +76,14 @@ type DBOperationError struct {
 // Error sets an error message of system error
 func (e DBOperationError) Error() string {
 	return "db operation error : " + e.Message
+}
+
+// InvalidJSON will be used for return case of error
+type InvalidJSON struct {
+	Message string
+}
+
+// Error sets an error message of system error
+func (e InvalidJSON) Error() string {
+	return "invalid json error : " + e.Message
 }
