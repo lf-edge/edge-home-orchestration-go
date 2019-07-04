@@ -15,7 +15,7 @@
  *
  *******************************************************************************/
 
-package resourceutil
+package errors
 
 // InvalidParam will be used for return case of error
 type InvalidParam struct {
@@ -45,4 +45,24 @@ type NotSupport struct {
 // Error sets an error message of not support error
 func (e NotSupport) Error() string {
 	return "not support error : " + e.Message
+}
+
+// NotFound will be used for return case of error
+type NotFound struct {
+	Message string
+}
+
+// Error sets an error message of system error
+func (e NotFound) Error() string {
+	return "not found error : " + e.Message
+}
+
+// DBOperationError will be used for return case of error
+type DBOperationError struct {
+	Message string
+}
+
+// Error sets an error message of system error
+func (e DBOperationError) Error() string {
+	return "db operation error : " + e.Message
 }
