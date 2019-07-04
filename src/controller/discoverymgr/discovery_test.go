@@ -24,6 +24,7 @@ import (
 	"time"
 
 	errormsg "common/errormsg"
+	errors "common/errors"
 	networkmocks "common/networkhelper/mocks"
 	wrapper "controller/discoverymgr/wrapper"
 	wrappermocks "controller/discoverymgr/wrapper/mocks"
@@ -69,6 +70,8 @@ var (
 			ServiceList:   anotherServiceList,
 		},
 	}
+
+	noDeviceReturnErr = errors.NotFound{Message: errormsg.ToString(errormsg.ErrorNoDeviceReturn)}
 )
 
 func createMockIns(ctrl *gomock.Controller) {
@@ -237,7 +240,8 @@ func TestGetDeviceIPListWithService(t *testing.T) {
 		failService := "NoServiceIsThisName"
 		t.Run("GetDeviceIPListWithService", func(t *testing.T) {
 			_, err := discoveryInstance.GetDeviceIPListWithService(failService)
-			if errormsg.ToInt(err) != errormsg.ErrorNoDeviceReturn {
+			log.Println(err)
+			if err != noDeviceReturnErr {
 				t.Error("Error is not generated : ", err)
 			}
 		})
@@ -271,7 +275,7 @@ func TestGetDeviceListWithService(t *testing.T) {
 		failService := "NoServiceIsThisName"
 		t.Run("GetDeviceListWithService", func(t *testing.T) {
 			_, err := discoveryInstance.GetDeviceListWithService(failService)
-			if errormsg.ToInt(err) != errormsg.ErrorNoDeviceReturn {
+			if err != noDeviceReturnErr {
 				t.Error("Error is not generated : ", err)
 			}
 		})
@@ -304,7 +308,7 @@ func TestGetDeviceWithID(t *testing.T) {
 		failID := "NoDeviceIsThisID"
 		t.Run("GetDeviceWithID", func(t *testing.T) {
 			_, err := discoveryInstance.GetDeviceWithID(failID)
-			if errormsg.ToInt(err) != errormsg.ErrorNoDeviceReturn {
+			if err != noDeviceReturnErr {
 				t.Error("Error is not generated : ", err)
 			}
 		})
