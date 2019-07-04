@@ -33,10 +33,10 @@ const (
 
 var orchestrationErrorString = [...]string{
 	"",
-	"ErrorNotReadyOrchestrationInit : \" Please wait until Orchestration init function has been completed \" ",
-	"ErrorTurnOffWifi : \" Please Turn On Wifi \" ",
-	"ErrorDisconnectWifi : \" Please Connect Wifi \" ",
-	"ErrorNoDeviceReturn : \" No Device Is Return \" ",
+	"Please wait until Orchestration init function has been completed",
+	"Please Turn On Wifi",
+	"Please Connect Wifi",
+	"No Device Is Return",
 }
 
 // ToString converts error const to string
