@@ -17,15 +17,22 @@
 
 package networkhelper
 
-import "net"
+import (
+	"net"
+)
 
 // NetworkInformation structure
 type networkInformation struct {
-	ipv4         string //ipv4 of wifi
-	macAddress   string // MAC address
+	addrInfos    []addrInformation
 	netInterface []net.Interface
 	ipChans      []chan net.IP
 	netError     error
+}
+
+type addrInformation struct {
+	isWired bool
+	ipv4    net.IP
+	macAddr string
 }
 
 const logPrefix = "[networkmgr]"
