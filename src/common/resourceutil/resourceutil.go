@@ -23,6 +23,8 @@ import (
 	"strings"
 	"time"
 
+	"common/errors"
+
 	cpuutil "github.com/shirou/gopsutil/cpu"
 	memutil "github.com/shirou/gopsutil/mem"
 	netutil "github.com/vishvananda/netlink"
@@ -109,7 +111,7 @@ func (ResourceImpl) GetResource(resourceName string) (float64, error) {
 	case NetRTT:
 		return getNetworkRTT()
 	default:
-		return 0.0, NotSupport{"Not suppoted resource name"}
+		return 0.0, errors.NotSupport{Message: "Not suppoted resource name"}
 	}
 }
 
@@ -117,7 +119,7 @@ func getCPUUsage() (out float64, err error) {
 	cpus, err := cpu.percent(time.Second, true)
 	if err != nil {
 		log.Println(logPrefix, "usage of cpu is fail : ", err.Error())
-		err = SystemError{err.Error()}
+		err = errors.SystemError{Message: err.Error()}
 		return
 	}
 
@@ -133,7 +135,7 @@ func getCPUFreq() (out float64, err error) {
 	infos, err := cpu.info()
 	if err != nil {
 		log.Println(logPrefix, "cpu.Info() fail : ", err.Error())
-		err = SystemError{err.Error()}
+		err = errors.SystemError{Message: err.Error()}
 		return
 	}
 
@@ -145,7 +147,7 @@ func getCPUCount() (out float64, err error) {
 	infos, err := cpu.info()
 	if err != nil {
 		log.Println(logPrefix, "cpu info getting fail : ", err.Error())
-		err = SystemError{err.Error()}
+		err = errors.SystemError{Message: err.Error()}
 		return
 	}
 
@@ -157,7 +159,7 @@ func getMemoryAvailable() (out float64, err error) {
 	memStat, err := mem.virtualMemory()
 	if err != nil {
 		log.Println(logPrefix, "mem info getting fail : ", err.Error())
-		err = SystemError{err.Error()}
+		err = errors.SystemError{Message: err.Error()}
 		return
 	}
 
@@ -169,7 +171,7 @@ func getMemoryFree() (out float64, err error) {
 	memStat, err := mem.virtualMemory()
 	if err != nil {
 		log.Println(logPrefix, "mem info getting fail : ", err.Error())
-		err = SystemError{err.Error()}
+		err = errors.SystemError{Message: err.Error()}
 		return
 	}
 
@@ -181,7 +183,7 @@ func getNetworkMBps() (out float64, err error) {
 	linklist, err := net.linkList()
 	if err != nil {
 		log.Println(logPrefix, "network link getting fail : ", err.Error())
-		err = SystemError{err.Error()}
+		err = errors.SystemError{Message: err.Error()}
 		return
 	}
 
@@ -197,7 +199,7 @@ func getNetworkMBps() (out float64, err error) {
 	linklist, err = net.linkList()
 	if err != nil {
 		log.Println(logPrefix, "network link getting fail : ", err.Error())
-		err = SystemError{err.Error()}
+		err = errors.SystemError{Message: err.Error()}
 		return
 	}
 
@@ -214,7 +216,7 @@ func getNetworkBandwidth() (out float64, err error) {
 	linklist, err := net.linkList()
 	if err != nil {
 		log.Println(logPrefix, "network link getting fail : ", err.Error())
-		err = SystemError{err.Error()}
+		err = errors.SystemError{Message: err.Error()}
 		return
 	}
 
@@ -229,7 +231,7 @@ func getNetworkBandwidth() (out float64, err error) {
 	}
 
 	if count == 0 {
-		err = SystemError{"Not matched network interface"}
+		err = errors.SystemError{Message: "Not matched network interface"}
 		return
 	}
 
