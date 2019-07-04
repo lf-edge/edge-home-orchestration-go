@@ -18,22 +18,30 @@
 package networkhelper
 
 import (
-	"common/errormsg"
+	"common/networkhelper/detector/mocks"
 	"errors"
 	"log"
 	"net"
+	"reflect"
+	"sync"
 	"testing"
-	"time"
+
+	"github.com/golang/mock/gomock"
 )
 
 var (
-	TESTIPV4      = "11.111.111.11"
-	TESTIPV6      = "fe80::f112:19a8:eca4:724f"
-	TESTMAC       = "AB:CD:EF:GH:IJ:KL"
-	TESTNETIFLIST []net.Interface
-	TESTERR       error
-	TESTNEWIP     net.IP
-	TESTIFINDEX   = 1
+	TESTIPV4       = "11.111.111.11"
+	TESTIPV6       = "fe80::f112:19a8:eca4:724f"
+	TESTMAC        = "AB:CD:EF:GH:IJ:KL"
+	TESTNETIFLIST  []net.Interface
+	TESTERR        error
+	TESTNEWIP      net.IP
+	TESTNEWWIREDIP net.IP
+	TESTIFINDEX    = 1
+
+	isCalledGetNetInfo bool
+	wait               sync.WaitGroup
+	network            Network
 )
 
 type addrstr struct {
@@ -53,74 +61,30 @@ func init() {
 	TESTNETIF := net.Interface{Index: TESTIFINDEX}
 	TESTNETIFLIST = append(TESTNETIFLIST, TESTNETIF)
 	TESTNEWIP = net.ParseIP("22.222.222.22")
+	TESTNEWWIREDIP = net.ParseIP("11.111.111.11")
+
+	network = GetInstance()
 }
 
-func TestGetIPv4(t *testing.T) {
-	t.Run("Success", func(t *testing.T) {
-		setPass()
-		err := errormsg.ToError(errormsg.ErrorDisconnectWifi)
-		addrs1 := addrstr{
-			name: "tcp",
-			addr: TESTIPV4 + "/64"}
-		addrs2 := addrstr{
-			name: "tcp",
-			addr: "22.222.222.22" + "/64"}
-		var addrlist []net.Addr
-		addrlist = append(addrlist, addrs1)
-		addrlist = append(addrlist, addrs2)
-		_, err = netInfo.getIPv4(addrlist)
-		if err != nil {
-			t.Error(err)
-		}
-	})
-	t.Run("Fail", func(t *testing.T) {
-		setFail()
-		err := errormsg.ToError(errormsg.ErrorDisconnectWifi)
-		addrs := addrstr{
-			name: "tcp",
-			addr: TESTIPV6 + "/64"}
-		var addrlist []net.Addr
-		addrlist = append(addrlist, addrs)
-		_, err = netInfo.getIPv4(addrlist)
-		if err == nil {
-			t.Error(err)
-		}
-	})
+func setPassCondOfNetInfo() {
+	netInfo.addrInfos = make([]addrInformation, 1)
+	netInfo.addrInfos[0].ipv4 = TESTNEWIP
+	netInfo.addrInfos[0].macAddr = TESTMAC
+	netInfo.netInterface = TESTNETIFLIST
+	netInfo.netError = nil
 }
 
-func TestGetWifiInterfaceInfo(t *testing.T) {
-	ifaces := []net.Interface{
-		net.Interface{},
-		net.Interface{},
-	}
-	err := getWifiInterfaceInfo(ifaces)
-	if err == nil {
-		t.Error()
-	}
-
-	// TODO check interface name and hardware address
-	//	pInterface := []net.Interface{
-	//		net.Interface{
-	//			Index:        3,
-	//			MTU:          1500,
-	//			Name:         "wlxd8fee35ec830",
-	//			HardwareAddr: []byte("d8:fe:e3:5e:c8:30"),
-	//			Flags:        (net.FlagUp | net.FlagBroadcast | net.FlagMulticast),
-	//		},
-	//		net.Interface{},
-	//	}
-	//	log.Println(pInterface)
-	//	err = getWifiInterfaceInfo(pInterface)
-	//	if err != nil {
-	//		t.Error()
-	//	}
+func setFailCondOfNetInfo() {
+	netInfo.addrInfos = make([]addrInformation, 1)
+	netInfo.addrInfos[0].ipv4 = TESTNEWIP
+	netInfo.addrInfos[0].macAddr = TESTMAC
+	netInfo.netInterface = nil
+	netInfo.netError = TESTERR
 }
 
 func TestGetNetInterface(t *testing.T) {
-	network := GetInstance()
-
 	t.Run("Success", func(t *testing.T) {
-		setPass()
+		setPassCondOfNetInfo()
 		netif, err := network.GetNetInterface()
 		if err != nil {
 			t.Error()
@@ -130,7 +94,7 @@ func TestGetNetInterface(t *testing.T) {
 		}
 	})
 	t.Run("Fail", func(t *testing.T) {
-		setFail()
+		setFailCondOfNetInfo()
 		_, err := network.GetNetInterface()
 		if err == nil {
 			t.Error()
@@ -139,18 +103,20 @@ func TestGetNetInterface(t *testing.T) {
 	t.Log()
 }
 
-func TestCheckConnectivity(t *testing.T) {
-	network := GetInstance()
+func TestStartNetwork(t *testing.T) {
 
+}
+
+func TestCheckConnectivity(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
-		setPass()
+		setPassCondOfNetInfo()
 		err := network.CheckConnectivity()
 		if err != nil {
 			t.Error()
 		}
 	})
 	t.Run("Fail", func(t *testing.T) {
-		setFail()
+		setFailCondOfNetInfo()
 		err := network.CheckConnectivity()
 		if err == nil {
 			t.Error()
@@ -158,20 +124,18 @@ func TestCheckConnectivity(t *testing.T) {
 	})
 }
 func TestGetOutboundIP(t *testing.T) {
-	network := GetInstance()
-
 	t.Run("Success", func(t *testing.T) {
-		setPass()
+		setPassCondOfNetInfo()
 		ip, err := network.GetOutboundIP()
 		if err != nil {
 			t.Error()
 		}
-		if ip != TESTIPV4 {
+		if ip != TESTNEWIP.String() {
 			t.Error()
 		}
 	})
 	t.Run("Fail", func(t *testing.T) {
-		setFail()
+		setFailCondOfNetInfo()
 		_, err := network.GetOutboundIP()
 		if err == nil {
 			t.Error()
@@ -180,10 +144,8 @@ func TestGetOutboundIP(t *testing.T) {
 }
 
 func TestGetMACAddress(t *testing.T) {
-	network := GetInstance()
-
 	t.Run("Success", func(t *testing.T) {
-		setPass()
+		setPassCondOfNetInfo()
 		mac, err := network.GetMACAddress()
 		if err != nil {
 			t.Error()
@@ -193,7 +155,7 @@ func TestGetMACAddress(t *testing.T) {
 		}
 	})
 	t.Run("Fail", func(t *testing.T) {
-		setFail()
+		setFailCondOfNetInfo()
 		_, err := network.GetMACAddress()
 		if err == nil {
 			t.Error()
@@ -201,46 +163,81 @@ func TestGetMACAddress(t *testing.T) {
 	})
 }
 func TestAppendSubscriber(t *testing.T) {
-	network := GetInstance()
-
-	log.Println(logPrefix, "[test channel]")
 	netInfo.ipChans = nil
+
 	network.AppendSubscriber()
+
 	if len(netInfo.ipChans) != 1 {
 		t.Error()
 	}
 }
 
+func MockGetNetworkInfo() {
+	isCalledGetNetInfo = true
+	log.Println("MockGetNetworkInfo")
+
+	wait.Done()
+}
+
+func TestSuccessSubAddrChange(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	det := mocks.NewMockDetector(ctrl)
+
+	isCalledGetNetInfo = false
+	wait.Add(1)
+	getNetworkInformationFP = MockGetNetworkInfo
+
+	isNewConnection := make(chan bool, 1)
+	det.EXPECT().AddrSubscribe(isNewConnection)
+
+	go subAddrChange(isNewConnection)
+
+	// @Note : Invoke case of detecting network change
+	isNewConnection <- true
+
+	wait.Wait()
+}
+
+// @Note : From this line, TC is related with networkInformation struct
 func TestNotify(t *testing.T) {
-	netInfo.ipv4 = TESTNEWIP.String()
+	netInfo.addrInfos = make([]addrInformation, 1)
+	netInfo.addrInfos[0].ipv4 = TESTNEWIP
+	netInfo.addrInfos[0].isWired = true
 	netInfo.ipChans = nil
 
 	ConnectivityChan := make(chan net.IP, 1)
 	netInfo.ipChans = append(netInfo.ipChans, ConnectivityChan)
 
 	var newip net.IP
+	wait.Add(1)
+
 	go func() {
 		newip = <-ConnectivityChan
-		return
+		wait.Done()
 	}()
-	netInfo.notify()
-	time.Sleep(2 * time.Second)
+
+	netInfo.Notify()
+	wait.Wait()
 
 	if newip.String() != TESTNEWIP.String() {
 		t.Error()
 	}
 }
 
-func setPass() {
-	netInfo.ipv4 = TESTIPV4
-	netInfo.macAddress = TESTMAC
-	netInfo.netInterface = TESTNETIFLIST
-	netInfo.netError = nil
-}
+func TestSuccessGetIP(t *testing.T) {
+	netInfo.addrInfos = make([]addrInformation, 2)
+	for _, addInfo := range netInfo.addrInfos {
+		addInfo.macAddr = TESTMAC
+	}
 
-func setFail() {
-	netInfo.ipv4 = ""
-	netInfo.macAddress = ""
-	netInfo.netInterface = nil
-	netInfo.netError = TESTERR
+	netInfo.addrInfos[0].isWired = true
+	netInfo.addrInfos[1].isWired = false
+
+	netInfo.addrInfos[0].ipv4 = TESTNEWWIREDIP
+	netInfo.addrInfos[1].ipv4 = TESTNEWIP
+
+	// @Note : Get Wired IP
+	if reflect.DeepEqual(netInfo.GetIP(), TESTNEWWIREDIP) != true {
+		t.Error()
+	}
 }
