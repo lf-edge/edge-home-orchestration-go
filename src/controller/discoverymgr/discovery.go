@@ -48,10 +48,12 @@ type Discovery interface {
 
 type discoveryImpl struct{}
 
-var discoverymgrInfo discoverymgrInformation
+var (
+	discoverymgrInfo discoverymgrInformation
 
-var discoveryIns discoveryImpl
-var networkIns networkhelper.Network
+	discoveryIns discoveryImpl
+	networkIns   networkhelper.Network
+)
 
 func init() {
 	discoverymgrInfo.wrapperIns = wrapper.GetZeroconfImpl()
@@ -400,10 +402,16 @@ func deviceDetectionRoutine() {
 				}
 				deviceID, deviceInfo := convertwrappertoDB(*data)
 
-				if _, isPresent := discoverymgrInfo.orchestrationMap[deviceID]; isPresent {
+				// @TODO : check locking logic
+				discoverymgrInfo.mapMTX.Lock()
+				_, isPresent := discoverymgrInfo.orchestrationMap[deviceID]
+				discoverymgrInfo.mapMTX.Unlock()
+
+				if isPresent {
 					updateInfoHandler(deviceID, deviceInfo)
 					continue
 				}
+
 				newDeviceHandler(deviceID, deviceInfo)
 
 				// case default:
