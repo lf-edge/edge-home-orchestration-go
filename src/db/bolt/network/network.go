@@ -14,7 +14,7 @@
  * limitations under the License.
  *
  *******************************************************************************/
-package network
+  package network
 
 import (
 	"encoding/json"
@@ -26,13 +26,14 @@ import (
 const bucketName = "network"
 
 type Addr struct {
-	Wired map[string]string `json:"wired"`
+	Wired map[string]string    `json:"wired"`
 	Wireless map[string]string `json:"wireless"`
 }
 
 type NetworkInfo struct {
 	Id       string `json:"id"`
-	IPv4 Addr `json:"IPv4"`
+	IPv4 Addr       `json:"IPv4"`
+	RTT float64     `json:"RTT"`
 	// IPv4Wired map[string]string `json:"IPv4Wired"`
 	// IPv4Wireless map[string]string `json:"IPv4Wireless"`
 }
@@ -120,6 +121,7 @@ func (Query) Update(info NetworkInfo) error {
 		stored.IPv4.Wireless[k] = v
 	}
 
+	stored.RTT = info.RTT
 
 	encoded, err := stored.encode()
 	if err != nil {
@@ -135,8 +137,9 @@ func (Query) Delete(id string) error {
 
 func (info NetworkInfo) convertToMap() map[string]interface{} {
 	return map[string]interface{}{
-		"id":            info.Id,
-		"IPv4":      info.IPv4,
+		"id":   info.Id,
+		"IPv4": info.IPv4,
+		"RTT":  info.RTT,
 	}
 }
 
