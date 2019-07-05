@@ -37,6 +37,7 @@ var (
 	TESTERR        error
 	TESTNEWIP      net.IP
 	TESTNEWWIREDIP net.IP
+	TESTNEWIPS     []net.IP
 	TESTIFINDEX    = 1
 
 	isCalledGetNetInfo bool
@@ -52,9 +53,6 @@ type addrstr struct {
 func (str addrstr) Network() string {
 	return str.name
 }
-func (str addrstr) String() string {
-	return str.addr
-}
 
 func init() {
 	TESTERR = errors.New("ERROR")
@@ -62,6 +60,7 @@ func init() {
 	TESTNETIFLIST = append(TESTNETIFLIST, TESTNETIF)
 	TESTNEWIP = net.ParseIP("22.222.222.22")
 	TESTNEWWIREDIP = net.ParseIP("11.111.111.11")
+	TESTNEWIPS = []net.IP{TESTNEWIP}
 
 	network = GetInstance()
 }
@@ -104,7 +103,7 @@ func TestGetNetInterface(t *testing.T) {
 }
 
 func TestStartNetwork(t *testing.T) {
-
+	t.Skip()
 }
 
 func TestCheckConnectivity(t *testing.T) {
@@ -133,6 +132,7 @@ func TestGetOutboundIP(t *testing.T) {
 		if ip != TESTNEWIP.String() {
 			t.Error()
 		}
+
 	})
 	t.Run("Fail", func(t *testing.T) {
 		setFailCondOfNetInfo()
@@ -188,6 +188,7 @@ func TestSuccessSubAddrChange(t *testing.T) {
 	getNetworkInformationFP = MockGetNetworkInfo
 
 	isNewConnection := make(chan bool, 1)
+
 	det.EXPECT().AddrSubscribe(isNewConnection)
 
 	go subAddrChange(isNewConnection)
@@ -205,21 +206,21 @@ func TestNotify(t *testing.T) {
 	netInfo.addrInfos[0].isWired = true
 	netInfo.ipChans = nil
 
-	ConnectivityChan := make(chan net.IP, 1)
+	ConnectivityChan := make(chan []net.IP, 1)
 	netInfo.ipChans = append(netInfo.ipChans, ConnectivityChan)
 
-	var newip net.IP
+	var newIP []net.IP
 	wait.Add(1)
 
 	go func() {
-		newip = <-ConnectivityChan
+		newIP = <-ConnectivityChan
 		wait.Done()
 	}()
 
-	netInfo.Notify()
+	netInfo.Notify(TESTNEWIPS)
 	wait.Wait()
 
-	if newip.String() != TESTNEWIP.String() {
+	if reflect.DeepEqual(newIP, TESTNEWIPS) != true {
 		t.Error()
 	}
 }
@@ -238,6 +239,24 @@ func TestSuccessGetIP(t *testing.T) {
 
 	// @Note : Get Wired IP
 	if reflect.DeepEqual(netInfo.GetIP(), TESTNEWWIREDIP) != true {
+		t.Error()
+	}
+}
+
+func TestSuccessGetIPs(t *testing.T) {
+	netInfo.addrInfos = make([]addrInformation, 2)
+	for _, addInfo := range netInfo.addrInfos {
+		addInfo.macAddr = TESTMAC
+	}
+
+	netInfo.addrInfos[0].isWired = true
+	netInfo.addrInfos[1].isWired = false
+
+	netInfo.addrInfos[0].ipv4 = TESTNEWWIREDIP
+	netInfo.addrInfos[1].ipv4 = TESTNEWIP
+
+	if reflect.DeepEqual(
+		netInfo.GetIPs(), []net.IP{TESTNEWWIREDIP, TESTNEWIP}) != true {
 		t.Error()
 	}
 }

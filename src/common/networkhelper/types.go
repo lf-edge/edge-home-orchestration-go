@@ -25,7 +25,7 @@ import (
 type networkInformation struct {
 	addrInfos    []addrInformation
 	netInterface []net.Interface
-	ipChans      []chan net.IP
+	ipChans      []chan []net.IP
 	netError     error
 }
 
