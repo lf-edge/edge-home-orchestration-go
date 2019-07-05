@@ -26,17 +26,15 @@ import (
 // Define Orchestration Error
 const (
 	ErrorNotReadyOrchestrationInit = ((1 + iota) ^ -1) + 1
-	ErrorTurnOffWifi
-	ErrorDisconnectWifi
 	ErrorNoDeviceReturn
+	ErrorNoNetworkInterface
 )
 
 var orchestrationErrorString = [...]string{
 	"",
 	"Please wait until Orchestration init function has been completed",
-	"Please Turn On Wifi",
-	"Please Connect Wifi",
 	"No Device Is Return",
+	"No Network Interface",
 }
 
 // ToString converts error const to string
