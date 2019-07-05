@@ -19,13 +19,14 @@
 package networkhelper
 
 import (
-	//	"errors"
 	"log"
 	"net"
 	"os"
 	"path/filepath"
 	"strings"
 
+	"common/errormsg"
+	"common/errors"
 	"common/networkhelper/detector"
 )
 
@@ -117,6 +118,14 @@ func getNetworkInformation() {
 func setAddrInfo(ifaces []net.Interface) (err error) {
 	netDirPathPrefix := "/sys/class/net/"
 
+	if len(ifaces) == 0 {
+		err = errors.NetworkError{
+			Message: errormsg.ToString(errormsg.ErrorNoNetworkInterface)}
+		netInfo.netError = err
+
+		return
+	}
+
 	addrInfos := make([]addrInformation, 1)
 	for _, i := range ifaces {
 		path, _ := filepath.EvalSymlinks(netDirPathPrefix + i.Name)
@@ -145,6 +154,7 @@ func setAddrInfo(ifaces []net.Interface) (err error) {
 
 	netInfo.netInterface = ifaces
 	netInfo.addrInfos = addrInfos
+	netInfo.netError = nil
 
 	return
 }
@@ -153,10 +163,13 @@ func subAddrChange(isNewConnection chan bool) {
 	go detectorIns.AddrSubscribe(isNewConnection)
 	for {
 		select {
-		case ConnectionDetected := <-isNewConnection:
-			if ConnectionDetected {
+		// @Note : If network status is changed, need to update network information
+		case <-isNewConnection:
+			// case ConnectionDetected := <-isNewConnection:
+			/*if ConnectionDetected {
 				getNetworkInformationFP()
-			}
+			}*/
+			getNetworkInformationFP()
 		}
 	}
 	//apply detectorIns.Done when normal termination
