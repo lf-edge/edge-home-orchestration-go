@@ -83,11 +83,6 @@ func (Query) GetList() ([]ServiceInfo, error) {
 }
 
 func (Query) Set(info ServiceInfo) error {
-	_, err := db.Get([]byte(info.Id))
-	if err == nil {
-		return errors.DBOperationError{Message: string(info.Id) + " : already exist id"}
-	}
-
 	encoded, err := info.encode()
 	if err != nil {
 		return err

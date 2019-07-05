@@ -82,11 +82,6 @@ func (Query) GetList() ([]Configuration, error) {
 }
 
 func (Query) Set(conf Configuration) error {
-	_, err := db.Get([]byte(conf.Id))
-	if err == nil {
-		return errors.DBOperationError{Message: string(conf.Id) + " : already exist id"}
-	}
-
 	encoded, err := conf.encode()
 	if err != nil {
 		return err
