@@ -101,7 +101,7 @@ Usage:
 --------------------------------------------------------------------------------------
   ./build.sh                  : build edge-orchestration by default container
   ./build.sh container        : build Docker container as build system environmet
-
+  ./build.sh object           : build edge-orchestration archive for c and java
   ./build.sh clean            : build clean
   ./build.sh test [PKG_NAME]  : run unittests (optional for PKG_NAME)
 --------------------------------------------------------------------------------------
