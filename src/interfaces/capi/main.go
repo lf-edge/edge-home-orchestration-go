@@ -57,7 +57,7 @@ import (
 	"controller/discoverymgr"
 	scoringmgr "controller/scoringmgr"
 	"controller/servicemgr"
-	"controller/servicemgr/executor/containerexecutor"
+	"controller/servicemgr/executor/nativeexecutor"
 
 	"orchestrationapi"
 
@@ -112,7 +112,7 @@ func OrchestrationInit() (errCode C.int) {
 	builder.SetDiscovery(discoverymgr.GetInstance())
 	builder.SetScoring(scoringmgr.GetInstance())
 	builder.SetService(servicemgr.GetInstance())
-	builder.SetExecutor(containerexecutor.GetInstance())
+	builder.SetExecutor(nativeexecutor.GetInstance())
 	builder.SetClient(restIns)
 	orcheEngine = builder.Build()
 	if orcheEngine == nil {
