@@ -53,7 +53,7 @@ import (
 
 	"common/logmgr"
 
-	configuremgr "controller/configuremgr/container"
+	configuremgr "controller/configuremgr/native"
 	"controller/discoverymgr"
 	scoringmgr "controller/scoringmgr"
 	"controller/servicemgr"
@@ -71,7 +71,7 @@ const logPrefix = "interface"
 
 // Handle Platform Dependencies
 const (
-	platform      = "container"
+	platform      = "linux"
 	executionType = "rpm"
 
 	logPath = "/var/log/edge-orchestration"
