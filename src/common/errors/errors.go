@@ -52,7 +52,7 @@ type NotFound struct {
 	Message string
 }
 
-// Error sets an error message of system error
+// Error sets an error message of not found error
 func (e NotFound) Error() string {
 	return "not found error : " + e.Message
 }
@@ -62,7 +62,17 @@ type DBOperationError struct {
 	Message string
 }
 
-// Error sets an error message of system error
+// Error sets an error message of db operation error
 func (e DBOperationError) Error() string {
 	return "db operation error : " + e.Message
+}
+
+// NetworkError is error related with network operation
+type NetworkError struct {
+	Message string
+}
+
+// Error sets an error message of network error
+func (e NetworkError) Error() string {
+	return "network error : " + e.Message
 }

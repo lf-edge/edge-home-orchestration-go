@@ -65,9 +65,8 @@ func TestRequestService(t *testing.T) {
 		oche.Ready = true
 
 		handle := oche.RequestService(appName, args)
-		if handle == errormsg.ErrorDisconnectWifi ||
-			handle == errormsg.ErrorNotReadyOrchestrationInit ||
-			handle == errormsg.ErrorTurnOffWifi {
+		if handle == errormsg.ErrorNotReadyOrchestrationInit ||
+			handle == errormsg.ErrorNoNetworkInterface {
 			t.Error("unexpected handle")
 		}
 	})
@@ -89,7 +88,7 @@ func TestRequestService(t *testing.T) {
 		t.Run("DiscoveryFail", func(t *testing.T) {
 			gomock.InOrder(
 				mockService.EXPECT().SetLocalServiceExecutor(mockExecutor),
-				mockDiscovery.EXPECT().GetDeviceIPListWithService(gomock.Eq(appName)).Return(nil, errors.New("-2")),
+				mockDiscovery.EXPECT().GetDeviceIPListWithService(gomock.Eq(appName)).Return(nil, errors.New("-3")),
 			)
 			o := getOcheIns(ctrl)
 			if o == nil {
@@ -101,9 +100,8 @@ func TestRequestService(t *testing.T) {
 			oche.Ready = true
 
 			handle := oche.RequestService(appName, args)
-			if handle != errormsg.ErrorTurnOffWifi &&
-				handle != errormsg.ErrorDisconnectWifi {
-				t.Logf("expect error %d or %d", errormsg.ErrorTurnOffWifi, errormsg.ErrorDisconnectWifi)
+			if handle != errormsg.ErrorNoNetworkInterface {
+				t.Logf("expect error %d", errormsg.ErrorNoNetworkInterface)
 				t.Logf("actual %d", handle)
 				t.Error("unexpected handle")
 			}

@@ -19,13 +19,14 @@
 package networkhelper
 
 import (
-	//	"errors"
 	"log"
 	"net"
 	"os"
 	"path/filepath"
 	"strings"
 
+	"common/errormsg"
+	"common/errors"
 	"common/networkhelper/detector"
 )
 
@@ -169,6 +170,7 @@ func setAddrInfo(ifaces []net.Interface) (err error) {
 
 	netInfo.netInterface = filterIfaces
 	netInfo.addrInfos = addrInfos
+	netInfo.netError = nil
 
 	return
 }
