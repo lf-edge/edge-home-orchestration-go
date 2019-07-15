@@ -110,11 +110,11 @@ func TestStartDiscovery(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		//declare mock argument
 		devicesubchan := make(chan *wrapper.Entity, 1)
-		ipsub := make(chan net.IP, 1)
+		ipsub := make(chan []net.IP, 1)
 
 		mockNetwork.EXPECT().AppendSubscriber().Return(ipsub)
 		mockNetwork.EXPECT().StartNetwork().Return()
-		mockNetwork.EXPECT().GetOutboundIP().Return(defaultIPv4, nil)
+		mockNetwork.EXPECT().GetIPs().Return(defaultIPv4List, nil)
 		mockNetwork.EXPECT().GetNetInterface().Return(nil, nil)
 		mockWrapper.EXPECT().RegisterProxy(gomock.Any(), gomock.Any(),
 			gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(),
@@ -542,18 +542,18 @@ func TestDetectNetworkChgRoutine(t *testing.T) {
 	discoverymgrInfo.shutdownChan = make(chan struct{})
 	defer close(discoverymgrInfo.shutdownChan)
 	//set mock in order
-	ipsub := make(chan net.IP, 1)
+	ipsub := make(chan []net.IP, 1)
 	mockNetwork.EXPECT().AppendSubscriber().Return(ipsub)
 	mockWrapper.EXPECT().ResetServer(gomock.Any()).Return()
 	go detectNetworkChgRoutine()
 	t.Run("Success", func(t *testing.T) {
 		discoverymgrInfo.deviceID = "foo"
-		ipsub <- net.ParseIP("192.0.2.1")
+		ipsub <- []net.IP{net.ParseIP("192.0.2.1")}
 	})
 	time.Sleep(1 * time.Second)
 	t.Run("Fail", func(t *testing.T) {
 		discoverymgrInfo.deviceID = ""
-		ipsub <- net.ParseIP("192.0.2.1")
+		ipsub <- []net.IP{net.ParseIP("192.0.2.1")}
 	})
 }
 

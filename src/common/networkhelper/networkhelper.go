@@ -42,9 +42,10 @@ type Network interface {
 	StartNetwork()
 	CheckConnectivity() error
 	GetOutboundIP() (string, error)
+	GetIPs() ([]string, error)
 	GetMACAddress() (string, error)
 	GetNetInterface() ([]net.Interface, error)
-	AppendSubscriber() chan net.IP
+	AppendSubscriber() chan []net.IP
 }
 
 func init() {
@@ -61,7 +62,10 @@ func GetInstance() Network {
 func (networkImpl) StartNetwork() {
 	getNetworkInformationFP()
 
+	netInfo.Notify(netInfo.GetIPs())
+
 	isNewConnection := make(chan bool, 1)
+
 	go subAddrChange(isNewConnection)
 }
 
@@ -77,6 +81,18 @@ func (networkImpl) GetOutboundIP() (string, error) {
 		return ip.String(), nil
 	}
 	return "", netInfo.netError
+}
+
+// GetOutboundIP returns IPv4 addresses
+func (networkImpl) GetIPs() ([]string, error) {
+	ipsStr := make([]string, 0)
+	if netInfo.netError == nil {
+		ips := netInfo.GetIPs()
+		for _, ip := range ips {
+			ipsStr = append(ipsStr, ip.String())
+		}
+	}
+	return ipsStr, netInfo.netError
 }
 
 //GetMACAddress returns MAC address
@@ -96,8 +112,8 @@ func (networkImpl) GetNetInterface() ([]net.Interface, error) {
 }
 
 // AppendSubscriber appends subscriber
-func (networkImpl) AppendSubscriber() chan net.IP {
-	ipChan := make(chan net.IP, 1)
+func (networkImpl) AppendSubscriber() chan []net.IP {
+	ipChan := make(chan []net.IP, 1)
 
 	netInfo.ipChans = append(netInfo.ipChans, ipChan)
 
@@ -111,8 +127,6 @@ func getNetworkInformation() {
 	if err != nil {
 		return
 	}
-
-	netInfo.Notify()
 }
 
 func setAddrInfo(ifaces []net.Interface) (err error) {
@@ -126,7 +140,8 @@ func setAddrInfo(ifaces []net.Interface) (err error) {
 		return
 	}
 
-	addrInfos := make([]addrInformation, 1)
+	var filterIfaces []net.Interface
+	var addrInfos []addrInformation
 	for _, i := range ifaces {
 		path, _ := filepath.EvalSymlinks(netDirPathPrefix + i.Name)
 		if checkVirtualNet(path) {
@@ -148,11 +163,12 @@ func setAddrInfo(ifaces []net.Interface) (err error) {
 				addrInfo.isWired = checkWiredNet(netDirPathPrefix + i.Name)
 
 				addrInfos = append(addrInfos, addrInfo)
+				filterIfaces = append(filterIfaces, i)
 			}
 		}
 	}
 
-	netInfo.netInterface = ifaces
+	netInfo.netInterface = filterIfaces
 	netInfo.addrInfos = addrInfos
 	netInfo.netError = nil
 
@@ -164,12 +180,10 @@ func subAddrChange(isNewConnection chan bool) {
 	for {
 		select {
 		// @Note : If network status is changed, need to update network information
-		case <-isNewConnection:
-			// case ConnectionDetected := <-isNewConnection:
-			/*if ConnectionDetected {
-				getNetworkInformationFP()
-			}*/
+		case ConnectionDetected := <-isNewConnection:
+			log.Println(logPrefix, ConnectionDetected)
 			getNetworkInformationFP()
+			netInfo.Notify(netInfo.GetIPs())
 		}
 	}
 	//apply detectorIns.Done when normal termination
@@ -179,7 +193,6 @@ func checkWiredNet(path string) (isWired bool) {
 	if _, err := os.Stat(path + "/wireless"); os.IsNotExist(err) {
 		isWired = true
 	}
-	log.Println(path, isWired)
 
 	return
 }
@@ -188,16 +201,14 @@ func checkVirtualNet(path string) bool {
 	return strings.Contains(path, "virtual")
 }
 
-func (netInfo *networkInformation) Notify() {
+func (netInfo *networkInformation) Notify(ips []net.IP) {
 	if len(netInfo.addrInfos) == 0 {
 		return
 	}
 
-	ipv4 := netInfo.GetIP()
-
 	for _, sub := range netInfo.ipChans {
 		select {
-		case sub <- ipv4:
+		case sub <- ips:
 		default:
 			log.Println(logPrefix, "[notify] ", "subchan is not receiving")
 		}
@@ -206,7 +217,7 @@ func (netInfo *networkInformation) Notify() {
 
 func (netInfo *networkInformation) GetIP() (ipv4 net.IP) {
 	for _, addrInfo := range netInfo.addrInfos {
-		// @Note : ethernet network have a prior
+		// @Note : ethernet network have a priority
 		if addrInfo.isWired {
 			return addrInfo.ipv4
 		}
@@ -215,4 +226,13 @@ func (netInfo *networkInformation) GetIP() (ipv4 net.IP) {
 	}
 
 	return ipv4
+}
+
+func (netInfo *networkInformation) GetIPs() []net.IP {
+	ips := make([]net.IP, 0)
+	for _, addrInfo := range netInfo.addrInfos {
+		ips = append(ips, addrInfo.ipv4)
+	}
+
+	return ips
 }

@@ -276,20 +276,18 @@ func (discoveryImpl) ResetServiceName() {
 }
 
 func detectNetworkChgRoutine() {
-	ip := networkIns.AppendSubscriber()
+	ips := networkIns.AppendSubscriber()
 
 	for {
 		select {
 		case <-discoverymgrInfo.shutdownChan:
 			return
-		case newIP := <-ip:
-			var ips []net.IP
-			ips = append(ips, newIP)
+		case latestIPs := <-ips:
 			err := serverPresenceChecker()
 			if err != nil {
 				continue
 			}
-			discoverymgrInfo.wrapperIns.ResetServer(ips)
+			discoverymgrInfo.wrapperIns.ResetServer(latestIPs)
 		}
 	}
 }
@@ -358,20 +356,20 @@ func setDeviceArgument(deviceUUID string) (deviceID string, hostName string, Tex
 }
 
 func setNetwotkArgument() (hostIPAddr []string, netIface []net.Interface) {
-	var ip string
+	var ip []string
 	var err error
 	// TODO : change to channel
 	for {
-		ip, err = networkIns.GetOutboundIP()
+		ip, err = networkIns.GetIPs()
 		if len(ip) != 0 {
 			break
 		}
 		log.Println(logPrefix, errormsg.ToString(err))
 		time.Sleep(1 * time.Second)
 	}
-	log.Println(logPrefix + " ip : " + ip)
+	log.Println(logPrefix, ip)
 
-	hostIPAddr = append(hostIPAddr, ip)
+	hostIPAddr = ip
 
 	netIface, _ = networkIns.GetNetInterface()
 
