@@ -18,13 +18,13 @@
 package discoverymgr
 
 import (
-	"errors"
 	"io/ioutil"
 	"log"
 	"net"
 	"time"
 
 	errormsg "common/errormsg"
+	errors "common/errors"
 	networkhelper "common/networkhelper"
 	wrapper "controller/discoverymgr/wrapper"
 
@@ -48,10 +48,12 @@ type Discovery interface {
 
 type discoveryImpl struct{}
 
-var discoverymgrInfo discoverymgrInformation
+var (
+	discoverymgrInfo discoverymgrInformation
 
-var discoveryIns discoveryImpl
-var networkIns networkhelper.Network
+	discoveryIns discoveryImpl
+	networkIns   networkhelper.Network
+)
 
 func init() {
 	discoverymgrInfo.wrapperIns = wrapper.GetZeroconfImpl()
@@ -107,7 +109,7 @@ func (discoveryImpl) GetDeviceList() (ExportDeviceMap, error) {
 		ret[key] = *value
 	}
 	if len(ret) == 0 {
-		err := errormsg.ToError(errormsg.ErrorNoDeviceReturn)
+		err := errors.NotFound{Message: errormsg.ToString(errormsg.ErrorNoDeviceReturn)}
 		return nil, err
 	}
 
@@ -129,7 +131,7 @@ func (discoveryImpl) GetDeviceIPListWithService(targetService string) ([]string,
 		}
 	}
 	if len(ret) == 0 {
-		err = errormsg.ToError(errormsg.ErrorNoDeviceReturn)
+		err = errors.NotFound{Message: errormsg.ToString(errormsg.ErrorNoDeviceReturn)}
 		return nil, err
 	}
 
@@ -152,7 +154,7 @@ func (discoveryImpl) GetDeviceListWithService(targetService string) (ExportDevic
 	}
 
 	if len(ret) == 0 {
-		err = errormsg.ToError(errormsg.ErrorNoDeviceReturn)
+		err = errors.NotFound{Message: errormsg.ToString(errormsg.ErrorNoDeviceReturn)}
 		return nil, err
 	}
 
@@ -171,7 +173,7 @@ func (discoveryImpl) GetDeviceWithID(ID string) (ExportDeviceMap, error) {
 		ret[ID] = *value
 		return ret, nil
 	}
-	err = errormsg.ToError(errormsg.ErrorNoDeviceReturn)
+	err = errors.NotFound{Message: errormsg.ToString(errormsg.ErrorNoDeviceReturn)}
 	return nil, err
 }
 
@@ -400,10 +402,16 @@ func deviceDetectionRoutine() {
 				}
 				deviceID, deviceInfo := convertwrappertoDB(*data)
 
-				if _, isPresent := discoverymgrInfo.orchestrationMap[deviceID]; isPresent {
+				// @TODO : check locking logic
+				discoverymgrInfo.mapMTX.Lock()
+				_, isPresent := discoverymgrInfo.orchestrationMap[deviceID]
+				discoverymgrInfo.mapMTX.Unlock()
+
+				if isPresent {
 					updateInfoHandler(deviceID, deviceInfo)
 					continue
 				}
+
 				newDeviceHandler(deviceID, deviceInfo)
 
 				// case default:
@@ -415,7 +423,7 @@ func deviceDetectionRoutine() {
 
 func serverPresenceChecker() error {
 	if len(discoverymgrInfo.deviceID) == 0 {
-		return errors.New("no server initiated yet")
+		return errors.SystemError{Message: "no server initiated yet"}
 	}
 	return nil
 }
@@ -428,10 +436,10 @@ func shutdownDiscoverymgr() {
 
 func serviceNameChecker(serviceName string) error {
 	if serviceName == "" {
-		return errors.New("no argument")
+		return errors.InvalidParam{Message: "no argument"}
 	}
 	if serviceName == discoverymgrInfo.platform || serviceName == discoverymgrInfo.executionType {
-		return errors.New("cannot change fixed field")
+		return errors.InvalidParam{Message: "cannot change fixed field"}
 	}
 	return nil
 }
@@ -440,7 +448,7 @@ func appendServiceToTXT(serviceName string) ([]string, error) {
 	serverTXT := discoverymgrInfo.wrapperIns.GetText()
 	for _, str := range serverTXT {
 		if str == serviceName {
-			return nil, errors.New("service name duplicated")
+			return nil, errors.InvalidParam{Message: "service name duplicated"}
 		}
 	}
 	serverTXT = append(serverTXT, serviceName)
@@ -454,7 +462,7 @@ func mdnsTXTSizeChecker(serverTXT []string) error {
 	}
 	log.Println(logPrefix, "[mdnsTXTSizeChecker] size :: ", TXTSize, " Bytes")
 	if TXTSize > maxTXTSize {
-		return errors.New("TXT Size is Too much for mDNS TXT - 400B")
+		return errors.InvalidParam{Message: "TXT Size is Too much for mDNS TXT - 400B"}
 	}
 	return nil
 }
@@ -469,7 +477,7 @@ func getIndexToDelete(serverTXT []string, serviceName string) (idxToDel int, err
 	}
 
 	if idxToDel == -1 {
-		err = errors.New("no service found")
+		err = errors.SystemError{Message: "no service found"}
 	}
 	return
 }

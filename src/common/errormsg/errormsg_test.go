@@ -28,20 +28,20 @@ func TestErrorMsg(t *testing.T) {
 }
 
 func TestToString(t *testing.T) {
-	errString := ToString(ErrorTurnOffWifi)
-	assertEqualStr(t, errString, orchestrationErrorString[ErrorTurnOffWifi*(-1)])
+	errString := ToString(ErrorNoNetworkInterface)
+	assertEqualStr(t, errString, orchestrationErrorString[ErrorNoNetworkInterface*(-1)])
 
 	realErrString := ToString("string")
 	assertEqualStr(t, realErrString, "NOT SUPPORT TYPE")
 }
 
 func TestToInt(t *testing.T) {
-	err := ToError(ErrorTurnOffWifi)
+	err := ToError(ErrorNoNetworkInterface)
 	t.Log(ToString(err))
 
 	num := ToInt(err)
-	if num != ErrorTurnOffWifi {
-		t.Errorf("%d != %d", num, ErrorTurnOffWifi)
+	if num != ErrorNoNetworkInterface {
+		t.Errorf("%d != %d", num, ErrorNoNetworkInterface)
 	}
 }
 
