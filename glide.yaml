@@ -101,3 +101,4 @@ import:
   - package: github.com/spf13/pflag
     version: v1.0.3
   - package: github.com/boltdb/bolt
+    version: v1.3.1
