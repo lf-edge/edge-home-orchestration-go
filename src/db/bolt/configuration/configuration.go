@@ -26,7 +26,7 @@ import (
 const bucketName = "configuration"
 
 type Configuration struct {
-	Id       string `json:"id"`
+	ID       string `json:"id"`
 	Platform string `json:"platform"`
 	ExecType string `json:"executionType"`
 }
@@ -87,7 +87,7 @@ func (Query) Set(conf Configuration) error {
 		return err
 	}
 
-	err = db.Put([]byte(conf.Id), encoded)
+	err = db.Put([]byte(conf.ID), encoded)
 	if err != nil {
 		return err
 	}
@@ -95,7 +95,7 @@ func (Query) Set(conf Configuration) error {
 }
 
 func (Query) Update(conf Configuration) error {
-	data, err := db.Get([]byte(conf.Id))
+	data, err := db.Get([]byte(conf.ID))
 	if err != nil {
 		return errors.DBOperationError{Message: err.Error()}
 	}
@@ -113,7 +113,7 @@ func (Query) Update(conf Configuration) error {
 		return err
 	}
 
-	return db.Put([]byte(conf.Id), encoded)
+	return db.Put([]byte(conf.ID), encoded)
 }
 
 func (Query) Delete(id string) error {
@@ -122,7 +122,7 @@ func (Query) Delete(id string) error {
 
 func (conf Configuration) convertToMap() map[string]interface{} {
 	return map[string]interface{}{
-		"id":            conf.Id,
+		"id":            conf.ID,
 		"platform":      conf.Platform,
 		"executionType": conf.ExecType,
 	}

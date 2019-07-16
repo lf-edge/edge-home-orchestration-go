@@ -9,25 +9,26 @@ ignore:
   - common/networkhelper/detector
   - common/resourceutil
   - common/resourceutil/container
-  - common/resourceutil/tizen
+  - common/resourceutil/native
   - common/types/configuremgrtypes
   - common/types/servicemgrtypes
   - controller/configuremgr
   - controller/configuremgr/container
-  - controller/configuremgr/tizen
-  - controller/configuremgr/tizen/description
+  - controller/configuremgr/native
+  - controller/configuremgr/native/description
   - controller/discoverymgr
   - controller/discoverymgr/wrapper
   - controller/scoringmgr
   - controller/servicemgr
   - controller/servicemgr/executor
   - controller/servicemgr/executor/containerexecutor
-  - controller/servicemgr/executor/tizenexecutor
+  - controller/servicemgr/executor/nativeexecutor
   - controller/servicemgr/notification
   - db/bolt/common
   - db/bolt/configuration
   - db/bolt/network
   - db/bolt/service
+  - db/bolt/resource
   - db/bolt/wrapper
   - orchestrationapi
   - restinterface

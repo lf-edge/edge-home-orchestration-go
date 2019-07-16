@@ -22,7 +22,7 @@ import (
 	"testing"
 	"time"
 
-	cpuutil "github.com/shirou/gopsutil/cpu"
+	commoncpu "common/resourceutil/cpu"
 	memutil "github.com/shirou/gopsutil/mem"
 	netutil "github.com/vishvananda/netlink"
 )
@@ -55,18 +55,18 @@ var (
 
 	dummyCPUPercentResult = 10.0
 
-	dummpyCPUInfoStat1 = cpuutil.InfoStat{
+	dummpyCPUInfoStat1 = commoncpu.InfoStat{
 		Mhz: 3800.0,
 	}
 
-	dummpyCPUInfoStat2 = cpuutil.InfoStat{
+	dummpyCPUInfoStat2 = commoncpu.InfoStat{
 		Mhz: 3800.0,
 	}
 
 	dummyCPUFreqResult  = 3800.0
 	dummyCPUCountResult = 2.0
 
-	dummpyCPUInfoStatSlice = []cpuutil.InfoStat{
+	dummpyCPUInfoStatSlice = []commoncpu.InfoStat{
 		dummpyCPUInfoStat1,
 		dummpyCPUInfoStat2,
 	}
@@ -120,11 +120,11 @@ func fakeCPUPercentWithError(interval time.Duration, percpu bool) ([]float64, er
 	return dummyCPUPercent, errors.New("fakeCPUPercentWithError")
 }
 
-func fakeCPUInfo() ([]cpuutil.InfoStat, error) {
+func fakeCPUInfo() ([]commoncpu.InfoStat, error) {
 	return dummpyCPUInfoStatSlice, nil
 }
 
-func fakeCPUInfoWithError() ([]cpuutil.InfoStat, error) {
+func fakeCPUInfoWithError() ([]commoncpu.InfoStat, error) {
 	return dummpyCPUInfoStatSlice, errors.New("fakeCPUInfoWithError")
 }
 
