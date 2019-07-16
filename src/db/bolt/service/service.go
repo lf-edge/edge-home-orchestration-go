@@ -28,7 +28,7 @@ import (
 const bucketName = "service"
 
 type ServiceInfo struct {
-	Id       string   `json:"id"`
+	ID       string   `json:"id"`
 	Services []string `json:"services"`
 }
 
@@ -88,7 +88,7 @@ func (Query) Set(info ServiceInfo) error {
 		return err
 	}
 
-	err = db.Put([]byte(info.Id), encoded)
+	err = db.Put([]byte(info.ID), encoded)
 	if err != nil {
 		return err
 	}
@@ -96,7 +96,7 @@ func (Query) Set(info ServiceInfo) error {
 }
 
 func (Query) Update(info ServiceInfo) error {
-	data, err := db.Get([]byte(info.Id))
+	data, err := db.Get([]byte(info.ID))
 	if err != nil {
 		return errors.DBOperationError{Message: err.Error()}
 	}
@@ -117,7 +117,7 @@ func (Query) Update(info ServiceInfo) error {
 		return err
 	}
 
-	return db.Put([]byte(info.Id), encoded)
+	return db.Put([]byte(info.ID), encoded)
 }
 
 func (Query) Delete(id string) error {
@@ -126,7 +126,7 @@ func (Query) Delete(id string) error {
 
 func (info ServiceInfo) convertToMap() map[string]interface{} {
 	return map[string]interface{}{
-		"id":       info.Id,
+		"id":       info.ID,
 		"services": info.Services,
 	}
 }
