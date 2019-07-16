@@ -14,7 +14,7 @@
  * limitations under the License.
  *
  *******************************************************************************/
-  package network
+package network
 
 import (
 	"encoding/json"
@@ -25,17 +25,10 @@ import (
 
 const bucketName = "network"
 
-type Addr struct {
-	Wired map[string]string    `json:"wired"`
-	Wireless map[string]string `json:"wireless"`
-}
-
 type NetworkInfo struct {
-	Id       string `json:"id"`
-	IPv4 Addr       `json:"IPv4"`
-	RTT float64     `json:"RTT"`
-	// IPv4Wired map[string]string `json:"IPv4Wired"`
-	// IPv4Wireless map[string]string `json:"IPv4Wireless"`
+	ID   string   `json:"id"`
+	IPv4 []string `json:"IPv4"`
+	RTT  float64  `json:"RTT"`
 }
 
 type DBInterface interface {
@@ -94,7 +87,7 @@ func (Query) Set(info NetworkInfo) error {
 		return err
 	}
 
-	err = db.Put([]byte(info.Id), encoded)
+	err = db.Put([]byte(info.ID), encoded)
 	if err != nil {
 		return err
 	}
@@ -102,7 +95,7 @@ func (Query) Set(info NetworkInfo) error {
 }
 
 func (Query) Update(info NetworkInfo) error {
-	data, err := db.Get([]byte(info.Id))
+	data, err := db.Get([]byte(info.ID))
 	if err != nil {
 		return errors.DBOperationError{Message: err.Error()}
 	}
@@ -112,15 +105,7 @@ func (Query) Update(info NetworkInfo) error {
 		return err
 	}
 
-	//TODO: refactoring
-	for k, v := range info.IPv4.Wired {
-		stored.IPv4.Wired[k] = v
-	}
-
-	for k, v := range info.IPv4.Wireless {
-		stored.IPv4.Wireless[k] = v
-	}
-
+	stored.IPv4 = info.IPv4
 	stored.RTT = info.RTT
 
 	encoded, err := stored.encode()
@@ -128,7 +113,7 @@ func (Query) Update(info NetworkInfo) error {
 		return err
 	}
 
-	return db.Put([]byte(info.Id), encoded)
+	return db.Put([]byte(info.ID), encoded)
 }
 
 func (Query) Delete(id string) error {
@@ -137,7 +122,7 @@ func (Query) Delete(id string) error {
 
 func (info NetworkInfo) convertToMap() map[string]interface{} {
 	return map[string]interface{}{
-		"id":   info.Id,
+		"id":   info.ID,
 		"IPv4": info.IPv4,
 		"RTT":  info.RTT,
 	}
@@ -159,4 +144,3 @@ func decode(data []byte) (NetworkInfo, error) {
 	}
 	return info, nil
 }
-
