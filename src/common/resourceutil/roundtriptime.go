@@ -54,21 +54,16 @@ func processRTT() {
 			}
 
 			for _, netInfo := range netInfos {
-				totalCount := len(netInfo.IPv4.Wired) + len(netInfo.IPv4.Wireless)
+				totalCount := len(netInfo.IPv4)
 				ch := make(chan float64, totalCount)
-				for _, ip := range netInfo.IPv4.Wired {
-					go func(targetIP string) {
-						ch <- checkRTT(targetIP)
-					}(ip)
-				}
-				for _, ip := range netInfo.IPv4.Wireless {
+				for _, ip := range netInfo.IPv4 {
 					go func(targetIP string) {
 						ch <- checkRTT(targetIP)
 					}(ip)
 				}
 				go func(info db.NetworkInfo) {
 					result := selectMinRTT(ch, totalCount)
-					fmt.Println("devid : ", info.Id, ", result : ", result)
+					fmt.Println("devid : ", info.ID, ", result : ", result)
 					info.RTT = result
 					dbExecutor.Update(info)
 				}(netInfo)
