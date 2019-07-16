@@ -19,13 +19,14 @@
 package resourceutil
 
 import (
-	db "db/bolt/network"
 	"fmt"
-	"restinterface/resthelper"
-
 	"strconv"
 	"strings"
 	"time"
+
+	"restinterface/resthelper"
+
+	netDB "db/bolt/network"
 )
 
 const (
@@ -34,13 +35,13 @@ const (
 )
 
 var (
-	helper     resthelper.RestHelper
-	dbExecutor db.DBInterface
+	helper        resthelper.RestHelper
+	netDBExecutor netDB.DBInterface
 )
 
 func init() {
 	helper = resthelper.GetHelper()
-	dbExecutor = db.Query{}
+	netDBExecutor = netDB.Query{}
 
 	processRTT()
 }
@@ -48,7 +49,7 @@ func init() {
 func processRTT() {
 	go func() {
 		for {
-			netInfos, err := dbExecutor.GetList()
+			netInfos, err := netDBExecutor.GetList()
 			if err != nil {
 				return
 			}
@@ -61,11 +62,11 @@ func processRTT() {
 						ch <- checkRTT(targetIP)
 					}(ip)
 				}
-				go func(info db.NetworkInfo) {
+				go func(info netDB.NetworkInfo) {
 					result := selectMinRTT(ch, totalCount)
 					fmt.Println("devid : ", info.ID, ", result : ", result)
 					info.RTT = result
-					dbExecutor.Update(info)
+					netDBExecutor.Update(info)
 				}(netInfo)
 			}
 			time.Sleep(time.Duration(defaultRttDuration) * time.Second)
