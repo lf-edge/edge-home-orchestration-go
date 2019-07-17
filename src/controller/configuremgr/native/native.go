@@ -193,7 +193,6 @@ func getdirname(path string) (libPath, confPath string, err error) {
 		if _, err := os.Stat(confPath); err == nil {
 			break
 		}
-		log.Println(err)
 		time.Sleep(time.Second * 1)
 	}
 
@@ -201,7 +200,6 @@ func getdirname(path string) (libPath, confPath string, err error) {
 		if _, err := os.Stat(libPath); err == nil {
 			break
 		}
-		log.Println(err)
 		time.Sleep(time.Second * 1)
 	}
 
