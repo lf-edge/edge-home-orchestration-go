@@ -20,6 +20,7 @@ import (
 	"encoding/json"
 
 	"common/errors"
+	"db/bolt/common"
 	bolt "db/bolt/wrapper"
 )
 
@@ -105,8 +106,14 @@ func (Query) Update(info NetworkInfo) error {
 		return err
 	}
 
-	stored.IPv4 = info.IPv4
-	stored.RTT = info.RTT
+	for _, ip := range info.IPv4 {
+		if !common.HasElem(stored.IPv4, ip) {
+			stored.IPv4 = append(stored.IPv4, ip)
+		}
+	}
+	if info.RTT != 0.0 {
+		stored.RTT = info.RTT
+	}
 
 	encoded, err := stored.encode()
 	if err != nil {
