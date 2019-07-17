@@ -90,8 +90,6 @@ func Percent(interval time.Duration, percpu bool) ([]float64, error) {
 		cpuUsage = 0.0
 	}
 
-	log.Println(totald, idled, cpuUsage)
-
 	ticker.Stop()
 
 	if percpu {
