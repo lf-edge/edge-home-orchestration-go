@@ -22,11 +22,16 @@ import (
 	"io/ioutil"
 	"log"
 	"net"
+	"strings"
 	"time"
 
 	errormsg "common/errormsg"
 	networkhelper "common/networkhelper"
 	wrapper "controller/discoverymgr/wrapper"
+
+	configurationdb "db/bolt/configuration"
+	networkdb "db/bolt/network"
+	servicedb "db/bolt/service"
 
 	uuid "github.com/satori/go.uuid"
 )
@@ -37,7 +42,7 @@ type Discovery interface {
 	StopDiscovery()
 	GetDeviceList() (ExportDeviceMap, error)
 	GetDeviceIPListWithService(targetService string) ([]string, error)
-	GetDeviceListWithService(targetService string) (ExportDeviceMap, error)
+	// GetDeviceListWithService(targetService string) (ExportDeviceMap, error)
 	GetDeviceWithID(ID string) (ExportDeviceMap, error)
 	DeleteDeviceWithIP(targetIP string)
 	DeleteDeviceWithID(ID string)
@@ -50,8 +55,16 @@ type discoveryImpl struct{}
 
 var discoverymgrInfo discoverymgrInformation
 
-var discoveryIns discoveryImpl
-var networkIns networkhelper.Network
+var (
+	deviceID string
+
+	discoveryIns discoveryImpl
+	networkIns   networkhelper.Network
+
+	netQuery     networkdb.Query
+	confQuery    configurationdb.Query
+	serviceQuery servicedb.Query
+)
 
 func init() {
 	discoverymgrInfo.wrapperIns = wrapper.GetZeroconfImpl()
@@ -59,6 +72,10 @@ func init() {
 	discoverymgrInfo.shutdownChan = make(chan struct{})
 
 	networkIns = networkhelper.GetInstance()
+
+	confQuery = configurationdb.Query{}
+	netQuery = networkdb.Query{}
+	serviceQuery = servicedb.Query{}
 }
 
 // GetInstance returns discovery instaance
@@ -70,15 +87,13 @@ func GetInstance() Discovery {
 func (discoveryImpl) StartDiscovery(UUIDpath string, platform string, executionType string) (err error) {
 	networkIns.StartNetwork()
 
-	setDeviceInfo(platform, executionType)
-
 	UUIDStr, err := getDeviceID(UUIDpath)
 	if err != nil {
 		log.Print(logPrefix, "[StartDiscovery]", "UUID ", UUIDStr, " is Temporary")
 	}
 
 	// NOTE : startServer blocks until server is registered
-	startServer(UUIDStr)
+	startServer(UUIDStr, platform, executionType)
 
 	go detectNetworkChgRoutine()
 
@@ -99,13 +114,31 @@ func (discoveryImpl) StopDiscovery() {
 
 // GetDeviceList returns orchestration device info list
 func (discoveryImpl) GetDeviceList() (ExportDeviceMap, error) {
-	discoverymgrInfo.mapMTX.Lock()
-	defer discoverymgrInfo.mapMTX.Unlock()
+	items, err := confQuery.GetList()
+	if err != nil {
+		return nil, err
+	}
 
 	ret := make(ExportDeviceMap)
-	for key, value := range discoverymgrInfo.orchestrationMap {
-		ret[key] = *value
+	for _, item := range items {
+		netItems, err := netQuery.Get(item.ID)
+		if err != nil {
+			continue
+		}
+
+		serviceItems, err := serviceQuery.Get(item.ID)
+		if err != nil {
+			continue
+		}
+
+		deviceMap := OrchestrationInformation{
+			Platform: item.Platform, ExecutionType: item.ExecType,
+			IPv4: netItems.IPv4, ServiceList: serviceItems.Services}
+
+		ret[item.ID] = deviceMap
+
 	}
+
 	if len(ret) == 0 {
 		err := errormsg.ToError(errormsg.ErrorNoDeviceReturn)
 		return nil, err
@@ -114,20 +147,28 @@ func (discoveryImpl) GetDeviceList() (ExportDeviceMap, error) {
 	return ret, nil
 }
 
-// GetDeviceListWithService returns orchestration deviceIP list using service application name
+// GetDeviceIPListWithService returns orchestration deviceIP list using service application name
 func (discoveryImpl) GetDeviceIPListWithService(targetService string) ([]string, error) {
-	discoverymgrInfo.mapMTX.Lock()
-	defer discoverymgrInfo.mapMTX.Unlock()
-
 	var ret []string
-	var err error
-	for _, value := range discoverymgrInfo.orchestrationMap {
-		for _, val := range value.ServiceList {
-			if val == targetService {
-				ret = append(ret, value.IPv4...)
+
+	serviceItems, err := serviceQuery.GetList()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, item := range serviceItems {
+		for _, service := range item.Services {
+			if strings.Compare(service, targetService) == 0 {
+				netItems, err := netQuery.Get(item.ID)
+				if err != nil {
+					continue
+				}
+
+				ret = append(ret, netItems.IPv4...)
 			}
 		}
 	}
+
 	if len(ret) == 0 {
 		err = errormsg.ToError(errormsg.ErrorNoDeviceReturn)
 		return nil, err
@@ -137,27 +178,27 @@ func (discoveryImpl) GetDeviceIPListWithService(targetService string) ([]string,
 }
 
 // GetDeviceListWithService returns device info list using service application name
-func (discoveryImpl) GetDeviceListWithService(targetService string) (ExportDeviceMap, error) {
-	discoverymgrInfo.mapMTX.Lock()
-	defer discoverymgrInfo.mapMTX.Unlock()
+// func (discoveryImpl) GetDeviceListWithService(targetService string) (ExportDeviceMap, error) {
+// 	discoverymgrInfo.mapMTX.Lock()
+// 	defer discoverymgrInfo.mapMTX.Unlock()
 
-	ret := make(ExportDeviceMap)
-	var err error
-	for key, value := range discoverymgrInfo.orchestrationMap {
-		for _, val := range value.ServiceList {
-			if val == targetService {
-				ret[key] = *value
-			}
-		}
-	}
+// 	ret := make(ExportDeviceMap)
+// 	var err error
+// 	for key, value := range discoverymgrInfo.orchestrationMap {
+// 		for _, val := range value.ServiceList {
+// 			if val == targetService {
+// 				ret[key] = *value
+// 			}
+// 		}
+// 	}
 
-	if len(ret) == 0 {
-		err = errormsg.ToError(errormsg.ErrorNoDeviceReturn)
-		return nil, err
-	}
+// 	if len(ret) == 0 {
+// 		err = errormsg.ToError(errormsg.ErrorNoDeviceReturn)
+// 		return nil, err
+// 	}
 
-	return ret, nil
-}
+// 	return ret, nil
+// }
 
 // GetDeviceWithID returns device info using deviceID
 func (discoveryImpl) GetDeviceWithID(ID string) (ExportDeviceMap, error) {
@@ -177,39 +218,30 @@ func (discoveryImpl) GetDeviceWithID(ID string) (ExportDeviceMap, error) {
 
 // DeleteDevice deletes device info using deviceIP
 func (discoveryImpl) DeleteDeviceWithIP(targetIP string) {
-	discoverymgrInfo.mapMTX.Lock()
-	defer discoverymgrInfo.mapMTX.Unlock()
-
-	for key, val := range discoverymgrInfo.orchestrationMap {
-		for _, ipv4 := range val.IPv4 {
-			if discoverymgrInfo.deviceID == key {
-				continue
-			}
-			if targetIP == ipv4 {
-				delete(discoverymgrInfo.orchestrationMap, key)
-				return
-			}
-		}
-	}
-	log.Println(logPrefix, "[DeleteDeviceWithIP]", "Cannot Delete Self")
+	// @TODO Delete device with ip in DB
 }
 
 // DeleteDevice delete device using deviceID
 func (discoveryImpl) DeleteDeviceWithID(ID string) {
-	discoverymgrInfo.mapMTX.Lock()
-	defer discoverymgrInfo.mapMTX.Unlock()
-
-	if discoverymgrInfo.deviceID == ID {
-		log.Println(logPrefix, "[DeleteDeviceWithID]", "Cannot Delete Self")
-		return
+	// @Note Delete device with id in DB
+	err := confQuery.Delete(ID)
+	if err != nil {
+		log.Println(err.Error())
 	}
 
-	delete(discoverymgrInfo.orchestrationMap, ID)
+	err = netQuery.Delete(ID)
+	if err != nil {
+		log.Println(err.Error())
+	}
+
+	err = serviceQuery.Delete(ID)
+	if err != nil {
+		log.Println(err.Error())
+	}
 }
 
 // AddNewServiceName sets text field of mdns message with service application name
 func (discoveryImpl) AddNewServiceName(serviceName string) error {
-
 	err := serviceNameChecker(serviceName)
 	if err != nil {
 		return err
@@ -266,10 +298,20 @@ func (discoveryImpl) ResetServiceName() {
 		log.Println(logPrefix, "[ResetServiceName]", err)
 		return
 	}
-	discoverymgrInfo.orchestrationMap[discoverymgrInfo.deviceID].ServiceList = nil
+
+	serviceInfo := servicedb.ServiceInfo{ID: deviceID, Services: nil}
+	updateServiceDB(serviceInfo)
+
+	confItem, err := confQuery.Get(deviceID)
+	if err != nil {
+		log.Println(err.Error())
+		return
+	}
+
 	var serverTXT []string
-	serverTXT = append(serverTXT, discoverymgrInfo.orchestrationMap[discoverymgrInfo.deviceID].ExecutionType)
-	serverTXT = append(serverTXT, discoverymgrInfo.orchestrationMap[discoverymgrInfo.deviceID].Platform)
+	serverTXT = append(serverTXT, confItem.ExecType)
+	serverTXT = append(serverTXT, confItem.Platform)
+
 	setNewServiceList(serverTXT)
 }
 
@@ -283,6 +325,10 @@ func detectNetworkChgRoutine() {
 		case newIP := <-ip:
 			var ips []net.IP
 			ips = append(ips, newIP)
+
+			// @TODO set network db will be implemented in next commits,
+			// because change of networkhelper is not applied yet.
+
 			err := serverPresenceChecker()
 			if err != nil {
 				continue
@@ -315,15 +361,19 @@ func getDeviceID(UUIDPath string) (UUIDstr string, err error) {
 
 func setDeviceInfo(platform string, executionType string) {
 	log.Println(logPrefix, "Platform::", platform, " OnboardType::", executionType)
+
 	discoverymgrInfo.platform = platform
 	discoverymgrInfo.executionType = executionType
 }
 
-func startServer(deviceUUID string) {
-
+func startServer(deviceUUID string, platform string, executionType string) {
 	deviceDetectionRoutine()
 
-	deviceID, hostName, Text := setDeviceArgument(deviceUUID)
+	var hostName string
+	var Text []string
+
+	deviceID, hostName, Text = setDeviceArgument(deviceUUID, platform, executionType)
+	log.Println("deviceID", platform, executionType, deviceID)
 	hostIPAddr, netIface := setNetwotkArgument()
 	var myDeviceEntity wrapper.Entity
 
@@ -339,19 +389,22 @@ func startServer(deviceUUID string) {
 		break
 	}
 
-	deviceID, deviceInfo := convertwrappertoDB(myDeviceEntity)
-	newDeviceHandler(deviceID, deviceInfo)
-	discoverymgrInfo.deviceID = deviceID
+	// Set Configuration Information to configuration DB
+	_, confInfo, netInfo, serviceInfo := convertToDBInfo(myDeviceEntity)
+
+	setConfigurationDB(confInfo)
+	setNetworkDB(netInfo)
+	setServiceDB(serviceInfo)
 
 	return
 }
 
-func setDeviceArgument(deviceUUID string) (deviceID string, hostName string, Text []string) {
+func setDeviceArgument(deviceUUID string, platform string, executionType string) (deviceID string, hostName string, Text []string) {
 	deviceID = "edge-orchestration-" + deviceUUID
 	hostName = "edge-" + deviceUUID
 
-	Text = append(Text, discoverymgrInfo.platform)
-	Text = append(Text, discoverymgrInfo.executionType)
+	Text = append(Text, platform)
+	Text = append(Text, executionType)
 	return
 }
 
@@ -398,13 +451,13 @@ func deviceDetectionRoutine() {
 					deleteDevice(data.DeviceID)
 					continue
 				}
-				deviceID, deviceInfo := convertwrappertoDB(*data)
 
-				if _, isPresent := discoverymgrInfo.orchestrationMap[deviceID]; isPresent {
-					updateInfoHandler(deviceID, deviceInfo)
-					continue
-				}
-				newDeviceHandler(deviceID, deviceInfo)
+				_, confInfo, netInfo, serviceInfo := convertToDBInfo(*data)
+
+				// @Note Is it need to call Update API?
+				setConfigurationDB(confInfo)
+				setNetworkDB(netInfo)
+				setServiceDB(serviceInfo)
 
 				// case default:
 				//resource return
@@ -414,15 +467,17 @@ func deviceDetectionRoutine() {
 }
 
 func serverPresenceChecker() error {
-	if len(discoverymgrInfo.deviceID) == 0 {
+	list, _ := confQuery.GetList()
+	if len(list) == 0 {
 		return errors.New("no server initiated yet")
+
 	}
 	return nil
 }
 
 func shutdownDiscoverymgr() {
-	discoverymgrInfo.deviceID = ""
-	discoverymgrInfo.orchestrationMap = make(OrchestrationMap)
+	// discoverymgrInfo.deviceID = ""
+	// discoverymgrInfo.orchestrationMap = make(OrchestrationMap)
 	close(discoverymgrInfo.shutdownChan)
 }
 
@@ -477,68 +532,98 @@ func getIndexToDelete(serverTXT []string, serviceName string) (idxToDel int, err
 func setNewServiceList(serverTXT []string) {
 	if len(serverTXT) > 2 {
 		newServiceList := serverTXT[2:]
-		discoverymgrInfo.orchestrationMap[discoverymgrInfo.deviceID].ServiceList = newServiceList
+		serviceInfo := servicedb.ServiceInfo{ID: deviceID, Services: newServiceList}
+
+		updateServiceDB(serviceInfo)
 	}
+
 	discoverymgrInfo.wrapperIns.SetText(serverTXT)
-}
-
-func convertwrappertoDB(entity wrapper.Entity) (string, *OrchestrationInformation) {
-	data := entity.OrchestrationInfo
-	newdata := OrchestrationInformation{
-		IPv4:          data.IPv4,
-		Platform:      data.Platform,
-		ExecutionType: data.ExecutionType,
-		ServiceList:   data.ServiceList}
-
-	return entity.DeviceID, &newdata
-}
-
-// updateInfoHandler applies ip/text changes
-func updateInfoHandler(key string, data *OrchestrationInformation) {
-	// log.Println(logPrefix, "[updateInfoHandler]", key, data)
-	discoverymgrInfo.mapMTX.Lock()
-	defer discoverymgrInfo.mapMTX.Unlock()
-
-	if data.IPv4 != nil {
-		discoverymgrInfo.orchestrationMap[key].IPv4 = data.IPv4
-	}
-
-	if data.ServiceList != nil {
-		discoverymgrInfo.orchestrationMap[key].ServiceList = data.ServiceList
-	}
-
-	return
-}
-
-// newDeviceHandler updates key or adds new db
-func newDeviceHandler(key string, data *OrchestrationInformation) {
-	// log.Println(logPrefix, "[newDeviceHandler]", key, data)
-	discoverymgrInfo.mapMTX.Lock()
-	defer discoverymgrInfo.mapMTX.Unlock()
-
-	if data.IPv4 == nil {
-		return
-	}
-	discoverymgrInfo.orchestrationMap[key] = data
-}
-
-// DeleteDevice deletes device info by key
-func deleteDevice(key string) {
-	log.Println(logPrefix, "[deleteDevice]", key)
-	discoverymgrInfo.mapMTX.Lock()
-	defer discoverymgrInfo.mapMTX.Unlock()
-
-	delete(discoverymgrInfo.orchestrationMap, key)
 }
 
 // ClearMap makes map empty and only leaves my device info
 func clearMap() {
 	log.Println(logPrefix, "[clearMap]")
-	discoverymgrInfo.mapMTX.Lock()
-	defer discoverymgrInfo.mapMTX.Unlock()
-	myDeviceData := discoverymgrInfo.orchestrationMap[discoverymgrInfo.deviceID]
-	discoverymgrInfo.orchestrationMap = make(OrchestrationMap)
-	discoverymgrInfo.orchestrationMap[discoverymgrInfo.deviceID] = myDeviceData
+
+	confItems, err := confQuery.GetList()
+	if err != nil {
+		log.Println(logPrefix, err.Error())
+		return
+	}
+
+	for _, confItem := range confItems {
+		id := confItem.ID
+
+		if id != deviceID {
+			deleteDevice(id)
+		}
+	}
+}
+
+func convertToDBInfo(entity wrapper.Entity) (string, configurationdb.Configuration, networkdb.NetworkInfo, servicedb.ServiceInfo) {
+	data := entity.OrchestrationInfo
+
+	confInfo := configurationdb.Configuration{}
+	netInfo := networkdb.NetworkInfo{}
+	serviceInfo := servicedb.ServiceInfo{}
+
+	confInfo.ID = entity.DeviceID
+	confInfo.ExecType = data.ExecutionType
+	confInfo.Platform = data.Platform
+
+	netInfo.ID = entity.DeviceID
+	netInfo.IPv4 = data.IPv4
+
+	serviceInfo.ID = entity.DeviceID
+	serviceInfo.Services = data.ServiceList
+
+	return entity.DeviceID, confInfo, netInfo, serviceInfo
+}
+
+func setConfigurationDB(confInfo configurationdb.Configuration) {
+	err := confQuery.Set(confInfo)
+	if err != nil {
+		log.Println(logPrefix, err.Error())
+	}
+}
+
+func setNetworkDB(netInfo networkdb.NetworkInfo) {
+	err := netQuery.Set(netInfo)
+	if err != nil {
+		log.Println(logPrefix, err.Error())
+	}
+}
+
+func setServiceDB(serviceInfo servicedb.ServiceInfo) {
+	err := serviceQuery.Set(serviceInfo)
+	if err != nil {
+		log.Println(logPrefix, err.Error())
+	}
+}
+
+func updateServiceDB(serviceInfo servicedb.ServiceInfo) {
+	err := serviceQuery.Update(serviceInfo)
+	if err != nil {
+		log.Println(logPrefix, err.Error())
+	}
+}
+
+// DeleteDevice deletes device info by key
+func deleteDevice(deviceID string) {
+	log.Println(logPrefix, "[deleteDevice]", deviceID)
+	err := confQuery.Delete(deviceID)
+	if err != nil {
+		log.Println(err.Error())
+	}
+
+	err = netQuery.Delete(deviceID)
+	if err != nil {
+		log.Println(err.Error())
+	}
+
+	err = serviceQuery.Delete(deviceID)
+	if err != nil {
+		log.Println(err.Error())
+	}
 }
 
 // activeDiscovery calls advertise function of Zeroconf
