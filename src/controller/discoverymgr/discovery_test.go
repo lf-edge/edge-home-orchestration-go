@@ -24,6 +24,7 @@ import (
 	"time"
 
 	errormsg "common/errormsg"
+	errors "common/errors"
 	networkmocks "common/networkhelper/mocks"
 	wrapper "controller/discoverymgr/wrapper"
 	wrappermocks "controller/discoverymgr/wrapper/mocks"
@@ -69,6 +70,8 @@ var (
 			ServiceList:   anotherServiceList,
 		},
 	}
+
+	noDeviceReturnErr = errors.NotFound{Message: errormsg.ToString(errormsg.ErrorNoDeviceReturn)}
 )
 
 func createMockIns(ctrl *gomock.Controller) {
@@ -107,11 +110,11 @@ func TestStartDiscovery(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		//declare mock argument
 		devicesubchan := make(chan *wrapper.Entity, 1)
-		ipsub := make(chan net.IP, 1)
+		ipsub := make(chan []net.IP, 1)
 
 		mockNetwork.EXPECT().AppendSubscriber().Return(ipsub)
 		mockNetwork.EXPECT().StartNetwork().Return()
-		mockNetwork.EXPECT().GetOutboundIP().Return(defaultIPv4, nil)
+		mockNetwork.EXPECT().GetIPs().Return(defaultIPv4List, nil)
 		mockNetwork.EXPECT().GetNetInterface().Return(nil, nil)
 		mockWrapper.EXPECT().RegisterProxy(gomock.Any(), gomock.Any(),
 			gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(),
@@ -237,7 +240,8 @@ func TestGetDeviceIPListWithService(t *testing.T) {
 		failService := "NoServiceIsThisName"
 		t.Run("GetDeviceIPListWithService", func(t *testing.T) {
 			_, err := discoveryInstance.GetDeviceIPListWithService(failService)
-			if errormsg.ToInt(err) != errormsg.ErrorNoDeviceReturn {
+			log.Println(err)
+			if err != noDeviceReturnErr {
 				t.Error("Error is not generated : ", err)
 			}
 		})
@@ -271,7 +275,7 @@ func TestGetDeviceListWithService(t *testing.T) {
 		failService := "NoServiceIsThisName"
 		t.Run("GetDeviceListWithService", func(t *testing.T) {
 			_, err := discoveryInstance.GetDeviceListWithService(failService)
-			if errormsg.ToInt(err) != errormsg.ErrorNoDeviceReturn {
+			if err != noDeviceReturnErr {
 				t.Error("Error is not generated : ", err)
 			}
 		})
@@ -304,7 +308,7 @@ func TestGetDeviceWithID(t *testing.T) {
 		failID := "NoDeviceIsThisID"
 		t.Run("GetDeviceWithID", func(t *testing.T) {
 			_, err := discoveryInstance.GetDeviceWithID(failID)
-			if errormsg.ToInt(err) != errormsg.ErrorNoDeviceReturn {
+			if err != noDeviceReturnErr {
 				t.Error("Error is not generated : ", err)
 			}
 		})
@@ -538,18 +542,18 @@ func TestDetectNetworkChgRoutine(t *testing.T) {
 	discoverymgrInfo.shutdownChan = make(chan struct{})
 	defer close(discoverymgrInfo.shutdownChan)
 	//set mock in order
-	ipsub := make(chan net.IP, 1)
+	ipsub := make(chan []net.IP, 1)
 	mockNetwork.EXPECT().AppendSubscriber().Return(ipsub)
 	mockWrapper.EXPECT().ResetServer(gomock.Any()).Return()
 	go detectNetworkChgRoutine()
 	t.Run("Success", func(t *testing.T) {
 		discoverymgrInfo.deviceID = "foo"
-		ipsub <- net.ParseIP("192.0.2.1")
+		ipsub <- []net.IP{net.ParseIP("192.0.2.1")}
 	})
 	time.Sleep(1 * time.Second)
 	t.Run("Fail", func(t *testing.T) {
 		discoverymgrInfo.deviceID = ""
-		ipsub <- net.ParseIP("192.0.2.1")
+		ipsub <- []net.IP{net.ParseIP("192.0.2.1")}
 	})
 }
 

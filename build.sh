@@ -36,7 +36,6 @@ PKG_LIST=(
         "restinterface/route"
 )
 
-export VERSION=`grep -w "Version" $BASE_DIR/packaging/$RPM_SPEC_FILE | awk -F ':' '{print $2}' | tr -d ' '`
 export CONTAINER_VERSION="alpha"
 export BUILD_DATE=$(date +%Y%m%d.%H%M)
 
@@ -84,8 +83,8 @@ function install_prerequisite() {
     )
     idx=1
     for pkg in "${pkg_list[@]}"; do
-        echo -ne "(${idx}/${#pkg_list[@]}) go get $pkg"
-        go get $pkg
+        echo -ne "(${idx}/${#pkg_list[@]}) go get -u $pkg"
+        go get -u $pkg
         if [ $? -ne 0 ]; then
             echo -e "\n\033[31m"download fail"\033[0m"
             exit 1
@@ -103,18 +102,6 @@ function build_clean() {
     make clean
 }
 
-function build_clean_all() {
-    echo ""
-    echo "-----------------------------------"
-    echo " Build clean all"
-    echo "-----------------------------------"
-    arch_list=("x86" "x86-64" "arm" "aarch64")
-    for arch in "${arch_list[@]}"; do
-        export ARCH=$arch
-        make clean
-    done
-}
-
 function build_binary() {
     echo ""
     echo "----------------------------------------"
@@ -124,6 +111,16 @@ function build_binary() {
     export GOPATH=$BASE_DIR/GoMain:$GOPATH
     make build-binary || exit 1
 }
+
+function build_object() {
+    echo ""
+    echo "----------------------------------------"
+    echo " Create Static object of Orchestration"
+    echo "----------------------------------------"
+    make build-object-c || exit 1
+}
+
+
 
 function build_test() {
     echo ""
@@ -188,12 +185,86 @@ function draw_callvis() {
     go-callvis -http localhost:7010 -group pkg,type -nostd ./GoMain/src/main/main.go &
 }
 
+function build_object_x86() {
+    echo ""
+    echo ""
+    echo "**********************************"
+    echo " Target Binary arch is i386 "
+    echo "**********************************"
+    export GOARCH=386
+    export CC="gcc"
+    export ARCH=x86
+
+    build_object
+}
+
+function build_object_x86-64() {
+    echo ""
+    echo ""
+    echo "**********************************"
+    echo " Target Binary arch is amd64 "
+    echo "**********************************"
+    export GOARCH=amd64
+    export CC="gcc"
+    export ARCH=x86-64
+
+    build_object
+}
+
+function build_object_arm() {
+    echo ""
+    echo ""
+    echo "**********************************"
+    echo " Target Binary arch is armv7 "
+    echo "**********************************"
+    export GOARCH=arm GOARM=7
+    export CC="arm-linux-gnueabi-gcc"
+    export ARCH=arm
+
+    build_object
+}
+
+function build_object_aarch64() {
+    echo ""
+    echo ""
+    echo "**********************************"
+    echo " Target Binary arch is arm64 "
+    echo "**********************************"
+    export GOARCH=arm64
+    export CC="aarch64-linux-gnu-gcc"
+    export ARCH=aarch64
+
+    build_object
+}
+
+function build_object_result() {
+    echo ""
+    echo ""
+    echo "**********************************"
+    echo " Edge-orchestration Archive "
+    echo "**********************************"
+
+    make build-result
+}
+
 function build_clean_vendor() {
     echo ""
     echo "-------------------------------------"
     echo " Clean up 3rdParty directory"
     echo "-------------------------------------"
     make clean-tmp-packages
+}
+
+function build_android() {
+    echo ""
+    echo "**********************************"
+    echo " Target Binary is for Android "
+    echo "**********************************"
+    echo ""
+    echo "-------------------------------------------"
+    echo " Create Android archive from Java interface"
+    echo "-------------------------------------------"
+    make build-object-java || exit 1
 }
 
 function build_docker_container() {
@@ -251,6 +322,17 @@ case "$1" in
         build_docker_container
         run_docker_container
         ;;
+    "object")
+        install_prerequisite
+        install_3rdparty_packages
+        build_clean
+        build_android
+        build_object_x86
+        build_object_aarch64
+        build_object_arm
+        build_object_x86-64
+        build_object_result
+        ;;
     "test")
         install_prerequisite
         install_3rdparty_packages
@@ -266,7 +348,7 @@ case "$1" in
         draw_callvis
         ;;
     "clean")
-        build_clean_all
+        build_clean
         ;;
     "")
         install_prerequisite
@@ -281,7 +363,7 @@ case "$1" in
         echo "---------------------------------------------------------------------------"
         echo "  $0                  : build edge-orchestration by default container"
         echo "  $0 container        : build Docker container as build system environmet"
-        echo ""
+        echo "  $0 object           : build object (c-object, java-object)"
         echo "  $0 clean            : build clean"
         echo "  $0 test [PKG_NAME]  : run unittests (optional for PKG_NAME)"
         echo "---------------------------------------------------------------------------"

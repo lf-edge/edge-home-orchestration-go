@@ -24,11 +24,9 @@ src/controller/scoringmgr/mock_internal/myscoring2/libmyscoring2.so*
 
 # Output of build
 *.o
-CMain/bin/*
-CMain/unittest/out/*
 GoMain/bin/*
-JavaMain/lib/*
-JavaMain/output
+src/interfaces/capi/output
+src/interfaces/javaapi/output
 
 
 # Output of the go coverage tool, specifically when used with LiteIDE
