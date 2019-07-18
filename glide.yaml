@@ -24,6 +24,12 @@ ignore:
   - controller/servicemgr/executor/containerexecutor
   - controller/servicemgr/executor/nativeexecutor
   - controller/servicemgr/notification
+  - db/bolt/common
+  - db/bolt/configuration
+  - db/bolt/network
+  - db/bolt/service
+  - db/bolt/resource
+  - db/bolt/wrapper
   - orchestrationapi
   - restinterface
   - restinterface/cipher
@@ -94,3 +100,5 @@ import:
     version: v1.4.0
   - package: github.com/spf13/pflag
     version: v1.0.3
+  - package: github.com/boltdb/bolt
+    version: v1.3.1
