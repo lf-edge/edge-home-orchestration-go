@@ -15,24 +15,34 @@
  *
  *******************************************************************************/
 
-package networkhelper
+package resourceutil
 
-import (
-	"net"
-)
-
-// NetworkInformation structure
-type networkInformation struct {
-	addrInfos    []addrInformation
-	netInterface []net.Interface
-	ipChans      []chan []net.IP
-	netError     error
+// InvalidParam will be used for return case of error
+type InvalidParam struct {
+	Message string
 }
 
-type addrInformation struct {
-	isWired bool
-	ipv4    net.IP
-	macAddr string
+// Error sets an error message of invalid method
+func (e InvalidParam) Error() string {
+	return "invalid param : " + e.Message
 }
 
-const logPrefix = "[networkmgr]"
+// SystemError will be used for return case of error
+type SystemError struct {
+	Message string
+}
+
+// Error sets an error message of system error
+func (e SystemError) Error() string {
+	return "system error : " + e.Message
+}
+
+// NotSupport will be used for return case of error
+type NotSupport struct {
+	Message string
+}
+
+// Error sets an error message of not support error
+func (e NotSupport) Error() string {
+	return "not support error : " + e.Message
+}

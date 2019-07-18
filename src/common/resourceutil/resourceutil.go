@@ -24,8 +24,7 @@ import (
 	"time"
 
 	"common/errors"
-
-	cpuutil "github.com/shirou/gopsutil/cpu"
+	commoncpu "common/resourceutil/cpu"
 	memutil "github.com/shirou/gopsutil/mem"
 	netutil "github.com/vishvananda/netlink"
 )
@@ -35,7 +34,7 @@ type ResourceImpl struct{}
 
 type cpuUtil struct {
 	percent func(interval time.Duration, percpu bool) ([]float64, error)
-	info    func() ([]cpuutil.InfoStat, error)
+	info    func() ([]commoncpu.InfoStat, error)
 }
 
 type memUtil struct {
@@ -85,8 +84,8 @@ type GetResource interface {
 }
 
 func init() {
-	cpu.info = cpuutil.Info
-	cpu.percent = cpuutil.Percent
+	cpu.info = commoncpu.Info
+	cpu.percent = commoncpu.Percent
 	mem.virtualMemory = memutil.VirtualMemory
 	net.linkList = netutil.LinkList
 }

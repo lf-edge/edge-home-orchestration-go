@@ -15,24 +15,23 @@
  *
  *******************************************************************************/
 
-package networkhelper
+// Package confdescription defines the configuration informantion of service application
+package confdescription
 
-import (
-	"net"
-)
-
-// NetworkInformation structure
-type networkInformation struct {
-	addrInfos    []addrInformation
-	netInterface []net.Interface
-	ipChans      []chan []net.IP
-	netError     error
+// Doc has config info of each services
+type Doc struct {
+	Version struct {
+		ConfVersion string
+	}
+	ServiceInfo struct {
+		ServiceName string
+	}
+	ScoringMethod struct {
+		LibFile      string
+		FunctionName string
+	}
+	ResourceType struct {
+		IntervalTimeMs int
+		MaxCount       int
+	}
 }
-
-type addrInformation struct {
-	isWired bool
-	ipv4    net.IP
-	macAddr string
-}
-
-const logPrefix = "[networkmgr]"

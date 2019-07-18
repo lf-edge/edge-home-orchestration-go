@@ -69,7 +69,7 @@ $ docker run -it -d \
 
 ## How to build ##
 
-This project offers Docker image build as a defualt build option. 
+This project offers Docker image build as a default build option. 
 
 ```shell
 $ ./build.sh 
@@ -101,7 +101,7 @@ Usage:
 --------------------------------------------------------------------------------------
   ./build.sh                  : build edge-orchestration by default container
   ./build.sh container        : build Docker container as build system environmet
-
+  ./build.sh object           : build edge-orchestration archive for c and java
   ./build.sh clean            : build clean
   ./build.sh test [PKG_NAME]  : run unittests (optional for PKG_NAME)
 --------------------------------------------------------------------------------------
@@ -109,7 +109,7 @@ Usage:
  
 ## API Document ##
 Edge Orchestration provides only one REST API for its operation. Description for the APIs are stored in <root>/doc folder.
-- **[edge_orchestration_api.yaml](https://github.sec.samsung.net/RS7-EdgeComputing/edge-home-orchestration-go/blob/master/doc/edge_orchestration_api.yaml)**
+- **[edge_orchestration_api.yaml](./doc/edge_orchestration_api.yaml)**
 
 Note that you can visit [Swagger Editor](https://editor.swagger.io/) to graphically investigate the REST API in YAML.
 
