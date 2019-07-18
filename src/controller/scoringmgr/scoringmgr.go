@@ -20,8 +20,6 @@ package scoringmgr
 
 import (
 	"errors"
-	"log"
-	"time"
 
 	types "common/types/configuremgrtypes"
 )
@@ -37,20 +35,13 @@ type Scoring interface {
 	GetScore(name string) (scoreValue float64, err error)
 }
 
-type rating interface {
-	execute()
-}
-
 // ScoringImpl structure
 type ScoringImpl struct{}
 
 type rater struct {
 	types.ServiceInfo
 
-	devicesScore  map[string]float64
-	resourceCount int
-	scoreValue    float64
-	endSignal     chan bool
+	scoreValue float64
 }
 
 var (
@@ -83,12 +74,7 @@ func (ScoringImpl) AddScoring(service types.ServiceInfo) (err error) {
 
 	rater.ServiceInfo = service
 
-	rater.devicesScore = make(map[string]float64)
-	rater.endSignal = make(chan bool, 1024)
-
 	raters[rater.ServiceName] = rater
-
-	rater.execute()
 	return
 }
 
@@ -100,8 +86,6 @@ func (ScoringImpl) RemoveScoring(appName string) (err error) {
 		return
 	}
 	defer rater.ScoringFunc.Close()
-
-	rater.endSignal <- constLibStatusDone
 
 	delete(raters, appName)
 	return
@@ -123,34 +107,12 @@ func (s ScoringImpl) RemoveAllScoring() (err error) {
 
 // GetScore provides score value for specific application on local device
 func (ScoringImpl) GetScore(name string) (scoreValue float64, err error) {
-	scoreValue, err = getScoreLocalEnv(name)
-	return
-}
-
-func getScoreLocalEnv(name string) (scoreValue float64, err error) {
-	log.Println("[IN] getScoreLocalEnv")
 	rater, exist := raters[name]
 	if !exist {
 		err = errors.New("invalid library name")
 		return
 	}
 
-	scoreValue = rater.scoreValue
-	log.Println(logPrefix, "scoreValue : ", scoreValue)
+	scoreValue = rater.ScoringFunc.Run()
 	return
-}
-
-func (r *rater) execute() {
-	go func() {
-		for {
-			select {
-			case <-r.endSignal:
-				log.Println(logPrefix, "producer signal go routine die")
-				return
-			default:
-				r.scoreValue = r.ScoringFunc.Run()
-				time.Sleep(time.Duration(r.IntervalTimeMs) * time.Millisecond)
-			}
-		}
-	}()
 }
