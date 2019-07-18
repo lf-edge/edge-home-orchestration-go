@@ -56,9 +56,6 @@ type discoveryImpl struct{}
 
 var (
 	discoverymgrInfo discoverymgrInformation
-
-
-var (
 	discoveryIns discoveryImpl
 	networkIns   networkhelper.Network
 
