@@ -32,6 +32,7 @@ import (
 	configurationdb "db/bolt/configuration"
 	networkdb "db/bolt/network"
 	servicedb "db/bolt/service"
+	systemdb "db/bolt/system"
 
 	uuid "github.com/satori/go.uuid"
 )
@@ -56,13 +57,12 @@ type discoveryImpl struct{}
 var discoverymgrInfo discoverymgrInformation
 
 var (
-	deviceID string
-
 	discoveryIns discoveryImpl
 	networkIns   networkhelper.Network
 
-	netQuery     networkdb.Query
+	sysQuery     systemdb.Query
 	confQuery    configurationdb.Query
+	netQuery     networkdb.Query
 	serviceQuery servicedb.Query
 )
 
@@ -73,6 +73,7 @@ func init() {
 
 	networkIns = networkhelper.GetInstance()
 
+	sysQuery = systemdb.Query{}
 	confQuery = configurationdb.Query{}
 	netQuery = networkdb.Query{}
 	serviceQuery = servicedb.Query{}
@@ -87,7 +88,7 @@ func GetInstance() Discovery {
 func (discoveryImpl) StartDiscovery(UUIDpath string, platform string, executionType string) (err error) {
 	networkIns.StartNetwork()
 
-	UUIDStr, err := getDeviceID(UUIDpath)
+	UUIDStr, err := setDeviceID(UUIDpath)
 	if err != nil {
 		log.Print(logPrefix, "[StartDiscovery]", "UUID ", UUIDStr, " is Temporary")
 	}
@@ -299,6 +300,11 @@ func (discoveryImpl) ResetServiceName() {
 		return
 	}
 
+	deviceID, err := getDeviceID()
+	if err != nil {
+		return
+	}
+
 	serviceInfo := servicedb.ServiceInfo{ID: deviceID, Services: nil}
 	updateServiceDB(serviceInfo)
 
@@ -338,7 +344,7 @@ func detectNetworkChgRoutine() {
 	}
 }
 
-func getDeviceID(UUIDPath string) (UUIDstr string, err error) {
+func setDeviceID(UUIDPath string) (UUIDstr string, err error) {
 
 	UUIDv4, err := ioutil.ReadFile(UUIDPath)
 
@@ -359,6 +365,36 @@ func getDeviceID(UUIDPath string) (UUIDstr string, err error) {
 	return UUIDstr, err
 }
 
+func getDeviceID() (string, error) {
+	sysInfo, err := getSystemDB()
+	if err != nil {
+		log.Println(err.Error())
+		return "", err
+	}
+
+	return sysInfo.ID, nil
+}
+
+func getPlatform() (string, error) {
+	sysInfo, err := getSystemDB()
+	if err != nil {
+		log.Println(err.Error())
+		return "", err
+	}
+
+	return sysInfo.Platform, nil
+}
+
+func getExecType() (string, error) {
+	sysInfo, err := getSystemDB()
+	if err != nil {
+		log.Println(err.Error())
+		return "", err
+	}
+
+	return sysInfo.ExecType, nil
+}
+
 func setDeviceInfo(platform string, executionType string) {
 	log.Println(logPrefix, "Platform::", platform, " OnboardType::", executionType)
 
@@ -369,11 +405,12 @@ func setDeviceInfo(platform string, executionType string) {
 func startServer(deviceUUID string, platform string, executionType string) {
 	deviceDetectionRoutine()
 
-	var hostName string
-	var Text []string
+	deviceID, hostName, Text := setDeviceArgument(deviceUUID, platform, executionType)
 
-	deviceID, hostName, Text = setDeviceArgument(deviceUUID, platform, executionType)
-	log.Println("deviceID", platform, executionType, deviceID)
+	// @Note store system information(id, platform and execution type) to system db
+	sysInfo := systemdb.SystemInfo{ID: deviceID, Platform: platform, ExecType: executionType}
+	setSystemDB(sysInfo)
+
 	hostIPAddr, netIface := setNetwotkArgument()
 	var myDeviceEntity wrapper.Entity
 
@@ -532,6 +569,12 @@ func getIndexToDelete(serverTXT []string, serviceName string) (idxToDel int, err
 func setNewServiceList(serverTXT []string) {
 	if len(serverTXT) > 2 {
 		newServiceList := serverTXT[2:]
+
+		deviceID, err := getDeviceID()
+		if err != nil {
+			return
+		}
+
 		serviceInfo := servicedb.ServiceInfo{ID: deviceID, Services: newServiceList}
 
 		updateServiceDB(serviceInfo)
@@ -547,6 +590,11 @@ func clearMap() {
 	confItems, err := confQuery.GetList()
 	if err != nil {
 		log.Println(logPrefix, err.Error())
+		return
+	}
+
+	deviceID, err := getDeviceID()
+	if err != nil {
 		return
 	}
 
@@ -579,6 +627,13 @@ func convertToDBInfo(entity wrapper.Entity) (string, configurationdb.Configurati
 	return entity.DeviceID, confInfo, netInfo, serviceInfo
 }
 
+func setSystemDB(sysInfo systemdb.SystemInfo) {
+	err := sysQuery.Set(sysInfo)
+	if err != nil {
+		log.Println(logPrefix, err.Error())
+	}
+}
+
 func setConfigurationDB(confInfo configurationdb.Configuration) {
 	err := confQuery.Set(confInfo)
 	if err != nil {
@@ -598,6 +653,21 @@ func setServiceDB(serviceInfo servicedb.ServiceInfo) {
 	if err != nil {
 		log.Println(logPrefix, err.Error())
 	}
+}
+
+func getSystemDB() (sysInfo systemdb.SystemInfo, err error) {
+	sysInfos, err := sysQuery.GetList()
+	if err != nil {
+		log.Println(logPrefix, err.Error())
+	}
+
+	if len(sysInfos) != 0 {
+		sysInfo.ID = sysInfos[0].ID
+		sysInfo.Platform = sysInfos[0].Platform
+		sysInfo.ExecType = sysInfos[0].ExecType
+	}
+
+	return
 }
 
 func updateServiceDB(serviceInfo servicedb.ServiceInfo) {
