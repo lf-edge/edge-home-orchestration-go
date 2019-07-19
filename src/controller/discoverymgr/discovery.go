@@ -57,11 +57,6 @@ type discoveryImpl struct{}
 var (
 	discoveryIns discoveryImpl
 	networkIns   networkhelper.Network
-
-	sysQuery     systemdb.Query
-	confQuery    configurationdb.Query
-	netQuery     networkdb.Query
-	serviceQuery servicedb.Query
 )
 
 func init() {
@@ -219,19 +214,14 @@ func (discoveryImpl) DeleteDeviceWithIP(targetIP string) {
 // DeleteDevice delete device using deviceID
 func (discoveryImpl) DeleteDeviceWithID(ID string) {
 	// @Note Delete device with id in DB
-	err := confQuery.Delete(ID)
+	deviceID, err := getDeviceID()
 	if err != nil {
 		log.Println(err.Error())
+		return
 	}
 
-	err = netQuery.Delete(ID)
-	if err != nil {
-		log.Println(err.Error())
-	}
-
-	err = serviceQuery.Delete(ID)
-	if err != nil {
-		log.Println(err.Error())
+	if deviceID != ID {
+		deleteDevice(ID)
 	}
 }
 
@@ -264,7 +254,6 @@ func (discoveryImpl) AddNewServiceName(serviceName string) error {
 
 // RemoveServiceName removes text field of mdns message with service application name
 func (discoveryImpl) RemoveServiceName(serviceName string) error {
-
 	err := serviceNameChecker(serviceName)
 	if err != nil {
 		return err
@@ -276,6 +265,7 @@ func (discoveryImpl) RemoveServiceName(serviceName string) error {
 	}
 
 	serverTXT := wrapperIns.GetText()
+
 	idxToDel, err := getIndexToDelete(serverTXT, serviceName)
 	if err != nil {
 		return err
@@ -300,7 +290,7 @@ func (discoveryImpl) ResetServiceName() {
 	}
 
 	serviceInfo := servicedb.ServiceInfo{ID: deviceID, Services: nil}
-	updateServiceDB(serviceInfo)
+	setServiceDB(serviceInfo)
 
 	confItem, err := confQuery.Get(deviceID)
 	if err != nil {
@@ -328,13 +318,13 @@ func detectNetworkChgRoutine() {
 				continue
 			}
 
-			strIPs := make([]string, len(latestIPs))
+			var strIPs []string
 			for _, ip := range latestIPs {
 				strIPs = append(strIPs, ip.To4().String())
 			}
 
 			netInfo := networkdb.NetworkInfo{ID: id, IPv4: strIPs}
-			updateNetworkDB(netInfo)
+			setNetworkDB(netInfo)
 
 			err = serverPresenceChecker()
 			if err != nil {
@@ -374,6 +364,7 @@ func getDeviceID() (string, error) {
 		return "", err
 	}
 
+	log.Println(logPrefix, "[getDeviceID]", sysInfo.ID)
 	return sysInfo.ID, nil
 }
 
@@ -496,9 +487,8 @@ func deviceDetectionRoutine() {
 }
 
 func serverPresenceChecker() error {
-
-	list, _ := confQuery.GetList()
-	if len(list) == 0 {
+	_, err := getDeviceID()
+	if err != nil {
 		return errors.SystemError{Message: "no server initiated yet"}
 	}
 
@@ -563,18 +553,17 @@ func getIndexToDelete(serverTXT []string, serviceName string) (idxToDel int, err
 }
 
 func setNewServiceList(serverTXT []string) {
-	if len(serverTXT) > 2 {
-		newServiceList := serverTXT[2:]
+	// if len(serverTXT) > 2 {
+	newServiceList := serverTXT[2:]
 
-		deviceID, err := getDeviceID()
-		if err != nil {
-			return
-		}
-
-		serviceInfo := servicedb.ServiceInfo{ID: deviceID, Services: newServiceList}
-
-		updateServiceDB(serviceInfo)
+	deviceID, err := getDeviceID()
+	if err != nil {
+		return
 	}
+
+	serviceInfo := servicedb.ServiceInfo{ID: deviceID, Services: newServiceList}
+
+	setServiceDB(serviceInfo)
 
 	wrapperIns.SetText(serverTXT)
 }
@@ -593,7 +582,6 @@ func clearMap() {
 	if err != nil {
 		return
 	}
-
 	for _, confItem := range confItems {
 		id := confItem.ID
 
@@ -664,20 +652,6 @@ func getSystemDB() (sysInfo systemdb.SystemInfo, err error) {
 	}
 
 	return
-}
-
-func updateNetworkDB(netInfo networkdb.NetworkInfo) {
-	err := netQuery.Update(netInfo)
-	if err != nil {
-		log.Println(logPrefix, err.Error())
-	}
-}
-
-func updateServiceDB(serviceInfo servicedb.ServiceInfo) {
-	err := serviceQuery.Update(serviceInfo)
-	if err != nil {
-		log.Println(logPrefix, err.Error())
-	}
 }
 
 // DeleteDevice deletes device info by key
