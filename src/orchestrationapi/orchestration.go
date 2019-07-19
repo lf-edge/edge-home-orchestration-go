@@ -194,5 +194,5 @@ func (o orcheImpl) HandleNotificationOnLocal(serviceID float64, status string) e
 
 // GetScore gets a resource score of local device for specific app
 func (o orcheImpl) GetScore(target string, name string) (scoreValue float64, err error) {
-	return o.scoringIns.GetScore(name)
+	return o.scoringIns.GetScore(target, name)
 }

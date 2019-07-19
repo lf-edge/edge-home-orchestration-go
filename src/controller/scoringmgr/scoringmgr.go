@@ -32,7 +32,7 @@ type Scoring interface {
 	RemoveScoring(appName string) (err error)
 	RemoveAllScoring() (err error)
 
-	GetScore(name string) (scoreValue float64, err error)
+	GetScore(ID string, name string) (scoreValue float64, err error)
 }
 
 // ScoringImpl structure
@@ -106,13 +106,13 @@ func (s ScoringImpl) RemoveAllScoring() (err error) {
 }
 
 // GetScore provides score value for specific application on local device
-func (ScoringImpl) GetScore(name string) (scoreValue float64, err error) {
+func (ScoringImpl) GetScore(ID string, name string) (scoreValue float64, err error) {
 	rater, exist := raters[name]
 	if !exist {
 		err = errors.New("invalid library name")
 		return
 	}
 
-	scoreValue = rater.ScoringFunc.Run()
+	scoreValue = rater.ScoringFunc.Run(ID)
 	return
 }
