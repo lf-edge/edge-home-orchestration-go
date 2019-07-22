@@ -87,7 +87,7 @@ func (orcheEngine *orcheImpl) RequestService(appName string, args []string) (han
 
 	if len(deviceScores) > 0 {
 		orcheEngine.executeApp(deviceScores[0].endpoint, appName, args, serviceClient.notiChan)
-		log.Println("[orchestrationapi] ", deviceScores)
+		log.Println("[orchestrationapi] ", deviceScores[0])
 	}
 
 	return
@@ -98,7 +98,6 @@ func (orcheEngine orcheImpl) getEndpointDevices(appName string) (deviceList []st
 }
 
 func (orcheEngine orcheImpl) gatheringDevicesScore(endpoints []string, appName string) (deviceScores []deviceScore) {
-
 	scores := make(chan deviceScore, len(endpoints))
 	count := len(endpoints)
 	index := 0
@@ -129,9 +128,9 @@ func (orcheEngine orcheImpl) gatheringDevicesScore(endpoints []string, appName s
 			var err error
 
 			if endpoint == localhost {
-				score, err = orcheEngine.GetScore(endpoint, appName)
+				score, err = orcheEngine.GetScore(devID, appName)
 			} else {
-				score, err = orcheEngine.clientAPI.DoGetScoreRemoteDevice(appName, endpoint)
+				score, err = orcheEngine.clientAPI.DoGetScoreRemoteDevice(devID, appName, endpoint)
 			}
 
 			if err != nil {

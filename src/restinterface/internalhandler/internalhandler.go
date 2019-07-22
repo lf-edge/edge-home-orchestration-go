@@ -187,17 +187,17 @@ func (h *Handler) APIV1ScoringmgrScoreLibnameGet(w http.ResponseWriter, r *http.
 	}
 
 	encryptBytes, _ := ioutil.ReadAll(r.Body)
-	appNameInfo, err := h.Key.DecryptByteToJSON(encryptBytes)
+	Info, err := h.Key.DecryptByteToJSON(encryptBytes)
 	if err != nil {
 		log.Printf("[%s] can not decryption %s", logPrefix, err.Error())
 		h.helper.Response(w, http.StatusServiceUnavailable)
 		return
 	}
 
-	appName := appNameInfo["appName"]
-	log.Println(appName)
+	devID := Info["devID"]
+	appName := Info["appName"]
 
-	scoreValue, err := h.api.GetScore("localhost", appName.(string))
+	scoreValue, err := h.api.GetScore(devID.(string), appName.(string))
 	if err != nil {
 		log.Printf("[%s] GetScore fail : %s", logPrefix, err.Error())
 		h.helper.Response(w, http.StatusInternalServerError)
