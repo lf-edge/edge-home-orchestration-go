@@ -31,6 +31,8 @@ import (
 	"strings"
 	"time"
 	"unsafe"
+	"path/filepath"
+	"fmt"
 
 	"common/resourceutil/native"
 	types "common/types/configuremgrtypes"
@@ -88,37 +90,40 @@ func (cfgMgr ConfigureMgr) Watch(notifier configuremgr.Notifier) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer watcher.Close()
 
-	//TODO : goroutine leak resolve
 	go func() {
 		for {
 			select {
-			case event, ok := <-watcher.Events:
-				if !ok {
-					log.Println("watcher.Events not ok !: ", ok)
-					return
-				}
-
-				log.Println("log event:", event)
+			case event := <-watcher.Events:
+				log.Println("event:", event)
 				switch event.Op {
-				case fsnotify.Create:
-					// case fsnotify.Chmod:
-					if !strings.Contains(event.Name, "/"+event.Name+".conf") {
+				case fsnotify.Create, fsnotify.Write:
+					_, dirName := filepath.Split(event.Name)
+					confFileName := fmt.Sprint(event.Name, "/", dirName, ".conf")
+					log.Println("IsConfExist:", confFileName)
+
+					// Should check file is exist on file system really, 
+					// even though CREATE event of directory received
+					isConfExist := false
+					for i := 0; i < 5; i++ {
+						if _, err := os.Stat(confFileName); !os.IsNotExist(err) {
+							isConfExist = true
+							break;
+						}
+						time.Sleep(time.Second * 1)
+					}
+					if isConfExist != true {
+						log.Println(confFileName, "does not exist")
 						continue
 					}
 					notifier.Notify(getServiceInfo(event.Name))
 				case fsnotify.Remove:
 					// TODO remove scoring
 				}
-
-			case err, ok := <-watcher.Errors:
-				if !ok {
-					log.Println("watcher.Errors not ok")
-					return
+			case err := <-watcher.Errors:
+				if err != nil {
+					log.Println("error:", err)
 				}
-				log.Println("error:", err)
-
 			} //selecte end
 		} //for end
 	}()
@@ -127,9 +132,8 @@ func (cfgMgr ConfigureMgr) Watch(notifier configuremgr.Notifier) {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	log.Println("configuremgr watch end")
-
+	log.Println("start watching for", cfgMgr.confpath)
+	log.Println("configuremgr watcher register end")
 }
 
 func getServiceInfo(path string) types.ServiceInfo {
@@ -189,7 +193,6 @@ func getdirname(path string) (libPath, confPath string, err error) {
 		if _, err := os.Stat(confPath); err == nil {
 			break
 		}
-		log.Println(err)
 		time.Sleep(time.Second * 1)
 	}
 
@@ -197,7 +200,6 @@ func getdirname(path string) (libPath, confPath string, err error) {
 		if _, err := os.Stat(libPath); err == nil {
 			break
 		}
-		log.Println(err)
 		time.Sleep(time.Second * 1)
 	}
 
