@@ -55,23 +55,13 @@ type Discovery interface {
 type discoveryImpl struct{}
 
 var (
-	discoverymgrInfo discoverymgrInformation
-
-
-var (
 	discoveryIns discoveryImpl
 	networkIns   networkhelper.Network
-
-	sysQuery     systemdb.Query
-	confQuery    configurationdb.Query
-	netQuery     networkdb.Query
-	serviceQuery servicedb.Query
 )
 
 func init() {
-	discoverymgrInfo.wrapperIns = wrapper.GetZeroconfImpl()
-	discoverymgrInfo.orchestrationMap = make(OrchestrationMap)
-	discoverymgrInfo.shutdownChan = make(chan struct{})
+	wrapperIns = wrapper.GetZeroconfImpl()
+	shutdownChan = make(chan struct{})
 
 	networkIns = networkhelper.GetInstance()
 
@@ -112,7 +102,7 @@ func (discoveryImpl) StopDiscovery() {
 		return
 	}
 	shutdownDiscoverymgr()
-	discoverymgrInfo.wrapperIns.Shutdown()
+	wrapperIns.Shutdown()
 }
 
 // GetDeviceList returns orchestration device info list
@@ -180,43 +170,40 @@ func (discoveryImpl) GetDeviceIPListWithService(targetService string) ([]string,
 	return ret, nil
 }
 
-// GetDeviceListWithService returns device info list using service application name
-// func (discoveryImpl) GetDeviceListWithService(targetService string) (ExportDeviceMap, error) {
-// 	discoverymgrInfo.mapMTX.Lock()
-// 	defer discoverymgrInfo.mapMTX.Unlock()
-
-// 	ret := make(ExportDeviceMap)
-// 	var err error
-// 	for key, value := range discoverymgrInfo.orchestrationMap {
-// 		for _, val := range value.ServiceList {
-// 			if val == targetService {
-// 				ret[key] = *value
-// 			}
-// 		}
-// 	}
-
-// 	if len(ret) == 0 {
-// 		err = errormsg.ToError(errormsg.ErrorNoDeviceReturn)
-// 		return nil, err
-// 	}
-
-// 	return ret, nil
-// }
-
 // GetDeviceWithID returns device info using deviceID
 func (discoveryImpl) GetDeviceWithID(ID string) (ExportDeviceMap, error) {
-	discoverymgrInfo.mapMTX.Lock()
-	defer discoverymgrInfo.mapMTX.Unlock()
+	items, err := confQuery.GetList()
+	if err != nil {
+		return nil, err
+	}
 
 	ret := make(ExportDeviceMap)
-	var err error
+	for _, item := range items {
+		if item.ID == ID {
+			netItems, err := netQuery.Get(ID)
+			if err != nil {
+				continue
+			}
 
-	if value, ok := discoverymgrInfo.orchestrationMap[ID]; ok {
-		ret[ID] = *value
-		return ret, nil
+			serviceItems, err := serviceQuery.Get(ID)
+			if err != nil {
+				continue
+			}
+
+			deviceMap := OrchestrationInformation{
+				Platform: item.Platform, ExecutionType: item.ExecType,
+				IPv4: netItems.IPv4, ServiceList: serviceItems.Services}
+
+			ret[item.ID] = deviceMap
+		}
 	}
-	err = errors.NotFound{Message: errormsg.ToString(errormsg.ErrorNoDeviceReturn)}
-	return nil, err
+
+	if len(ret) == 0 {
+		err := errors.NotFound{Message: errormsg.ToString(errormsg.ErrorNoDeviceReturn)}
+		return nil, err
+	}
+
+	return ret, nil
 }
 
 // DeleteDevice deletes device info using deviceIP
@@ -227,19 +214,14 @@ func (discoveryImpl) DeleteDeviceWithIP(targetIP string) {
 // DeleteDevice delete device using deviceID
 func (discoveryImpl) DeleteDeviceWithID(ID string) {
 	// @Note Delete device with id in DB
-	err := confQuery.Delete(ID)
+	deviceID, err := getDeviceID()
 	if err != nil {
 		log.Println(err.Error())
+		return
 	}
 
-	err = netQuery.Delete(ID)
-	if err != nil {
-		log.Println(err.Error())
-	}
-
-	err = serviceQuery.Delete(ID)
-	if err != nil {
-		log.Println(err.Error())
+	if deviceID != ID {
+		deleteDevice(ID)
 	}
 }
 
@@ -272,7 +254,6 @@ func (discoveryImpl) AddNewServiceName(serviceName string) error {
 
 // RemoveServiceName removes text field of mdns message with service application name
 func (discoveryImpl) RemoveServiceName(serviceName string) error {
-
 	err := serviceNameChecker(serviceName)
 	if err != nil {
 		return err
@@ -283,7 +264,8 @@ func (discoveryImpl) RemoveServiceName(serviceName string) error {
 		return err
 	}
 
-	serverTXT := discoverymgrInfo.wrapperIns.GetText()
+	serverTXT := wrapperIns.GetText()
+
 	idxToDel, err := getIndexToDelete(serverTXT, serviceName)
 	if err != nil {
 		return err
@@ -308,7 +290,7 @@ func (discoveryImpl) ResetServiceName() {
 	}
 
 	serviceInfo := servicedb.ServiceInfo{ID: deviceID, Services: nil}
-	updateServiceDB(serviceInfo)
+	setServiceDB(serviceInfo)
 
 	confItem, err := confQuery.Get(deviceID)
 	if err != nil {
@@ -328,17 +310,28 @@ func detectNetworkChgRoutine() {
 
 	for {
 		select {
-		case <-discoverymgrInfo.shutdownChan:
+		case <-shutdownChan:
 			return
-		// @TODO set network db will be implemented in next commits,
-		// because change of networkhelper is not applied yet.
 		case latestIPs := <-ips:
-
-			err := serverPresenceChecker()
+			id, err := getDeviceID()
 			if err != nil {
 				continue
 			}
-			discoverymgrInfo.wrapperIns.ResetServer(latestIPs)
+
+			var strIPs []string
+			for _, ip := range latestIPs {
+				strIPs = append(strIPs, ip.To4().String())
+			}
+
+			netInfo := networkdb.NetworkInfo{ID: id, IPv4: strIPs}
+			setNetworkDB(netInfo)
+
+			err = serverPresenceChecker()
+			if err != nil {
+				continue
+			}
+
+			wrapperIns.ResetServer(latestIPs)
 		}
 	}
 }
@@ -364,41 +357,31 @@ func setDeviceID(UUIDPath string) (UUIDstr string, err error) {
 	return UUIDstr, err
 }
 
-func getDeviceID() (string, error) {
-	sysInfo, err := getSystemDB()
+func getDeviceID() (id string, err error) {
+	id, err = getSystemDB(systemdb.ID)
 	if err != nil {
 		log.Println(err.Error())
-		return "", err
 	}
 
-	return sysInfo.ID, nil
+	return
 }
 
-func getPlatform() (string, error) {
-	sysInfo, err := getSystemDB()
+func getPlatform() (platform string, err error) {
+	platform, err = getSystemDB(systemdb.Platform)
 	if err != nil {
 		log.Println(err.Error())
-		return "", err
 	}
 
-	return sysInfo.Platform, nil
+	return
 }
 
-func getExecType() (string, error) {
-	sysInfo, err := getSystemDB()
+func getExecType() (execType string, err error) {
+	execType, err = getSystemDB(systemdb.ExecType)
 	if err != nil {
 		log.Println(err.Error())
-		return "", err
 	}
 
-	return sysInfo.ExecType, nil
-}
-
-func setDeviceInfo(platform string, executionType string) {
-	log.Println(logPrefix, "Platform::", platform, " OnboardType::", executionType)
-
-	discoverymgrInfo.platform = platform
-	discoverymgrInfo.executionType = executionType
+	return
 }
 
 func startServer(deviceUUID string, platform string, executionType string) {
@@ -407,15 +390,14 @@ func startServer(deviceUUID string, platform string, executionType string) {
 	deviceID, hostName, Text := setDeviceArgument(deviceUUID, platform, executionType)
 
 	// @Note store system information(id, platform and execution type) to system db
-	sysInfo := systemdb.SystemInfo{ID: deviceID, Platform: platform, ExecType: executionType}
-	setSystemDB(sysInfo)
+	setSystemDB(deviceID, platform, executionType)
 
 	hostIPAddr, netIface := setNetwotkArgument()
 	var myDeviceEntity wrapper.Entity
 
 	for {
 		var err error
-		myDeviceEntity, err = discoverymgrInfo.wrapperIns.RegisterProxy(
+		myDeviceEntity, err = wrapperIns.RegisterProxy(
 			deviceID, serviceType, domain, servicePort, hostName, hostIPAddr, Text, netIface)
 		if err != nil {
 			log.Println(logPrefix, "[startServer]", "Register Server Failed : ", err)
@@ -467,14 +449,14 @@ func setNetwotkArgument() (hostIPAddr []string, netIface []net.Interface) {
 
 func deviceDetectionRoutine() {
 	go func() {
-		subchan, err := discoverymgrInfo.wrapperIns.GetSubscriberChan()
+		subchan, err := wrapperIns.GetSubscriberChan()
 		if err != nil {
 			log.Println(logPrefix, err)
 			return
 		}
 		for {
 			select {
-			case <-discoverymgrInfo.shutdownChan:
+			case <-shutdownChan:
 				log.Println(logPrefix, "[deviceDetectionRoutine]", "Shutdown")
 				return
 			case data := <-subchan:
@@ -500,33 +482,35 @@ func deviceDetectionRoutine() {
 }
 
 func serverPresenceChecker() error {
-
-	list, _ := confQuery.GetList()
-	if len(list) == 0 {
+	_, err := getDeviceID()
+	if err != nil {
 		return errors.SystemError{Message: "no server initiated yet"}
 	}
-  
+
 	return nil
 }
 
 func shutdownDiscoverymgr() {
-	// discoverymgrInfo.deviceID = ""
-	// discoverymgrInfo.orchestrationMap = make(OrchestrationMap)
-	close(discoverymgrInfo.shutdownChan)
+	close(shutdownChan)
 }
 
 func serviceNameChecker(serviceName string) error {
 	if serviceName == "" {
 		return errors.InvalidParam{Message: "no argument"}
 	}
-	if serviceName == discoverymgrInfo.platform || serviceName == discoverymgrInfo.executionType {
+
+	platform, _ := getPlatform()
+	executionType, _ := getExecType()
+
+	if serviceName == platform || serviceName == executionType {
 		return errors.InvalidParam{Message: "cannot change fixed field"}
 	}
+
 	return nil
 }
 
 func appendServiceToTXT(serviceName string) ([]string, error) {
-	serverTXT := discoverymgrInfo.wrapperIns.GetText()
+	serverTXT := wrapperIns.GetText()
 	for _, str := range serverTXT {
 		if str == serviceName {
 			return nil, errors.InvalidParam{Message: "service name duplicated"}
@@ -564,20 +548,19 @@ func getIndexToDelete(serverTXT []string, serviceName string) (idxToDel int, err
 }
 
 func setNewServiceList(serverTXT []string) {
-	if len(serverTXT) > 2 {
-		newServiceList := serverTXT[2:]
+	// if len(serverTXT) > 2 {
+	newServiceList := serverTXT[2:]
 
-		deviceID, err := getDeviceID()
-		if err != nil {
-			return
-		}
-
-		serviceInfo := servicedb.ServiceInfo{ID: deviceID, Services: newServiceList}
-
-		updateServiceDB(serviceInfo)
+	deviceID, err := getDeviceID()
+	if err != nil {
+		return
 	}
 
-	discoverymgrInfo.wrapperIns.SetText(serverTXT)
+	serviceInfo := servicedb.ServiceInfo{ID: deviceID, Services: newServiceList}
+
+	setServiceDB(serviceInfo)
+
+	wrapperIns.SetText(serverTXT)
 }
 
 // ClearMap makes map empty and only leaves my device info
@@ -594,7 +577,6 @@ func clearMap() {
 	if err != nil {
 		return
 	}
-
 	for _, confItem := range confItems {
 		id := confItem.ID
 
@@ -624,8 +606,21 @@ func convertToDBInfo(entity wrapper.Entity) (string, configurationdb.Configurati
 	return entity.DeviceID, confInfo, netInfo, serviceInfo
 }
 
-func setSystemDB(sysInfo systemdb.SystemInfo) {
+func setSystemDB(id string, platform string, execType string) {
+	sysInfo := systemdb.SystemInfo{Name: systemdb.ID, Value: id}
 	err := sysQuery.Set(sysInfo)
+	if err != nil {
+		log.Println(logPrefix, err.Error())
+	}
+
+	sysInfo = systemdb.SystemInfo{Name: systemdb.Platform, Value: platform}
+	err = sysQuery.Set(sysInfo)
+	if err != nil {
+		log.Println(logPrefix, err.Error())
+	}
+
+	sysInfo = systemdb.SystemInfo{Name: systemdb.ExecType, Value: execType}
+	err = sysQuery.Set(sysInfo)
 	if err != nil {
 		log.Println(logPrefix, err.Error())
 	}
@@ -652,26 +647,14 @@ func setServiceDB(serviceInfo servicedb.ServiceInfo) {
 	}
 }
 
-func getSystemDB() (sysInfo systemdb.SystemInfo, err error) {
-	sysInfos, err := sysQuery.GetList()
+func getSystemDB(name string) (string, error) {
+	sysInfo, err := sysQuery.Get(name)
 	if err != nil {
 		log.Println(logPrefix, err.Error())
+		return "", err
 	}
 
-	if len(sysInfos) != 0 {
-		sysInfo.ID = sysInfos[0].ID
-		sysInfo.Platform = sysInfos[0].Platform
-		sysInfo.ExecType = sysInfos[0].ExecType
-	}
-
-	return
-}
-
-func updateServiceDB(serviceInfo servicedb.ServiceInfo) {
-	err := serviceQuery.Update(serviceInfo)
-	if err != nil {
-		log.Println(logPrefix, err.Error())
-	}
+	return sysInfo.Value, err
 }
 
 // DeleteDevice deletes device info by key
@@ -696,11 +679,11 @@ func deleteDevice(deviceID string) {
 // activeDiscovery calls advertise function of Zeroconf
 // Does Not Clear Map
 func activeDiscovery() {
-	discoverymgrInfo.wrapperIns.Advertise()
+	wrapperIns.Advertise()
 }
 
 // resetServer calls advertise function of Zeroconf
 // It Clears Map
 func resetServer(ips []net.IP) {
-	discoverymgrInfo.wrapperIns.ResetServer(ips)
+	wrapperIns.ResetServer(ips)
 }
