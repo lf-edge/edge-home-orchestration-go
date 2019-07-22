@@ -110,7 +110,7 @@ func (orcheEngine orcheImpl) gatheringDevicesScore(endpoints []string, appName s
 	count := len(endpoints)
 	index := 0
 
-	devID, err := sysDBExecutor.Get(sysDB.ID)
+	info, err := sysDBExecutor.Get(sysDB.ID)
 	if err != nil {
 		log.Println("[orchestrationapi] ", "localhost devid gettering fail")
 		return
@@ -142,9 +142,9 @@ func (orcheEngine orcheImpl) gatheringDevicesScore(endpoints []string, appName s
 			var err error
 
 			if endpoint == localhost {
-				score, err = orcheEngine.GetScore(devID, appName)
+				score, err = orcheEngine.GetScore(info.Value, appName)
 			} else {
-				score, err = orcheEngine.clientAPI.DoGetScoreRemoteDevice(devID, appName, endpoint)
+				score, err = orcheEngine.clientAPI.DoGetScoreRemoteDevice(info.Value, appName, endpoint)
 			}
 
 			if err != nil {
