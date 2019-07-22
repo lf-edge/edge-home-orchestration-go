@@ -20,8 +20,6 @@ package resourceutil
 
 import (
 	"fmt"
-	"strconv"
-	"strings"
 	"time"
 
 	"restinterface/resthelper"
@@ -31,6 +29,7 @@ import (
 
 const (
 	pingAPI            = "/api/v1/ping"
+	internalPort       = 56001
 	defaultRttDuration = 5
 )
 
@@ -64,7 +63,6 @@ func processRTT() {
 				}
 				go func(info netDB.NetworkInfo) {
 					result := selectMinRTT(ch, totalCount)
-					fmt.Println("devid : ", info.ID, ", result : ", result)
 					info.RTT = result
 					netDBExecutor.Update(info)
 				}(netInfo)
@@ -75,21 +73,10 @@ func processRTT() {
 }
 
 func checkRTT(ip string) (rtt float64) {
-	s := strings.Split(ip, ":")
-	if len(s) != 2 {
-		return
-	}
-
-	address := s[0]
-	port, err := strconv.Atoi(s[1])
-	if err != nil {
-		return
-	}
-
-	targetURL := helper.MakeTargetURL(address, port, pingAPI)
+	targetURL := helper.MakeTargetURL(ip, internalPort, pingAPI)
 
 	reqTime := time.Now()
-	_, _, err = helper.DoGet(targetURL)
+	_, _, err := helper.DoGet(targetURL)
 	if err != nil {
 		fmt.Println(err.Error())
 		return

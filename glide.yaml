@@ -28,6 +28,7 @@ ignore:
   - db/bolt/configuration
   - db/bolt/network
   - db/bolt/service
+  - db/bolt/system
   - db/bolt/resource
   - db/bolt/wrapper
   - orchestrationapi
