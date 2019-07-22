@@ -31,6 +31,8 @@ import (
 	"controller/servicemgr"
 	"controller/servicemgr/notification"
 	"restinterface/client"
+
+	sysDB "db/bolt/system"
 )
 
 type orcheImpl struct {
@@ -62,7 +64,13 @@ type orcheClient struct {
 var (
 	orchClientID int32 = -1
 	orcheClients       = [1024]orcheClient{}
+
+	sysDBExecutor sysDB.DBInterface
 )
+
+func init() {
+	sysDBExecutor = sysDB.Query{}
+}
 
 // RequestService handles service reqeust (ex. offloading) from service application
 func (orcheEngine *orcheImpl) RequestService(appName string, args []string) (handle int) {
@@ -101,6 +109,12 @@ func (orcheEngine orcheImpl) gatheringDevicesScore(endpoints []string, appName s
 	scores := make(chan deviceScore, len(endpoints))
 	count := len(endpoints)
 	index := 0
+
+	devID, err := sysDBExecutor.Get(sysDB.ID)
+	if err != nil {
+		log.Println("[orchestrationapi] ", "localhost devid gettering fail")
+		return
+	}
 
 	var wait sync.WaitGroup
 	wait.Add(1)
