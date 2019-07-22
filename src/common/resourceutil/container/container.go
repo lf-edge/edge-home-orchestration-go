@@ -12,11 +12,11 @@ type Getter struct{}
 var resourceIns resourceutil.GetResource
 
 func init() {
-	resourceIns = resourceutil.ResourceImpl{}
+	resourceIns = &resourceutil.ResourceImpl{}
 }
 
 // Run gets the infomations of device resource usage
-func (Getter) Run() float64 {
+func (Getter) Run(ID string) float64 {
 	cpuUsage, err := resourceIns.GetResource(resourceutil.CPUUsage)
 	if err != nil {
 		return 0.0
@@ -37,6 +37,7 @@ func (Getter) Run() float64 {
 	}
 	netScore := netScore(netBandwidth)
 
+	resourceIns.SetDeviceID(ID)
 	rtt, err := resourceIns.GetResource(resourceutil.NetRTT)
 	if err != nil {
 		return 0.0

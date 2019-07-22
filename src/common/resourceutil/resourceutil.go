@@ -19,37 +19,23 @@
 package resourceutil
 
 import (
-	"log"
-	"strings"
-	"time"
-
 	"common/errors"
-	commoncpu "common/resourceutil/cpu"
-	memutil "github.com/shirou/gopsutil/mem"
-	netutil "github.com/vishvananda/netlink"
+
+	resourceDB "db/bolt/resource"
 )
 
 // ResourceImpl is implementation for resourceutil interface
-type ResourceImpl struct{}
-
-type cpuUtil struct {
-	percent func(interval time.Duration, percpu bool) ([]float64, error)
-	info    func() ([]commoncpu.InfoStat, error)
-}
-
-type memUtil struct {
-	virtualMemory func() (*memutil.VirtualMemoryStat, error)
-}
-
-type netUtil struct {
-	linkList func() ([]netutil.Link, error)
+type ResourceImpl struct {
+	targetDeviceID string
 }
 
 var (
-	cpu = cpuUtil{}
-	mem = memUtil{}
-	net = netUtil{}
+	resourceDBExecutor resourceDB.DBInterface
 )
+
+func init() {
+	resourceDBExecutor = resourceDB.Query{}
+}
 
 const (
 	// CPUUsage defined cpu/usage
@@ -69,29 +55,24 @@ const (
 	// NetRTT defined network/rtt
 	NetRTT = "network/rtt"
 
-	logPrefix = "resourceutil"
+	logPrefix             = "resourceutil"
+	defaultProcessingTime = 5
 )
 
 // Command is an interface to control resource monitoring operations
 type Command interface {
-	Run() float64
+	Run(string) float64
 	Close()
 }
 
 // GetResource is an interface to get reource
 type GetResource interface {
 	GetResource(string) (float64, error)
-}
-
-func init() {
-	cpu.info = commoncpu.Info
-	cpu.percent = commoncpu.Percent
-	mem.virtualMemory = memutil.VirtualMemory
-	net.linkList = netutil.LinkList
+	SetDeviceID(string)
 }
 
 // GetResource returns a resource value that matches resourceName
-func (ResourceImpl) GetResource(resourceName string) (float64, error) {
+func (r *ResourceImpl) GetResource(resourceName string) (float64, error) {
 	switch resourceName {
 	case CPUUsage:
 		return getCPUUsage()
@@ -108,137 +89,85 @@ func (ResourceImpl) GetResource(resourceName string) (float64, error) {
 	case NetBandwidth:
 		return getNetworkBandwidth()
 	case NetRTT:
-		return getNetworkRTT()
+		return getNetworkRTT(r.targetDeviceID)
 	default:
 		return 0.0, errors.NotSupport{Message: "Not suppoted resource name"}
 	}
 }
 
+// SetDeviceID set target device's id for RTT
+func (r *ResourceImpl) SetDeviceID(ID string) {
+	r.targetDeviceID = ID
+}
+
 func getCPUUsage() (out float64, err error) {
-	cpus, err := cpu.percent(time.Second, true)
+	info, err := resourceDBExecutor.Get(CPUUsage)
 	if err != nil {
-		log.Println(logPrefix, "usage of cpu is fail : ", err.Error())
-		err = errors.SystemError{Message: err.Error()}
 		return
 	}
-
-	for _, cpu := range cpus {
-		out += float64(cpu)
-	}
-	out /= float64(len(cpus))
-
+	out = info.Value
 	return
 }
 
 func getCPUFreq() (out float64, err error) {
-	infos, err := cpu.info()
+	info, err := resourceDBExecutor.Get(CPUFreq)
 	if err != nil {
-		log.Println(logPrefix, "cpu.Info() fail : ", err.Error())
-		err = errors.SystemError{Message: err.Error()}
 		return
 	}
-
-	out = infos[0].Mhz
+	out = info.Value
 	return
 }
 
 func getCPUCount() (out float64, err error) {
-	infos, err := cpu.info()
+	info, err := resourceDBExecutor.Get(CPUCount)
 	if err != nil {
-		log.Println(logPrefix, "cpu info getting fail : ", err.Error())
-		err = errors.SystemError{Message: err.Error()}
 		return
 	}
-
-	out = float64(len(infos))
+	out = info.Value
 	return
 }
 
 func getMemoryAvailable() (out float64, err error) {
-	memStat, err := mem.virtualMemory()
+	info, err := resourceDBExecutor.Get(MemAvailable)
 	if err != nil {
-		log.Println(logPrefix, "mem info getting fail : ", err.Error())
-		err = errors.SystemError{Message: err.Error()}
 		return
 	}
-
-	out = float64(memStat.Available) / 1024
+	out = info.Value
 	return
 }
 
 func getMemoryFree() (out float64, err error) {
-	memStat, err := mem.virtualMemory()
+	info, err := resourceDBExecutor.Get(MemFree)
 	if err != nil {
-		log.Println(logPrefix, "mem info getting fail : ", err.Error())
-		err = errors.SystemError{Message: err.Error()}
 		return
 	}
-
-	out = float64(memStat.Free) / 1024
+	out = info.Value
 	return
 }
 
 func getNetworkMBps() (out float64, err error) {
-	linklist, err := net.linkList()
+	info, err := resourceDBExecutor.Get(NetMBps)
 	if err != nil {
-		log.Println(logPrefix, "network link getting fail : ", err.Error())
-		err = errors.SystemError{Message: err.Error()}
 		return
 	}
-
-	var prevTotalBytes, nextTotalBytes uint64
-
-	for _, link := range linklist {
-		prevTotalBytes += link.Attrs().Statistics.RxBytes
-		prevTotalBytes += link.Attrs().Statistics.TxBytes
-	}
-
-	time.Sleep(1 * time.Second)
-
-	linklist, err = net.linkList()
-	if err != nil {
-		log.Println(logPrefix, "network link getting fail : ", err.Error())
-		err = errors.SystemError{Message: err.Error()}
-		return
-	}
-
-	for _, link := range linklist {
-		nextTotalBytes += link.Attrs().Statistics.RxBytes
-		nextTotalBytes += link.Attrs().Statistics.TxBytes
-	}
-
-	out = float64((nextTotalBytes - prevTotalBytes)) / 1024 / 1024
+	out = info.Value
 	return
 }
 
 func getNetworkBandwidth() (out float64, err error) {
-	linklist, err := net.linkList()
+	info, err := resourceDBExecutor.Get(NetBandwidth)
 	if err != nil {
-		log.Println(logPrefix, "network link getting fail : ", err.Error())
-		err = errors.SystemError{Message: err.Error()}
 		return
 	}
-
-	var count, total int
-
-	for _, link := range linklist {
-		if strings.Contains(link.Attrs().Name, "eth") ||
-			strings.Contains(link.Attrs().Name, "enp") {
-			count++
-			total += link.Attrs().TxQLen
-		}
-	}
-
-	if count == 0 {
-		err = errors.SystemError{Message: "Not matched network interface"}
-		return
-	}
-
-	out = float64(total / count)
+	out = info.Value
 	return
 }
 
-// TODO RTT with candidate target
-func getNetworkRTT() (out float64, err error) {
+func getNetworkRTT(ID string) (out float64, err error) {
+	info, err := netDBExecutor.Get(ID)
+	if err != nil {
+		return
+	}
+	out = info.RTT
 	return
 }
