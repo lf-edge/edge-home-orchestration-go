@@ -357,35 +357,31 @@ func setDeviceID(UUIDPath string) (UUIDstr string, err error) {
 	return UUIDstr, err
 }
 
-func getDeviceID() (string, error) {
-	sysInfo, err := getSystemDB()
+func getDeviceID() (id string, err error) {
+	id, err = getSystemDB(systemdb.ID)
 	if err != nil {
 		log.Println(err.Error())
-		return "", err
 	}
 
-	log.Println(logPrefix, "[getDeviceID]", sysInfo.ID)
-	return sysInfo.ID, nil
+	return
 }
 
-func getPlatform() (string, error) {
-	sysInfo, err := getSystemDB()
+func getPlatform() (platform string, err error) {
+	platform, err = getSystemDB(systemdb.Platform)
 	if err != nil {
 		log.Println(err.Error())
-		return "", err
 	}
 
-	return sysInfo.Platform, nil
+	return
 }
 
-func getExecType() (string, error) {
-	sysInfo, err := getSystemDB()
+func getExecType() (execType string, err error) {
+	execType, err = getSystemDB(systemdb.ExecType)
 	if err != nil {
 		log.Println(err.Error())
-		return "", err
 	}
 
-	return sysInfo.ExecType, nil
+	return
 }
 
 func startServer(deviceUUID string, platform string, executionType string) {
@@ -394,8 +390,7 @@ func startServer(deviceUUID string, platform string, executionType string) {
 	deviceID, hostName, Text := setDeviceArgument(deviceUUID, platform, executionType)
 
 	// @Note store system information(id, platform and execution type) to system db
-	sysInfo := systemdb.SystemInfo{ID: deviceID, Platform: platform, ExecType: executionType}
-	setSystemDB(sysInfo)
+	setSystemDB(deviceID, platform, executionType)
 
 	hostIPAddr, netIface := setNetwotkArgument()
 	var myDeviceEntity wrapper.Entity
@@ -611,8 +606,21 @@ func convertToDBInfo(entity wrapper.Entity) (string, configurationdb.Configurati
 	return entity.DeviceID, confInfo, netInfo, serviceInfo
 }
 
-func setSystemDB(sysInfo systemdb.SystemInfo) {
+func setSystemDB(id string, platform string, execType string) {
+	sysInfo := systemdb.SystemInfo{Name: systemdb.ID, Value: id}
 	err := sysQuery.Set(sysInfo)
+	if err != nil {
+		log.Println(logPrefix, err.Error())
+	}
+
+	sysInfo = systemdb.SystemInfo{Name: systemdb.Platform, Value: platform}
+	err = sysQuery.Set(sysInfo)
+	if err != nil {
+		log.Println(logPrefix, err.Error())
+	}
+
+	sysInfo = systemdb.SystemInfo{Name: systemdb.ExecType, Value: execType}
+	err = sysQuery.Set(sysInfo)
 	if err != nil {
 		log.Println(logPrefix, err.Error())
 	}
@@ -639,19 +647,14 @@ func setServiceDB(serviceInfo servicedb.ServiceInfo) {
 	}
 }
 
-func getSystemDB() (sysInfo systemdb.SystemInfo, err error) {
-	sysInfos, err := sysQuery.GetList()
+func getSystemDB(name string) (string, error) {
+	sysInfo, err := sysQuery.Get(name)
 	if err != nil {
 		log.Println(logPrefix, err.Error())
+		return "", err
 	}
 
-	if len(sysInfos) != 0 {
-		sysInfo.ID = sysInfos[0].ID
-		sysInfo.Platform = sysInfos[0].Platform
-		sysInfo.ExecType = sysInfos[0].ExecType
-	}
-
-	return
+	return sysInfo.Value, err
 }
 
 // DeleteDevice deletes device info by key

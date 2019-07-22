@@ -18,7 +18,6 @@
 package discoverymgr
 
 import (
-	systemdb "db/bolt/system"
 	"log"
 	"net"
 	"reflect"
@@ -30,6 +29,7 @@ import (
 	networkmocks "common/networkhelper/mocks"
 	wrapper "controller/discoverymgr/wrapper"
 	wrappermocks "controller/discoverymgr/wrapper/mocks"
+	systemdb "db/bolt/system"
 
 	"github.com/golang/mock/gomock"
 )
@@ -86,11 +86,9 @@ func createMockIns(ctrl *gomock.Controller) {
 
 func addDevice(Another bool) {
 	deviceID, confInfo, netInfo, serviceInfo := convertToDBInfo(defaultMyDeviceEntity)
-	sysInfo := systemdb.SystemInfo{
-		ID: deviceID, Platform: defaultPlatform, ExecType: defaultExecutionType}
 
 	log.Println(logPrefix, "[addDevice]", deviceID)
-	setSystemDB(sysInfo)
+	setSystemDB(deviceID, defaultPlatform, defaultExecutionType)
 	setConfigurationDB(confInfo)
 	setNetworkDB(netInfo)
 	setServiceDB(serviceInfo)
@@ -150,8 +148,8 @@ func checkNotPresence(t *testing.T, deviceID string) {
 
 func checkClearMap(t *testing.T) {
 	t.Helper()
-	sysInfos, err := sysQuery.GetList()
-	if len(sysInfos) != 1 || err != nil {
+	_, err := sysQuery.Get(systemdb.ID)
+	if err != nil {
 		t.Error("Delete MySelf")
 	}
 
@@ -172,13 +170,10 @@ func checkClearMap(t *testing.T) {
 }
 
 func closeTest() {
-	sysInfos, err := sysQuery.GetList()
-	if err != nil {
-		return
-	}
+	systemNames := []string{systemdb.ID, systemdb.Platform, systemdb.ExecType}
 
-	for _, info := range sysInfos {
-		err = sysQuery.Delete(info.ID)
+	for _, info := range systemNames {
+		err := sysQuery.Delete(info)
 		if err != nil {
 			log.Println(logPrefix, err.Error())
 		}
