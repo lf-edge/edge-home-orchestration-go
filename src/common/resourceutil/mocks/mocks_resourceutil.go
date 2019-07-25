@@ -2,12 +2,11 @@
 // Source: resourceutil.go
 
 // Package mock_resourceutil is a generated GoMock package.
-package mocks
+package mock_resourceutil
 
 import (
-	reflect "reflect"
-
 	gomock "github.com/golang/mock/gomock"
+	reflect "reflect"
 )
 
 // MockCommand is a mock of Command interface
@@ -34,17 +33,17 @@ func (m *MockCommand) EXPECT() *MockCommandMockRecorder {
 }
 
 // Run mocks base method
-func (m *MockCommand) Run() float64 {
+func (m *MockCommand) Run(arg0 string) float64 {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Run")
+	ret := m.ctrl.Call(m, "Run", arg0)
 	ret0, _ := ret[0].(float64)
 	return ret0
 }
 
 // Run indicates an expected call of Run
-func (mr *MockCommandMockRecorder) Run() *gomock.Call {
+func (mr *MockCommandMockRecorder) Run(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Run", reflect.TypeOf((*MockCommand)(nil).Run))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Run", reflect.TypeOf((*MockCommand)(nil).Run), arg0)
 }
 
 // Close mocks base method
@@ -95,4 +94,16 @@ func (m *MockGetResource) GetResource(arg0 string) (float64, error) {
 func (mr *MockGetResourceMockRecorder) GetResource(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetResource", reflect.TypeOf((*MockGetResource)(nil).GetResource), arg0)
+}
+
+// SetDeviceID mocks base method
+func (m *MockGetResource) SetDeviceID(arg0 string) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "SetDeviceID", arg0)
+}
+
+// SetDeviceID indicates an expected call of SetDeviceID
+func (mr *MockGetResourceMockRecorder) SetDeviceID(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetDeviceID", reflect.TypeOf((*MockGetResource)(nil).SetDeviceID), arg0)
 }
