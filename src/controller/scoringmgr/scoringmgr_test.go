@@ -29,6 +29,7 @@ import (
 )
 
 var (
+	dummyDevID         = "devID"
 	dummyServiceName1  = "dummyServiceName1"
 	dummyServiceName2  = "dummyServiceName2"
 	invalidServiceName = "InvalidServiceName"
@@ -59,7 +60,7 @@ func TestAddScoring_ExpectedCallScoringFunc_ExpectedSuccess(t *testing.T) {
 
 	dummyServiceInfo1.ScoringFunc = resourceutilMockObj
 
-	resourceutilMockObj.EXPECT().Run().Return(100.0).AnyTimes()
+	resourceutilMockObj.EXPECT().Run(gomock.Any()).Return(100.0).AnyTimes()
 
 	err := GetInstance().AddScoring(dummyServiceInfo1)
 	if err != nil {
@@ -77,7 +78,7 @@ func TestAddScoring_WithDifferentServiceName_ExpectedSuccess(t *testing.T) {
 
 	dummyServiceInfo2.ScoringFunc = resourceutilMockObj
 
-	resourceutilMockObj.EXPECT().Run().Return(100.0).AnyTimes()
+	resourceutilMockObj.EXPECT().Run(gomock.Any()).Return(100.0).AnyTimes()
 
 	err := GetInstance().AddScoring(dummyServiceInfo2)
 	if err != nil {
@@ -86,8 +87,6 @@ func TestAddScoring_WithDifferentServiceName_ExpectedSuccess(t *testing.T) {
 }
 
 func TestAddScoring_WithDuplicatedServiceName_ExpectedReturnError(t *testing.T) {
-	time.Sleep(1 * time.Second)
-
 	fmt.Println(dummyServiceInfo1)
 	err := GetInstance().AddScoring(dummyServiceInfo1)
 	if err == nil {
@@ -96,9 +95,7 @@ func TestAddScoring_WithDuplicatedServiceName_ExpectedReturnError(t *testing.T) 
 }
 
 func TestGetScore_ExpectedSuccess(t *testing.T) {
-	time.Sleep(1 * time.Second)
-
-	score, err := GetInstance().GetScore(dummyServiceName1)
+	score, err := GetInstance().GetScore(dummyDevID, dummyServiceName1)
 	if err != nil {
 		t.Errorf("Unexpected error return : %s", err.Error())
 	}
@@ -109,9 +106,7 @@ func TestGetScore_ExpectedSuccess(t *testing.T) {
 }
 
 func TestGetScore_WithInvalidServiceName_ExpectedSuccess(t *testing.T) {
-	time.Sleep(1 * time.Second)
-
-	score, err := GetInstance().GetScore(invalidServiceName)
+	score, err := GetInstance().GetScore(dummyDevID, invalidServiceName)
 	if err == nil {
 		t.Errorf("Unexpected error return : %s", err.Error())
 	}
@@ -130,7 +125,7 @@ func TestRemoveScoringWithInvalidParam_ExpectedReturnError(t *testing.T) {
 
 func TestRemoveScoring_ExpectedSuccess(t *testing.T) {
 	gomock.InOrder(
-		gResourceutilMockObjService1.EXPECT().Run().Return(100.0).AnyTimes(),
+		gResourceutilMockObjService1.EXPECT().Run(gomock.Any()).Return(100.0).AnyTimes(),
 		gResourceutilMockObjService1.EXPECT().Close(),
 	)
 
@@ -144,7 +139,7 @@ func TestRemoveScoring_ExpectedSuccess(t *testing.T) {
 
 func TestRemoveAllScoring_ExpectedSuccess(t *testing.T) {
 	gomock.InOrder(
-		gResourceutilMockObjService2.EXPECT().Run().Return(100.0).AnyTimes(),
+		gResourceutilMockObjService2.EXPECT().Run(gomock.Any()).Return(100.0).AnyTimes(),
 		gResourceutilMockObjService2.EXPECT().Close(),
 	)
 
