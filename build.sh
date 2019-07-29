@@ -286,6 +286,7 @@ function run_docker_container() {
     echo "  Create prerequisite Folder [SuperUser]"
     echo "--------------------------------------------"
     sudo mkdir -p /var/log/$BINARY_FILE
+    sudo mkdir -p /var/data/db
 
     echo ""
     echo "**********************************"
