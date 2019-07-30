@@ -121,7 +121,10 @@ func OrchestrationRequestService(cAppName string, cArgs string) int {
 	if err != nil {
 		log.Fatalf("[%s] Orchestaration external api : %s", logPrefix, err.Error())
 	}
-	handle := externalAPI.RequestService(appName, argsArr)
+
+	// TODO change JAVA-API and fill the parameter on RequestService.
+	handle := 1
+	externalAPI.RequestService(orchestrationapi.ReqeustService{})
 	log.Printf("requestService handle : %d\n", handle)
 
 	return handle

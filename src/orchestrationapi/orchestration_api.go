@@ -23,7 +23,6 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"common/errormsg"
 	"common/networkhelper"
 	"controller/configuremgr"
 	"controller/discoverymgr"
@@ -61,6 +60,34 @@ type orcheClient struct {
 	endSignal chan bool
 }
 
+type RequestServiceInfo struct {
+	ExecutionType string
+	ExeCmd        []string
+}
+
+type ReqeustService struct {
+	ServiceName string
+	ServiceInfo []RequestServiceInfo
+	// TODO add status callback
+}
+
+type TargetInfo struct {
+	ExecutionType string
+	Target        string
+}
+
+type ReponseService struct {
+	Message          string
+	ServiceName      string
+	RemoteTargetInfo TargetInfo
+}
+
+const (
+	ERROR_NONE        = "ERROR_NONE"
+	INVALID_PARAMETER = "INVALID_PARAMETER"
+	SERVICE_NOT_FOUND = "SERVICE_NOT_FOUND"
+)
+
 var (
 	orchClientID int32 = -1
 	orcheClients       = [1024]orcheClient{}
@@ -73,33 +100,54 @@ func init() {
 }
 
 // RequestService handles service reqeust (ex. offloading) from service application
-func (orcheEngine *orcheImpl) RequestService(appName string, args []string) (handle int) {
-
-	log.Printf("[RequestService] %v: %v\n", appName, args)
-
+func (orcheEngine *orcheImpl) RequestService(serviceInfo ReqeustService) ReponseService {
+	log.Printf("[RequestService] %v: %v\n", serviceInfo.ServiceName, serviceInfo.ServiceInfo)
 	if orcheEngine.Ready == false {
-		return errormsg.ErrorNotReadyOrchestrationInit
+		return ReponseService{
+			Message:          ERROR_NONE,
+			ServiceName:      serviceInfo.ServiceName,
+			RemoteTargetInfo: TargetInfo{},
+		}
 	}
 
 	atomic.AddInt32(&orchClientID, 1)
 
-	handle = int(orchClientID)
+	//	handle := int(orchClientID)
 
-	serviceClient := addServiceClient(handle, appName, args)
-	go serviceClient.listenNotify()
-	endpoints, err := orcheEngine.getEndpointDevices(appName)
-	if err != nil {
-		return errormsg.ToInt(err)
-	}
-	deviceScores := sortByScore(orcheEngine.gatheringDevicesScore(endpoints, appName))
+	//TODO
+	//	serviceClient := addServiceClient(handle, appName, args)
+	//	go serviceClient.listenNotify()
 
-	if len(deviceScores) > 0 {
-		orcheEngine.executeApp(deviceScores[0].endpoint, appName, args, serviceClient.notiChan)
-		log.Println("[orchestrationapi] ", deviceScores[0])
-	}
-
-	return
+	return ReponseService{}
 }
+
+//func (orcheEngine *orcheImpl) RequestService(appName string, args []string) (handle int) {
+//
+//	log.Printf("[RequestService] %v: %v\n", appName, args)
+//
+//	if orcheEngine.Ready == false {
+//		return errormsg.ErrorNotReadyOrchestrationInit
+//	}
+//
+//	atomic.AddInt32(&orchClientID, 1)
+//
+//	handle = int(orchClientID)
+//
+//	serviceClient := addServiceClient(handle, appName, args)
+//	go serviceClient.listenNotify()
+//	endpoints, err := orcheEngine.getEndpointDevices(appName)
+//	if err != nil {
+//		return errormsg.ToInt(err)
+//	}
+//	deviceScores := sortByScore(orcheEngine.gatheringDevicesScore(endpoints, appName))
+//
+//	if len(deviceScores) > 0 {
+//		orcheEngine.executeApp(deviceScores[0].endpoint, appName, args, serviceClient.notiChan)
+//		log.Println("[orchestrationapi] ", deviceScores)
+//	}
+//
+//	return
+//}
 
 func (orcheEngine orcheImpl) getEndpointDevices(appName string) (deviceList []string, err error) {
 	return orcheEngine.discoverIns.GetDeviceIPListWithService(appName)

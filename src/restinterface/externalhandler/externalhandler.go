@@ -83,6 +83,15 @@ func (h *Handler) APIV1RequestServicePost(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	var (
+		responseMsg  string
+		responseName string
+		resp         orchestrationapi.ReponseService
+
+		executeEnvs        []interface{}
+		responseTargetInfo map[string]interface{}
+	)
+
 	//request
 	encryptBytes, _ := ioutil.ReadAll(r.Body)
 
@@ -93,19 +102,60 @@ func (h *Handler) APIV1RequestServicePost(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	appName := appCommand["Name"].(string)
-	args := appCommand["Args"].([]interface{})
-	var sargs []string
-	for i := 0; i < len(args); i++ {
-		sargs = append(sargs, args[i].(string))
+	serviceInfos := orchestrationapi.ReqeustService{}
+	name, ok := appCommand["ServiceName"].(string)
+	if !ok {
+		responseMsg = orchestrationapi.INVALID_PARAMETER
+		responseName = ""
+		goto SEND_RESP
+	}
+	serviceInfos.ServiceName = name
+
+	executeEnvs, ok = appCommand["ServiceInfo"].([]interface{})
+	if !ok {
+		responseMsg = orchestrationapi.INVALID_PARAMETER
+		responseName = name
+		goto SEND_RESP
 	}
 
-	//logic
-	handle := h.api.RequestService(appName, sargs)
+	serviceInfos.ServiceInfo = make([]orchestrationapi.RequestServiceInfo, len(executeEnvs))
+	for idx, executeEnv := range executeEnvs {
+		tmp := executeEnv.(map[string]interface{})
+		exeType, ok := tmp["ExecutionType"].(string)
+		if !ok {
+			responseMsg = orchestrationapi.INVALID_PARAMETER
+			responseName = name
+			goto SEND_RESP
+		}
+		serviceInfos.ServiceInfo[idx].ExecutionType = exeType
 
-	//response
+		exeCmd, ok := tmp["ExecCmd"].([]interface{})
+		if !ok {
+			responseMsg = orchestrationapi.INVALID_PARAMETER
+			responseName = name
+			goto SEND_RESP
+		}
+
+		serviceInfos.ServiceInfo[idx].ExeCmd = make([]string, len(exeCmd))
+		for idy, cmd := range exeCmd {
+			serviceInfos.ServiceInfo[idx].ExeCmd[idy] = cmd.(string)
+		}
+	}
+
+	resp = h.api.RequestService(serviceInfos)
+
+	responseMsg = resp.Message
+	responseName = resp.ServiceName
+
+	responseTargetInfo = make(map[string]interface{})
+	responseTargetInfo["ExecutionType"] = resp.RemoteTargetInfo.ExecutionType
+	responseTargetInfo["Target"] = resp.RemoteTargetInfo.Target
+
+SEND_RESP:
 	respJSONMsg := make(map[string]interface{})
-	respJSONMsg["Handle"] = handle
+	respJSONMsg["Message"] = responseMsg
+	respJSONMsg["ServiceName"] = responseName
+	respJSONMsg["RemoteTargetInfo"] = responseTargetInfo
 
 	respEncryptBytes, err := h.Key.EncryptJSONToByte(respJSONMsg)
 	if err != nil {
