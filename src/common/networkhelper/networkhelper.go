@@ -32,10 +32,12 @@ import (
 
 type networkImpl struct{}
 
-var networkIns networkImpl
-var detectorIns detector.Detector
-var netInfo networkInformation
-var getNetworkInformationFP func()
+var (
+	networkIns              networkImpl
+	detectorIns             detector.Detector
+	netInfo                 networkInformation
+	getNetworkInformationFP func()
+)
 
 // Network gets the informations of network interfaces of local device
 type Network interface {
@@ -144,7 +146,7 @@ func setAddrInfo(ifaces []net.Interface) (err error) {
 	var addrInfos []addrInformation
 	for _, i := range ifaces {
 		path, _ := filepath.EvalSymlinks(netDirPathPrefix + i.Name)
-		if checkVirtualNet(path) {
+		if checkVirtualNet(path) && checkWiredNet(path) {
 			continue
 		}
 
@@ -189,12 +191,12 @@ func subAddrChange(isNewConnection chan bool) {
 	//apply detectorIns.Done when normal termination
 }
 
-func checkWiredNet(path string) (isWired bool) {
+func checkWiredNet(path string) bool {
 	if _, err := os.Stat(path + "/wireless"); os.IsNotExist(err) {
-		isWired = true
+		return true
 	}
 
-	return
+	return false
 }
 
 func checkVirtualNet(path string) bool {

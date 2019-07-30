@@ -427,21 +427,21 @@ func setDeviceArgument(deviceUUID string, platform string, executionType string)
 }
 
 func setNetwotkArgument() (hostIPAddr []string, netIface []net.Interface) {
-	var ip []string
 	var err error
 	// TODO : change to channel
 	for {
-		ip, err = networkIns.GetIPs()
-		if len(ip) != 0 {
+		hostIPAddr, err = networkIns.GetIPs()
+		if len(hostIPAddr) != 0 {
 			break
 		}
-		log.Println(logPrefix, errormsg.ToString(err))
+
+		if err != nil {
+			log.Println(logPrefix, errormsg.ToString(err))
+		}
 		time.Sleep(1 * time.Second)
 	}
-	log.Println(logPrefix, ip)
 
-	hostIPAddr = ip
-
+	log.Println(logPrefix, hostIPAddr)
 	netIface, _ = networkIns.GetNetInterface()
 
 	return
