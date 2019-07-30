@@ -157,7 +157,10 @@ func OrchestrationRequestService(cAppName *C.char, cArgs *C.char) C.int {
 	if err != nil {
 		log.Fatalf("[%s] Orchestaration external api : %s", logPrefix, err.Error())
 	}
-	handle := externalAPI.RequestService(appName, argsArr)
+
+	// TODO change C-API and fill the parameter on RequestService.
+	handle := 1
+	externalAPI.RequestService(orchestrationapi.ReqeustService{})
 	log.Printf("requestService handle : %d\n", handle)
 
 	return C.int(handle)

@@ -48,7 +48,7 @@ func (mr *MockIEdgeCiphererMockRecorder) EncryptByte(byteData interface{}) *gomo
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EncryptByte", reflect.TypeOf((*MockIEdgeCipherer)(nil).EncryptByte), byteData)
 }
 
-// EncrptJSONToByte mocks base method
+// EncryptJSONToByte mocks base method
 func (m *MockIEdgeCipherer) EncryptJSONToByte(jsonMap map[string]interface{}) ([]byte, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "EncryptJSONToByte", jsonMap)
@@ -57,7 +57,7 @@ func (m *MockIEdgeCipherer) EncryptJSONToByte(jsonMap map[string]interface{}) ([
 	return ret0, ret1
 }
 
-// EncrptJSONToByte indicates an expected call of EncrptJSONToByte
+// EncryptJSONToByte indicates an expected call of EncryptJSONToByte
 func (mr *MockIEdgeCiphererMockRecorder) EncryptJSONToByte(jsonMap interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EncryptJSONToByte", reflect.TypeOf((*MockIEdgeCipherer)(nil).EncryptJSONToByte), jsonMap)
@@ -93,37 +93,37 @@ func (mr *MockIEdgeCiphererMockRecorder) DecryptByteToJSON(data interface{}) *go
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DecryptByteToJSON", reflect.TypeOf((*MockIEdgeCipherer)(nil).DecryptByteToJSON), data)
 }
 
-// MockCipherSetter is a mock of CipherSetter interface
-type MockCipherSetter struct {
+// MockSetter is a mock of Setter interface
+type MockSetter struct {
 	ctrl     *gomock.Controller
-	recorder *MockCipherSetterMockRecorder
+	recorder *MockSetterMockRecorder
 }
 
-// MockCipherSetterMockRecorder is the mock recorder for MockCipherSetter
-type MockCipherSetterMockRecorder struct {
-	mock *MockCipherSetter
+// MockSetterMockRecorder is the mock recorder for MockSetter
+type MockSetterMockRecorder struct {
+	mock *MockSetter
 }
 
-// NewMockCipherSetter creates a new mock instance
-func NewMockCipherSetter(ctrl *gomock.Controller) *MockCipherSetter {
-	mock := &MockCipherSetter{ctrl: ctrl}
-	mock.recorder = &MockCipherSetterMockRecorder{mock}
+// NewMockSetter creates a new mock instance
+func NewMockSetter(ctrl *gomock.Controller) *MockSetter {
+	mock := &MockSetter{ctrl: ctrl}
+	mock.recorder = &MockSetterMockRecorder{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use
-func (m *MockCipherSetter) EXPECT() *MockCipherSetterMockRecorder {
+func (m *MockSetter) EXPECT() *MockSetterMockRecorder {
 	return m.recorder
 }
 
 // SetCipher mocks base method
-func (m *MockCipherSetter) SetCipher(cipher cipher.IEdgeCipherer) {
+func (m *MockSetter) SetCipher(cipher cipher.IEdgeCipherer) {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "SetCipher", cipher)
 }
 
 // SetCipher indicates an expected call of SetCipher
-func (mr *MockCipherSetterMockRecorder) SetCipher(cipher interface{}) *gomock.Call {
+func (mr *MockSetterMockRecorder) SetCipher(cipher interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetCipher", reflect.TypeOf((*MockCipherSetter)(nil).SetCipher), cipher)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetCipher", reflect.TypeOf((*MockSetter)(nil).SetCipher), cipher)
 }

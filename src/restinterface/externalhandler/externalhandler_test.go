@@ -23,6 +23,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	orchestrationapi "orchestrationapi"
 	orchemock "orchestrationapi/mocks"
 	ciphermock "restinterface/cipher/mocks"
 	helpermock "restinterface/resthelper/mocks"
@@ -55,7 +56,7 @@ func TestSetOrchestrationAPI(t *testing.T) {
 		})
 	})
 	t.Run("Success", func(t *testing.T) {
-		orcheExternalAPIMock := orchemock.NewMockOrcheExternalApi(ctrl)
+		orcheExternalAPIMock := orchemock.NewMockOrcheExternalAPI(ctrl)
 
 		handler.SetOrchestrationAPI(orcheExternalAPIMock)
 		if handler.api != orcheExternalAPIMock {
@@ -67,6 +68,50 @@ func TestSetOrchestrationAPI(t *testing.T) {
 	})
 }
 
+func getReqeustArgs() (orchestrationapi.ReqeustService, map[string]interface{}) {
+	args := []string{"-a", "-b"}
+
+	serviceName := "test"
+	serviceInfo := make([]orchestrationapi.RequestServiceInfo, 1)
+	serviceInfo[0].ExecutionType = "native"
+	serviceInfo[0].ExeCmd = args
+	requestService := orchestrationapi.ReqeustService{
+		ServiceName: serviceName,
+		ServiceInfo: serviceInfo,
+	}
+
+	execCmd := make([]interface{}, len(args))
+	for idx, arg := range args {
+		execCmd[idx] = arg
+	}
+
+	sInfo := make(map[string]interface{})
+	sInfo["ExecutionType"] = "native"
+	sInfo["ExecCmd"] = execCmd
+
+	sInfos := make([]interface{}, 1)
+	sInfos[0] = sInfo
+
+	appCommand := make(map[string]interface{})
+	appCommand["ServiceName"] = serviceName
+	appCommand["ServiceInfo"] = sInfos
+
+	return requestService, appCommand
+}
+
+func getInvalidParamResponse() map[string]interface{} {
+	response := make(map[string]interface{})
+	response["Message"] = "INVALID_PARAMETER"
+	response["ServiceName"] = "test"
+
+	targetInfo := make(map[string]interface{})
+	targetInfo["ExecutionType"] = "native"
+	targetInfo["Target"] = "0.0.0.0"
+	response["RemoteTargetInfo"] = targetInfo
+
+	return response
+}
+
 func TestAPIV1RequestServicePost(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -76,23 +121,9 @@ func TestAPIV1RequestServicePost(t *testing.T) {
 		t.Error("unexpected return value")
 	}
 
-	mockOrchestration := orchemock.NewMockOrcheExternalApi(ctrl)
+	mockOrchestration := orchemock.NewMockOrcheExternalAPI(ctrl)
 	mockCipher := ciphermock.NewMockIEdgeCipherer(ctrl)
 	mockHelper := helpermock.NewMockRestHelper(ctrl)
-
-	command := "test"
-	args := []string{"-a", "-b"}
-
-	appCommand := make(map[string]interface{})
-	appCommand["Name"] = command
-
-	iargs := make([]interface{}, len(args))
-	for idx, arg := range args {
-		iargs[idx] = arg
-	}
-	appCommand["Args"] = iargs
-
-	resp := []byte{'1'}
 
 	r := httptest.NewRequest("POST", "http://test.test", nil)
 	w := httptest.NewRecorder()
@@ -128,14 +159,103 @@ func TestAPIV1RequestServicePost(t *testing.T) {
 			handler.SetCipher(mockCipher)
 			handler.SetOrchestrationAPI(mockOrchestration)
 			handler.setHelper(mockHelper)
+
+			requestService, appCommand := getReqeustArgs()
+
 			gomock.InOrder(
 				mockCipher.EXPECT().DecryptByteToJSON(gomock.Any()).Return(appCommand, nil),
-				mockOrchestration.EXPECT().RequestService(gomock.Eq(command), gomock.Eq(args)),
-				mockCipher.EXPECT().EncryptJSONToByte(gomock.Any()).Return(resp, errors.New("")),
+				mockOrchestration.EXPECT().RequestService(gomock.Eq(requestService)),
+				mockCipher.EXPECT().EncryptJSONToByte(gomock.Any()).Return(nil, errors.New("")),
 				mockHelper.EXPECT().Response(gomock.Any(), gomock.Eq(http.StatusServiceUnavailable)),
 			)
 
 			handler.APIV1RequestServicePost(w, r)
+		})
+		t.Run("InvalidParam", func(t *testing.T) {
+			t.Run("ServiceName", func(t *testing.T) {
+				handler.SetCipher(mockCipher)
+				handler.SetOrchestrationAPI(mockOrchestration)
+				handler.setHelper(mockHelper)
+
+				_, appCommand := getReqeustArgs()
+				delete(appCommand, "ServiceName")
+
+				gomock.InOrder(
+					mockCipher.EXPECT().DecryptByteToJSON(gomock.Any()).Return(appCommand, nil),
+					mockCipher.EXPECT().EncryptJSONToByte(gomock.Any()).Do(func(resp map[string]interface{}) {
+						if resp["Message"] != orchestrationapi.INVALID_PARAMETER {
+							t.Error("unexpected response")
+						}
+					}).Return(nil, nil),
+					mockHelper.EXPECT().ResponseJSON(gomock.Any(), gomock.Any(), gomock.Eq(http.StatusOK)),
+				)
+
+				handler.APIV1RequestServicePost(w, r)
+			})
+			t.Run("ServiceInfo", func(t *testing.T) {
+				handler.SetCipher(mockCipher)
+				handler.SetOrchestrationAPI(mockOrchestration)
+				handler.setHelper(mockHelper)
+
+				_, appCommand := getReqeustArgs()
+				delete(appCommand, "ServiceInfo")
+
+				gomock.InOrder(
+					mockCipher.EXPECT().DecryptByteToJSON(gomock.Any()).Return(appCommand, nil),
+					mockCipher.EXPECT().EncryptJSONToByte(gomock.Any()).Do(func(resp map[string]interface{}) {
+						if resp["Message"] != orchestrationapi.INVALID_PARAMETER {
+							t.Error("unexpected response")
+						}
+					}).Return(nil, nil),
+					mockHelper.EXPECT().ResponseJSON(gomock.Any(), gomock.Any(), gomock.Eq(http.StatusOK)),
+				)
+
+				handler.APIV1RequestServicePost(w, r)
+			})
+			t.Run("ExecutionType", func(t *testing.T) {
+				handler.SetCipher(mockCipher)
+				handler.SetOrchestrationAPI(mockOrchestration)
+				handler.setHelper(mockHelper)
+
+				_, appCommand := getReqeustArgs()
+				tmp := appCommand["ServiceInfo"].([]interface{})
+				serviceInfo := tmp[0].(map[string]interface{})
+				delete(serviceInfo, "ExecutionType")
+
+				gomock.InOrder(
+					mockCipher.EXPECT().DecryptByteToJSON(gomock.Any()).Return(appCommand, nil),
+					mockCipher.EXPECT().EncryptJSONToByte(gomock.Any()).Do(func(resp map[string]interface{}) {
+						if resp["Message"] != orchestrationapi.INVALID_PARAMETER {
+							t.Error("unexpected response")
+						}
+					}).Return(nil, nil),
+					mockHelper.EXPECT().ResponseJSON(gomock.Any(), gomock.Any(), gomock.Eq(http.StatusOK)),
+				)
+
+				handler.APIV1RequestServicePost(w, r)
+			})
+			t.Run("ExecCmd", func(t *testing.T) {
+				handler.SetCipher(mockCipher)
+				handler.SetOrchestrationAPI(mockOrchestration)
+				handler.setHelper(mockHelper)
+
+				_, appCommand := getReqeustArgs()
+				tmp := appCommand["ServiceInfo"].([]interface{})
+				serviceInfo := tmp[0].(map[string]interface{})
+				delete(serviceInfo, "ExecCmd")
+
+				gomock.InOrder(
+					mockCipher.EXPECT().DecryptByteToJSON(gomock.Any()).Return(appCommand, nil),
+					mockCipher.EXPECT().EncryptJSONToByte(gomock.Any()).Do(func(resp map[string]interface{}) {
+						if resp["Message"] != orchestrationapi.INVALID_PARAMETER {
+							t.Error("unexpected response")
+						}
+					}).Return(nil, nil),
+					mockHelper.EXPECT().ResponseJSON(gomock.Any(), gomock.Any(), gomock.Eq(http.StatusOK)),
+				)
+
+				handler.APIV1RequestServicePost(w, r)
+			})
 		})
 	})
 
@@ -144,11 +264,14 @@ func TestAPIV1RequestServicePost(t *testing.T) {
 		handler.SetOrchestrationAPI(mockOrchestration)
 		handler.setHelper(mockHelper)
 
+		requestService, appCommand := getReqeustArgs()
+		respByte := []byte{'1'}
+
 		gomock.InOrder(
 			mockCipher.EXPECT().DecryptByteToJSON(gomock.Any()).Return(appCommand, nil),
-			mockOrchestration.EXPECT().RequestService(gomock.Eq(command), gomock.Eq(args)),
-			mockCipher.EXPECT().EncryptJSONToByte(gomock.Any()).Return(resp, nil),
-			mockHelper.EXPECT().ResponseJSON(gomock.Any(), gomock.Eq(resp), gomock.Eq(http.StatusOK)),
+			mockOrchestration.EXPECT().RequestService(gomock.Eq(requestService)),
+			mockCipher.EXPECT().EncryptJSONToByte(gomock.Any()).Return(respByte, nil),
+			mockHelper.EXPECT().ResponseJSON(gomock.Any(), gomock.Eq(respByte), gomock.Eq(http.StatusOK)),
 		)
 
 		handler.APIV1RequestServicePost(w, r)
