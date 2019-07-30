@@ -28,5 +28,8 @@ RUN mkdir -p /var/data/db
 # set the working directory
 WORKDIR $TARGET_DIR
 
+# make boltdb volume
+RUN mkdir -p /var/data/db
+
 # kick off the edge-orchestration container
 CMD ["sh", "run.sh"]
