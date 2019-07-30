@@ -58,18 +58,18 @@ const (
 )
 
 func init() {
-	resourceIns = resourceutil.ResourceImpl{}
+	resourceIns = &resourceutil.ResourceImpl{}
 }
 
 // Run gets the infomations of device resource usage
-func (t Getter) Run() float64 {
+func (t Getter) Run(ID string) float64 {
+	resourceIns.SetDeviceID(ID)
 	ret := C.wrapper(t.Symbol)
 	return float64(ret)
 }
 
 // Close stops device resource monitoring
 func (t Getter) Close() {
-	//	if t.dl != nil {
 	C.dlclose(t.Dl)
 }
 

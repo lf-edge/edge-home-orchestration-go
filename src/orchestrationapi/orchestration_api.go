@@ -31,6 +31,8 @@ import (
 	"controller/servicemgr"
 	"controller/servicemgr/notification"
 	"restinterface/client"
+
+	sysDB "db/bolt/system"
 )
 
 type orcheImpl struct {
@@ -62,7 +64,13 @@ type orcheClient struct {
 var (
 	orchClientID int32 = -1
 	orcheClients       = [1024]orcheClient{}
+
+	sysDBExecutor sysDB.DBInterface
 )
+
+func init() {
+	sysDBExecutor = sysDB.Query{}
+}
 
 // RequestService handles service reqeust (ex. offloading) from service application
 func (orcheEngine *orcheImpl) RequestService(appName string, args []string) (handle int) {
@@ -87,7 +95,7 @@ func (orcheEngine *orcheImpl) RequestService(appName string, args []string) (han
 
 	if len(deviceScores) > 0 {
 		orcheEngine.executeApp(deviceScores[0].endpoint, appName, args, serviceClient.notiChan)
-		log.Println("[orchestrationapi] ", deviceScores)
+		log.Println("[orchestrationapi] ", deviceScores[0])
 	}
 
 	return
@@ -98,10 +106,15 @@ func (orcheEngine orcheImpl) getEndpointDevices(appName string) (deviceList []st
 }
 
 func (orcheEngine orcheImpl) gatheringDevicesScore(endpoints []string, appName string) (deviceScores []deviceScore) {
-
 	scores := make(chan deviceScore, len(endpoints))
 	count := len(endpoints)
 	index := 0
+
+	info, err := sysDBExecutor.Get(sysDB.ID)
+	if err != nil {
+		log.Println("[orchestrationapi] ", "localhost devid gettering fail")
+		return
+	}
 
 	var wait sync.WaitGroup
 	wait.Add(1)
@@ -129,9 +142,9 @@ func (orcheEngine orcheImpl) gatheringDevicesScore(endpoints []string, appName s
 			var err error
 
 			if endpoint == localhost {
-				score, err = orcheEngine.GetScore(endpoint, appName)
+				score, err = orcheEngine.GetScore(info.Value, appName)
 			} else {
-				score, err = orcheEngine.clientAPI.DoGetScoreRemoteDevice(appName, endpoint)
+				score, err = orcheEngine.clientAPI.DoGetScoreRemoteDevice(info.Value, appName, endpoint)
 			}
 
 			if err != nil {

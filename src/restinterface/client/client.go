@@ -31,7 +31,7 @@ type Clienter interface {
 	DoNotifyAppStatusRemoteDevice(statusNotificationInfo map[string]interface{}, appID uint64, target string) (err error)
 
 	// for scoringmgr
-	DoGetScoreRemoteDevice(appName string, target string) (scoreValue float64, err error)
+	DoGetScoreRemoteDevice(devID string, appName string, endpoint string) (scoreValue float64, err error)
 }
 
 // Setter interface
