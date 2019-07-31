@@ -18,8 +18,12 @@
 package orchestrationapi
 
 import (
+	"db/bolt/configuration"
+	"db/bolt/network"
+	"errors"
 	"log"
 	"sort"
+	"strings"
 	"sync"
 	"sync/atomic"
 
@@ -112,48 +116,76 @@ func (orcheEngine *orcheImpl) RequestService(serviceInfo ReqeustService) Reponse
 
 	atomic.AddInt32(&orchClientID, 1)
 
-	//	handle := int(orchClientID)
+	handle := int(orchClientID)
 
-	//TODO
-	//	serviceClient := addServiceClient(handle, appName, args)
-	//	go serviceClient.listenNotify()
+	serviceClient := addServiceClient(handle, serviceInfo.ServiceName)
+	go serviceClient.listenNotify()
 
-	return ReponseService{}
+	var executionTypes []string
+	for _, info := range serviceInfo.ServiceInfo {
+		executionTypes = append(executionTypes, info.ExecutionType)
+	}
+
+	endpoints, err := orcheEngine.getEndpointDevices(serviceInfo.ServiceName, executionTypes)
+	if err != nil {
+		return ReponseService{
+			Message:          err.Error(),
+			ServiceName:      serviceInfo.ServiceName,
+			RemoteTargetInfo: TargetInfo{},
+		}
+	}
+
+	deviceScores := sortByScore(orcheEngine.gatherDevicesScore(endpoints, serviceInfo.ServiceName))
+	if len(deviceScores) > 0 {
+		args, err := getExecCmds(deviceScores[0].endpoint, serviceInfo.ServiceInfo)
+		if err != nil {
+			log.Println(err.Error())
+			return ReponseService{
+				Message:          err.Error(),
+				ServiceName:      serviceInfo.ServiceName,
+				RemoteTargetInfo: TargetInfo{},
+			}
+		}
+
+		orcheEngine.executeApp(deviceScores[0].endpoint, serviceInfo.ServiceName, args, serviceClient.notiChan)
+		log.Println("[orchestrationapi] ", deviceScores)
+	}
+
+	return ReponseService{
+		Message:          ERROR_NONE,
+		ServiceName:      serviceInfo.ServiceName,
+		RemoteTargetInfo: TargetInfo{},
+	}
 }
 
-//func (orcheEngine *orcheImpl) RequestService(appName string, args []string) (handle int) {
-//
-//	log.Printf("[RequestService] %v: %v\n", appName, args)
-//
-//	if orcheEngine.Ready == false {
-//		return errormsg.ErrorNotReadyOrchestrationInit
-//	}
-//
-//	atomic.AddInt32(&orchClientID, 1)
-//
-//	handle = int(orchClientID)
-//
-//	serviceClient := addServiceClient(handle, appName, args)
-//	go serviceClient.listenNotify()
-//	endpoints, err := orcheEngine.getEndpointDevices(appName)
-//	if err != nil {
-//		return errormsg.ToInt(err)
-//	}
-//	deviceScores := sortByScore(orcheEngine.gatheringDevicesScore(endpoints, appName))
-//
-//	if len(deviceScores) > 0 {
-//		orcheEngine.executeApp(deviceScores[0].endpoint, appName, args, serviceClient.notiChan)
-//		log.Println("[orchestrationapi] ", deviceScores)
-//	}
-//
-//	return
-//}
+func getExecCmds(endpoint string, requestServiceInfo []RequestServiceInfo) ([]string, error) {
+	netQuery := network.Query{}
+	id, err := netQuery.GetIDWithIP(endpoint)
+	if err != nil {
+		return nil, err
+	}
 
-func (orcheEngine orcheImpl) getEndpointDevices(appName string) (deviceList []string, err error) {
-	return orcheEngine.discoverIns.GetDeviceIPListWithService(appName)
+	confQuery := configuration.Query{}
+	confInfo, err := confQuery.Get(id)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, serviceInfo := range requestServiceInfo {
+		if strings.Compare(serviceInfo.ExecutionType, confInfo.ExecType) == 0 {
+			return serviceInfo.ExeCmd, nil
+		}
+	}
+
+	return nil, errors.New("Not Found")
 }
 
-func (orcheEngine orcheImpl) gatheringDevicesScore(endpoints []string, appName string) (deviceScores []deviceScore) {
+func (orcheEngine orcheImpl) getEndpointDevices(appName string, execType []string) (deviceList []string, err error) {
+	return orcheEngine.discoverIns.GetDeviceIPListWithService(appName, execType)
+}
+
+func (orcheEngine orcheImpl) gatherDevicesScore(endpoints []string, appName string) (deviceScores []deviceScore) {
+
 	scores := make(chan deviceScore, len(endpoints))
 	count := len(endpoints)
 	index := 0
@@ -225,8 +257,8 @@ func (client *orcheClient) listenNotify() {
 	}
 }
 
-func addServiceClient(clientID int, appName string, args []string) (client *orcheClient) {
-	orcheClients[clientID].args = args
+func addServiceClient(clientID int, appName string) (client *orcheClient) {
+	// orcheClients[clientID].args = args
 	orcheClients[clientID].appName = appName
 	orcheClients[clientID].notiChan = make(chan string)
 

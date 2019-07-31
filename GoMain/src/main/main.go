@@ -84,7 +84,15 @@ func main() {
 
 	if err == nil {
 		// @NOTE : for container
-		externalapi.RequestService("container_service", []string{"docker", "run", "-v", "/var/run:/var/run:rw", "hello-world"})
+		serviceInfo := make([]orchestrationapi.RequestServiceInfo, 1)
+		serviceInfo[0].ExecutionType = "container"
+		serviceInfo[0].ExeCmd = []string{"docker", "run", "-v", "/var/run:/var/run:rw", "hello-world"}
+		requestService := orchestrationapi.ReqeustService{
+			ServiceName: "container_service",
+			ServiceInfo: serviceInfo,
+		}
+
+		externalapi.RequestService(requestService)
 	}
 
 	for {
