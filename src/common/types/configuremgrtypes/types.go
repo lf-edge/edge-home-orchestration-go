@@ -24,9 +24,7 @@ import (
 
 // ServiceInfo for configuremgr
 type ServiceInfo struct {
-	ServiceName string
-	//	ScoringFunc    func(cpu float32, mem float32, net float32, score *float32) int
-	//ScoringFunc func(func(string) float64) float64
+	ServiceName    string
 	ScoringFunc    resourceutil.Command
 	IntervalTimeMs int
 }

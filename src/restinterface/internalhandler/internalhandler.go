@@ -52,6 +52,13 @@ func init() {
 	handler.helper = resthelper.GetHelper()
 	handler.Routes = restinterface.Routes{
 		restinterface.Route{
+			Name:        "APIV1Ping",
+			Method:      strings.ToUpper("Get"),
+			Pattern:     "/api/v1/ping",
+			HandlerFunc: handler.APIV1Ping,
+		},
+
+		restinterface.Route{
 			Name:        "APIV1ServicemgrServicesPost",
 			Method:      strings.ToUpper("Post"),
 			Pattern:     "/api/v1/servicemgr/services",
@@ -83,6 +90,12 @@ func GetHandler() *Handler {
 func (h *Handler) SetOrchestrationAPI(o orchestrationapi.OrcheInternalAPI) {
 	h.api = o
 	h.isSetAPI = true
+}
+
+// APIV1Ping handles ping request from remote orchestration
+func (h *Handler) APIV1Ping(w http.ResponseWriter, r *http.Request) {
+	log.Printf("[%s] APIV1Ping", logPrefix)
+	h.helper.ResponseJSON(w, nil, http.StatusOK)
 }
 
 // APIV1ServicemgrServicesPost handles service execution request from remote orchestration
@@ -174,17 +187,17 @@ func (h *Handler) APIV1ScoringmgrScoreLibnameGet(w http.ResponseWriter, r *http.
 	}
 
 	encryptBytes, _ := ioutil.ReadAll(r.Body)
-	appNameInfo, err := h.Key.DecryptByteToJSON(encryptBytes)
+	Info, err := h.Key.DecryptByteToJSON(encryptBytes)
 	if err != nil {
 		log.Printf("[%s] can not decryption %s", logPrefix, err.Error())
 		h.helper.Response(w, http.StatusServiceUnavailable)
 		return
 	}
 
-	appName := appNameInfo["appName"]
-	log.Println(appName)
+	devID := Info["devID"]
+	appName := Info["appName"]
 
-	scoreValue, err := h.api.GetScore("localhost", appName.(string))
+	scoreValue, err := h.api.GetScore(devID.(string), appName.(string))
 	if err != nil {
 		log.Printf("[%s] GetScore fail : %s", logPrefix, err.Error())
 		h.helper.Response(w, http.StatusInternalServerError)

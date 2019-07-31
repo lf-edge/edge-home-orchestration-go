@@ -20,6 +20,7 @@ package discoverymgr
 import (
 	"log"
 	"net"
+	"reflect"
 	"testing"
 	"time"
 
@@ -28,6 +29,7 @@ import (
 	networkmocks "common/networkhelper/mocks"
 	wrapper "controller/discoverymgr/wrapper"
 	wrappermocks "controller/discoverymgr/wrapper/mocks"
+	systemdb "db/bolt/system"
 
 	"github.com/golang/mock/gomock"
 )
@@ -78,26 +80,115 @@ func createMockIns(ctrl *gomock.Controller) {
 	mockWrapper = wrappermocks.NewMockZeroconfInterface(ctrl)
 	mockNetwork = networkmocks.NewMockNetwork(ctrl)
 
-	discoverymgrInfo.wrapperIns = mockWrapper
+	wrapperIns = mockWrapper
 	networkIns = mockNetwork
 }
 
 func addDevice(Another bool) {
-	deviceID, deviceInfo := convertwrappertoDB(defaultMyDeviceEntity)
-	newDeviceHandler(deviceID, deviceInfo)
-	discoverymgrInfo.deviceID = deviceID
+	deviceID, confInfo, netInfo, serviceInfo := convertToDBInfo(defaultMyDeviceEntity)
+
+	log.Println(logPrefix, "[addDevice]", deviceID)
+	setSystemDB(deviceID, defaultPlatform, defaultExecutionType)
+	setConfigurationDB(confInfo)
+	setNetworkDB(netInfo)
+	setServiceDB(serviceInfo)
+
 	if !Another {
 		return
 	}
-	deviceID, deviceInfo = convertwrappertoDB(anotherEntity)
-	newDeviceHandler(deviceID, deviceInfo)
+
+	deviceID, confInfo, netInfo, serviceInfo = convertToDBInfo(anotherEntity)
+
+	setConfigurationDB(confInfo)
+	setNetworkDB(netInfo)
+	setServiceDB(serviceInfo)
+}
+
+func checkPresence(t *testing.T, deviceID string) {
+	t.Helper()
+
+	_, err := confQuery.Get(deviceID)
+	if err != nil {
+		t.Error(err.Error())
+	}
+
+	_, err = netQuery.Get(deviceID)
+	if err != nil {
+		t.Error(err.Error())
+	}
+
+	_, err = serviceQuery.Get(deviceID)
+	if err != nil {
+		t.Error(err.Error())
+	}
+
+	return
+}
+
+func checkNotPresence(t *testing.T, deviceID string) {
+	t.Helper()
+
+	_, err := confQuery.Get(deviceID)
+	if err == nil {
+		t.Error()
+	}
+
+	_, err = netQuery.Get(deviceID)
+	if err == nil {
+		t.Error()
+	}
+
+	_, err = serviceQuery.Get(deviceID)
+	if err == nil {
+		t.Error()
+	}
+
+	return
+}
+
+func checkClearMap(t *testing.T) {
+	t.Helper()
+	_, err := sysQuery.Get(systemdb.ID)
+	if err != nil {
+		t.Error("Delete MySelf")
+	}
+
+	confInfos, err := confQuery.GetList()
+	if len(confInfos) != 1 || err != nil {
+		t.Error("Not Cleared : Configuration Map")
+	}
+
+	netInfos, err := netQuery.GetList()
+	if len(netInfos) != 1 || err != nil {
+		t.Error("Not Cleared : Network Map")
+	}
+
+	serviceInfos, err := serviceQuery.GetList()
+	if len(serviceInfos) != 1 || err != nil {
+		t.Error("Not Cleared : Service Map")
+	}
 }
 
 func closeTest() {
-	discoverymgrInfo.deviceID = ""
-	discoverymgrInfo.platform = defaultPlatform
-	discoverymgrInfo.executionType = defaultExecutionType
-	discoverymgrInfo.orchestrationMap = make(OrchestrationMap)
+	systemNames := []string{systemdb.ID, systemdb.Platform, systemdb.ExecType}
+
+	for _, info := range systemNames {
+		err := sysQuery.Delete(info)
+		if err != nil {
+			log.Println(logPrefix, err.Error())
+		}
+	}
+
+	confItems, err := confQuery.GetList()
+	if err != nil {
+		log.Println(logPrefix, err.Error())
+		return
+	}
+
+	for _, confItem := range confItems {
+		id := confItem.ID
+		deleteDevice(id)
+	}
 }
 
 func TestStartDiscovery(t *testing.T) {
@@ -134,6 +225,7 @@ func TestStartDiscovery(t *testing.T) {
 		discoveryInstance.StopDiscovery()
 	})
 
+	closeTest()
 }
 
 func TestDeviceDetectionRoutine(t *testing.T) {
@@ -151,54 +243,72 @@ func TestDeviceDetectionRoutine(t *testing.T) {
 
 		//set my device info
 		addDevice(false)
-		discoverymgrInfo.shutdownChan = make(chan struct{})
-		defer close(discoverymgrInfo.shutdownChan)
+		shutdownChan = make(chan struct{})
+		defer close(shutdownChan)
 		//let the test start
 		go deviceDetectionRoutine()
+		time.Sleep(1 * time.Second)
 
 		t.Run("SuccessClearMap", func(t *testing.T) {
-			deviceID, deviceInfo := convertwrappertoDB(anotherEntity)
-			newDeviceHandler(deviceID, deviceInfo)
+			_, confInfo, netInfo, serviceInfo := convertToDBInfo(anotherEntity)
+
+			setConfigurationDB(confInfo)
+			setNetworkDB(netInfo)
+			setServiceDB(serviceInfo)
 
 			devicesubchan <- nil
 			time.Sleep(1 * time.Second)
-			if len(discoverymgrInfo.orchestrationMap) != 1 {
-				t.Error("Map Not Cleared : ", len(discoverymgrInfo.orchestrationMap))
-			}
-			_, presence := discoverymgrInfo.orchestrationMap[defaultMyDeviceID]
-			if !presence {
-				t.Error("Delete Myself")
-			}
+
+			checkNotPresence(t, anotherDeviceID)
+			checkPresence(t, defaultMyDeviceID)
 		})
 		t.Run("SuccessDeleteDevice", func(t *testing.T) {
-			deviceID, deviceInfo := convertwrappertoDB(anotherEntity)
-			newDeviceHandler(deviceID, deviceInfo)
+			_, confInfo, netInfo, serviceInfo := convertToDBInfo(anotherEntity)
+
+			setConfigurationDB(confInfo)
+			setNetworkDB(netInfo)
+			setServiceDB(serviceInfo)
+
 			tmpEntity := anotherEntity
 			tmpEntity.TTL = 0
 			devicesubchan <- &tmpEntity
 			time.Sleep(1 * time.Second)
-			_, presence := discoverymgrInfo.orchestrationMap[anotherDeviceID]
-			if presence {
-				t.Error("Device Not Deleted")
-			}
+
+			checkNotPresence(t, anotherDeviceID)
 		})
 		t.Run("SuccessUpdateInfo", func(t *testing.T) {
 			tmpEntity := defaultMyDeviceEntity
 			tmpEntity.OrchestrationInfo.IPv4 = anotherIPv4List
 			devicesubchan <- &tmpEntity
 			time.Sleep(1 * time.Second)
-			myDevice := discoverymgrInfo.orchestrationMap[defaultMyDeviceID]
-			if myDevice.IPv4[0] != anotherIPv4 {
-				t.Error("Info Not Updated ::", myDevice.IPv4)
+
+			presence := false
+
+			deviceID, err := getDeviceID()
+			log.Println(deviceID)
+			if err != nil {
+				t.Fatal(err.Error())
+			}
+
+			netInfo, err := netQuery.Get(deviceID)
+			if err != nil {
+				t.Fatal(err.Error())
+			}
+
+			for _, ip := range netInfo.IPv4 {
+				if ip == anotherIPv4 {
+					presence = true
+				}
+			}
+			if presence == false {
+				t.Error("Info Not Updated ::", netInfo.IPv4)
 			}
 		})
 		t.Run("SuccessNewDevice", func(t *testing.T) {
 			devicesubchan <- &anotherEntity
 			time.Sleep(1 * time.Second)
-			_, presence := discoverymgrInfo.orchestrationMap[anotherDeviceID]
-			if !presence {
-				t.Error("Device Not Generated")
-			}
+
+			checkPresence(t, anotherDeviceID)
 		})
 	})
 
@@ -249,39 +359,39 @@ func TestGetDeviceIPListWithService(t *testing.T) {
 	closeTest()
 }
 
-func TestGetDeviceListWithService(t *testing.T) {
+// func TestGetDeviceListWithService(t *testing.T) {
 
-	discoveryInstance := GetInstance()
+// 	discoveryInstance := GetInstance()
 
-	addDevice(true)
+// 	addDevice(true)
 
-	t.Run("Success", func(t *testing.T) {
-		t.Run("GetDeviceListWithService", func(t *testing.T) {
-			deviceMap, _ := discoveryInstance.GetDeviceListWithService(defaultService)
-			presence := false
-			for k, v := range deviceMap {
-				if k == defaultMyDeviceID {
-					if v.IPv4[0] == defaultIPv4 {
-						presence = true
-					}
-				}
-			}
-			if presence == false {
-				t.Error("Cannot Find my device w/ service")
-			}
-		})
-	})
-	t.Run("Fail", func(t *testing.T) {
-		failService := "NoServiceIsThisName"
-		t.Run("GetDeviceListWithService", func(t *testing.T) {
-			_, err := discoveryInstance.GetDeviceListWithService(failService)
-			if err != noDeviceReturnErr {
-				t.Error("Error is not generated : ", err)
-			}
-		})
-	})
-	closeTest()
-}
+// 	t.Run("Success", func(t *testing.T) {
+// 		t.Run("GetDeviceListWithService", func(t *testing.T) {
+// 			deviceMap, _ := discoveryInstance.GetDeviceListWithService(defaultService)
+// 			presence := false
+// 			for k, v := range deviceMap {
+// 				if k == defaultMyDeviceID {
+// 					if v.IPv4[0] == defaultIPv4 {
+// 						presence = true
+// 					}
+// 				}
+// 			}
+// 			if presence == false {
+// 				t.Error("Cannot Find my device w/ service")
+// 			}
+// 		})
+// 	})
+// 	t.Run("Fail", func(t *testing.T) {
+// 		failService := "NoServiceIsThisName"
+// 		t.Run("GetDeviceListWithService", func(t *testing.T) {
+// 			_, err := discoveryInstance.GetDeviceListWithService(failService)
+// 			if err != noDeviceReturnErr {
+// 				t.Error("Error is not generated : ", err)
+// 			}
+// 		})
+// 	})
+// 	closeTest()
+// }
 func TestGetDeviceWithID(t *testing.T) {
 
 	discoveryInstance := GetInstance()
@@ -316,33 +426,6 @@ func TestGetDeviceWithID(t *testing.T) {
 	closeTest()
 }
 
-func TestDeleteDeviceWithIP(t *testing.T) {
-
-	discoveryInstance := GetInstance()
-
-	addDevice(true)
-
-	t.Run("Success", func(t *testing.T) {
-		t.Run("DeleteDeviceWithIP", func(t *testing.T) {
-			discoveryInstance.DeleteDeviceWithIP(anotherIPv4)
-			if _, presence := discoverymgrInfo.orchestrationMap[anotherDeviceID]; presence {
-				t.Error("Delete Do Not Work")
-			}
-		})
-		addDevice(true)
-	})
-
-	t.Run("Fail", func(t *testing.T) {
-		t.Run("DeleteDeviceWithIP", func(t *testing.T) {
-			discoveryInstance.DeleteDeviceWithIP(defaultIPv4)
-			if _, presence := discoverymgrInfo.orchestrationMap[defaultMyDeviceID]; !presence {
-				t.Error("Delete My Device")
-			}
-		})
-	})
-	closeTest()
-}
-
 func TestDeleteDeviceWithID(t *testing.T) {
 
 	discoveryInstance := GetInstance()
@@ -352,9 +435,7 @@ func TestDeleteDeviceWithID(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		t.Run("DeleteDeviceWithID", func(t *testing.T) {
 			discoveryInstance.DeleteDeviceWithID(anotherDeviceID)
-			if _, presence := discoverymgrInfo.orchestrationMap[anotherDeviceID]; presence {
-				t.Error("Delete Do Not Work")
-			}
+			checkNotPresence(t, anotherDeviceID)
 		})
 		addDevice(true)
 	})
@@ -362,9 +443,7 @@ func TestDeleteDeviceWithID(t *testing.T) {
 	t.Run("Fail", func(t *testing.T) {
 		t.Run("DeleteDeviceWithID", func(t *testing.T) {
 			discoveryInstance.DeleteDeviceWithID(defaultMyDeviceID)
-			if _, presence := discoverymgrInfo.orchestrationMap[defaultMyDeviceID]; !presence {
-				t.Error("Delete My Device")
-			}
+			checkPresence(t, defaultMyDeviceID)
 		})
 	})
 	closeTest()
@@ -393,12 +472,23 @@ func TestAddNewServiceName(t *testing.T) {
 				t.Error("add new service error : ", err)
 			}
 			presence := false
-			log.Println(discoverymgrInfo.orchestrationMap[discoverymgrInfo.deviceID].ServiceList)
-			for _, val := range discoverymgrInfo.orchestrationMap[discoverymgrInfo.deviceID].ServiceList {
-				if val == newServiceName {
+
+			deviceID, err := getDeviceID()
+			if err != nil {
+				t.Fatal(err.Error())
+			}
+
+			serviceInfo, err := serviceQuery.Get(deviceID)
+			if err != nil {
+				t.Fatal(err.Error())
+			}
+
+			for _, service := range serviceInfo.Services {
+				if service == newServiceName {
 					presence = true
 				}
 			}
+
 			if presence == false {
 				t.Error("add new service fail without error")
 			}
@@ -426,14 +516,27 @@ func TestRemoveServiceName(t *testing.T) {
 			if err != nil {
 				t.Error("delete service error : ", err)
 			}
-			presence := true
-			for _, val := range discoverymgrInfo.orchestrationMap[discoverymgrInfo.deviceID].ServiceList {
-				if val == defaultService {
-					presence = false
+
+			isPresence := false
+
+			deviceID, err := getDeviceID()
+			if err != nil {
+				t.Fatal(err.Error())
+			}
+
+			serviceInfo, err := serviceQuery.Get(deviceID)
+			if err != nil {
+				t.Fatal(err.Error())
+			}
+
+			for _, service := range serviceInfo.Services {
+				if service == defaultService {
+					isPresence = true
 				}
 			}
-			if presence == true {
-				t.Error("add new service fail without error")
+
+			if isPresence == true {
+				t.Error("remove service fail")
 			}
 		})
 	})
@@ -454,7 +557,18 @@ func TestResetServiceName(t *testing.T) {
 		t.Run("ResetServiceName", func(t *testing.T) {
 			mockWrapper.EXPECT().SetText(gomock.Any()).Return()
 			discoveryInstance.ResetServiceName()
-			if len(discoverymgrInfo.orchestrationMap[discoverymgrInfo.deviceID].ServiceList) != 0 {
+
+			deviceID, err := getDeviceID()
+			if err != nil {
+				t.Fatal(err.Error())
+			}
+
+			serviceInfo, err := serviceQuery.Get(deviceID)
+			if err != nil {
+				t.Fatal(err.Error())
+			}
+
+			if len(serviceInfo.Services) != 0 {
 				t.Error("Reset failed")
 			}
 		})
@@ -463,6 +577,7 @@ func TestResetServiceName(t *testing.T) {
 	closeTest()
 }
 func TestServiceNameChecker(t *testing.T) {
+	addDevice(false)
 
 	t.Run("Fail", func(t *testing.T) {
 		t.Run("serviceNameChecker", func(t *testing.T) {
@@ -538,28 +653,49 @@ func TestDetectNetworkChgRoutine(t *testing.T) {
 	defer ctrl.Finish()
 
 	createMockIns(ctrl)
+	addDevice(false)
 
-	discoverymgrInfo.shutdownChan = make(chan struct{})
-	defer close(discoverymgrInfo.shutdownChan)
+	shutdownChan = make(chan struct{})
+	defer close(shutdownChan)
 	//set mock in order
-	ipsub := make(chan []net.IP, 1)
+	ipsub := make(chan []net.IP, 2)
 	mockNetwork.EXPECT().AppendSubscriber().Return(ipsub)
 	mockWrapper.EXPECT().ResetServer(gomock.Any()).Return()
 	go detectNetworkChgRoutine()
+
 	t.Run("Success", func(t *testing.T) {
-		discoverymgrInfo.deviceID = "foo"
+		expectedIP := []string{"192.0.2.1"}
 		ipsub <- []net.IP{net.ParseIP("192.0.2.1")}
+
+		time.Sleep(time.Millisecond * time.Duration(10))
+		deviceID, err := getDeviceID()
+		if err != nil {
+			t.Error(err.Error())
+		}
+
+		netInfo, err := netQuery.Get(deviceID)
+		if err != nil {
+			t.Error(err.Error())
+		}
+
+		log.Println(netInfo.IPv4, expectedIP)
+		if reflect.DeepEqual(netInfo.IPv4, expectedIP) != true {
+			t.Error()
+		}
 	})
-	time.Sleep(1 * time.Second)
-	t.Run("Fail", func(t *testing.T) {
-		discoverymgrInfo.deviceID = ""
-		ipsub <- []net.IP{net.ParseIP("192.0.2.1")}
-	})
+	// time.Sleep(1 * time.Second)
+	// t.Run("Fail", func(t *testing.T) {
+	// 	// discoverymgrInfo.deviceID = ""
+	// 	ipsub <- []net.IP{net.ParseIP("192.0.2.1")}
+
+	// })
+
+	shutdownChan <- struct{}{}
 }
 
 func TestGetDeviceID(t *testing.T) {
 	t.Run("SuccessNewV4", func(t *testing.T) {
-		uuid, _ := getDeviceID("/x/y/z/NoFileIsThisName")
+		uuid, _ := setDeviceID("/x/y/z/NoFileIsThisName")
 		if len(uuid) == 0 {
 			t.Error()
 		}

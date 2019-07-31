@@ -20,6 +20,10 @@ package discoverymgr
 
 import (
 	wrapper "controller/discoverymgr/wrapper"
+	configurationdb "db/bolt/configuration"
+	networkdb "db/bolt/network"
+	servicedb "db/bolt/service"
+	systemdb "db/bolt/system"
 	"sync"
 )
 
@@ -36,18 +40,16 @@ type OrchestrationInformation struct {
 	ServiceList []string `json:"ServiceList"`
 }
 
-// OrchestrationMap has full Orchestration Information
-type OrchestrationMap map[string]*OrchestrationInformation
-
 // ExportDeviceMap gives device info map for discoverymgr user
 type ExportDeviceMap map[string]OrchestrationInformation
 
-type discoverymgrInformation struct {
-	deviceID         string
-	platform         string
-	executionType    string
-	orchestrationMap OrchestrationMap
-	mapMTX           sync.Mutex
-	wrapperIns       wrapper.ZeroconfInterface
-	shutdownChan     chan struct{}
-}
+var (
+	mapMTX       sync.Mutex
+	wrapperIns   wrapper.ZeroconfInterface
+	shutdownChan chan struct{}
+
+	sysQuery     systemdb.Query
+	confQuery    configurationdb.Query
+	netQuery     networkdb.Query
+	serviceQuery servicedb.Query
+)

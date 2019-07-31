@@ -14,6 +14,7 @@
  * limitations under the License.
  *
  *******************************************************************************/
+
 package system
 
 import (
@@ -23,20 +24,23 @@ import (
 	bolt "db/bolt/wrapper"
 )
 
-const bucketName = "system"
+const (
+	bucketName = "system"
+
+	ID       = "id"
+	Platform = "platform"
+	ExecType = "execType"
+)
 
 type SystemInfo struct {
-	ID       string `json:"id"`
-	Platform string `json:"platform"`
-	ExecType string `json:"executionType"`
+	Name  string `json:"name"`
+	Value string `json:"value"`
 }
 
 type DBInterface interface {
-	Get(id string) (SystemInfo, error)
-	GetList() ([]SystemInfo, error)
-	Set(conf SystemInfo) error
-	Update(conf SystemInfo) error
-	Delete(id string) error
+	Get(name string) (SystemInfo, error)
+	Set(info SystemInfo) error
+	Delete(name string) error
 }
 
 type Query struct {
@@ -48,88 +52,41 @@ func init() {
 	db = bolt.NewBoltDB(bucketName)
 }
 
-func (Query) Get(id string) (SystemInfo, error) {
-	var conf SystemInfo
+func (Query) Get(name string) (SystemInfo, error) {
+	var info SystemInfo
 
-	value, err := db.Get([]byte(id))
+	value, err := db.Get([]byte(name))
 	if err != nil {
-		return conf, err
+		return info, err
 	}
 
-	conf, err = decode(value)
+	info, err = decode(value)
 	if err != nil {
-		return conf, err
+		return info, err
 	}
 
-	return conf, nil
+	return info, nil
 }
 
-func (Query) GetList() ([]SystemInfo, error) {
-	infos, err := db.List()
-	if err != nil {
-		return nil, err
-	}
-
-	list := make([]SystemInfo, 0)
-	for _, data := range infos {
-		info, err := decode([]byte(data.(string)))
-		if err != nil {
-			continue
-		}
-		list = append(list, info)
-	}
-	return list, nil
-}
-
-func (Query) Set(conf SystemInfo) error {
-	encoded, err := conf.encode()
+func (Query) Set(info SystemInfo) error {
+	encoded, err := info.encode()
 	if err != nil {
 		return err
 	}
 
-	err = db.Put([]byte(conf.ID), encoded)
+	err = db.Put([]byte(info.Name), encoded)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (Query) Update(conf SystemInfo) error {
-	data, err := db.Get([]byte(conf.ID))
-	if err != nil {
-		return errors.DBOperationError{Message: err.Error()}
-	}
-
-	stored, err := decode(data)
-	if err != nil {
-		return err
-	}
-
-	stored.Platform = conf.Platform
-	stored.ExecType = conf.ExecType
-
-	encoded, err := stored.encode()
-	if err != nil {
-		return err
-	}
-
-	return db.Put([]byte(conf.ID), encoded)
+func (Query) Delete(name string) error {
+	return db.Delete([]byte(name))
 }
 
-func (Query) Delete(id string) error {
-	return db.Delete([]byte(id))
-}
-
-func (conf SystemInfo) convertToMap() map[string]interface{} {
-	return map[string]interface{}{
-		"id":            conf.ID,
-		"platform":      conf.Platform,
-		"executionType": conf.ExecType,
-	}
-}
-
-func (conf SystemInfo) encode() ([]byte, error) {
-	encoded, err := json.Marshal(conf)
+func (info SystemInfo) encode() ([]byte, error) {
+	encoded, err := json.Marshal(info)
 	if err != nil {
 		return nil, errors.InvalidJSON{Message: err.Error()}
 	}
@@ -137,10 +94,10 @@ func (conf SystemInfo) encode() ([]byte, error) {
 }
 
 func decode(data []byte) (SystemInfo, error) {
-	var conf SystemInfo
-	err := json.Unmarshal(data, &conf)
+	var info SystemInfo
+	err := json.Unmarshal(data, &info)
 	if err != nil {
-		return conf, errors.InvalidJSON{Message: err.Error()}
+		return info, errors.InvalidJSON{Message: err.Error()}
 	}
-	return conf, nil
+	return info, nil
 }
