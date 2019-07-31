@@ -333,14 +333,13 @@ func TestGetDeviceList(t *testing.T) {
 }
 
 func TestGetDeviceIPListWithService(t *testing.T) {
-
 	discoveryInstance := GetInstance()
 
 	addDevice(true)
 
 	t.Run("Success", func(t *testing.T) {
 		t.Run("GetDeviceIPListWithService", func(t *testing.T) {
-			deviceStringList, _ := discoveryInstance.GetDeviceIPListWithService(defaultService)
+			deviceStringList, _ := discoveryInstance.GetDeviceIPListWithService(defaultService, []string{"Executable"})
 			if deviceStringList[0] != defaultIPv4 {
 				t.Error("Error return []string W/ Service : ", deviceStringList)
 			}
@@ -349,7 +348,7 @@ func TestGetDeviceIPListWithService(t *testing.T) {
 	t.Run("Fail", func(t *testing.T) {
 		failService := "NoServiceIsThisName"
 		t.Run("GetDeviceIPListWithService", func(t *testing.T) {
-			_, err := discoveryInstance.GetDeviceIPListWithService(failService)
+			_, err := discoveryInstance.GetDeviceIPListWithService(failService, []string{"Executable"})
 			log.Println(err)
 			if err != noDeviceReturnErr {
 				t.Error("Error is not generated : ", err)
