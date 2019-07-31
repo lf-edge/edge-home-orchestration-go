@@ -35,6 +35,7 @@ type NetworkInfo struct {
 type DBInterface interface {
 	Get(id string) (NetworkInfo, error)
 	GetList() ([]NetworkInfo, error)
+	GetIDWithIP(IPv4 string) (string, error)
 	Set(conf NetworkInfo) error
 	Update(conf NetworkInfo) error
 	Delete(id string) error
@@ -80,6 +81,21 @@ func (Query) GetList() ([]NetworkInfo, error) {
 		list = append(list, info)
 	}
 	return list, nil
+}
+
+func (q Query) GetIDWithIP(IP string) (string, error) {
+	netInfo, err := q.GetList()
+	if err != nil {
+		return "", err
+	}
+
+	for _, info := range netInfo {
+		if common.HasElem(info.IPv4, IP) == true {
+			return info.ID, nil
+		}
+	}
+
+	return "", errors.NotFound{Message: "Not Found ID"}
 }
 
 func (Query) Set(info NetworkInfo) error {
