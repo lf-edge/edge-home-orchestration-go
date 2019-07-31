@@ -29,6 +29,7 @@ import (
 	networkhelper "common/networkhelper"
 	wrapper "controller/discoverymgr/wrapper"
 
+	"db/bolt/common"
 	configurationdb "db/bolt/configuration"
 	networkdb "db/bolt/network"
 	servicedb "db/bolt/service"
@@ -42,8 +43,7 @@ type Discovery interface {
 	StartDiscovery(UUIDpath string, platform string, executionType string) error
 	StopDiscovery()
 	GetDeviceList() (ExportDeviceMap, error)
-	GetDeviceIPListWithService(targetService string) ([]string, error)
-	// GetDeviceListWithService(targetService string) (ExportDeviceMap, error)
+	GetDeviceIPListWithService(serviceName string, executionTypes []string) ([]string, error)
 	GetDeviceWithID(ID string) (ExportDeviceMap, error)
 	DeleteDeviceWithIP(targetIP string)
 	DeleteDeviceWithID(ID string)
@@ -141,7 +141,7 @@ func (discoveryImpl) GetDeviceList() (ExportDeviceMap, error) {
 }
 
 // GetDeviceIPListWithService returns orchestration deviceIP list using service application name
-func (discoveryImpl) GetDeviceIPListWithService(targetService string) ([]string, error) {
+func (discoveryImpl) GetDeviceIPListWithService(serviceName string, executionTypes []string) ([]string, error) {
 	var ret []string
 
 	serviceItems, err := serviceQuery.GetList()
@@ -151,7 +151,17 @@ func (discoveryImpl) GetDeviceIPListWithService(targetService string) ([]string,
 
 	for _, item := range serviceItems {
 		for _, service := range item.Services {
-			if strings.Compare(service, targetService) == 0 {
+			if strings.Compare(serviceName, service) == 0 {
+				confItems, err := confQuery.Get(item.ID)
+				if err != nil {
+					continue
+				}
+
+				hasExecType := common.HasElem(executionTypes, confItems.ExecType)
+				if hasExecType == false {
+					continue
+				}
+
 				netItems, err := netQuery.Get(item.ID)
 				if err != nil {
 					continue
