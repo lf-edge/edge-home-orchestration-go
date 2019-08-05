@@ -43,7 +43,7 @@ type Orche interface {
 
 // OrcheExternalAPI is the interface implemented by external REST API
 type OrcheExternalAPI interface {
-	RequestService(serviceInfo ReqeustService) ReponseService
+	RequestService(serviceInfo ReqeustService) ResponseService
 }
 
 // OrcheInternalAPI is the interface implemented by internal REST API

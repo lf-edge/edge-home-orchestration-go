@@ -70,10 +70,10 @@ func (m *MockOrcheExternalAPI) EXPECT() *MockOrcheExternalAPIMockRecorder {
 }
 
 // RequestService mocks base method
-func (m *MockOrcheExternalAPI) RequestService(serviceInfo orchestrationapi.ReqeustService) orchestrationapi.ReponseService {
+func (m *MockOrcheExternalAPI) RequestService(serviceInfo orchestrationapi.ReqeustService) orchestrationapi.ResponseService {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "RequestService", serviceInfo)
-	ret0, _ := ret[0].(orchestrationapi.ReponseService)
+	ret0, _ := ret[0].(orchestrationapi.ResponseService)
 	return ret0
 }
 

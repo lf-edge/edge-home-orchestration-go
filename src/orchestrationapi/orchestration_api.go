@@ -81,7 +81,7 @@ type TargetInfo struct {
 	Target        string
 }
 
-type ReponseService struct {
+type ResponseService struct {
 	Message          string
 	ServiceName      string
 	RemoteTargetInfo TargetInfo
@@ -110,10 +110,10 @@ func init() {
 }
 
 // RequestService handles service reqeust (ex. offloading) from service application
-func (orcheEngine *orcheImpl) RequestService(serviceInfo ReqeustService) ReponseService {
+func (orcheEngine *orcheImpl) RequestService(serviceInfo ReqeustService) ResponseService {
 	log.Printf("[RequestService] %v: %v\n", serviceInfo.ServiceName, serviceInfo.ServiceInfo)
 	if orcheEngine.Ready == false {
-		return ReponseService{
+		return ResponseService{
 			Message:          INTERNAL_SERVER_ERROR,
 			ServiceName:      serviceInfo.ServiceName,
 			RemoteTargetInfo: TargetInfo{},
@@ -134,7 +134,7 @@ func (orcheEngine *orcheImpl) RequestService(serviceInfo ReqeustService) Reponse
 
 	candidates, err := orcheEngine.getCandidate(serviceInfo.ServiceName, executionTypes)
 	if err != nil {
-		return ReponseService{
+		return ResponseService{
 			Message:          err.Error(),
 			ServiceName:      serviceInfo.ServiceName,
 			RemoteTargetInfo: TargetInfo{},
@@ -143,7 +143,7 @@ func (orcheEngine *orcheImpl) RequestService(serviceInfo ReqeustService) Reponse
 
 	deviceScores := sortByScore(orcheEngine.gatherDevicesScore(candidates, serviceInfo.ServiceName))
 	if len(deviceScores) > 0 {
-		return ReponseService{
+		return ResponseService{
 			Message:          SERVICE_NOT_FOUND,
 			ServiceName:      serviceInfo.ServiceName,
 			RemoteTargetInfo: TargetInfo{},
@@ -153,7 +153,7 @@ func (orcheEngine *orcheImpl) RequestService(serviceInfo ReqeustService) Reponse
 	args, err := getExecCmds(deviceScores[0].execType, serviceInfo.ServiceInfo)
 	if err != nil {
 		log.Println(err.Error())
-		return ReponseService{
+		return ResponseService{
 			Message:          err.Error(),
 			ServiceName:      serviceInfo.ServiceName,
 			RemoteTargetInfo: TargetInfo{},
@@ -163,7 +163,7 @@ func (orcheEngine *orcheImpl) RequestService(serviceInfo ReqeustService) Reponse
 	orcheEngine.executeApp(deviceScores[0].endpoint, serviceInfo.ServiceName, args, serviceClient.notiChan)
 	log.Println("[orchestrationapi] ", deviceScores)
 
-	return ReponseService{
+	return ResponseService{
 		Message:     ERROR_NONE,
 		ServiceName: serviceInfo.ServiceName,
 		RemoteTargetInfo: TargetInfo{

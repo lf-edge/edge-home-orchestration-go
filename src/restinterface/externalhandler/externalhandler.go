@@ -86,7 +86,7 @@ func (h *Handler) APIV1RequestServicePost(w http.ResponseWriter, r *http.Request
 	var (
 		responseMsg  string
 		responseName string
-		resp         orchestrationapi.ReponseService
+		resp         orchestrationapi.ResponseService
 
 		executeEnvs        []interface{}
 		responseTargetInfo map[string]interface{}
