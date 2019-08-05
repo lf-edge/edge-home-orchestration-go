@@ -24,7 +24,7 @@ import (
 	"time"
 
 	"common/networkhelper"
-	"common/types/configuremgrtypes"
+	"common/resourceutil"
 	"controller/configuremgr"
 	"controller/discoverymgr"
 	"controller/scoringmgr"
@@ -51,10 +51,13 @@ type OrcheInternalAPI interface {
 	configuremgr.Notifier
 	ExecuteAppOnLocal(appInfo map[string]interface{})
 	HandleNotificationOnLocal(serviceID float64, status string) error
-	GetScore(target string, name string) (scoreValue float64, err error)
+	GetScore(target string) (scoreValue float64, err error)
 }
 
-var orcheIns *orcheImpl
+var (
+	orcheIns            *orcheImpl
+	resourceMonitorImpl resourceutil.Monitor
+)
 
 func init() {
 	orcheIns = new(orcheImpl)
@@ -151,6 +154,7 @@ func (o OrchestrationBuilder) Build() Orche {
 	orcheIns.watcher = o.watcherIns
 	orcheIns.serviceIns = o.serviceIns
 	orcheIns.clientAPI = o.clientAPI
+	resourceMonitorImpl = resourceutil.MonitorImpl{}
 
 	orcheIns.notificationIns = notification.GetInstance()
 	orcheIns.serviceIns.SetLocalServiceExecutor(o.executorIns)
@@ -160,9 +164,7 @@ func (o OrchestrationBuilder) Build() Orche {
 
 // Start runs the orchestration service itself
 func (o *orcheImpl) Start(deviceIDPath string, platform string, executionType string) {
-	log.Println(logtag, "Start", "In")
-	defer log.Println(logtag, "Start", "Out")
-
+	resourceMonitorImpl.StartMonitoringResource()
 	o.discoverIns.StartDiscovery(deviceIDPath, platform, executionType)
 	o.watcher.Watch(o)
 	o.Ready = true
@@ -170,13 +172,8 @@ func (o *orcheImpl) Start(deviceIDPath string, platform string, executionType st
 }
 
 // Notify gives the notifications to scoringmgr and discoverymgr package after checking installed service applications
-func (o orcheImpl) Notify(service configuremgrtypes.ServiceInfo) {
-	if err := o.scoringIns.AddScoring(service); err != nil {
-		log.Println(logtag, "[Error]", err.Error())
-		return
-	}
-	if err := o.discoverIns.AddNewServiceName(service.ServiceName); err != nil {
-		o.scoringIns.RemoveScoring(service.ServiceName)
+func (o orcheImpl) Notify(service string) {
+	if err := o.discoverIns.AddNewServiceName(service); err != nil {
 		log.Println(logtag, "[Error]", err.Error())
 		return
 	}
@@ -193,6 +190,6 @@ func (o orcheImpl) HandleNotificationOnLocal(serviceID float64, status string) e
 }
 
 // GetScore gets a resource score of local device for specific app
-func (o orcheImpl) GetScore(devID string, name string) (scoreValue float64, err error) {
-	return o.scoringIns.GetScore(devID, name)
+func (o orcheImpl) GetScore(devID string) (scoreValue float64, err error) {
+	return o.scoringIns.GetScore(devID)
 }

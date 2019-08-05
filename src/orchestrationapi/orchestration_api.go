@@ -91,7 +91,7 @@ func (orcheEngine *orcheImpl) RequestService(appName string, args []string) (han
 	if err != nil {
 		return errormsg.ToInt(err)
 	}
-	deviceScores := sortByScore(orcheEngine.gatheringDevicesScore(endpoints, appName))
+	deviceScores := sortByScore(orcheEngine.gatheringDevicesScore(endpoints))
 
 	if len(deviceScores) > 0 {
 		orcheEngine.executeApp(deviceScores[0].endpoint, appName, args, serviceClient.notiChan)
@@ -105,7 +105,7 @@ func (orcheEngine orcheImpl) getEndpointDevices(appName string) (deviceList []st
 	return orcheEngine.discoverIns.GetDeviceIPListWithService(appName)
 }
 
-func (orcheEngine orcheImpl) gatheringDevicesScore(endpoints []string, appName string) (deviceScores []deviceScore) {
+func (orcheEngine orcheImpl) gatheringDevicesScore(endpoints []string) (deviceScores []deviceScore) {
 	scores := make(chan deviceScore, len(endpoints))
 	count := len(endpoints)
 	index := 0
@@ -137,14 +137,14 @@ func (orcheEngine orcheImpl) gatheringDevicesScore(endpoints []string, appName s
 	}
 
 	for _, endpoint := range endpoints {
-		go func(endpoint, appName string) {
+		go func(endpoint, id string) {
 			var score float64
 			var err error
 
 			if endpoint == localhost {
-				score, err = orcheEngine.GetScore(info.Value, appName)
+				score, err = orcheEngine.GetScore(id)
 			} else {
-				score, err = orcheEngine.clientAPI.DoGetScoreRemoteDevice(info.Value, appName, endpoint)
+				score, err = orcheEngine.clientAPI.DoGetScoreRemoteDevice(id, endpoint)
 			}
 
 			if err != nil {
@@ -153,7 +153,7 @@ func (orcheEngine orcheImpl) gatheringDevicesScore(endpoints []string, appName s
 				return
 			}
 			scores <- deviceScore{endpoint, score}
-		}(endpoint, appName)
+		}(endpoint, info.Value)
 	}
 
 	wait.Wait()

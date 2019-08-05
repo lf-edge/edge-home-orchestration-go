@@ -37,8 +37,6 @@ var (
 func init() {
 	cpu.info = commoncpu.Info
 	cpu.percent = commoncpu.Percent
-
-	processCPUInfo()
 }
 
 func processCPUInfo() {

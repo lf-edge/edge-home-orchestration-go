@@ -36,8 +36,6 @@ var (
 
 func init() {
 	mem.virtualMemory = memutil.VirtualMemory
-
-	processMEMInfo()
 }
 
 func processMEMInfo() {
