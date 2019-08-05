@@ -19,8 +19,6 @@
 package container
 
 import (
-	resourceutil "common/resourceutil/container"
-	types "common/types/configuremgrtypes"
 	"controller/configuremgr"
 )
 
@@ -43,11 +41,4 @@ func GetInstance(configPath string) *ConfigureMgr {
 
 // Watch implements Watcher interface with ConfigureMgr struct
 func (cfgMgr ConfigureMgr) Watch(notifier configuremgr.Notifier) {
-	t := types.ServiceInfo{
-		IntervalTimeMs: 1000,
-		ServiceName:    "container_service",
-		ScoringFunc:    resourceutil.Getter{},
-	}
-	// TODO check timing issue
-	go notifier.Notify(t)
 }

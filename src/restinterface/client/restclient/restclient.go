@@ -111,7 +111,7 @@ func (c restClientImpl) DoNotifyAppStatusRemoteDevice(statusNotificationInfo map
 }
 
 // DoGetScoreRemoteDevice  sends request to remote orchestration (APIV1ScoringmgrScoreLibnameGet) to get score
-func (c restClientImpl) DoGetScoreRemoteDevice(devID string, appName string, endpoint string) (scoreValue float64, err error) {
+func (c restClientImpl) DoGetScoreRemoteDevice(devID string, endpoint string) (scoreValue float64, err error) {
 	if c.IsSetKey == false {
 		return scoreValue, errors.New("[" + logPrefix + "] does not set key")
 	}
@@ -122,7 +122,6 @@ func (c restClientImpl) DoGetScoreRemoteDevice(devID string, appName string, end
 
 	info := make(map[string]interface{})
 	info["devID"] = devID
-	info["appName"] = appName
 	encryptBytes, err := c.Key.EncryptJSONToByte(info)
 	if err != nil {
 		return scoreValue, errors.New("[" + logPrefix + "] can not encryption " + err.Error())

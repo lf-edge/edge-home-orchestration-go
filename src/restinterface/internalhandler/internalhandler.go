@@ -195,9 +195,8 @@ func (h *Handler) APIV1ScoringmgrScoreLibnameGet(w http.ResponseWriter, r *http.
 	}
 
 	devID := Info["devID"]
-	appName := Info["appName"]
 
-	scoreValue, err := h.api.GetScore(devID.(string), appName.(string))
+	scoreValue, err := h.api.GetScore(devID.(string))
 	if err != nil {
 		log.Printf("[%s] GetScore fail : %s", logPrefix, err.Error())
 		h.helper.Response(w, http.StatusInternalServerError)
