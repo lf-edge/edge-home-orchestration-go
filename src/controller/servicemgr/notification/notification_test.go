@@ -61,7 +61,7 @@ func TestInvokeNotificationFailedWithInvalidChan(t *testing.T) {
 func TestInvokeNotificationOnRemote(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	mockClient := clientMocks.NewMockClientApi(ctrl)
+	mockClient := clientMocks.NewMockClienter(ctrl)
 
 	notiChan := make(chan string, 1)
 

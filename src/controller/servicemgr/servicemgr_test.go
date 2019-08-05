@@ -81,10 +81,10 @@ func TestExecuteAppOnRemote(t *testing.T) {
 	defer ctrl.Finish()
 
 	exec := executorMock.NewMockServiceExecutor(ctrl)
-	client := clientApiMock.NewMockClientApi(ctrl)
+	client := clientApiMock.NewMockClienter(ctrl)
 
 	exec.EXPECT().SetClient(gomock.Any()).DoAndReturn(
-		func(clientMock *clientApiMock.MockClientApi) {
+		func(clientMock *clientApiMock.MockClienter) {
 			if clientMock != client {
 				t.Fail()
 			}

@@ -14,7 +14,7 @@
  * limitations under the License.
  *
  *******************************************************************************/
- 
+
 // Package native implements specific resourceutil functions for LinuxOS
 package native
 
@@ -39,6 +39,7 @@ import "C"
 import (
 	"unsafe"
 
+	errs "common/errors"
 	"common/resourceutil"
 )
 
@@ -82,11 +83,11 @@ func cgo_getResource(name *C.char, out *C.double) C.int {
 
 func errorCovertToEnum(err error) (ret int) {
 	switch err.(type) {
-	case resourceutil.InvalidParam:
+	case errs.InvalidParam:
 		ret = invalidParamError
-	case resourceutil.SystemError:
+	case errs.SystemError:
 		ret = systemError
-	case resourceutil.NotSupport:
+	case errs.NotSupport:
 		ret = notSupportedError
 	}
 	return

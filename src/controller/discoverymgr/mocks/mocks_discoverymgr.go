@@ -5,7 +5,6 @@
 package mocks
 
 import (
-	discoverymgr "controller/discoverymgr"
 	gomock "github.com/golang/mock/gomock"
 	reflect "reflect"
 )
@@ -33,142 +32,18 @@ func (m *MockDiscovery) EXPECT() *MockDiscoveryMockRecorder {
 	return m.recorder
 }
 
-// AddNewServiceName mocks base method
-func (m *MockDiscovery) AddNewServiceName(arg0 string) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AddNewServiceName", arg0)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// AddNewServiceName indicates an expected call of AddNewServiceName
-func (mr *MockDiscoveryMockRecorder) AddNewServiceName(arg0 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddNewServiceName", reflect.TypeOf((*MockDiscovery)(nil).AddNewServiceName), arg0)
-}
-
-// DeleteDeviceWithID mocks base method
-func (m *MockDiscovery) DeleteDeviceWithID(arg0 string) {
-	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "DeleteDeviceWithID", arg0)
-}
-
-// DeleteDeviceWithID indicates an expected call of DeleteDeviceWithID
-func (mr *MockDiscoveryMockRecorder) DeleteDeviceWithID(arg0 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteDeviceWithID", reflect.TypeOf((*MockDiscovery)(nil).DeleteDeviceWithID), arg0)
-}
-
-// DeleteDeviceWithIP mocks base method
-func (m *MockDiscovery) DeleteDeviceWithIP(arg0 string) {
-	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "DeleteDeviceWithIP", arg0)
-}
-
-// DeleteDeviceWithIP indicates an expected call of DeleteDeviceWithIP
-func (mr *MockDiscoveryMockRecorder) DeleteDeviceWithIP(arg0 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteDeviceWithIP", reflect.TypeOf((*MockDiscovery)(nil).DeleteDeviceWithIP), arg0)
-}
-
-// GetDeviceIPListWithService mocks base method
-func (m *MockDiscovery) GetDeviceIPListWithService(arg0 string) ([]string, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetDeviceIPListWithService", arg0)
-	ret0, _ := ret[0].([]string)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetDeviceIPListWithService indicates an expected call of GetDeviceIPListWithService
-func (mr *MockDiscoveryMockRecorder) GetDeviceIPListWithService(arg0 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDeviceIPListWithService", reflect.TypeOf((*MockDiscovery)(nil).GetDeviceIPListWithService), arg0)
-}
-
-// GetDeviceList mocks base method
-func (m *MockDiscovery) GetDeviceList() (discoverymgr.ExportDeviceMap, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetDeviceList")
-	ret0, _ := ret[0].(discoverymgr.ExportDeviceMap)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetDeviceList indicates an expected call of GetDeviceList
-func (mr *MockDiscoveryMockRecorder) GetDeviceList() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDeviceList", reflect.TypeOf((*MockDiscovery)(nil).GetDeviceList))
-}
-
-// GetDeviceListWithService mocks base method
-func (m *MockDiscovery) GetDeviceListWithService(arg0 string) (discoverymgr.ExportDeviceMap, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetDeviceListWithService", arg0)
-	ret0, _ := ret[0].(discoverymgr.ExportDeviceMap)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetDeviceListWithService indicates an expected call of GetDeviceListWithService
-func (mr *MockDiscoveryMockRecorder) GetDeviceListWithService(arg0 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDeviceListWithService", reflect.TypeOf((*MockDiscovery)(nil).GetDeviceListWithService), arg0)
-}
-
-// GetDeviceWithID mocks base method
-func (m *MockDiscovery) GetDeviceWithID(arg0 string) (discoverymgr.ExportDeviceMap, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetDeviceWithID", arg0)
-	ret0, _ := ret[0].(discoverymgr.ExportDeviceMap)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetDeviceWithID indicates an expected call of GetDeviceWithID
-func (mr *MockDiscoveryMockRecorder) GetDeviceWithID(arg0 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDeviceWithID", reflect.TypeOf((*MockDiscovery)(nil).GetDeviceWithID), arg0)
-}
-
-// RemoveServiceName mocks base method
-func (m *MockDiscovery) RemoveServiceName(arg0 string) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RemoveServiceName", arg0)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// RemoveServiceName indicates an expected call of RemoveServiceName
-func (mr *MockDiscoveryMockRecorder) RemoveServiceName(arg0 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveServiceName", reflect.TypeOf((*MockDiscovery)(nil).RemoveServiceName), arg0)
-}
-
-// ResetServiceName mocks base method
-func (m *MockDiscovery) ResetServiceName() {
-	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "ResetServiceName")
-}
-
-// ResetServiceName indicates an expected call of ResetServiceName
-func (mr *MockDiscoveryMockRecorder) ResetServiceName() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ResetServiceName", reflect.TypeOf((*MockDiscovery)(nil).ResetServiceName))
-}
-
 // StartDiscovery mocks base method
-func (m *MockDiscovery) StartDiscovery(arg0, arg1, arg2 string) error {
+func (m *MockDiscovery) StartDiscovery(UUIDpath, platform, executionType string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "StartDiscovery", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "StartDiscovery", UUIDpath, platform, executionType)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // StartDiscovery indicates an expected call of StartDiscovery
-func (mr *MockDiscoveryMockRecorder) StartDiscovery(arg0, arg1, arg2 interface{}) *gomock.Call {
+func (mr *MockDiscoveryMockRecorder) StartDiscovery(UUIDpath, platform, executionType interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StartDiscovery", reflect.TypeOf((*MockDiscovery)(nil).StartDiscovery), arg0, arg1, arg2)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StartDiscovery", reflect.TypeOf((*MockDiscovery)(nil).StartDiscovery), UUIDpath, platform, executionType)
 }
 
 // StopDiscovery mocks base method
@@ -181,4 +56,68 @@ func (m *MockDiscovery) StopDiscovery() {
 func (mr *MockDiscoveryMockRecorder) StopDiscovery() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StopDiscovery", reflect.TypeOf((*MockDiscovery)(nil).StopDiscovery))
+}
+
+// DeleteDeviceWithIP mocks base method
+func (m *MockDiscovery) DeleteDeviceWithIP(targetIP string) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "DeleteDeviceWithIP", targetIP)
+}
+
+// DeleteDeviceWithIP indicates an expected call of DeleteDeviceWithIP
+func (mr *MockDiscoveryMockRecorder) DeleteDeviceWithIP(targetIP interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteDeviceWithIP", reflect.TypeOf((*MockDiscovery)(nil).DeleteDeviceWithIP), targetIP)
+}
+
+// DeleteDeviceWithID mocks base method
+func (m *MockDiscovery) DeleteDeviceWithID(ID string) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "DeleteDeviceWithID", ID)
+}
+
+// DeleteDeviceWithID indicates an expected call of DeleteDeviceWithID
+func (mr *MockDiscoveryMockRecorder) DeleteDeviceWithID(ID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteDeviceWithID", reflect.TypeOf((*MockDiscovery)(nil).DeleteDeviceWithID), ID)
+}
+
+// AddNewServiceName mocks base method
+func (m *MockDiscovery) AddNewServiceName(serviceName string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddNewServiceName", serviceName)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AddNewServiceName indicates an expected call of AddNewServiceName
+func (mr *MockDiscoveryMockRecorder) AddNewServiceName(serviceName interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddNewServiceName", reflect.TypeOf((*MockDiscovery)(nil).AddNewServiceName), serviceName)
+}
+
+// RemoveServiceName mocks base method
+func (m *MockDiscovery) RemoveServiceName(serviceName string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RemoveServiceName", serviceName)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// RemoveServiceName indicates an expected call of RemoveServiceName
+func (mr *MockDiscoveryMockRecorder) RemoveServiceName(serviceName interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveServiceName", reflect.TypeOf((*MockDiscovery)(nil).RemoveServiceName), serviceName)
+}
+
+// ResetServiceName mocks base method
+func (m *MockDiscovery) ResetServiceName() {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "ResetServiceName")
+}
+
+// ResetServiceName indicates an expected call of ResetServiceName
+func (mr *MockDiscoveryMockRecorder) ResetServiceName() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ResetServiceName", reflect.TypeOf((*MockDiscovery)(nil).ResetServiceName))
 }
