@@ -11,43 +11,43 @@ import (
 	client "restinterface/client"
 )
 
-// MockClientApi is a mock of Clienter interface
-type MockClientApi struct {
+// MockClienter is a mock of Clienter interface
+type MockClienter struct {
 	ctrl     *gomock.Controller
-	recorder *MockClientApiMockRecorder
+	recorder *MockClienterMockRecorder
 }
 
-// MockClientApiMockRecorder is the mock recorder for MockClientApi
-type MockClientApiMockRecorder struct {
-	mock *MockClientApi
+// MockClienterMockRecorder is the mock recorder for MockClienter
+type MockClienterMockRecorder struct {
+	mock *MockClienter
 }
 
-// NewMockClientApi creates a new mock instance
-func NewMockClientApi(ctrl *gomock.Controller) *MockClientApi {
-	mock := &MockClientApi{ctrl: ctrl}
-	mock.recorder = &MockClientApiMockRecorder{mock}
+// NewMockClienter creates a new mock instance
+func NewMockClienter(ctrl *gomock.Controller) *MockClienter {
+	mock := &MockClienter{ctrl: ctrl}
+	mock.recorder = &MockClienterMockRecorder{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use
-func (m *MockClientApi) EXPECT() *MockClientApiMockRecorder {
+func (m *MockClienter) EXPECT() *MockClienterMockRecorder {
 	return m.recorder
 }
 
 // SetCipher mocks base method
-func (m *MockClientApi) SetCipher(cipher cipher.IEdgeCipherer) {
+func (m *MockClienter) SetCipher(cipher cipher.IEdgeCipherer) {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "SetCipher", cipher)
 }
 
 // SetCipher indicates an expected call of SetCipher
-func (mr *MockClientApiMockRecorder) SetCipher(cipher interface{}) *gomock.Call {
+func (mr *MockClienterMockRecorder) SetCipher(cipher interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetCipher", reflect.TypeOf((*MockClientApi)(nil).SetCipher), cipher)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetCipher", reflect.TypeOf((*MockClienter)(nil).SetCipher), cipher)
 }
 
 // DoExecuteRemoteDevice mocks base method
-func (m *MockClientApi) DoExecuteRemoteDevice(appInfo map[string]interface{}, target string) error {
+func (m *MockClienter) DoExecuteRemoteDevice(appInfo map[string]interface{}, target string) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DoExecuteRemoteDevice", appInfo, target)
 	ret0, _ := ret[0].(error)
@@ -55,13 +55,13 @@ func (m *MockClientApi) DoExecuteRemoteDevice(appInfo map[string]interface{}, ta
 }
 
 // DoExecuteRemoteDevice indicates an expected call of DoExecuteRemoteDevice
-func (mr *MockClientApiMockRecorder) DoExecuteRemoteDevice(appInfo, target interface{}) *gomock.Call {
+func (mr *MockClienterMockRecorder) DoExecuteRemoteDevice(appInfo, target interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DoExecuteRemoteDevice", reflect.TypeOf((*MockClientApi)(nil).DoExecuteRemoteDevice), appInfo, target)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DoExecuteRemoteDevice", reflect.TypeOf((*MockClienter)(nil).DoExecuteRemoteDevice), appInfo, target)
 }
 
 // DoNotifyAppStatusRemoteDevice mocks base method
-func (m *MockClientApi) DoNotifyAppStatusRemoteDevice(statusNotificationInfo map[string]interface{}, appID uint64, target string) error {
+func (m *MockClienter) DoNotifyAppStatusRemoteDevice(statusNotificationInfo map[string]interface{}, appID uint64, target string) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DoNotifyAppStatusRemoteDevice", statusNotificationInfo, appID, target)
 	ret0, _ := ret[0].(error)
@@ -69,57 +69,57 @@ func (m *MockClientApi) DoNotifyAppStatusRemoteDevice(statusNotificationInfo map
 }
 
 // DoNotifyAppStatusRemoteDevice indicates an expected call of DoNotifyAppStatusRemoteDevice
-func (mr *MockClientApiMockRecorder) DoNotifyAppStatusRemoteDevice(statusNotificationInfo, appID, target interface{}) *gomock.Call {
+func (mr *MockClienterMockRecorder) DoNotifyAppStatusRemoteDevice(statusNotificationInfo, appID, target interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DoNotifyAppStatusRemoteDevice", reflect.TypeOf((*MockClientApi)(nil).DoNotifyAppStatusRemoteDevice), statusNotificationInfo, appID, target)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DoNotifyAppStatusRemoteDevice", reflect.TypeOf((*MockClienter)(nil).DoNotifyAppStatusRemoteDevice), statusNotificationInfo, appID, target)
 }
 
 // DoGetScoreRemoteDevice mocks base method
-func (m *MockClientApi) DoGetScoreRemoteDevice(appName, target string) (float64, error) {
+func (m *MockClienter) DoGetScoreRemoteDevice(devID, appName, endpoint string) (float64, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DoGetScoreRemoteDevice", appName, target)
+	ret := m.ctrl.Call(m, "DoGetScoreRemoteDevice", devID, appName, endpoint)
 	ret0, _ := ret[0].(float64)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // DoGetScoreRemoteDevice indicates an expected call of DoGetScoreRemoteDevice
-func (mr *MockClientApiMockRecorder) DoGetScoreRemoteDevice(appName, target interface{}) *gomock.Call {
+func (mr *MockClienterMockRecorder) DoGetScoreRemoteDevice(devID, appName, endpoint interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DoGetScoreRemoteDevice", reflect.TypeOf((*MockClientApi)(nil).DoGetScoreRemoteDevice), appName, target)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DoGetScoreRemoteDevice", reflect.TypeOf((*MockClienter)(nil).DoGetScoreRemoteDevice), devID, appName, endpoint)
 }
 
-// MockClientSetter is a mock of Setter interface
-type MockClientSetter struct {
+// MockSetter is a mock of Setter interface
+type MockSetter struct {
 	ctrl     *gomock.Controller
-	recorder *MockClientSetterMockRecorder
+	recorder *MockSetterMockRecorder
 }
 
-// MockClientSetterMockRecorder is the mock recorder for MockClientSetter
-type MockClientSetterMockRecorder struct {
-	mock *MockClientSetter
+// MockSetterMockRecorder is the mock recorder for MockSetter
+type MockSetterMockRecorder struct {
+	mock *MockSetter
 }
 
-// NewMockClientSetter creates a new mock instance
-func NewMockClientSetter(ctrl *gomock.Controller) *MockClientSetter {
-	mock := &MockClientSetter{ctrl: ctrl}
-	mock.recorder = &MockClientSetterMockRecorder{mock}
+// NewMockSetter creates a new mock instance
+func NewMockSetter(ctrl *gomock.Controller) *MockSetter {
+	mock := &MockSetter{ctrl: ctrl}
+	mock.recorder = &MockSetterMockRecorder{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use
-func (m *MockClientSetter) EXPECT() *MockClientSetterMockRecorder {
+func (m *MockSetter) EXPECT() *MockSetterMockRecorder {
 	return m.recorder
 }
 
 // SetClient mocks base method
-func (m *MockClientSetter) SetClient(clientAPI client.Clienter) {
+func (m *MockSetter) SetClient(clientAPI client.Clienter) {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "SetClient", clientAPI)
 }
 
 // SetClient indicates an expected call of SetClient
-func (mr *MockClientSetterMockRecorder) SetClient(clientAPI interface{}) *gomock.Call {
+func (mr *MockSetterMockRecorder) SetClient(clientAPI interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetClient", reflect.TypeOf((*MockClientSetter)(nil).SetClient), clientAPI)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetClient", reflect.TypeOf((*MockSetter)(nil).SetClient), clientAPI)
 }

@@ -18,14 +18,14 @@
 package native
 
 import (
-	"common/resourceutil"
+	errs "common/errors"
 	"testing"
 )
 
 var (
-	dummyInvalidError = resourceutil.InvalidParam{Message: "dummyError"}
-	dummySystemError  = resourceutil.SystemError{Message: "dummyError"}
-	dummyNotSupport   = resourceutil.NotSupport{Message: "dummyError"}
+	dummyInvalidError = errs.InvalidParam{Message: "dummyError"}
+	dummySystemError  = errs.SystemError{Message: "dummyError"}
+	dummyNotSupport   = errs.NotSupport{Message: "dummyError"}
 )
 
 func init() {
