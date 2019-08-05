@@ -37,8 +37,6 @@ var (
 
 func init() {
 	net.linkList = netutil.LinkList
-
-	processNetInfo()
 }
 
 func processNetInfo() {

@@ -29,6 +29,10 @@ type ResourceImpl struct {
 	targetDeviceID string
 }
 
+// MonitorImpl is implementation for Monitor interface
+type MonitorImpl struct {
+}
+
 var (
 	resourceDBExecutor resourceDB.DBInterface
 )
@@ -65,10 +69,23 @@ type Command interface {
 	Close()
 }
 
+// Monitor is an interface to get device resource
+type Monitor interface {
+	StartMonitoringResource()
+}
+
 // GetResource is an interface to get reource
 type GetResource interface {
 	GetResource(string) (float64, error)
 	SetDeviceID(string)
+}
+
+// StartMonitoringResource to get device resources
+func (MonitorImpl) StartMonitoringResource() {
+	processCPUInfo()
+	processMEMInfo()
+	processNetInfo()
+	processRTT()
 }
 
 // GetResource returns a resource value that matches resourceName
