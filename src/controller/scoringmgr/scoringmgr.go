@@ -19,30 +19,19 @@
 package scoringmgr
 
 import (
-	"errors"
-
-	types "common/types/configuremgrtypes"
+	"common/resourceutil"
+	"math"
 )
 
 const logPrefix = "scoringmgr"
 
 // Scoring is the interface to apply application specific scoring functions
 type Scoring interface {
-	AddScoring(service types.ServiceInfo) (err error)
-	RemoveScoring(appName string) (err error)
-	RemoveAllScoring() (err error)
-
-	GetScore(ID string, name string) (scoreValue float64, err error)
+	GetScore(ID string) (scoreValue float64, err error)
 }
 
 // ScoringImpl structure
 type ScoringImpl struct{}
-
-type rater struct {
-	types.ServiceInfo
-
-	scoreValue float64
-}
 
 var (
 	constLibStatusInit = 1
@@ -50,12 +39,13 @@ var (
 	constLibStatusDone = true
 
 	scoringIns *ScoringImpl
-	raters     map[string]*rater
+
+	resourceIns resourceutil.GetResource
 )
 
 func init() {
 	scoringIns = new(ScoringImpl)
-	raters = make(map[string]*rater)
+	resourceIns = &resourceutil.ResourceImpl{}
 }
 
 // GetInstance gives the ScoringImpl singletone instance
@@ -63,56 +53,58 @@ func GetInstance() *ScoringImpl {
 	return scoringIns
 }
 
-// AddScoring for adding scoring object for resource scoring
-func (ScoringImpl) AddScoring(service types.ServiceInfo) (err error) {
-	rater := new(rater)
-
-	if _, exist := raters[service.ServiceName]; exist {
-		err = errors.New("duplicate service scoring objects have already been added")
-		return
-	}
-
-	rater.ServiceInfo = service
-
-	raters[rater.ServiceName] = rater
-	return
-}
-
-//RemoveScoring for removal of scoring object with appName
-func (ScoringImpl) RemoveScoring(appName string) (err error) {
-	rater, exist := raters[appName]
-	if !exist {
-		err = errors.New("no scoring object matching appname")
-		return
-	}
-	defer rater.ScoringFunc.Close()
-
-	delete(raters, appName)
-	return
-}
-
-//RemoveAllScoring for removal all of scoring object
-func (s ScoringImpl) RemoveAllScoring() (err error) {
-	defer func() {
-		if r := recover(); r != nil {
-			err = errors.New("panic in RemoveAllScoring()")
-		}
-	}()
-
-	for name := range raters {
-		s.RemoveScoring(name)
-	}
-	return
-}
-
 // GetScore provides score value for specific application on local device
-func (ScoringImpl) GetScore(ID string, name string) (scoreValue float64, err error) {
-	rater, exist := raters[name]
-	if !exist {
-		err = errors.New("invalid library name")
-		return
-	}
+func (ScoringImpl) GetScore(ID string) (scoreValue float64, err error) {
+	scoreValue = calculateScore(ID)
+	return
+}
 
-	scoreValue = rater.ScoringFunc.Run(ID)
+func calculateScore(ID string) float64 {
+	cpuUsage, err := resourceIns.GetResource(resourceutil.CPUUsage)
+	if err != nil {
+		return 0.0
+	}
+	cpuCount, err := resourceIns.GetResource(resourceutil.CPUCount)
+	if err != nil {
+		return 0.0
+	}
+	cpuFreq, err := resourceIns.GetResource(resourceutil.CPUFreq)
+	if err != nil {
+		return 0.0
+	}
+	cpuScore := cpuScore(cpuUsage, cpuCount, cpuFreq)
+
+	netBandwidth, err := resourceIns.GetResource(resourceutil.NetBandwidth)
+	if err != nil {
+		return 0.0
+	}
+	netScore := netScore(netBandwidth)
+
+	resourceIns.SetDeviceID(ID)
+	rtt, err := resourceIns.GetResource(resourceutil.NetRTT)
+	if err != nil {
+		return 0.0
+	}
+	renderingScore := renderingScore(rtt)
+
+	return float64(netScore + (cpuScore / 2) + renderingScore)
+}
+
+func netScore(bandWidth float64) (score float64) {
+	return 1 / (8770 * math.Pow(bandWidth, -0.9))
+}
+
+func cpuScore(usage float64, count float64, freq float64) (score float64) {
+	return ((1 / (5.66 * math.Pow(freq, -0.66))) +
+		(1 / (3.22 * math.Pow(usage, -0.241))) +
+		(1 / (4 * math.Pow(count, -0.3)))) / 3
+}
+
+func renderingScore(rtt float64) (score float64) {
+	if rtt <= 0 {
+		score = 0
+	} else {
+		score = 0.77 * math.Pow(rtt, -0.43)
+	}
 	return
 }

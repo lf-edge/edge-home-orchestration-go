@@ -18,24 +18,15 @@
 // Package native provides native specific functions for configuremgr
 package native
 
-/*
-#include <stdlib.h>
-#include <dlfcn.h>
-#cgo LDFLAGS: -ldl
-*/
-import "C"
 import (
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
-	"unsafe"
-	"path/filepath"
-	"fmt"
 
-	"common/resourceutil/native"
-	types "common/types/configuremgrtypes"
 	"controller/configuremgr"
 	confdescription "controller/configuremgr/native/description"
 
@@ -83,7 +74,7 @@ func (cfgMgr ConfigureMgr) Watch(notifier configuremgr.Notifier) {
 	}
 
 	for _, f := range files {
-		notifier.Notify(getServiceInfo(cfgMgr.confpath + "/" + f.Name()))
+		notifier.Notify(getServiceName(cfgMgr.confpath + "/" + f.Name()))
 	}
 
 	watcher, err := fsnotify.NewWatcher()
@@ -102,13 +93,13 @@ func (cfgMgr ConfigureMgr) Watch(notifier configuremgr.Notifier) {
 					confFileName := fmt.Sprint(event.Name, "/", dirName, ".conf")
 					log.Println("IsConfExist:", confFileName)
 
-					// Should check file is exist on file system really, 
+					// Should check file is exist on file system really,
 					// even though CREATE event of directory received
 					isConfExist := false
 					for i := 0; i < 5; i++ {
 						if _, err := os.Stat(confFileName); !os.IsNotExist(err) {
 							isConfExist = true
-							break;
+							break
 						}
 						time.Sleep(time.Second * 1)
 					}
@@ -116,7 +107,7 @@ func (cfgMgr ConfigureMgr) Watch(notifier configuremgr.Notifier) {
 						log.Println(confFileName, "does not exist")
 						continue
 					}
-					notifier.Notify(getServiceInfo(event.Name))
+					notifier.Notify(getServiceName(event.Name))
 				case fsnotify.Remove:
 					// TODO remove scoring
 				}
@@ -136,8 +127,8 @@ func (cfgMgr ConfigureMgr) Watch(notifier configuremgr.Notifier) {
 	log.Println("configuremgr watcher register end")
 }
 
-func getServiceInfo(path string) types.ServiceInfo {
-	libPath, confPath, err := getdirname(path)
+func getServiceName(path string) (serviceName string) {
+	confPath, err := getdirname(path)
 	if err != nil {
 		log.Println("wrong libPath or confPath")
 	}
@@ -145,38 +136,12 @@ func getServiceInfo(path string) types.ServiceInfo {
 	cfg := new(confdescription.Doc)
 	sconf.Must(cfg).Read(ini.File(confPath))
 
-	cfg.ScoringMethod.LibFile = libPath
-	sym := C.CString(cfg.ScoringMethod.FunctionName)
-	log.Println("symbolStr: ", C.GoString(sym))
-	defer C.free(unsafe.Pointer(sym))
+	serviceName = cfg.ServiceInfo.ServiceName
 
-	lib := C.CString(cfg.ScoringMethod.LibFile)
-	defer C.free(unsafe.Pointer(lib))
-
-	dl := C.dlopen(lib, C.RTLD_LAZY)
-	e := C.dlerror()
-	if e != nil {
-		log.Fatal("[configure] dlopen error occured, err = ", C.GoString(e))
-	}
-	log.Println("dl:", dl)
-
-	symbolPtr := C.dlsym(dl, sym)
-	e = C.dlerror()
-	if e != nil {
-		log.Fatal("[configure] dlsym error occured, err = ", C.GoString(e))
-	}
-	log.Println("symbol:", symbolPtr)
-
-	service := types.ServiceInfo{}
-	service.ServiceName = cfg.ServiceInfo.ServiceName
-	service.ScoringFunc = native.Getter{Dl: dl, Symbol: symbolPtr}
-
-	service.IntervalTimeMs = cfg.ResourceType.IntervalTimeMs
-
-	return service
+	return
 }
 
-func getdirname(path string) (libPath, confPath string, err error) {
+func getdirname(path string) (confPath string, err error) {
 
 	idx := strings.LastIndex(path, "/")
 	if idx == (len(path) - 1) {
@@ -185,7 +150,6 @@ func getdirname(path string) (libPath, confPath string, err error) {
 
 	dirname := path[strings.LastIndex(path, "/")+1:]
 
-	libPath = path + "/" + "lib" + dirname + ".so"
 	confPath = path + "/" + dirname + ".conf"
 
 	//NOTE : copy but really copy, it can be not existed.
@@ -196,14 +160,6 @@ func getdirname(path string) (libPath, confPath string, err error) {
 		time.Sleep(time.Second * 1)
 	}
 
-	for {
-		if _, err := os.Stat(libPath); err == nil {
-			break
-		}
-		time.Sleep(time.Second * 1)
-	}
-
-	log.Println("[configuremgr] libPath  : " + libPath)
 	log.Println("[configuremgr] confPath : " + confPath)
 
 	return
