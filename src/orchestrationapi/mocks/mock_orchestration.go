@@ -5,7 +5,6 @@
 package mocks
 
 import (
-	configuremgrtypes "common/types/configuremgrtypes"
 	gomock "github.com/golang/mock/gomock"
 	orchestrationapi "orchestrationapi"
 	reflect "reflect"
@@ -107,15 +106,15 @@ func (m *MockOrcheInternalAPI) EXPECT() *MockOrcheInternalAPIMockRecorder {
 }
 
 // Notify mocks base method
-func (m *MockOrcheInternalAPI) Notify(arg0 configuremgrtypes.ServiceInfo) {
+func (m *MockOrcheInternalAPI) Notify(serviceName string) {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "Notify", arg0)
+	m.ctrl.Call(m, "Notify", serviceName)
 }
 
 // Notify indicates an expected call of Notify
-func (mr *MockOrcheInternalAPIMockRecorder) Notify(arg0 interface{}) *gomock.Call {
+func (mr *MockOrcheInternalAPIMockRecorder) Notify(serviceName interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Notify", reflect.TypeOf((*MockOrcheInternalAPI)(nil).Notify), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Notify", reflect.TypeOf((*MockOrcheInternalAPI)(nil).Notify), serviceName)
 }
 
 // ExecuteAppOnLocal mocks base method
@@ -145,16 +144,16 @@ func (mr *MockOrcheInternalAPIMockRecorder) HandleNotificationOnLocal(serviceID,
 }
 
 // GetScore mocks base method
-func (m *MockOrcheInternalAPI) GetScore(target, name string) (float64, error) {
+func (m *MockOrcheInternalAPI) GetScore(target string) (float64, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetScore", target, name)
+	ret := m.ctrl.Call(m, "GetScore", target)
 	ret0, _ := ret[0].(float64)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetScore indicates an expected call of GetScore
-func (mr *MockOrcheInternalAPIMockRecorder) GetScore(target, name interface{}) *gomock.Call {
+func (mr *MockOrcheInternalAPIMockRecorder) GetScore(target interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetScore", reflect.TypeOf((*MockOrcheInternalAPI)(nil).GetScore), target, name)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetScore", reflect.TypeOf((*MockOrcheInternalAPI)(nil).GetScore), target)
 }

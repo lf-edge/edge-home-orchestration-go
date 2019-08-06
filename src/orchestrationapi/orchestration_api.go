@@ -141,7 +141,7 @@ func (orcheEngine *orcheImpl) RequestService(serviceInfo ReqeustService) Respons
 		}
 	}
 
-	deviceScores := sortByScore(orcheEngine.gatherDevicesScore(candidates, serviceInfo.ServiceName))
+	deviceScores := sortByScore(orcheEngine.gatherDevicesScore(candidates))
 	if len(deviceScores) > 0 {
 		return ResponseService{
 			Message:          SERVICE_NOT_FOUND,
@@ -187,9 +187,10 @@ func (orcheEngine orcheImpl) getCandidate(appName string, execType []string) (de
 	return helper.GetDeviceInfoWithService(appName, execType)
 }
 
-func (orcheEngine orcheImpl) gatherDevicesScore(candidates []dbhelper.ExecutionCandidate, appName string) (deviceScores []deviceScore) {
+func (orcheEngine orcheImpl) gatherDevicesScore(candidates []dbhelper.ExecutionCandidate) (deviceScores []deviceScore) {
 	scores := make(chan deviceScore, len(candidates))
 	count := len(candidates)
+
 	index := 0
 
 	info, err := sysDBExecutor.Get(sysDB.ID)
@@ -219,15 +220,15 @@ func (orcheEngine orcheImpl) gatherDevicesScore(candidates []dbhelper.ExecutionC
 	}
 
 	for _, candidate := range candidates {
-		go func(cand dbhelper.ExecutionCandidate, appName string) {
+		go func(cand dbhelper.ExecutionCandidate) {
 			var score float64
 			var err error
 
 			if dbcommon.HasElem(cand.Endpoint, localhost) {
-				score, err = orcheEngine.GetScore(info.Value, appName)
+				score, err = orcheEngine.GetScore(info.Value)
 			} else {
 				// TODO change index of ips
-				score, err = orcheEngine.clientAPI.DoGetScoreRemoteDevice(info.Value, appName, cand.Endpoint[0])
+				score, err = orcheEngine.clientAPI.DoGetScoreRemoteDevice(info.Value, cand.Endpoint[0])
 			}
 
 			if err != nil {
@@ -236,7 +237,7 @@ func (orcheEngine orcheImpl) gatherDevicesScore(candidates []dbhelper.ExecutionC
 				return
 			}
 			scores <- deviceScore{endpoint: cand.Endpoint[0], score: score, id: cand.Id, execType: cand.ExecType}
-		}(candidate, appName)
+		}(candidate)
 	}
 
 	wait.Wait()

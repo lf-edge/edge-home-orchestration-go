@@ -41,8 +41,6 @@ var (
 func init() {
 	helper = resthelper.GetHelper()
 	netDBExecutor = netDB.Query{}
-
-	processRTT()
 }
 
 func processRTT() {
