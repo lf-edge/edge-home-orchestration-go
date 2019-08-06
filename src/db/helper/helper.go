@@ -44,39 +44,53 @@ func GetInstance() MultipleBucketQuery {
 func (multipleBucketQuery) GetDeviceInfoWithService(serviceName string, executionTypes []string) ([]ExecutionCandidate, error) {
 	ret := make([]ExecutionCandidate, 0)
 
-	serviceItems, err := serviceQuery.GetList()
+	confItems, err := confQuery.GetList()
 	if err != nil {
 		return nil, err
 	}
 
-	for _, item := range serviceItems {
-		for _, service := range item.Services {
+	for _, confItem := range confItems {
+		hasExecType := common.HasElem(executionTypes, confItem.ExecType)
+		if hasExecType == false {
+			continue
+		}
+
+		if confItem.ExecType == "container" {
+			endpoints, err := getEndpoints(confItem.ID)
+			if err != nil {
+				continue
+			}
+
+			info := ExecutionCandidate{
+				Id:       confItem.ID,
+				ExecType: confItem.ExecType,
+				Endpoint: endpoints,
+			}
+
+			ret = append(ret, info)
+			continue
+		}
+
+		serviceItem, err := serviceQuery.Get(confItem.ID)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, service := range serviceItem.Services {
 			if strings.Compare(serviceName, service) == 0 {
-				confItems, err := confQuery.Get(item.ID)
+				endpoints, err := getEndpoints(serviceItem.ID)
 				if err != nil {
 					continue
 				}
-
-				hasExecType := common.HasElem(executionTypes, confItems.ExecType)
-				if hasExecType == false {
-					continue
-				}
-
-				netItems, err := netQuery.Get(item.ID)
-				if err != nil {
-					continue
-				}
-
-				endpoints := make([]string, len(netItems.IPv4))
-				copy(endpoints, netItems.IPv4)
 
 				info := ExecutionCandidate{
-					Id:       item.ID,
-					ExecType: confItems.ExecType,
+					Id:       serviceItem.ID,
+					ExecType: confItem.ExecType,
 					Endpoint: endpoints,
 				}
 
 				ret = append(ret, info)
+				break
 			}
 		}
 	}
@@ -87,4 +101,16 @@ func (multipleBucketQuery) GetDeviceInfoWithService(serviceName string, executio
 	}
 
 	return ret, nil
+}
+
+func getEndpoints(id string) ([]string, error) {
+	netItems, err := netQuery.Get(id)
+	if err != nil {
+		return nil, err
+	}
+
+	endpoints := make([]string, len(netItems.IPv4))
+	copy(endpoints, netItems.IPv4)
+
+	return endpoints, nil
 }
