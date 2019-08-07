@@ -41,7 +41,7 @@ var (
 	mockScoring   *scoringmocks.MockScoring
 	mockService   *servicemocks.MockServiceMgr
 	mockExecutor  *executormocks.MockServiceExecutor
-	mockClient    *clientmocks.MockClientApi
+	mockClient    *clientmocks.MockClienter
 	mockNetwork   *networkmocks.MockNetwork
 )
 
@@ -51,7 +51,7 @@ func createMockIns(ctrl *gomock.Controller) {
 	mockScoring = scoringmocks.NewMockScoring(ctrl)
 	mockService = servicemocks.NewMockServiceMgr(ctrl)
 	mockExecutor = executormocks.NewMockServiceExecutor(ctrl)
-	mockClient = clientmocks.NewMockClientApi(ctrl)
+	mockClient = clientmocks.NewMockClienter(ctrl)
 	mockNetwork = networkmocks.NewMockNetwork(ctrl)
 }
 

@@ -5,8 +5,8 @@
 package mocks
 
 import (
-	configuremgrtypes "common/types/configuremgrtypes"
 	gomock "github.com/golang/mock/gomock"
+	orchestrationapi "orchestrationapi"
 	reflect "reflect"
 )
 
@@ -45,92 +45,92 @@ func (mr *MockOrcheMockRecorder) Start(deviceIDPath, platform, executionType int
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Start", reflect.TypeOf((*MockOrche)(nil).Start), deviceIDPath, platform, executionType)
 }
 
-// MockOrcheExternalApi is a mock of OrcheExternalAPI interface
-type MockOrcheExternalApi struct {
+// MockOrcheExternalAPI is a mock of OrcheExternalAPI interface
+type MockOrcheExternalAPI struct {
 	ctrl     *gomock.Controller
-	recorder *MockOrcheExternalApiMockRecorder
+	recorder *MockOrcheExternalAPIMockRecorder
 }
 
-// MockOrcheExternalApiMockRecorder is the mock recorder for MockOrcheExternalApi
-type MockOrcheExternalApiMockRecorder struct {
-	mock *MockOrcheExternalApi
+// MockOrcheExternalAPIMockRecorder is the mock recorder for MockOrcheExternalAPI
+type MockOrcheExternalAPIMockRecorder struct {
+	mock *MockOrcheExternalAPI
 }
 
-// NewMockOrcheExternalApi creates a new mock instance
-func NewMockOrcheExternalApi(ctrl *gomock.Controller) *MockOrcheExternalApi {
-	mock := &MockOrcheExternalApi{ctrl: ctrl}
-	mock.recorder = &MockOrcheExternalApiMockRecorder{mock}
+// NewMockOrcheExternalAPI creates a new mock instance
+func NewMockOrcheExternalAPI(ctrl *gomock.Controller) *MockOrcheExternalAPI {
+	mock := &MockOrcheExternalAPI{ctrl: ctrl}
+	mock.recorder = &MockOrcheExternalAPIMockRecorder{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use
-func (m *MockOrcheExternalApi) EXPECT() *MockOrcheExternalApiMockRecorder {
+func (m *MockOrcheExternalAPI) EXPECT() *MockOrcheExternalAPIMockRecorder {
 	return m.recorder
 }
 
 // RequestService mocks base method
-func (m *MockOrcheExternalApi) RequestService(appName string, args []string) int {
+func (m *MockOrcheExternalAPI) RequestService(serviceInfo orchestrationapi.ReqeustService) orchestrationapi.ResponseService {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RequestService", appName, args)
-	ret0, _ := ret[0].(int)
+	ret := m.ctrl.Call(m, "RequestService", serviceInfo)
+	ret0, _ := ret[0].(orchestrationapi.ResponseService)
 	return ret0
 }
 
 // RequestService indicates an expected call of RequestService
-func (mr *MockOrcheExternalApiMockRecorder) RequestService(appName, args interface{}) *gomock.Call {
+func (mr *MockOrcheExternalAPIMockRecorder) RequestService(serviceInfo interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RequestService", reflect.TypeOf((*MockOrcheExternalApi)(nil).RequestService), appName, args)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RequestService", reflect.TypeOf((*MockOrcheExternalAPI)(nil).RequestService), serviceInfo)
 }
 
-// MockOrcheInternalApi is a mock of OrcheInternalAPI interface
-type MockOrcheInternalApi struct {
+// MockOrcheInternalAPI is a mock of OrcheInternalAPI interface
+type MockOrcheInternalAPI struct {
 	ctrl     *gomock.Controller
-	recorder *MockOrcheInternalApiMockRecorder
+	recorder *MockOrcheInternalAPIMockRecorder
 }
 
-// MockOrcheInternalApiMockRecorder is the mock recorder for MockOrcheInternalApi
-type MockOrcheInternalApiMockRecorder struct {
-	mock *MockOrcheInternalApi
+// MockOrcheInternalAPIMockRecorder is the mock recorder for MockOrcheInternalAPI
+type MockOrcheInternalAPIMockRecorder struct {
+	mock *MockOrcheInternalAPI
 }
 
-// NewMockOrcheInternalApi creates a new mock instance
-func NewMockOrcheInternalApi(ctrl *gomock.Controller) *MockOrcheInternalApi {
-	mock := &MockOrcheInternalApi{ctrl: ctrl}
-	mock.recorder = &MockOrcheInternalApiMockRecorder{mock}
+// NewMockOrcheInternalAPI creates a new mock instance
+func NewMockOrcheInternalAPI(ctrl *gomock.Controller) *MockOrcheInternalAPI {
+	mock := &MockOrcheInternalAPI{ctrl: ctrl}
+	mock.recorder = &MockOrcheInternalAPIMockRecorder{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use
-func (m *MockOrcheInternalApi) EXPECT() *MockOrcheInternalApiMockRecorder {
+func (m *MockOrcheInternalAPI) EXPECT() *MockOrcheInternalAPIMockRecorder {
 	return m.recorder
 }
 
 // Notify mocks base method
-func (m *MockOrcheInternalApi) Notify(arg0 configuremgrtypes.ServiceInfo) {
+func (m *MockOrcheInternalAPI) Notify(serviceName string) {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "Notify", arg0)
+	m.ctrl.Call(m, "Notify", serviceName)
 }
 
 // Notify indicates an expected call of Notify
-func (mr *MockOrcheInternalApiMockRecorder) Notify(arg0 interface{}) *gomock.Call {
+func (mr *MockOrcheInternalAPIMockRecorder) Notify(serviceName interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Notify", reflect.TypeOf((*MockOrcheInternalApi)(nil).Notify), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Notify", reflect.TypeOf((*MockOrcheInternalAPI)(nil).Notify), serviceName)
 }
 
 // ExecuteAppOnLocal mocks base method
-func (m *MockOrcheInternalApi) ExecuteAppOnLocal(appInfo map[string]interface{}) {
+func (m *MockOrcheInternalAPI) ExecuteAppOnLocal(appInfo map[string]interface{}) {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "ExecuteAppOnLocal", appInfo)
 }
 
 // ExecuteAppOnLocal indicates an expected call of ExecuteAppOnLocal
-func (mr *MockOrcheInternalApiMockRecorder) ExecuteAppOnLocal(appInfo interface{}) *gomock.Call {
+func (mr *MockOrcheInternalAPIMockRecorder) ExecuteAppOnLocal(appInfo interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExecuteAppOnLocal", reflect.TypeOf((*MockOrcheInternalApi)(nil).ExecuteAppOnLocal), appInfo)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExecuteAppOnLocal", reflect.TypeOf((*MockOrcheInternalAPI)(nil).ExecuteAppOnLocal), appInfo)
 }
 
 // HandleNotificationOnLocal mocks base method
-func (m *MockOrcheInternalApi) HandleNotificationOnLocal(serviceID float64, status string) error {
+func (m *MockOrcheInternalAPI) HandleNotificationOnLocal(serviceID float64, status string) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "HandleNotificationOnLocal", serviceID, status)
 	ret0, _ := ret[0].(error)
@@ -138,22 +138,22 @@ func (m *MockOrcheInternalApi) HandleNotificationOnLocal(serviceID float64, stat
 }
 
 // HandleNotificationOnLocal indicates an expected call of HandleNotificationOnLocal
-func (mr *MockOrcheInternalApiMockRecorder) HandleNotificationOnLocal(serviceID, status interface{}) *gomock.Call {
+func (mr *MockOrcheInternalAPIMockRecorder) HandleNotificationOnLocal(serviceID, status interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HandleNotificationOnLocal", reflect.TypeOf((*MockOrcheInternalApi)(nil).HandleNotificationOnLocal), serviceID, status)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HandleNotificationOnLocal", reflect.TypeOf((*MockOrcheInternalAPI)(nil).HandleNotificationOnLocal), serviceID, status)
 }
 
 // GetScore mocks base method
-func (m *MockOrcheInternalApi) GetScore(target, name string) (float64, error) {
+func (m *MockOrcheInternalAPI) GetScore(target string) (float64, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetScore", target, name)
+	ret := m.ctrl.Call(m, "GetScore", target)
 	ret0, _ := ret[0].(float64)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetScore indicates an expected call of GetScore
-func (mr *MockOrcheInternalApiMockRecorder) GetScore(target, name interface{}) *gomock.Call {
+func (mr *MockOrcheInternalAPIMockRecorder) GetScore(target interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetScore", reflect.TypeOf((*MockOrcheInternalApi)(nil).GetScore), target, name)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetScore", reflect.TypeOf((*MockOrcheInternalAPI)(nil).GetScore), target)
 }

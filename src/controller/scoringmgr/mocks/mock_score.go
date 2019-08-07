@@ -22,10 +22,8 @@
 package mocks
 
 import (
-	"common/types/configuremgrtypes"
-	reflect "reflect"
-
 	gomock "github.com/golang/mock/gomock"
+	reflect "reflect"
 )
 
 // MockScoring is a mock of Scoring interface
@@ -51,94 +49,17 @@ func (m *MockScoring) EXPECT() *MockScoringMockRecorder {
 	return m.recorder
 }
 
-// AddScoring mocks base method
-func (m *MockScoring) AddScoring(service configuremgrtypes.ServiceInfo) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AddScoring", service)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// AddScoring indicates an expected call of AddScoring
-func (mr *MockScoringMockRecorder) AddScoring(service interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddScoring", reflect.TypeOf((*MockScoring)(nil).AddScoring), service)
-}
-
-// RemoveScoring mocks base method
-func (m *MockScoring) RemoveScoring(appName string) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RemoveScoring", appName)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// RemoveScoring indicates an expected call of RemoveScoring
-func (mr *MockScoringMockRecorder) RemoveScoring(appName interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveScoring", reflect.TypeOf((*MockScoring)(nil).RemoveScoring), appName)
-}
-
-// RemoveAllScoring mocks base method
-func (m *MockScoring) RemoveAllScoring() error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RemoveAllScoring")
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// RemoveAllScoring indicates an expected call of RemoveAllScoring
-func (mr *MockScoringMockRecorder) RemoveAllScoring() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveAllScoring", reflect.TypeOf((*MockScoring)(nil).RemoveAllScoring))
-}
-
 // GetScore mocks base method
-func (m *MockScoring) GetScore(name string) (float64, error) {
+func (m *MockScoring) GetScore(ID string) (float64, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetScore", name)
+	ret := m.ctrl.Call(m, "GetScore", ID)
 	ret0, _ := ret[0].(float64)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetScore indicates an expected call of GetScore
-func (mr *MockScoringMockRecorder) GetScore(name interface{}) *gomock.Call {
+func (mr *MockScoringMockRecorder) GetScore(ID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetScore", reflect.TypeOf((*MockScoring)(nil).GetScore), name)
-}
-
-// Mockrating is a mock of rating interface
-type Mockrating struct {
-	ctrl     *gomock.Controller
-	recorder *MockratingMockRecorder
-}
-
-// MockratingMockRecorder is the mock recorder for Mockrating
-type MockratingMockRecorder struct {
-	mock *Mockrating
-}
-
-// NewMockrating creates a new mock instance
-func NewMockrating(ctrl *gomock.Controller) *Mockrating {
-	mock := &Mockrating{ctrl: ctrl}
-	mock.recorder = &MockratingMockRecorder{mock}
-	return mock
-}
-
-// EXPECT returns an object that allows the caller to indicate expected use
-func (m *Mockrating) EXPECT() *MockratingMockRecorder {
-	return m.recorder
-}
-
-// execute mocks base method
-func (m *Mockrating) execute() {
-	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "execute")
-}
-
-// execute indicates an expected call of execute
-func (mr *MockratingMockRecorder) execute() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "execute", reflect.TypeOf((*Mockrating)(nil).execute))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetScore", reflect.TypeOf((*MockScoring)(nil).GetScore), ID)
 }

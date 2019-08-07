@@ -72,13 +72,13 @@ var (
 	readCloser = ioutil.NopCloser(reader)
 )
 
-func initializeMock(t *testing.T) (*mocks.MockCEImpl, *notificationMock.MockNotification, *clientApiMock.MockClientApi) {
+func initializeMock(t *testing.T) (*mocks.MockCEImpl, *notificationMock.MockNotification, *clientApiMock.MockClienter) {
 	t.Helper()
 
 	ctrl := gomock.NewController(t)
 	con := mocks.NewMockCEImpl(ctrl)
 
-	client := clientApiMock.NewMockClientApi(ctrl)
+	client := clientApiMock.NewMockClienter(ctrl)
 	noti := notificationMock.NewMockNotification(ctrl)
 
 	return con, noti, client
@@ -90,7 +90,7 @@ func TestSetClient(t *testing.T) {
 	_, noti, client := initializeMock(t)
 
 	noti.EXPECT().SetClient(gomock.Any()).DoAndReturn(
-		func(clientParam *clientApiMock.MockClientApi) {
+		func(clientParam *clientApiMock.MockClienter) {
 			if clientParam != client {
 				t.Fail()
 			}
