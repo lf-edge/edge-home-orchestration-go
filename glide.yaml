@@ -24,6 +24,7 @@ ignore:
   - controller/servicemgr/executor/containerexecutor
   - controller/servicemgr/executor/nativeexecutor
   - controller/servicemgr/notification
+  - db/helper
   - db/bolt/common
   - db/bolt/configuration
   - db/bolt/network
