@@ -25,13 +25,12 @@ import (
 	"testing"
 	"time"
 
-	types "common/types/configuremgrtypes"
 	contextmgr "controller/configuremgr"
 )
 
 type dummyNoti struct{}
 
-func (d dummyNoti) Notify(s types.ServiceInfo) {
+func (d dummyNoti) Notify(s string) {
 	log.Println(s)
 }
 
