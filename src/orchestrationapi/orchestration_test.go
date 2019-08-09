@@ -18,15 +18,13 @@
 package orchestrationapi
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/golang/mock/gomock"
 
-	"errors"
-
-	"common/types/configuremgrtypes"
-
 	networkmocks "common/networkhelper/mocks"
+	resourceutilmocks "common/resourceutil/mocks"
 	contextmgrmocks "controller/configuremgr/mocks"
 	discoverymocks "controller/discoverymgr/mocks"
 	scoringmocks "controller/scoringmgr/mocks"
@@ -35,14 +33,19 @@ import (
 	clientmocks "restinterface/client/mocks"
 )
 
+const (
+	defaultServiceName = "default_service"
+)
+
 var (
-	mockWatcher   *contextmgrmocks.MockWatcher
-	mockDiscovery *discoverymocks.MockDiscovery
-	mockScoring   *scoringmocks.MockScoring
-	mockService   *servicemocks.MockServiceMgr
-	mockExecutor  *executormocks.MockServiceExecutor
-	mockClient    *clientmocks.MockClienter
-	mockNetwork   *networkmocks.MockNetwork
+	mockWatcher      *contextmgrmocks.MockWatcher
+	mockDiscovery    *discoverymocks.MockDiscovery
+	mockScoring      *scoringmocks.MockScoring
+	mockService      *servicemocks.MockServiceMgr
+	mockExecutor     *executormocks.MockServiceExecutor
+	mockClient       *clientmocks.MockClienter
+	mockNetwork      *networkmocks.MockNetwork
+	mockResourceutil *resourceutilmocks.MockMonitor
 )
 
 func createMockIns(ctrl *gomock.Controller) {
@@ -53,6 +56,7 @@ func createMockIns(ctrl *gomock.Controller) {
 	mockExecutor = executormocks.NewMockServiceExecutor(ctrl)
 	mockClient = clientmocks.NewMockClienter(ctrl)
 	mockNetwork = networkmocks.NewMockNetwork(ctrl)
+	mockResourceutil = resourceutilmocks.NewMockMonitor(ctrl)
 }
 
 func getOcheIns(ctrl *gomock.Controller) Orche {
@@ -66,6 +70,7 @@ func getOcheIns(ctrl *gomock.Controller) Orche {
 	builder.SetClient(mockClient)
 
 	orche := builder.Build()
+	resourceMonitorImpl = mockResourceutil
 	orche.(*orcheImpl).networkhelper = mockNetwork
 
 	return orche
@@ -188,6 +193,7 @@ func TestStart(t *testing.T) {
 
 		gomock.InOrder(
 			mockService.EXPECT().SetLocalServiceExecutor(mockExecutor),
+			mockResourceutil.EXPECT().StartMonitoringResource(),
 			mockDiscovery.EXPECT().StartDiscovery(gomock.Eq(deviceIDPath), gomock.Eq(platform), gomock.Eq(executionType)),
 			mockWatcher.EXPECT().Watch(gomock.Any()),
 		)
@@ -204,7 +210,6 @@ func TestNotify(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		gomock.InOrder(
 			mockService.EXPECT().SetLocalServiceExecutor(mockExecutor),
-			mockScoring.EXPECT().AddScoring(gomock.Any()).Return(nil),
 			mockDiscovery.EXPECT().AddNewServiceName(gomock.Any()).Return(nil),
 		)
 
@@ -214,30 +219,13 @@ func TestNotify(t *testing.T) {
 		if err != nil {
 			t.Error("unexpected error " + err.Error())
 		}
-		api.Notify(configuremgrtypes.ServiceInfo{})
+		api.Notify(defaultServiceName)
 	})
 	t.Run("Error", func(t *testing.T) {
-		t.Run("AddScoring", func(t *testing.T) {
-			gomock.InOrder(
-				mockService.EXPECT().SetLocalServiceExecutor(mockExecutor),
-				mockScoring.EXPECT().AddScoring(gomock.Any()).Return(errors.New("error test")),
-			)
-			getOcheIns(ctrl)
-			getOrcheImple().Ready = true
-			api, err := GetInternalAPI()
-			if err != nil {
-				t.Error("unexpected error " + err.Error())
-			}
-			api.Notify(configuremgrtypes.ServiceInfo{})
-		})
 		t.Run("AddNewServiceName", func(t *testing.T) {
-			testName := "test"
-			testInfo := configuremgrtypes.ServiceInfo{ServiceName: testName}
 			gomock.InOrder(
 				mockService.EXPECT().SetLocalServiceExecutor(mockExecutor),
-				mockScoring.EXPECT().AddScoring(gomock.Eq(testInfo)).Return(nil),
 				mockDiscovery.EXPECT().AddNewServiceName(gomock.Any()).Return(errors.New("error test")),
-				mockScoring.EXPECT().RemoveScoring(gomock.Eq(testName)).Return(nil),
 			)
 			getOcheIns(ctrl)
 			getOrcheImple().Ready = true
@@ -245,7 +233,7 @@ func TestNotify(t *testing.T) {
 			if err != nil {
 				t.Error("unexpected error " + err.Error())
 			}
-			api.Notify(testInfo)
+			api.Notify(defaultServiceName)
 		})
 	})
 }
