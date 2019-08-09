@@ -19,6 +19,7 @@
 package javaapi
 
 import (
+	"db/bolt/wrapper"
 	"log"
 	"sync"
 
@@ -70,6 +71,7 @@ const (
 
 	logPath    = edgeDir + "log/edge-orchestration"
 	configPath = edgeDir + "apps"
+	dbPath     = edgeDir + "db"
 
 	cipherKeyFilePath = edgeDir + "orchestration_userID.txt"
 	deviceIDFilePath  = edgeDir + "orchestration_deviceID.txt"
@@ -82,6 +84,8 @@ func OrchestrationInit() (errCode int) {
 
 	logmgr.Init(logPath)
 	log.Printf("[%s] OrchestrationInit", logPrefix)
+
+	wrapper.SetBoltDBPath(dbPath)
 
 	restIns := restclient.GetRestClient()
 	restIns.SetCipher(sha256.GetCipher(cipherKeyFilePath))
