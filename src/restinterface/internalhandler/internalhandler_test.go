@@ -55,7 +55,7 @@ func TestSetOrchestrationAPI(t *testing.T) {
 		})
 	})
 	t.Run("Success", func(t *testing.T) {
-		orcheExternalAPIMock := orchemock.NewMockOrcheInternalApi(ctrl)
+		orcheExternalAPIMock := orchemock.NewMockOrcheInternalAPI(ctrl)
 
 		handler.SetOrchestrationAPI(orcheExternalAPIMock)
 		if handler.api != orcheExternalAPIMock {
@@ -76,7 +76,7 @@ func TestAPIV1ServicemgrServicesPost(t *testing.T) {
 		t.Error("unexpected return value")
 	}
 
-	mockOrchestration := orchemock.NewMockOrcheInternalApi(ctrl)
+	mockOrchestration := orchemock.NewMockOrcheInternalAPI(ctrl)
 	mockCipher := ciphermock.NewMockIEdgeCipherer(ctrl)
 	mockHelper := helpermock.NewMockRestHelper(ctrl)
 
@@ -150,7 +150,7 @@ func TestAPIV1ServicemgrServicesNotificationServiceIDPost(t *testing.T) {
 		t.Error("unexpected return value")
 	}
 
-	mockOrchestration := orchemock.NewMockOrcheInternalApi(ctrl)
+	mockOrchestration := orchemock.NewMockOrcheInternalAPI(ctrl)
 	mockCipher := ciphermock.NewMockIEdgeCipherer(ctrl)
 	mockHelper := helpermock.NewMockRestHelper(ctrl)
 
@@ -227,7 +227,7 @@ func TestAPIV1ScoringmgrScoreLibnameGet(t *testing.T) {
 		t.Error("unexpected return value")
 	}
 
-	mockOrchestration := orchemock.NewMockOrcheInternalApi(ctrl)
+	mockOrchestration := orchemock.NewMockOrcheInternalAPI(ctrl)
 	mockCipher := ciphermock.NewMockIEdgeCipherer(ctrl)
 	mockHelper := helpermock.NewMockRestHelper(ctrl)
 

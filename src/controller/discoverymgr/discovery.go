@@ -21,7 +21,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net"
-	"strings"
 	"time"
 
 	errormsg "common/errormsg"
@@ -41,10 +40,6 @@ import (
 type Discovery interface {
 	StartDiscovery(UUIDpath string, platform string, executionType string) error
 	StopDiscovery()
-	GetDeviceList() (ExportDeviceMap, error)
-	GetDeviceIPListWithService(targetService string) ([]string, error)
-	// GetDeviceListWithService(targetService string) (ExportDeviceMap, error)
-	GetDeviceWithID(ID string) (ExportDeviceMap, error)
 	DeleteDeviceWithIP(targetIP string)
 	DeleteDeviceWithID(ID string)
 	AddNewServiceName(serviceName string) error
@@ -103,107 +98,6 @@ func (discoveryImpl) StopDiscovery() {
 	}
 	shutdownDiscoverymgr()
 	wrapperIns.Shutdown()
-}
-
-// GetDeviceList returns orchestration device info list
-func (discoveryImpl) GetDeviceList() (ExportDeviceMap, error) {
-	items, err := confQuery.GetList()
-	if err != nil {
-		return nil, err
-	}
-
-	ret := make(ExportDeviceMap)
-	for _, item := range items {
-		netItems, err := netQuery.Get(item.ID)
-		if err != nil {
-			continue
-		}
-
-		serviceItems, err := serviceQuery.Get(item.ID)
-		if err != nil {
-			continue
-		}
-
-		deviceMap := OrchestrationInformation{
-			Platform: item.Platform, ExecutionType: item.ExecType,
-			IPv4: netItems.IPv4, ServiceList: serviceItems.Services}
-
-		ret[item.ID] = deviceMap
-
-	}
-
-	if len(ret) == 0 {
-		err := errors.NotFound{Message: errormsg.ToString(errormsg.ErrorNoDeviceReturn)}
-		return nil, err
-	}
-
-	return ret, nil
-}
-
-// GetDeviceIPListWithService returns orchestration deviceIP list using service application name
-func (discoveryImpl) GetDeviceIPListWithService(targetService string) ([]string, error) {
-	var ret []string
-
-	serviceItems, err := serviceQuery.GetList()
-	if err != nil {
-		return nil, err
-	}
-
-	for _, item := range serviceItems {
-		for _, service := range item.Services {
-			if strings.Compare(service, targetService) == 0 {
-				netItems, err := netQuery.Get(item.ID)
-				if err != nil {
-					continue
-				}
-
-				ret = append(ret, netItems.IPv4...)
-			}
-		}
-	}
-
-	if len(ret) == 0 {
-		err = errors.NotFound{Message: errormsg.ToString(errormsg.ErrorNoDeviceReturn)}
-		return nil, err
-	}
-
-	return ret, nil
-}
-
-// GetDeviceWithID returns device info using deviceID
-func (discoveryImpl) GetDeviceWithID(ID string) (ExportDeviceMap, error) {
-	items, err := confQuery.GetList()
-	if err != nil {
-		return nil, err
-	}
-
-	ret := make(ExportDeviceMap)
-	for _, item := range items {
-		if item.ID == ID {
-			netItems, err := netQuery.Get(ID)
-			if err != nil {
-				continue
-			}
-
-			serviceItems, err := serviceQuery.Get(ID)
-			if err != nil {
-				continue
-			}
-
-			deviceMap := OrchestrationInformation{
-				Platform: item.Platform, ExecutionType: item.ExecType,
-				IPv4: netItems.IPv4, ServiceList: serviceItems.Services}
-
-			ret[item.ID] = deviceMap
-		}
-	}
-
-	if len(ret) == 0 {
-		err := errors.NotFound{Message: errormsg.ToString(errormsg.ErrorNoDeviceReturn)}
-		return nil, err
-	}
-
-	return ret, nil
 }
 
 // DeleteDevice deletes device info using deviceIP

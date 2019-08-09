@@ -19,6 +19,7 @@
 package javaapi
 
 import (
+	"db/bolt/wrapper"
 	"log"
 	"strings"
 	"sync"
@@ -50,6 +51,7 @@ const (
 
 	logPath    = edgeDir + "log/edge-orchestration"
 	configPath = edgeDir + "apps"
+	dbPath     = edgeDir + "db"
 
 	cipherKeyFilePath = edgeDir + "orchestration_userID.txt"
 	deviceIDFilePath  = edgeDir + "orchestration_deviceID.txt"
@@ -62,6 +64,8 @@ func OrchestrationInit() (errCode int) {
 
 	logmgr.Init(logPath)
 	log.Printf("[%s] OrchestrationInit", logPrefix)
+
+	wrapper.SetBoltDBPath(dbPath)
 
 	restIns := restclient.GetRestClient()
 	restIns.SetCipher(sha256.GetCipher(cipherKeyFilePath))
@@ -121,7 +125,10 @@ func OrchestrationRequestService(cAppName string, cArgs string) int {
 	if err != nil {
 		log.Fatalf("[%s] Orchestaration external api : %s", logPrefix, err.Error())
 	}
-	handle := externalAPI.RequestService(appName, argsArr)
+
+	// TODO change JAVA-API and fill the parameter on RequestService.
+	handle := 1
+	externalAPI.RequestService(orchestrationapi.ReqeustService{})
 	log.Printf("requestService handle : %d\n", handle)
 
 	return handle

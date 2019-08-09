@@ -256,7 +256,7 @@ func TestDoGetScoreRemoteDevice(t *testing.T) {
 			client.setHelper(mockHelper)
 
 			client.IsSetKey = false
-			_, err := client.DoGetScoreRemoteDevice("", "")
+			_, err := client.DoGetScoreRemoteDevice("", "", "")
 			if err == nil {
 				t.Error("expect error is not nil, but nil")
 			}
@@ -271,7 +271,7 @@ func TestDoGetScoreRemoteDevice(t *testing.T) {
 					mockHelper.EXPECT().DoGetWithBody(gomock.Any(), gomock.Any()).Return(nil, http.StatusOK, errors.New("")),
 				)
 
-				_, err := client.DoGetScoreRemoteDevice("", "")
+				_, err := client.DoGetScoreRemoteDevice("", "", "")
 				if err == nil {
 					t.Error("expect error is not nil, but nil")
 				}
@@ -285,7 +285,7 @@ func TestDoGetScoreRemoteDevice(t *testing.T) {
 					mockHelper.EXPECT().DoGetWithBody(gomock.Any(), gomock.Any()).Return(nil, http.StatusInternalServerError, nil),
 				)
 
-				_, err := client.DoGetScoreRemoteDevice("", "")
+				_, err := client.DoGetScoreRemoteDevice("", "", "")
 				if err == nil {
 					t.Error("expect error is not nil, but nil")
 				}
@@ -301,7 +301,7 @@ func TestDoGetScoreRemoteDevice(t *testing.T) {
 				mockCipher.EXPECT().DecryptByteToJSON(gomock.Any()).Return(nil, errors.New("")),
 			)
 
-			_, err := client.DoGetScoreRemoteDevice("", "")
+			_, err := client.DoGetScoreRemoteDevice("", "", "")
 			if err == nil {
 				t.Error("expect error is not nil, but nil")
 			}
@@ -320,7 +320,7 @@ func TestDoGetScoreRemoteDevice(t *testing.T) {
 				mockCipher.EXPECT().DecryptByteToJSON(gomock.Any()).Return(respMsg, nil),
 			)
 
-			_, err := client.DoGetScoreRemoteDevice("", "")
+			_, err := client.DoGetScoreRemoteDevice("", "", "")
 			if err == nil {
 				t.Error("expect error is not nil, but nil")
 			}
@@ -341,7 +341,7 @@ func TestDoGetScoreRemoteDevice(t *testing.T) {
 			mockCipher.EXPECT().DecryptByteToJSON(gomock.Any()).Return(respMsg, nil),
 		)
 
-		score, err := client.DoGetScoreRemoteDevice("", "")
+		score, err := client.DoGetScoreRemoteDevice("", "", "")
 		if err != nil {
 			t.Error("expect error is nil, but not nil")
 		} else if score != float64(1.0) {

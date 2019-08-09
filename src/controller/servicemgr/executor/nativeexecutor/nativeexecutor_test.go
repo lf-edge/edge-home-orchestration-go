@@ -27,12 +27,12 @@ import (
 	"github.com/golang/mock/gomock"
 )
 
-func initializeMock(t *testing.T) (*notificationMock.MockNotification, *clientApiMock.MockClientApi) {
+func initializeMock(t *testing.T) (*notificationMock.MockNotification, *clientApiMock.MockClienter) {
 	t.Helper()
 
 	ctrl := gomock.NewController(t)
 	noti := notificationMock.NewMockNotification(ctrl)
-	client := clientApiMock.NewMockClientApi(ctrl)
+	client := clientApiMock.NewMockClienter(ctrl)
 
 	return noti, client
 }
@@ -43,7 +43,7 @@ func TestClient(t *testing.T) {
 	noti, client := initializeMock(t)
 
 	noti.EXPECT().SetClient(gomock.Any()).DoAndReturn(
-		func(clientParam *clientApiMock.MockClientApi) {
+		func(clientParam *clientApiMock.MockClienter) {
 			if clientParam != client {
 				t.Fail()
 			}
