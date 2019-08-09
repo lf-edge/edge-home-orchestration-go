@@ -61,10 +61,10 @@ const (
 	executionType = "container"
 
 	logPath = "/var/log/edge-orchestration"
+	dbPath  = "/var/data/db"
 	edgeDir = "/etc/edge-orchestration/"
 
 	configPath = edgeDir + "apps"
-	dbPath     = edgeDir + "db"
 
 	cipherKeyFilePath = edgeDir + "orchestration_userID.txt"
 	deviceIDFilePath  = edgeDir + "orchestration_deviceID.txt"
