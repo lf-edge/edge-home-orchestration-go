@@ -17,6 +17,8 @@
 package wrapper
 
 import (
+	"os"
+
 	"common/errors"
 
 	"github.com/boltdb/bolt"
@@ -48,8 +50,15 @@ type (
 )
 
 // SetBoltDBPath set the path to save boltdb data.db file
-func SetBoltDBPath(path string) {
+func SetBoltDBPath(path string) error {
+	if _, err := os.Stat(path); err != nil {
+		err := os.MkdirAll(path, os.ModePerm)
+		if err != nil {
+			return errors.DBConnectionError{Message: err.Error()}
+		}
+	}
 	dbPath = path + "/data.db"
+	return nil
 }
 
 // NewBoltDB is return boltDB object
