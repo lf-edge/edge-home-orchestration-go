@@ -116,6 +116,8 @@ func orchestrationInit() error {
 	// log.Println(">>> buildTime : ", buildTime)
 	wrapper.SetBoltDBPath(dbPath)
 
+	wrapper.SetBoltDBPath(dbPath)
+
 	restIns := restclient.GetRestClient()
 	restIns.SetCipher(sha256.GetCipher(cipherKeyFilePath))
 
