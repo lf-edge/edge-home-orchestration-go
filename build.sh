@@ -296,6 +296,7 @@ function run_docker_container() {
                 --privileged \
                 --network="host" \
                 --name $DOCKER_IMAGE \
+                -v /var/data/db/:/var/data/db/:rw \
                 -v /var/run/:/var/run/:rw \
                 -v /var/log/:/var/log/:rw \
                 -v /etc/:/etc/:rw \
