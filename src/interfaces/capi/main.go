@@ -43,8 +43,20 @@ package main
 // * limitations under the License.
 // *
 // *******************************************************************************/
+//struct RequestServiceInfo {
+//	char* ExecutionType;
+//	char* ExeCmd;
+//};
+//struct TargetInfo {
+//	char* ExecutionType;
+//	char* Target;
+//};
+//struct ResponseService {
+//	char*      Message;
+//	char*      ServiceName;
+//	struct TargetInfo RemoteTargetInfo;
+//};
 import "C"
-
 import (
 	"flag"
 	"log"
@@ -141,29 +153,37 @@ func OrchestrationInit() (errCode C.int) {
 }
 
 //export OrchestrationRequestService
-func OrchestrationRequestService(cAppName *C.char, cArgs *C.char) C.int {
+func OrchestrationRequestService(cAppName *C.char, serviceInfo *C.struct_RequestServiceInfo, count C.int) C.struct_ResponseService {
 	log.Printf("[%s] OrchestrationRequestService", logPrefix)
 
 	appName := C.GoString(cAppName)
-	args := C.GoString(cArgs)
 
-	argsArr := strings.Split(args, " ")
-	if strings.Compare(argsArr[0], "") == 0 {
-		argsArr = nil
+	requestInfos := make([]orchestrationapi.RequestServiceInfo, count)
+	for _, requestInfo := range requestInfos {
+		requestInfo.ExecutionType = C.GoString(serviceInfo.ExecutionType)
+		args := strings.Split(C.GoString(serviceInfo.ExeCmd), " ")
+		if strings.Compare(args[0], "") == 0 {
+			args = nil
+		}
+		copy(requestInfo.ExeCmd, args)
 	}
 
-	log.Println("appName:", appName, "args:", argsArr)
+	log.Println("appName:", appName, "infos:", requestInfos)
 	externalAPI, err := orchestrationapi.GetExternalAPI()
 	if err != nil {
 		log.Fatalf("[%s] Orchestaration external api : %s", logPrefix, err.Error())
 	}
 
-	// TODO change C-API and fill the parameter on RequestService.
-	handle := 1
-	externalAPI.RequestService(orchestrationapi.ReqeustService{})
-	log.Printf("requestService handle : %d\n", handle)
+	res := externalAPI.RequestService(orchestrationapi.ReqeustService{ServiceName: appName, ServiceInfo: requestInfos})
+	log.Println("requestService handle : ", res)
 
-	return C.int(handle)
+	ret := C.struct_ResponseService{}
+	ret.Message = C.CString(res.Message)
+	ret.ServiceName = C.CString(res.ServiceName)
+	ret.RemoteTargetInfo.ExecutionType = C.CString(res.RemoteTargetInfo.ExecutionType)
+	ret.RemoteTargetInfo.Target = C.CString(res.RemoteTargetInfo.Target)
+
+	return ret
 }
 
 var count int
