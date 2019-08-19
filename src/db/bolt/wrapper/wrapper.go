@@ -17,17 +17,24 @@
 package wrapper
 
 import (
+	"os"
+
 	"common/errors"
 
 	"github.com/boltdb/bolt"
 )
 
 const (
-	PATH = "/var/data/db/data.db"
+	// PORT is used by boltDB
 	PORT = 0600
 )
 
+var (
+	dbPath string
+)
+
 type (
+	// Database is interface for boltDB
 	Database interface {
 		Get(key []byte) ([]byte, error)
 		Put(key []byte, value []byte) error
@@ -35,18 +42,32 @@ type (
 		Delete(key []byte) error
 	}
 
+	// BoltDB is a structure that contains a bucket name and a db instance
 	BoltDB struct {
 		bucketname string
 		boltdb     *bolt.DB
 	}
 )
 
+// SetBoltDBPath set the path to save boltdb data.db file
+func SetBoltDBPath(path string) error {
+	if _, err := os.Stat(path); err != nil {
+		err := os.MkdirAll(path, os.ModePerm)
+		if err != nil {
+			return errors.DBConnectionError{Message: err.Error()}
+		}
+	}
+	dbPath = path + "/data.db"
+	return nil
+}
+
+// NewBoltDB is return boltDB object
 func NewBoltDB(bucketname string) Database {
 	return &BoltDB{bucketname: bucketname}
 }
 
 func (db *BoltDB) dbOpen() error {
-	conn, err := bolt.Open(PATH, PORT, nil)
+	conn, err := bolt.Open(dbPath, PORT, nil)
 	if err != nil {
 		return errors.DBConnectionError{Message: err.Error()}
 	}
@@ -58,6 +79,7 @@ func (db *BoltDB) dbClose() {
 	db.boltdb.Close()
 }
 
+// Get returns data that matches the key.
 func (db *BoltDB) Get(key []byte) ([]byte, error) {
 	err := db.dbOpen()
 	if err != nil {

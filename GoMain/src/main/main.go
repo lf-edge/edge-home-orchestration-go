@@ -49,6 +49,8 @@ import (
 	"restinterface/externalhandler"
 	"restinterface/internalhandler"
 	"restinterface/route"
+
+	"db/bolt/wrapper"
 )
 
 const logPrefix = "interface"
@@ -59,6 +61,7 @@ const (
 	executionType = "container"
 
 	logPath = "/var/log/edge-orchestration"
+	dbPath  = "/var/data/db"
 	edgeDir = "/etc/edge-orchestration/"
 
 	configPath = edgeDir + "apps"
@@ -111,6 +114,7 @@ func orchestrationInit() error {
 	// log.Println(">>> commitID  : ", commitID)
 	// log.Println(">>> version   : ", version)
 	// log.Println(">>> buildTime : ", buildTime)
+	wrapper.SetBoltDBPath(dbPath)
 
 	restIns := restclient.GetRestClient()
 	restIns.SetCipher(sha256.GetCipher(cipherKeyFilePath))
