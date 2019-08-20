@@ -1,7 +1,7 @@
 ﻿Edge Orchestration
 =================================
 
-[![Goreport](https://goreportcard.com/report/github.com/lf-edge/edge-home-orchestration-go)](https://goreportcard.com/report/github.com/lf-edge/edge-home-orchestration-go)
+[![Goreport](https://goreportcard.com/badge/github.com/lf-edge/edge-home-orchestration-go)](https://goreportcard.com/report/github.com/lf-edge/edge-home-orchestration-go)
 
 The main purpose of Edge Orchestration is to implement distributed computing between Docker Container enabled devices. 
 
