@@ -100,7 +100,8 @@ func checkNetworkBandwidth() {
 
 	for _, link := range linklist {
 		if strings.Contains(link.Attrs().Name, "eth") ||
-			strings.Contains(link.Attrs().Name, "enp") {
+			strings.Contains(link.Attrs().Name, "enp") ||
+			strings.Contains(link.Attrs().Name, "wl") {
 			count++
 			total += link.Attrs().TxQLen
 		}
