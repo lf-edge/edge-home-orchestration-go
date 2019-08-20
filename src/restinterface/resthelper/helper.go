@@ -229,6 +229,7 @@ func (helperImpl) MakeTargetURL(target string, port int, restapi string) string 
 
 // ResponseJSON function
 func (helperImpl) ResponseJSON(w http.ResponseWriter, bytes []byte, httpStatus int) {
+	w.Header().Set("Connection", "close")
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(httpStatus)
 	w.Write(bytes)
@@ -236,6 +237,7 @@ func (helperImpl) ResponseJSON(w http.ResponseWriter, bytes []byte, httpStatus i
 
 // Response function
 func (helperImpl) Response(w http.ResponseWriter, httpStatus int) {
+	w.Header().Set("Connection", "close")
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(httpStatus)
 }
