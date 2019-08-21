@@ -41,12 +41,24 @@ import (
 
 type RequestServiceInfo struct {
 	ExecutionType string
-	ExeCmd        string
+	ExeCmd        []string
+}
+
+func NewRequestServiceInfo() *RequestServiceInfo {
+	return &RequestServiceInfo{
+		ExeCmd: make([]string, 0),
+	}
 }
 
 type ReqeustService struct {
 	ServiceName string
-	ServiceInfo *RequestServiceInfo
+	ServiceInfo []RequestServiceInfo
+}
+
+func NewRequestService() *ReqeustService {
+	return &ReqeustService{
+		ServiceInfo: make([]RequestServiceInfo, 0),
+	}
 }
 
 type TargetInfo struct {
@@ -57,7 +69,7 @@ type TargetInfo struct {
 type ResponseService struct {
 	Message          string
 	ServiceName      string
-	RemoteTargetInfo *TargetInfo
+	RemoteTargetInfo TargetInfo
 }
 
 const logPrefix = "interface"
@@ -129,11 +141,9 @@ func OrchestrationInit() (errCode int) {
 }
 
 // OrchestrationRequestService performs request from service applications who uses orchestration service
-func OrchestrationRequestService(request *ReqeustService) (*ResponseService) {
+func OrchestrationRequestService(request *ReqeustService) *ResponseService {
 	log.Printf("[%s] OrchestrationRequestService", logPrefix)
 	log.Println("Service name: ", request.ServiceName)
-	log.Println("Execution type: ", request.ServiceInfo.ExecutionType)
-	log.Println("Execution command: ",  request.ServiceInfo.ExeCmd)
 
 	externalAPI, err := orchestrationapi.GetExternalAPI()
 	if err != nil {
@@ -141,23 +151,23 @@ func OrchestrationRequestService(request *ReqeustService) (*ResponseService) {
 	}
 
 	changed := orchestrationapi.ReqeustService{ServiceName: request.ServiceName}
-	changed.ServiceInfo = make([]orchestrationapi.RequestServiceInfo, 1)
-	changed.ServiceInfo[0].ExecutionType = request.ServiceInfo.ExecutionType
-	exeCmd := make([]string, 1)
-	exeCmd[0] = request.ServiceInfo.ExeCmd
-	changed.ServiceInfo[0].ExeCmd = exeCmd
+
+	changed.ServiceInfo = make([]orchestrationapi.RequestServiceInfo, len(request.ServiceInfo))
+	for idx, info := range request.ServiceInfo {
+		changed.ServiceInfo[idx].ExecutionType = info.ExecutionType
+		copy(changed.ServiceInfo[idx].ExeCmd, info.ExeCmd)
+	}
 
 	response := externalAPI.RequestService(changed)
 	log.Println("response : ", response)
 
-	ret := &ResponseService {
-		Message: response.Message,
+	ret := &ResponseService{
+		Message:     response.Message,
 		ServiceName: response.ServiceName,
-		RemoteTargetInfo: &TargetInfo {
+		RemoteTargetInfo: TargetInfo{
 			ExecutionType: response.RemoteTargetInfo.ExecutionType,
 			Target:        response.RemoteTargetInfo.Target,
 		},
-
 	}
 	return ret
 }
@@ -174,4 +184,3 @@ func PrintLog(cMsg string) (count int) {
 	count++
 	return
 }
-
