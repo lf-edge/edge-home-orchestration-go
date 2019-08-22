@@ -21,6 +21,7 @@ package javaapi
 import (
 	"db/bolt/wrapper"
 	"log"
+	"strings"
 	"sync"
 
 	"common/logmgr"
@@ -44,21 +45,45 @@ type RequestServiceInfo struct {
 	ExeCmd        []string
 }
 
-func NewRequestServiceInfo() *RequestServiceInfo {
-	return &RequestServiceInfo{
-		ExeCmd: make([]string, 0),
-	}
-}
-
 type ReqeustService struct {
 	ServiceName string
 	ServiceInfo []RequestServiceInfo
 }
 
-func NewRequestService() *ReqeustService {
-	return &ReqeustService{
-		ServiceInfo: make([]RequestServiceInfo, 0),
+func (r *ReqeustService) SetExecutionCommand(execType, command string) {
+	switch execType {
+	case "native", "android", "container":
+	default:
+		log.Printf("[%s] unexpected execution type: %s", logPrefix, execType)
+		return
 	}
+
+	args := strings.Split(command, " ")
+
+	for _, info := range r.ServiceInfo {
+		if info.ExecutionType == execType {
+			info.ExeCmd = make([]string, len(args))
+			copy(info.ExeCmd, args)
+			return
+		}
+	}
+	info := RequestServiceInfo{ExecutionType: execType}
+	info.ExeCmd = make([]string, len(args))
+	copy(info.ExeCmd, args)
+
+	r.ServiceInfo = append(r.ServiceInfo, info)
+}
+
+func (r ReqeustService) GetExecutionCommand(execType string) string {
+	switch execType {
+	case "native", "android", "container":
+		for _, info := range r.ServiceInfo {
+			if info.ExecutionType == execType {
+				return strings.Join(info.ExeCmd, " ")
+			}
+		}
+	}
+	return ""
 }
 
 type TargetInfo struct {
@@ -70,6 +95,14 @@ type ResponseService struct {
 	Message          string
 	ServiceName      string
 	RemoteTargetInfo TargetInfo
+}
+
+func (r ResponseService) GetExecutedType() string {
+	return r.RemoteTargetInfo.ExecutionType
+}
+
+func (r ResponseService) GetTarget() string {
+	return r.RemoteTargetInfo.Target
 }
 
 const logPrefix = "interface"
