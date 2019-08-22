@@ -65,7 +65,7 @@ const logPrefix = "interface"
 // Handle Platform Dependencies
 const (
 	platform      = "android"
-	executionType = "apk"
+	executionType = "android"
 
 	edgeDir = "/storage/emulated/0/Android/data/com.samsung.orchestration.service/files/"
 
