@@ -50,11 +50,11 @@ type ReqeustService struct {
 	ServiceInfo []RequestServiceInfo
 }
 
-func (r *ReqeustService) SetExecutionCommand(execType, command string) {
+func (r *ReqeustService) SetExecutionCommand(execType string, command string) {
 	switch execType {
 	case "native", "android", "container":
 	default:
-		log.Printf("[%s] unexpected execution type: %s", logPrefix, execType)
+		log.Printf("[%s] Invalid execution type: %s", logPrefix, execType)
 		return
 	}
 
@@ -94,7 +94,7 @@ type TargetInfo struct {
 type ResponseService struct {
 	Message          string
 	ServiceName      string
-	RemoteTargetInfo TargetInfo
+	RemoteTargetInfo *TargetInfo
 }
 
 func (r ResponseService) GetExecutedType() string {
@@ -124,7 +124,7 @@ const (
 
 var orcheEngine orchestrationapi.Orche
 
-// OrchestrationInit runs orchestration service and discovers other orchestration services in other devices
+// OrchestrationInit runs orchestration service and discovers remote orchestration services
 func OrchestrationInit() (errCode int) {
 
 	logmgr.Init(logPath)
@@ -147,7 +147,7 @@ func OrchestrationInit() (errCode int) {
 
 	orcheEngine = builder.Build()
 	if orcheEngine == nil {
-		log.Fatalf("[%s] Orchestaration initalize fail", logPrefix)
+		log.Fatalf("[%s] Orchestration initialize fail", logPrefix)
 		return
 	}
 
@@ -157,7 +157,7 @@ func OrchestrationInit() (errCode int) {
 
 	internalapi, err := orchestrationapi.GetInternalAPI()
 	if err != nil {
-		log.Fatalf("[%s] Orchestaration internal api : %s", logPrefix, err.Error())
+		log.Fatalf("[%s] Orchestration internal api : %s", logPrefix, err.Error())
 	}
 	ihandle := internalhandler.GetHandler()
 	ihandle.SetOrchestrationAPI(internalapi)
@@ -166,14 +166,14 @@ func OrchestrationInit() (errCode int) {
 
 	restEdgeRouter.Start()
 
-	log.Println(logPrefix, "orchestration init done")
+	log.Println(logPrefix, "Orchestration init done")
 
 	errCode = 0
 
 	return
 }
 
-// OrchestrationRequestService performs request from service applications who uses orchestration service
+// OrchestrationRequestService performs request from service applications which uses orchestration service
 func OrchestrationRequestService(request *ReqeustService) *ResponseService {
 	log.Printf("[%s] OrchestrationRequestService", logPrefix)
 	log.Println("Service name: ", request.ServiceName)
@@ -188,16 +188,16 @@ func OrchestrationRequestService(request *ReqeustService) *ResponseService {
 	changed.ServiceInfo = make([]orchestrationapi.RequestServiceInfo, len(request.ServiceInfo))
 	for idx, info := range request.ServiceInfo {
 		changed.ServiceInfo[idx].ExecutionType = info.ExecutionType
-		copy(changed.ServiceInfo[idx].ExeCmd, info.ExeCmd)
+		changed.ServiceInfo[idx].ExeCmd = info.ExeCmd
 	}
 
 	response := externalAPI.RequestService(changed)
-	log.Println("response : ", response)
+	log.Println("Response : ", response)
 
 	ret := &ResponseService{
 		Message:     response.Message,
 		ServiceName: response.ServiceName,
-		RemoteTargetInfo: TargetInfo{
+		RemoteTargetInfo: &TargetInfo{
 			ExecutionType: response.RemoteTargetInfo.ExecutionType,
 			Target:        response.RemoteTargetInfo.Target,
 		},
