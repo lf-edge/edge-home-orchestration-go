@@ -85,11 +85,23 @@ func logger(inner http.Handler, name string) http.Handler {
 		inner.ServeHTTP(w, r)
 
 		log.Printf(
-			"%s %s %s %s",
+			"From [%s] %s %s %s %s",
+			readClientIP(r),
 			r.Method,
 			r.RequestURI,
 			name,
 			time.Since(start),
 		)
 	})
+}
+
+func readClientIP(r *http.Request) string {
+	IPAddress := r.Header.Get("X-Real-Ip")
+	if IPAddress == "" {
+		IPAddress = r.Header.Get("X-Forwarded-For")
+	}
+	if IPAddress == "" {
+		IPAddress = r.RemoteAddr
+	}
+	return IPAddress
 }
