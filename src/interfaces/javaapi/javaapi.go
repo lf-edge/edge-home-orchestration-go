@@ -25,7 +25,7 @@ import (
 
 	"common/logmgr"
 
-	configuremgr "controller/configuremgr/container"
+	configuremgr "controller/configuremgr/native"
 	"controller/discoverymgr"
 	scoringmgr "controller/scoringmgr"
 	"controller/servicemgr"
