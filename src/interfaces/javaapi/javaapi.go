@@ -29,7 +29,7 @@ import (
 	"controller/discoverymgr"
 	scoringmgr "controller/scoringmgr"
 	"controller/servicemgr"
-	"controller/servicemgr/executor/nativeexecutor"
+	"controller/servicemgr/executor/androidexecutor"
 
 	"orchestrationapi"
 
@@ -97,7 +97,7 @@ func OrchestrationInit() (errCode int) {
 	builder.SetDiscovery(discoverymgr.GetInstance())
 	builder.SetScoring(scoringmgr.GetInstance())
 	builder.SetService(servicemgr.GetInstance())
-	builder.SetExecutor(nativeexecutor.GetInstance()) // TODO modify for android if needed
+	builder.SetExecutor(androidexecutor.GetInstance())
 	builder.SetClient(restIns)
 
 	orcheEngine = builder.Build()
