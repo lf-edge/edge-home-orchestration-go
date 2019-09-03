@@ -23,6 +23,7 @@ ignore:
   - controller/servicemgr/executor
   - controller/servicemgr/executor/containerexecutor
   - controller/servicemgr/executor/nativeexecutor
+  - controller/servicemgr/executor/androidexecutor
   - controller/servicemgr/notification
   - db/bolt/common
   - db/bolt/configuration
