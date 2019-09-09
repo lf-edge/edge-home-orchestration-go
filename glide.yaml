@@ -23,6 +23,7 @@ ignore:
   - controller/servicemgr/executor
   - controller/servicemgr/executor/containerexecutor
   - controller/servicemgr/executor/nativeexecutor
+  - controller/servicemgr/executor/androidexecutor
   - controller/servicemgr/notification
   - db/helper
   - db/bolt/common
@@ -32,6 +33,7 @@ ignore:
   - db/bolt/system
   - db/bolt/resource
   - db/bolt/wrapper
+  - db/helper
   - orchestrationapi
   - restinterface
   - restinterface/cipher
@@ -43,6 +45,8 @@ ignore:
   - restinterface/internalhandler
   - restinterface/resthelper
   - restinterface/route
+  # https://github.com/Masterminds/glide/issues/1055
+  - crypto/ed25519
 import:
   - package: docker.io/go-docker
     version: v1.0.0

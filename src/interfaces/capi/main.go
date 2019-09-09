@@ -43,13 +43,30 @@ package main
 // * limitations under the License.
 // *
 // *******************************************************************************/
+//#define MAX_SVC_INFO_NUM 3
+//typedef struct {
+//	char* ExecutionType;
+//	char* ExeCmd;
+//} RequestServiceInfo;
+//
+//typedef struct {
+//	char* ExecutionType;
+//	char* Target;
+//} TargetInfo;
+//
+//typedef struct {
+//	char*      Message;
+//	char*      ServiceName;
+//	TargetInfo RemoteTargetInfo;
+//} ResponseService;
 import "C"
-
 import (
 	"flag"
 	"log"
+	"math"
 	"strings"
 	"sync"
+	"unsafe"
 
 	"common/logmgr"
 
@@ -65,6 +82,8 @@ import (
 	"restinterface/client/restclient"
 	"restinterface/internalhandler"
 	"restinterface/route"
+
+	"db/bolt/wrapper"
 )
 
 const logPrefix = "interface"
@@ -72,9 +91,10 @@ const logPrefix = "interface"
 // Handle Platform Dependencies
 const (
 	platform      = "linux"
-	executionType = "rpm"
+	executionType = "native"
 
 	logPath = "/var/log/edge-orchestration"
+	dbPath  = "/var/data/db"
 	edgeDir = "/etc/edge-orchestration/"
 
 	configPath = edgeDir + "apps"
@@ -101,6 +121,7 @@ func OrchestrationInit() (errCode C.int) {
 	log.Println(">>> commitID  : ", commitID)
 	log.Println(">>> version   : ", version)
 	log.Println(">>> buildTime : ", buildTime)
+	wrapper.SetBoltDBPath(dbPath)
 
 	restIns := restclient.GetRestClient()
 	restIns.SetCipher(sha256.GetCipher(cipherKeyFilePath))
@@ -141,29 +162,40 @@ func OrchestrationInit() (errCode C.int) {
 }
 
 //export OrchestrationRequestService
-func OrchestrationRequestService(cAppName *C.char, cArgs *C.char) C.int {
+func OrchestrationRequestService(cAppName *C.char, serviceInfo *C.RequestServiceInfo, count C.int) C.ResponseService {
 	log.Printf("[%s] OrchestrationRequestService", logPrefix)
 
 	appName := C.GoString(cAppName)
-	args := C.GoString(cArgs)
 
-	argsArr := strings.Split(args, " ")
-	if strings.Compare(argsArr[0], "") == 0 {
-		argsArr = nil
+	requestInfos := make([]orchestrationapi.RequestServiceInfo, count)
+	CServiceInfo := (*[(math.MaxInt16 - 1) / unsafe.Sizeof(serviceInfo)]C.RequestServiceInfo)(unsafe.Pointer(serviceInfo))[:count:count]
+
+	for idx, requestInfo := range CServiceInfo {
+		requestInfos[idx].ExecutionType = C.GoString(requestInfo.ExecutionType)
+
+		args := strings.Split(C.GoString(requestInfo.ExeCmd), " ")
+		if strings.Compare(args[0], "") == 0 {
+			args = nil
+		}
+		requestInfos[idx].ExeCmd = append([]string{}, args...)
 	}
 
-	log.Println("appName:", appName, "args:", argsArr)
+	log.Println("appName:", appName, "infos:", requestInfos)
 	externalAPI, err := orchestrationapi.GetExternalAPI()
 	if err != nil {
 		log.Fatalf("[%s] Orchestaration external api : %s", logPrefix, err.Error())
 	}
 
-	// TODO change C-API and fill the parameter on RequestService.
-	handle := 1
-	externalAPI.RequestService(orchestrationapi.ReqeustService{})
-	log.Printf("requestService handle : %d\n", handle)
+	res := externalAPI.RequestService(orchestrationapi.ReqeustService{ServiceName: appName, ServiceInfo: requestInfos})
+	log.Println("requestService handle : ", res)
 
-	return C.int(handle)
+	ret := C.ResponseService{}
+	ret.Message = C.CString(res.Message)
+	ret.ServiceName = C.CString(res.ServiceName)
+	ret.RemoteTargetInfo.ExecutionType = C.CString(res.RemoteTargetInfo.ExecutionType)
+	ret.RemoteTargetInfo.Target = C.CString(res.RemoteTargetInfo.Target)
+
+	return ret
 }
 
 var count int

@@ -142,7 +142,7 @@ func (orcheEngine *orcheImpl) RequestService(serviceInfo ReqeustService) Respons
 	}
 
 	deviceScores := sortByScore(orcheEngine.gatherDevicesScore(candidates))
-	if len(deviceScores) > 0 {
+	if len(deviceScores) <= 0 {
 		return ResponseService{
 			Message:          SERVICE_NOT_FOUND,
 			ServiceName:      serviceInfo.ServiceName,

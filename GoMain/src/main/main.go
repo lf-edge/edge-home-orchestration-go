@@ -49,6 +49,8 @@ import (
 	"restinterface/externalhandler"
 	"restinterface/internalhandler"
 	"restinterface/route"
+
+	"db/bolt/wrapper"
 )
 
 const logPrefix = "interface"
@@ -59,6 +61,7 @@ const (
 	executionType = "container"
 
 	logPath = "/var/log/edge-orchestration"
+	dbPath  = "/var/data/db"
 	edgeDir = "/etc/edge-orchestration/"
 
 	configPath = edgeDir + "apps"
@@ -77,24 +80,6 @@ func main() {
 		log.Fatalf("[%s] Orchestaration initalize fail : %s", logPrefix, err.Error())
 	}
 
-	externalapi, err := orchestrationapi.GetExternalAPI()
-	if err != nil {
-		log.Fatalf("[%s] Orchestaration external api : %s", logPrefix, err.Error())
-	}
-
-	if err == nil {
-		// @NOTE : for container
-		serviceInfo := make([]orchestrationapi.RequestServiceInfo, 1)
-		serviceInfo[0].ExecutionType = "container"
-		serviceInfo[0].ExeCmd = []string{"docker", "run", "-v", "/var/run:/var/run:rw", "hello-world"}
-		requestService := orchestrationapi.ReqeustService{
-			ServiceName: "container_service",
-			ServiceInfo: serviceInfo,
-		}
-
-		externalapi.RequestService(requestService)
-	}
-
 	for {
 		time.Sleep(1000)
 	}
@@ -111,6 +96,7 @@ func orchestrationInit() error {
 	// log.Println(">>> commitID  : ", commitID)
 	// log.Println(">>> version   : ", version)
 	// log.Println(">>> buildTime : ", buildTime)
+	wrapper.SetBoltDBPath(dbPath)
 
 	restIns := restclient.GetRestClient()
 	restIns.SetCipher(sha256.GetCipher(cipherKeyFilePath))
