@@ -30,6 +30,8 @@ import (
 	scoringmocks "controller/scoringmgr/mocks"
 	executormocks "controller/servicemgr/executor/mocks"
 	servicemocks "controller/servicemgr/mocks"
+	dbsystemMocks "db/bolt/system/mocks"
+	dbhelpermocks "db/helper/mocks"
 	clientmocks "restinterface/client/mocks"
 )
 
@@ -43,9 +45,12 @@ var (
 	mockScoring      *scoringmocks.MockScoring
 	mockService      *servicemocks.MockServiceMgr
 	mockExecutor     *executormocks.MockServiceExecutor
+	mockDBHelper     *dbhelpermocks.MockMultipleBucketQuery
 	mockClient       *clientmocks.MockClienter
 	mockNetwork      *networkmocks.MockNetwork
 	mockResourceutil *resourceutilmocks.MockMonitor
+
+	mockSystemDBExecutor *dbsystemMocks.MockDBInterface
 )
 
 func createMockIns(ctrl *gomock.Controller) {
@@ -54,9 +59,11 @@ func createMockIns(ctrl *gomock.Controller) {
 	mockScoring = scoringmocks.NewMockScoring(ctrl)
 	mockService = servicemocks.NewMockServiceMgr(ctrl)
 	mockExecutor = executormocks.NewMockServiceExecutor(ctrl)
+	mockDBHelper = dbhelpermocks.NewMockMultipleBucketQuery(ctrl)
 	mockClient = clientmocks.NewMockClienter(ctrl)
 	mockNetwork = networkmocks.NewMockNetwork(ctrl)
 	mockResourceutil = resourceutilmocks.NewMockMonitor(ctrl)
+	mockSystemDBExecutor = dbsystemMocks.NewMockDBInterface(ctrl)
 }
 
 func getOcheIns(ctrl *gomock.Controller) Orche {
@@ -68,6 +75,9 @@ func getOcheIns(ctrl *gomock.Controller) Orche {
 	builder.SetService(mockService)
 	builder.SetWatcher(mockWatcher)
 	builder.SetClient(mockClient)
+
+	helper = mockDBHelper
+	sysDBExecutor = mockSystemDBExecutor
 
 	orche := builder.Build()
 	resourceMonitorImpl = mockResourceutil
