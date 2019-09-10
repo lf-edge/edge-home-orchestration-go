@@ -194,6 +194,7 @@ func closeTest() {
 }
 
 func init() {
+	//should remove bolt db file when finished unittest
 	dbwrapper.SetBoltDBPath("./testDB")
 }
 

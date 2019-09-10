@@ -18,16 +18,27 @@
 package native
 
 import (
+	"fmt"
 	"log"
 	"os/exec"
 	"strings"
 	"testing"
+	"time"
+
+	contextmgr "controller/configuremgr"
+)
+
+var name string
+
+const (
+	expectedName = "HelloWorldService"
 )
 
 type dummyNoti struct{}
 
 func (d dummyNoti) Notify(s string) {
 	log.Println(s)
+	name = s
 }
 
 func TestSetConfigPath(t *testing.T) {
@@ -42,36 +53,42 @@ func TestSetConfigPath(t *testing.T) {
 	}
 }
 
-// func TestBasicMockConfigureMgr(t *testing.T) {
-// 	var contextNoti contextmgr.Notifier
-// 	contextNoti = new(dummyNoti)
+func TestBasicMockConfigureMgr(t *testing.T) {
 
-// 	//copy event environment
-// 	watchDir := "/tmp/foo"
-// 	src := "./mock/mysum"
-// 	dst := watchDir
+	var contextNoti contextmgr.Notifier
+	contextNoti = new(dummyNoti)
 
-// 	// testConfigObj := &ConfigureMgr{confpath: watchDir}
-// 	testConfigObj := new(ConfigureMgr)
-// 	testConfigObj.confpath = watchDir
+	//copy event environment
+	watchDir := "/tmp/foo"
+	src := "./mock/mysum"
+	dst := watchDir
 
-// 	execCommand("mkdir -p /tmp/foo/")
+	// testConfigObj := &ConfigureMgr{confpath: watchDir}
+	testConfigObj := new(ConfigureMgr)
+	testConfigObj.confpath = watchDir
 
-// 	go testConfigObj.Watch(contextNoti)
+	execCommand("mkdir -p /tmp/foo/")
 
-// 	//TODO : push /tmp/foo/simple directory using Cmd package
-// 	time.Sleep(time.Duration(1 * time.Second))
+	go testConfigObj.Watch(contextNoti)
 
-// 	//init scenario
-// 	execCommand("rm -rf /tmp/foo/mysum")
-// 	time.Sleep(time.Duration(1) * time.Second)
+	//TODO : push /tmp/foo/simple directory using Cmd package
+	time.Sleep(time.Duration(1 * time.Second))
 
-// 	//user scenario
-// 	execCommand(fmt.Sprintf("cp -ar %s %s", src, dst))
-// 	time.Sleep(time.Duration(5) * time.Second)
+	//init scenario
+	execCommand("rm -rf /tmp/foo/mysum")
+	time.Sleep(time.Duration(1) * time.Second)
 
-// 	// testConfigObj.Done <- true
-// }
+	//user scenario
+	execCommand(fmt.Sprintf("cp -ar %s %s", src, dst))
+
+	time.Sleep(time.Duration(5) * time.Second)
+
+	if name != expectedName {
+		t.Errorf("Not matched notified serviceName")
+	}
+
+	// testConfigObj.Done <- true
+}
 
 func execCommand(command string) {
 	log.Println(command)
