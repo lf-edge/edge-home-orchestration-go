@@ -18,14 +18,10 @@
 package native
 
 import (
-	"fmt"
 	"log"
 	"os/exec"
 	"strings"
 	"testing"
-	"time"
-
-	contextmgr "controller/configuremgr"
 )
 
 type dummyNoti struct{}
@@ -46,37 +42,36 @@ func TestSetConfigPath(t *testing.T) {
 	}
 }
 
-func TestBasicMockConfigureMgr(t *testing.T) {
+// func TestBasicMockConfigureMgr(t *testing.T) {
+// 	var contextNoti contextmgr.Notifier
+// 	contextNoti = new(dummyNoti)
 
-	var contextNoti contextmgr.Notifier
-	contextNoti = new(dummyNoti)
+// 	//copy event environment
+// 	watchDir := "/tmp/foo"
+// 	src := "./mock/mysum"
+// 	dst := watchDir
 
-	//copy event environment
-	watchDir := "/tmp/foo"
-	src := "./mock/mysum"
-	dst := watchDir
+// 	// testConfigObj := &ConfigureMgr{confpath: watchDir}
+// 	testConfigObj := new(ConfigureMgr)
+// 	testConfigObj.confpath = watchDir
 
-	// testConfigObj := &ConfigureMgr{confpath: watchDir}
-	testConfigObj := new(ConfigureMgr)
-	testConfigObj.confpath = watchDir
+// 	execCommand("mkdir -p /tmp/foo/")
 
-	execCommand("mkdir -p /tmp/foo/")
+// 	go testConfigObj.Watch(contextNoti)
 
-	go testConfigObj.Watch(contextNoti)
+// 	//TODO : push /tmp/foo/simple directory using Cmd package
+// 	time.Sleep(time.Duration(1 * time.Second))
 
-	//TODO : push /tmp/foo/simple directory using Cmd package
-	time.Sleep(time.Duration(1 * time.Second))
+// 	//init scenario
+// 	execCommand("rm -rf /tmp/foo/mysum")
+// 	time.Sleep(time.Duration(1) * time.Second)
 
-	//init scenario
-	execCommand("rm -rf /tmp/foo/mysum")
-	time.Sleep(time.Duration(1) * time.Second)
+// 	//user scenario
+// 	execCommand(fmt.Sprintf("cp -ar %s %s", src, dst))
+// 	time.Sleep(time.Duration(5) * time.Second)
 
-	//user scenario
-	execCommand(fmt.Sprintf("cp -ar %s %s", src, dst))
-	time.Sleep(time.Duration(5) * time.Second)
-
-	// testConfigObj.Done <- true
-}
+// 	// testConfigObj.Done <- true
+// }
 
 func execCommand(command string) {
 	log.Println(command)

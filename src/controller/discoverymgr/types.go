@@ -48,8 +48,8 @@ var (
 	wrapperIns   wrapper.ZeroconfInterface
 	shutdownChan chan struct{}
 
-	sysQuery     systemdb.Query
-	confQuery    configurationdb.Query
-	netQuery     networkdb.Query
-	serviceQuery servicedb.Query
+	sysQuery     systemdb.DBInterface
+	confQuery    configurationdb.DBInterface
+	netQuery     networkdb.DBInterface
+	serviceQuery servicedb.DBInterface
 )

@@ -102,10 +102,6 @@ func TestGetNetInterface(t *testing.T) {
 	t.Log()
 }
 
-func TestStartNetwork(t *testing.T) {
-	t.Skip()
-}
-
 func TestCheckConnectivity(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		setPassCondOfNetInfo()

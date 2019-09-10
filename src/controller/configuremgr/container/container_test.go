@@ -16,11 +16,3 @@
  *******************************************************************************/
 
 package container
-
-import (
-	"testing"
-)
-
-func TestXYZ(t *testing.T) {
-
-}
