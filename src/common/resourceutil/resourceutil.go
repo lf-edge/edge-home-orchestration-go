@@ -31,10 +31,15 @@ type ResourceImpl struct {
 
 // MonitorImpl is implementation for Monitor interface
 type MonitorImpl struct {
+	netScoring func()
+	cpuScoring func()
+	memScoring func()
+	rttScoring func()
 }
 
 var (
 	resourceDBExecutor resourceDB.DBInterface
+	monitoringExecutor MonitorImpl
 )
 
 func init() {
@@ -80,12 +85,21 @@ type GetResource interface {
 	SetDeviceID(string)
 }
 
+// GetMonitoringInstance return MonitorImpl instance
+func GetMonitoringInstance() *MonitorImpl {
+	monitoringExecutor.netScoring = processNetInfo
+	monitoringExecutor.cpuScoring = processCPUInfo
+	monitoringExecutor.memScoring = processMEMInfo
+	monitoringExecutor.rttScoring = processRTT
+	return &monitoringExecutor
+}
+
 // StartMonitoringResource to get device resources
-func (MonitorImpl) StartMonitoringResource() {
-	processCPUInfo()
-	processMEMInfo()
-	processNetInfo()
-	processRTT()
+func (m MonitorImpl) StartMonitoringResource() {
+	m.netScoring()
+	m.cpuScoring()
+	m.memScoring()
+	m.rttScoring()
 }
 
 // GetResource returns a resource value that matches resourceName

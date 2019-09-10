@@ -23,8 +23,13 @@ import (
 	"time"
 
 	commoncpu "common/resourceutil/cpu"
+
+	"github.com/golang/mock/gomock"
 	memutil "github.com/shirou/gopsutil/mem"
 	netutil "github.com/vishvananda/netlink"
+
+	resourceDB "db/bolt/resource"
+	resourceDBMock "db/bolt/resource/mocks"
 )
 
 type dummpyLink struct {
@@ -154,8 +159,96 @@ func fakeLinkListWithError() ([]netutil.Link, error) {
 	return linkList, errors.New("fakeLinkListPrevWithError")
 }
 
-func TestGetCPUUsage_ExpectedSuccess(t *testing.T) {
+func setupTestCase() {
+	net.linkList = fakeLinkList
 	cpu.percent = fakeCPUPercent
+	cpu.info = fakeCPUInfo
+	mem.virtualMemory = fakeVirtualMemory
+}
+
+func setupNetMBpsTest() {
+	monitoringExecutor.netScoring = func() {
+		checkNetworkMBps()
+	}
+	monitoringExecutor.cpuScoring = func() {}
+	monitoringExecutor.memScoring = func() {}
+	monitoringExecutor.rttScoring = func() {}
+}
+
+func setupNetBandwidthTest() {
+	monitoringExecutor.netScoring = func() {
+		checkNetworkBandwidth()
+	}
+	monitoringExecutor.cpuScoring = func() {}
+	monitoringExecutor.memScoring = func() {}
+	monitoringExecutor.rttScoring = func() {}
+}
+
+func setupCPUUsageTest() {
+	monitoringExecutor.netScoring = func() {}
+	monitoringExecutor.cpuScoring = func() {
+		checkCPUUsage()
+	}
+	monitoringExecutor.memScoring = func() {}
+	monitoringExecutor.rttScoring = func() {}
+}
+
+func setupCPUFreqTest() {
+	monitoringExecutor.netScoring = func() {}
+	monitoringExecutor.cpuScoring = func() {
+		checkCPUFreq()
+	}
+	monitoringExecutor.memScoring = func() {}
+	monitoringExecutor.rttScoring = func() {}
+}
+
+func setupCPUCountTest() {
+	monitoringExecutor.netScoring = func() {}
+	monitoringExecutor.cpuScoring = func() {
+		checkCPUCount()
+	}
+	monitoringExecutor.memScoring = func() {}
+	monitoringExecutor.rttScoring = func() {}
+}
+
+func setupMemAvailableTest() {
+	monitoringExecutor.netScoring = func() {}
+	monitoringExecutor.cpuScoring = func() {}
+	monitoringExecutor.memScoring = func() {
+		checkMemoryAvailable()
+	}
+	monitoringExecutor.rttScoring = func() {}
+}
+
+func setupMemFreeTest() {
+	monitoringExecutor.netScoring = func() {}
+	monitoringExecutor.cpuScoring = func() {}
+	monitoringExecutor.memScoring = func() {
+		checkMemoryFree()
+	}
+	monitoringExecutor.rttScoring = func() {}
+}
+
+func TestGetCPUUsage_ExpectedSuccess(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	resourceDBMockObj := resourceDBMock.NewMockDBInterface(ctrl)
+
+	info := resourceDB.ResourceInfo{}
+	info.Name = CPUUsage
+	info.Value = dummyCPUPercentResult
+
+	resourceDBMockObj.EXPECT().Set(info).Return(nil).AnyTimes()
+	resourceDBMockObj.EXPECT().Get(CPUUsage).Return(info, nil)
+
+	resourceDBExecutor = resourceDBMockObj
+
+	setupTestCase()
+
+	monitoringImpl := GetMonitoringInstance()
+	setupCPUUsageTest()
+	monitoringImpl.StartMonitoringResource()
 
 	cpuUsage, err := resourceIns.GetResource(CPUUsage)
 	if err != nil {
@@ -167,17 +260,26 @@ func TestGetCPUUsage_ExpectedSuccess(t *testing.T) {
 	}
 }
 
-func TestGetCPUUsage_CPUUtilReturnError_ExpectedErrorReturn(t *testing.T) {
-	cpu.percent = fakeCPUPercentWithError
-
-	_, err := resourceIns.GetResource(CPUUsage)
-	if err == nil {
-		t.Errorf("Not working error handling logic")
-	}
-}
-
 func TestGetCPUFreq_ExpectedSuccess(t *testing.T) {
-	cpu.info = fakeCPUInfo
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	resourceDBMockObj := resourceDBMock.NewMockDBInterface(ctrl)
+
+	info := resourceDB.ResourceInfo{}
+	info.Name = CPUFreq
+	info.Value = dummyCPUFreqResult
+
+	resourceDBMockObj.EXPECT().Set(info).Return(nil).AnyTimes()
+	resourceDBMockObj.EXPECT().Get(CPUFreq).Return(info, nil)
+
+	resourceDBExecutor = resourceDBMockObj
+
+	setupTestCase()
+
+	monitoringImpl := GetMonitoringInstance()
+	setupCPUFreqTest()
+	monitoringImpl.StartMonitoringResource()
 
 	cpuFreq, err := resourceIns.GetResource(CPUFreq)
 	if err != nil {
@@ -189,17 +291,26 @@ func TestGetCPUFreq_ExpectedSuccess(t *testing.T) {
 	}
 }
 
-func TestGetCPUFreq_CPUUtilReturnError_ExpectedErrorReturn(t *testing.T) {
-	cpu.info = fakeCPUInfoWithError
-
-	_, err := resourceIns.GetResource(CPUFreq)
-	if err == nil {
-		t.Errorf("Not working error handling logic")
-	}
-}
-
 func TestGetCPUCount_ExpectedSuccess(t *testing.T) {
-	cpu.info = fakeCPUInfo
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	resourceDBMockObj := resourceDBMock.NewMockDBInterface(ctrl)
+
+	info := resourceDB.ResourceInfo{}
+	info.Name = CPUCount
+	info.Value = dummyCPUCountResult
+
+	resourceDBMockObj.EXPECT().Set(info).Return(nil).AnyTimes()
+	resourceDBMockObj.EXPECT().Get(CPUCount).Return(info, nil)
+
+	resourceDBExecutor = resourceDBMockObj
+
+	setupTestCase()
+
+	monitoringImpl := GetMonitoringInstance()
+	setupCPUCountTest()
+	monitoringImpl.StartMonitoringResource()
 
 	cpuCount, err := resourceIns.GetResource(CPUCount)
 	if err != nil {
@@ -211,17 +322,26 @@ func TestGetCPUCount_ExpectedSuccess(t *testing.T) {
 	}
 }
 
-func TestGetCPUCount_CPUUtilReturnError_ExpectedErrorReturn(t *testing.T) {
-	cpu.info = fakeCPUInfoWithError
-
-	_, err := resourceIns.GetResource(CPUCount)
-	if err == nil {
-		t.Errorf("Not working error handling logic")
-	}
-}
-
 func TestGetMemAvailable_ExpectedSuccess(t *testing.T) {
-	mem.virtualMemory = fakeVirtualMemory
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	resourceDBMockObj := resourceDBMock.NewMockDBInterface(ctrl)
+
+	info := resourceDB.ResourceInfo{}
+	info.Name = MemAvailable
+	info.Value = dummyMemAvailableResult
+
+	resourceDBMockObj.EXPECT().Set(info).Return(nil).AnyTimes()
+	resourceDBMockObj.EXPECT().Get(MemAvailable).Return(info, nil)
+
+	resourceDBExecutor = resourceDBMockObj
+
+	setupTestCase()
+
+	monitoringImpl := GetMonitoringInstance()
+	setupMemAvailableTest()
+	monitoringImpl.StartMonitoringResource()
 
 	memAvailable, err := resourceIns.GetResource(MemAvailable)
 	if err != nil {
@@ -233,17 +353,26 @@ func TestGetMemAvailable_ExpectedSuccess(t *testing.T) {
 	}
 }
 
-func TestGetMemAvailable_MemUtilReturnError_ExpectedErrorReturn(t *testing.T) {
-	mem.virtualMemory = fakeVirtualMemoryWithError
-
-	_, err := resourceIns.GetResource(MemAvailable)
-	if err == nil {
-		t.Errorf("Not working error handling logic")
-	}
-}
-
 func TestGetMemFree_ExpectedSuccess(t *testing.T) {
-	mem.virtualMemory = fakeVirtualMemory
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	resourceDBMockObj := resourceDBMock.NewMockDBInterface(ctrl)
+
+	info := resourceDB.ResourceInfo{}
+	info.Name = MemFree
+	info.Value = dummyMemFreeResult
+
+	resourceDBMockObj.EXPECT().Set(info).Return(nil).AnyTimes()
+	resourceDBMockObj.EXPECT().Get(MemFree).Return(info, nil)
+
+	resourceDBExecutor = resourceDBMockObj
+
+	setupTestCase()
+
+	monitoringImpl := GetMonitoringInstance()
+	setupMemFreeTest()
+	monitoringImpl.StartMonitoringResource()
 
 	memFree, err := resourceIns.GetResource(MemFree)
 	if err != nil {
@@ -255,17 +384,26 @@ func TestGetMemFree_ExpectedSuccess(t *testing.T) {
 	}
 }
 
-func TestGetMemFree_MemUtilReturnError_ExpectedErrorReturn(t *testing.T) {
-	mem.virtualMemory = fakeVirtualMemoryWithError
-
-	_, err := resourceIns.GetResource(MemFree)
-	if err == nil {
-		t.Errorf("Not working error handling logic")
-	}
-}
-
 func TestGetNetMBps_ExpectedSuccess(t *testing.T) {
-	net.linkList = fakeLinkList
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	resourceDBMockObj := resourceDBMock.NewMockDBInterface(ctrl)
+
+	info := resourceDB.ResourceInfo{}
+	info.Name = NetMBps
+	info.Value = dummyNetMBpsResult
+
+	resourceDBMockObj.EXPECT().Set(info).Return(nil).AnyTimes()
+	resourceDBMockObj.EXPECT().Get(NetMBps).Return(info, nil)
+
+	resourceDBExecutor = resourceDBMockObj
+
+	setupTestCase()
+
+	monitoringImpl := GetMonitoringInstance()
+	setupNetMBpsTest()
+	monitoringImpl.StartMonitoringResource()
 
 	netMBps, err := resourceIns.GetResource(NetMBps)
 	if err != nil {
@@ -277,17 +415,26 @@ func TestGetNetMBps_ExpectedSuccess(t *testing.T) {
 	}
 }
 
-func TestGetNetMBps_NetUtilReturnError_ExpectedErrorReturn(t *testing.T) {
-	net.linkList = fakeLinkListWithError
-
-	_, err := resourceIns.GetResource(NetMBps)
-	if err == nil {
-		t.Errorf("Not working error handling logic")
-	}
-}
-
 func TestGetNetBandwidth_ExpectedSuccess(t *testing.T) {
-	net.linkList = fakeLinkList
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	resourceDBMockObj := resourceDBMock.NewMockDBInterface(ctrl)
+
+	info := resourceDB.ResourceInfo{}
+	info.Name = NetBandwidth
+	info.Value = dummyNetBandwidthResult
+
+	resourceDBMockObj.EXPECT().Set(info).Return(nil).AnyTimes()
+	resourceDBMockObj.EXPECT().Get(NetBandwidth).Return(info, nil)
+
+	resourceDBExecutor = resourceDBMockObj
+
+	setupTestCase()
+
+	monitoringImpl := GetMonitoringInstance()
+	setupNetBandwidthTest()
+	monitoringImpl.StartMonitoringResource()
 
 	netBandwidth, err := resourceIns.GetResource(NetBandwidth)
 	if err != nil {
@@ -296,23 +443,5 @@ func TestGetNetBandwidth_ExpectedSuccess(t *testing.T) {
 
 	if netBandwidth != dummyNetBandwidthResult {
 		t.Errorf("%f != %f", netBandwidth, dummyNetBandwidthResult)
-	}
-}
-
-func TestGetNetBandwidth_NetUtilReturnExcludeEthernetInterface_ExpectedErrorReturn(t *testing.T) {
-	net.linkList = fakeLinkListExcludeEthernet
-
-	_, err := resourceIns.GetResource(NetBandwidth)
-	if err == nil {
-		t.Errorf("Not working error handling logic")
-	}
-}
-
-func TestGetNetBandwidth_NetUtilReturnError_ExpectedErrorReturn(t *testing.T) {
-	net.linkList = fakeLinkListWithError
-
-	_, err := resourceIns.GetResource(NetBandwidth)
-	if err == nil {
-		t.Errorf("Not working error handling logic")
 	}
 }

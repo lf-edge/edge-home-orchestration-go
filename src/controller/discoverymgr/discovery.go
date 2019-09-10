@@ -23,7 +23,6 @@ import (
 	"net"
 	"time"
 
-	errormsg "common/errormsg"
 	errors "common/errors"
 	networkhelper "common/networkhelper"
 	wrapper "controller/discoverymgr/wrapper"
@@ -321,16 +320,10 @@ func setDeviceArgument(deviceUUID string, platform string, executionType string)
 }
 
 func setNetwotkArgument() (hostIPAddr []string, netIface []net.Interface) {
-	var err error
-	// TODO : change to channel
 	for {
-		hostIPAddr, err = networkIns.GetIPs()
+		hostIPAddr, _ = networkIns.GetIPs()
 		if len(hostIPAddr) != 0 {
 			break
-		}
-
-		if err != nil {
-			log.Println(logPrefix, errormsg.ToString(err))
 		}
 		time.Sleep(1 * time.Second)
 	}
