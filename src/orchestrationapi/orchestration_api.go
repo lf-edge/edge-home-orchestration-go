@@ -141,7 +141,7 @@ func (orcheEngine *orcheImpl) RequestService(serviceInfo ReqeustService) Respons
 		}
 	}
 
-	serviceNotFoundResp := ResponseService{
+	errorResp := ResponseService{
 		Message:          SERVICE_NOT_FOUND,
 		ServiceName:      serviceInfo.ServiceName,
 		RemoteTargetInfo: TargetInfo{},
@@ -149,19 +149,16 @@ func (orcheEngine *orcheImpl) RequestService(serviceInfo ReqeustService) Respons
 
 	deviceScores := sortByScore(orcheEngine.gatherDevicesScore(candidates))
 	if len(deviceScores) <= 0 {
-		return serviceNotFoundResp
+		return errorResp
 	} else if deviceScores[0].score == scoringmgr.INVALID_SCORE {
-		return serviceNotFoundResp
+		return errorResp
 	}
 
 	args, err := getExecCmds(deviceScores[0].execType, serviceInfo.ServiceInfo)
 	if err != nil {
 		log.Println(err.Error())
-		return ResponseService{
-			Message:          err.Error(),
-			ServiceName:      serviceInfo.ServiceName,
-			RemoteTargetInfo: TargetInfo{},
-		}
+		errorResp.Message = err.Error()
+		return errorResp
 	}
 
 	orcheEngine.executeApp(deviceScores[0].endpoint, serviceInfo.ServiceName, args, serviceClient.notiChan)
