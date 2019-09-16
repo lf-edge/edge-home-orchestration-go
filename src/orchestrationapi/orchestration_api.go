@@ -23,6 +23,7 @@ import (
 	"sort"
 	"sync"
 	"sync/atomic"
+	"time"
 
 	"common/networkhelper"
 	"controller/configuremgr"
@@ -30,7 +31,6 @@ import (
 	"controller/scoringmgr"
 	"controller/servicemgr"
 	"controller/servicemgr/notification"
-	dbcommon "db/bolt/common"
 	"restinterface/client"
 
 	sysDB "db/bolt/system"
@@ -141,13 +141,17 @@ func (orcheEngine *orcheImpl) RequestService(serviceInfo ReqeustService) Respons
 		}
 	}
 
+	serviceNotFoundResp := ResponseService{
+		Message:          SERVICE_NOT_FOUND,
+		ServiceName:      serviceInfo.ServiceName,
+		RemoteTargetInfo: TargetInfo{},
+	}
+
 	deviceScores := sortByScore(orcheEngine.gatherDevicesScore(candidates))
 	if len(deviceScores) <= 0 {
-		return ResponseService{
-			Message:          SERVICE_NOT_FOUND,
-			ServiceName:      serviceInfo.ServiceName,
-			RemoteTargetInfo: TargetInfo{},
-		}
+		return serviceNotFoundResp
+	} else if deviceScores[0].score == scoringmgr.INVALID_SCORE {
+		return serviceNotFoundResp
 	}
 
 	args, err := getExecCmds(deviceScores[0].execType, serviceInfo.ServiceInfo)
@@ -188,10 +192,8 @@ func (orcheEngine orcheImpl) getCandidate(appName string, execType []string) (de
 }
 
 func (orcheEngine orcheImpl) gatherDevicesScore(candidates []dbhelper.ExecutionCandidate) (deviceScores []deviceScore) {
-	scores := make(chan deviceScore, len(candidates))
 	count := len(candidates)
-
-	index := 0
+	scores := make(chan deviceScore, count)
 
 	info, err := sysDBExecutor.Get(sysDB.ID)
 	if err != nil {
@@ -199,22 +201,32 @@ func (orcheEngine orcheImpl) gatherDevicesScore(candidates []dbhelper.ExecutionC
 		return
 	}
 
+	timeout := make(chan bool, 1)
+	go func() {
+		time.Sleep(3 * time.Second)
+		timeout <- true
+	}()
+
 	var wait sync.WaitGroup
 	wait.Add(1)
-
+	index := 0
 	go func() {
+		defer wait.Done()
 		for {
-			score := <-scores
-			deviceScores = append(deviceScores, score)
-			if index++; count == index {
-				break
+			select {
+			case score := <-scores:
+				deviceScores = append(deviceScores, score)
+				if index++; count == index {
+					return
+				}
+			case <-timeout:
+				return
 			}
 		}
-		wait.Done()
 		return
 	}()
 
-	localhost, err := orcheEngine.networkhelper.GetOutboundIP()
+	localhosts, err := orcheEngine.networkhelper.GetIPs()
 	if err != nil {
 		log.Println("[orchestrationapi] ", "localhost ip gettering fail", "maybe skipped localhost")
 	}
@@ -224,10 +236,15 @@ func (orcheEngine orcheImpl) gatherDevicesScore(candidates []dbhelper.ExecutionC
 			var score float64
 			var err error
 
-			if dbcommon.HasElem(cand.Endpoint, localhost) {
+			if len(cand.Endpoint) == 0 {
+				log.Println("[orchestrationapi] ", "cannot getting score, cause by ip list is empty")
+				scores <- deviceScore{endpoint: "", score: float64(0.0), id: cand.Id}
+				return
+			}
+
+			if isLocalhost(cand.Endpoint, localhosts) {
 				score, err = orcheEngine.GetScore(info.Value)
 			} else {
-				// TODO change index of ips
 				score, err = orcheEngine.clientAPI.DoGetScoreRemoteDevice(info.Value, cand.Endpoint[0])
 			}
 
@@ -259,6 +276,17 @@ func (client *orcheClient) listenNotify() {
 	case str := <-client.notiChan:
 		log.Printf("[orchestrationapi] service status changed [appNames:%s][status:%s]\n", client.appName, str)
 	}
+}
+
+func isLocalhost(endpoints1, endpoints2 []string) bool {
+	for _, endpoint1 := range endpoints1 {
+		for _, endpoint2 := range endpoints2 {
+			if endpoint1 == endpoint2 {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 func addServiceClient(clientID int, appName string) (client *orcheClient) {

@@ -23,7 +23,10 @@ import (
 	"math"
 )
 
-const logPrefix = "scoringmgr"
+const (
+	logPrefix     = "scoringmgr"
+	INVALID_SCORE = 0.0
+)
 
 // Scoring is the interface to apply application specific scoring functions
 type Scoring interface {
@@ -62,28 +65,28 @@ func (ScoringImpl) GetScore(ID string) (scoreValue float64, err error) {
 func calculateScore(ID string) float64 {
 	cpuUsage, err := resourceIns.GetResource(resourceutil.CPUUsage)
 	if err != nil {
-		return 0.0
+		return INVALID_SCORE
 	}
 	cpuCount, err := resourceIns.GetResource(resourceutil.CPUCount)
 	if err != nil {
-		return 0.0
+		return INVALID_SCORE
 	}
 	cpuFreq, err := resourceIns.GetResource(resourceutil.CPUFreq)
 	if err != nil {
-		return 0.0
+		return INVALID_SCORE
 	}
 	cpuScore := cpuScore(cpuUsage, cpuCount, cpuFreq)
 
 	netBandwidth, err := resourceIns.GetResource(resourceutil.NetBandwidth)
 	if err != nil {
-		return 0.0
+		return INVALID_SCORE
 	}
 	netScore := netScore(netBandwidth)
 
 	resourceIns.SetDeviceID(ID)
 	rtt, err := resourceIns.GetResource(resourceutil.NetRTT)
 	if err != nil {
-		return 0.0
+		return INVALID_SCORE
 	}
 	renderingScore := renderingScore(rtt)
 
