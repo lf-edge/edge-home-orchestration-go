@@ -31,6 +31,8 @@ import (
 	wrappermocks "controller/discoverymgr/wrapper/mocks"
 	systemdb "db/bolt/system"
 
+	dbwrapper "db/bolt/wrapper"
+
 	"github.com/golang/mock/gomock"
 )
 
@@ -189,6 +191,11 @@ func closeTest() {
 		id := confItem.ID
 		deleteDevice(id)
 	}
+}
+
+func init() {
+	//should remove bolt db file when finished unittest
+	dbwrapper.SetBoltDBPath("./testDB")
 }
 
 func TestStartDiscovery(t *testing.T) {

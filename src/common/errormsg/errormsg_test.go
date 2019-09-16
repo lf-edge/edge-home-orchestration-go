@@ -18,13 +18,15 @@
 package errormsg
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 )
 
-func TestErrorMsg(t *testing.T) {
+func ExampleErrorMsg() {
 	err := ToError(ErrorNotReadyOrchestrationInit)
-	t.Log(ToString(err))
+	fmt.Println(ToString(err))
+	// Output: Please wait until Orchestration init function has been completed
 }
 
 func TestToString(t *testing.T) {

@@ -154,7 +154,7 @@ func (o OrchestrationBuilder) Build() Orche {
 	orcheIns.watcher = o.watcherIns
 	orcheIns.serviceIns = o.serviceIns
 	orcheIns.clientAPI = o.clientAPI
-	resourceMonitorImpl = resourceutil.MonitorImpl{}
+	resourceMonitorImpl = resourceutil.GetMonitoringInstance()
 
 	orcheIns.notificationIns = notification.GetInstance()
 	orcheIns.serviceIns.SetLocalServiceExecutor(o.executorIns)

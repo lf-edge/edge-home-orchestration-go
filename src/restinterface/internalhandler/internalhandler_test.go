@@ -238,7 +238,7 @@ func TestAPIV1ScoringmgrScoreLibnameGet(t *testing.T) {
 	//	notification["Status"] = status
 
 	appNameInfo := make(map[string]interface{})
-	appNameInfo["appName"] = "test"
+	appNameInfo["devID"] = "deviceID"
 
 	r := httptest.NewRequest("POST", "http://test.test", nil)
 	w := httptest.NewRecorder()
@@ -276,7 +276,7 @@ func TestAPIV1ScoringmgrScoreLibnameGet(t *testing.T) {
 			handler.setHelper(mockHelper)
 			gomock.InOrder(
 				mockCipher.EXPECT().DecryptByteToJSON(gomock.Any()).Return(appNameInfo, nil),
-				mockOrchestration.EXPECT().GetScore(gomock.Any(), gomock.Any()).Return(serviceID, errors.New("")),
+				mockOrchestration.EXPECT().GetScore(gomock.Any()).Return(serviceID, errors.New("")),
 				mockHelper.EXPECT().Response(gomock.Any(), gomock.Eq(http.StatusInternalServerError)),
 			)
 
@@ -288,7 +288,7 @@ func TestAPIV1ScoringmgrScoreLibnameGet(t *testing.T) {
 			handler.setHelper(mockHelper)
 			gomock.InOrder(
 				mockCipher.EXPECT().DecryptByteToJSON(gomock.Any()).Return(appNameInfo, nil),
-				mockOrchestration.EXPECT().GetScore(gomock.Any(), gomock.Any()).Return(serviceID, nil),
+				mockOrchestration.EXPECT().GetScore(gomock.Any()).Return(serviceID, nil),
 				mockCipher.EXPECT().EncryptJSONToByte(gomock.Any()).Return(nil, errors.New("")),
 				mockHelper.EXPECT().Response(gomock.Any(), gomock.Eq(http.StatusServiceUnavailable)),
 			)
@@ -303,7 +303,7 @@ func TestAPIV1ScoringmgrScoreLibnameGet(t *testing.T) {
 		handler.setHelper(mockHelper)
 		gomock.InOrder(
 			mockCipher.EXPECT().DecryptByteToJSON(gomock.Any()).Return(appNameInfo, nil),
-			mockOrchestration.EXPECT().GetScore(gomock.Any(), gomock.Any()).Return(serviceID, nil),
+			mockOrchestration.EXPECT().GetScore(gomock.Any()).Return(serviceID, nil),
 			mockCipher.EXPECT().EncryptJSONToByte(gomock.Any()).Return(nil, nil),
 			mockHelper.EXPECT().ResponseJSON(gomock.Any(), gomock.Any(), gomock.Eq(http.StatusOK)),
 		)

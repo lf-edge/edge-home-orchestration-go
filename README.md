@@ -1,4 +1,4 @@
-﻿Edge Orchestration
+Edge Orchestration
 =================================
 
 [![Goreport](https://goreportcard.com/badge/github.com/lf-edge/edge-home-orchestration-go)](https://goreportcard.com/report/github.com/lf-edge/edge-home-orchestration-go)
@@ -169,13 +169,24 @@ RESTAPI
 - BODY : 
     ```json
     {
-        "Name" : "container_service",
-        "Args" : ["docker", "run", "-v", 
-        "/var/run:/var/run:rw", "hello-world"]
+        "ServiceName": "hello-world",
+        "ServiceInfo": [
+        {
+            "ExecutionType": "container",
+            "ExecCmd": [
+                "docker",
+                "run",
+                "-v", "/var/run:/var/run:rw",
+                "hello-world"
+            ]
+        }],
+        "StatusCallbackURI": "http://localhost:8888/api/v1/services/notification"
     }
     ```
 - Curl Example:
-  - curl -X POST "IP:56001/api/v1/orchestration/services" -H "accept: application/json" -H "Content-Type: application/json" -d "{ \"Name\": \"container_service\", \"Args\": [ \"docker\", \"run\", \"-v\", \"/var/run:/var/run:rw\", \"hello-world\" ]}"
+    ```json
+  - curl -X POST "IP:56001/api/v1/orchestration/services" -H "accept: application/json" -H "Content-Type: application/json" -d "{ \"ServiceName\": \"hello-world\", \"ServiceInfo\": [{ \"ExecutionType\": \"container\", \"ExecCmd\": [ \"docker\", \"run\", \"-v\", \"/var/run:/var/run:rw\", \"hello-world\"]}], \"StatusCallbackURI\": \"http://localhost:8888/api/v1/services/notification\"}"
+    ```
 
 - Result(Execution on itself)
   
@@ -233,3 +244,4 @@ RESTAPI
    --io-maxbandwidth   (Windows only option)
    --io-maxiops        (Windows only option)
    ```
+
