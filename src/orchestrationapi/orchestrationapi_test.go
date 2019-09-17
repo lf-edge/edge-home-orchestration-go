@@ -80,7 +80,7 @@ func TestRequestService(t *testing.T) {
 			mockService.EXPECT().SetLocalServiceExecutor(mockExecutor),
 			mockDBHelper.EXPECT().GetDeviceInfoWithService(gomock.Eq(appName), gomock.Any()).Return(candidateInfos, nil),
 			mockSystemDBExecutor.EXPECT().Get("id").Return(sysInfo, nil),
-			mockNetwork.EXPECT().GetOutboundIP().Return("", nil),
+			mockNetwork.EXPECT().GetIPs().Return([]string{""}, nil),
 			mockClient.EXPECT().DoGetScoreRemoteDevice(gomock.Any(), gomock.Any()).Return(scores[0], nil),
 			mockClient.EXPECT().DoGetScoreRemoteDevice(gomock.Any(), gomock.Any()).Return(scores[1], nil),
 			mockClient.EXPECT().DoGetScoreRemoteDevice(gomock.Any(), gomock.Any()).Return(scores[2], nil),
