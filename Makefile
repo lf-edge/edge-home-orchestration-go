@@ -97,6 +97,7 @@ test-go:
 	$(GOCOVER) test -v $(TEST_PKG_DIRS) > coverage.out
 	$(GOCOVER) report coverage.out
 	$(GOCOVER)-html coverage.out > coverage.html
+	-rm -rf $(BASE_DIR)/src/controller/discoverymgr/testDB
 	firefox coverage.html &
 
 ## build clean

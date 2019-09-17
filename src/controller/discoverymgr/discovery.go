@@ -359,9 +359,11 @@ func deviceDetectionRoutine() {
 
 				_, confInfo, netInfo, serviceInfo := convertToDBInfo(*data)
 
+				if len(netInfo.IPv4) != 0 {
+					setNetworkDB(netInfo)
+				}
 				// @Note Is it need to call Update API?
 				setConfigurationDB(confInfo)
-				setNetworkDB(netInfo)
 				setServiceDB(serviceInfo)
 			}
 		}
