@@ -12,9 +12,9 @@ import (
 )
 
 var (
-	confQuery    configurationdb.Query
-	netQuery     networkdb.Query
-	serviceQuery servicedb.Query
+	confQuery    configurationdb.DBInterface
+	netQuery     networkdb.DBInterface
+	serviceQuery servicedb.DBInterface
 )
 
 func init() {
