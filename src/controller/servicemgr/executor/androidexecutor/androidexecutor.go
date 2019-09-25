@@ -22,7 +22,7 @@ import (
 	"errors"
 	"log"
 	"os"
-	"os/exec"
+	"sync"
 
 	"controller/servicemgr"
 	"controller/servicemgr/executor"
@@ -37,7 +37,7 @@ var (
 
 // Execute callback
 type ExecuteCallback interface {
-	Execute(packageName string) (int)
+	Execute(packageName string) int
 }
 
 // AndroidExecutor struct
@@ -67,36 +67,43 @@ func (t AndroidExecutor) Execute(s executor.ServiceExecutionInfo) (err error) {
 	log.Println(logPrefix, t.ServiceName, t.ParamStr)
 	log.Println(logPrefix, "parameter length :", len(t.ParamStr))
 
-	cmd, result, err := t.setService()
+	result, err := t.setService()
 	if err != nil {
 		return
 	}
 
 	log.Println(logPrefix, "Just ran subprocess [Result] ", result)
 
-	executeCh := make(chan error)
+	var wait sync.WaitGroup
+	wait.Add(1)
 
-	switch result {
-	case >= 0:
+	executeCh := make(chan error)
+	go func() {
+		status, _ := t.waitService(executeCh)
+		t.notifyServiceStatus(status)
+		wait.Done()
+	}()
+
+	switch {
+	case result >= 0:
 		executeCh <- nil
 	default:
 		executeCh <- err
 	}
 
-	status, err := t.waitService(executeCh)
-	t.notifyServiceStatus(status)
+	wait.Wait()
 
 	return
 }
 
-func (t AndroidExecutor) setService() (*exec.Cmd, result int, err error) {
+func (t AndroidExecutor) setService() (result int, err error) {
 	if len(t.ParamStr) < 1 {
 		err = errors.New("error: empty parameter")
 		return
 	}
 
 	log.Println(logPrefix, "Invoke java callback with packageName: ", t.ParamStr[0])
-	result = t.executeCB.Execute(t.ParamStr[0]);
+	result = t.executeCB.Execute(t.ParamStr[0])
 	if result < 0 {
 		log.Println(logPrefix, "Failed to execute in java layer")
 		err = errors.New("Failed to execute in java layer")
