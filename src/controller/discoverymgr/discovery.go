@@ -84,6 +84,11 @@ func (discoveryImpl) StartDiscovery(UUIDpath string, platform string, executionT
 
 	go detectNetworkChgRoutine()
 
+	go func() {
+		time.Sleep(time.Minute)
+		activeDiscovery()
+	}()
+
 	return
 }
 
