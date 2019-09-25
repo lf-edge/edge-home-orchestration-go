@@ -32,7 +32,6 @@ import (
 var (
 	logPrefix       = "[androidexecutor]"
 	androidexecutor = &AndroidExecutor{}
-	adbPath         = "/system/bin/am"
 )
 
 // Execute callback
@@ -56,12 +55,12 @@ func GetInstance() *AndroidExecutor {
 	return androidexecutor
 }
 
-func (t AndroidExecutor) SetExecuteCallback(executeCallback ExecuteCallback) {
+func (t *AndroidExecutor) SetExecuteCallback(executeCallback ExecuteCallback) {
 	t.executeCB = executeCallback
 }
 
 // Execute executes android service application
-func (t AndroidExecutor) Execute(s executor.ServiceExecutionInfo) (err error) {
+func (t *AndroidExecutor) Execute(s executor.ServiceExecutionInfo) (err error) {
 	t.ServiceExecutionInfo = s
 
 	log.Println(logPrefix, t.ServiceName, t.ParamStr)
@@ -102,6 +101,11 @@ func (t AndroidExecutor) setService() (result int, err error) {
 		return
 	}
 
+	if nil == t.executeCB {
+		log.Println(logPrefix, "Java callback is nil")
+		err = errors.New("Failed to execute: Java Callback is nil")
+		return
+	}
 	log.Println(logPrefix, "Invoke java callback with packageName: ", t.ParamStr[0])
 	result = t.executeCB.Execute(t.ParamStr[0])
 	if result < 0 {
