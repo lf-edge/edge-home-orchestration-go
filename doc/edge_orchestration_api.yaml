@@ -47,17 +47,22 @@ paths:
 definitions:
   service:
     required:
-      - Name
-      - Args
+      - ServiceName
+      - ServiceInfo
     properties:
-      Name:
+      ServiceName:
         type: string
         example: container_service
-      Args:
+      ServiceInfo:
         type: array
-        items:
-          type: string
-        example: ["docker", "run", "-v", "/var/run:/var/run:rw", "hello-world"]
+        example:
+          - {"ExecutionType":"native", "ExecCmd":["hellow-world"]}
+          - {"ExecutionType":"container", "ExecCmd":["docker", "run", "hello-world"]}
+          - {"ExecutionType":"android", "ExecCmd":["com.example.hello-world"]}
+      StatusCallbackURI:
+        type: string
+        example: "http://192.168.10.151:9090/example/notification"
+
   handle:
     required:
       - Handle
