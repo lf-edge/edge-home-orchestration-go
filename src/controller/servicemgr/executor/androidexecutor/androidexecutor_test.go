@@ -54,9 +54,20 @@ func TestClient(t *testing.T) {
 	tExecutor.SetClient(client)
 }
 
+type fakeExecuteCB struct{}
+
+func (fakeExecuteCB) Execute(packageName string) int {
+	if packageName != "ls" {
+		return -1
+	}
+	return 0
+}
+
 func TestExecute(t *testing.T) {
 	tExecutor := GetInstance()
 	noti, _ := initializeMock(t)
+
+	tExecutor.executeCB = fakeExecuteCB{}
 
 	gomock.InOrder(
 		noti.EXPECT().InvokeNotification(gomock.Any(), gomock.Any(), gomock.Any()),

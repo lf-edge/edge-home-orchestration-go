@@ -19,11 +19,10 @@
 package androidexecutor
 
 import (
-	"bufio"
 	"errors"
 	"log"
 	"os"
-	"os/exec"
+	"sync"
 
 	"controller/servicemgr"
 	"controller/servicemgr/executor"
@@ -33,13 +32,18 @@ import (
 var (
 	logPrefix       = "[androidexecutor]"
 	androidexecutor = &AndroidExecutor{}
-	adbPath         = "/system/bin/am"
 )
+
+// Execute callback
+type ExecuteCallback interface {
+	Execute(packageName string) int
+}
 
 // AndroidExecutor struct
 type AndroidExecutor struct {
 	executor.ServiceExecutionInfo
 	executor.HasClientNotification
+	executeCB ExecuteCallback
 }
 
 func init() {
@@ -51,57 +55,65 @@ func GetInstance() *AndroidExecutor {
 	return androidexecutor
 }
 
+func (t *AndroidExecutor) SetExecuteCallback(executeCallback ExecuteCallback) {
+	t.executeCB = executeCallback
+}
+
 // Execute executes android service application
-func (t AndroidExecutor) Execute(s executor.ServiceExecutionInfo) (err error) {
+func (t *AndroidExecutor) Execute(s executor.ServiceExecutionInfo) (err error) {
 	t.ServiceExecutionInfo = s
 
 	log.Println(logPrefix, t.ServiceName, t.ParamStr)
 	log.Println(logPrefix, "parameter length :", len(t.ParamStr))
 
-	cmd, pid, err := t.setService()
+	result, err := t.setService()
 	if err != nil {
 		return
 	}
 
-	log.Println(logPrefix, "Just ran subprocess ", pid)
+	log.Println(logPrefix, "Just ran subprocess [Result] ", result)
+
+	var wait sync.WaitGroup
+	wait.Add(1)
 
 	executeCh := make(chan error)
 	go func() {
-		executeCh <- cmd.Wait()
+		status, _ := t.waitService(executeCh)
+		t.notifyServiceStatus(status)
+		wait.Done()
 	}()
 
-	status, err := t.waitService(executeCh)
-	t.notifyServiceStatus(status)
+	switch {
+	case result >= 0:
+		executeCh <- nil
+	default:
+		executeCh <- err
+	}
+
+	wait.Wait()
 
 	return
 }
 
-func (t AndroidExecutor) setService() (cmd *exec.Cmd, pid int, err error) {
+func (t AndroidExecutor) setService() (result int, err error) {
 	if len(t.ParamStr) < 1 {
 		err = errors.New("error: empty parameter")
 		return
 	}
 
-	adbStart := []string{"start", "-n"}
-	adbStart = append(adbStart, t.ParamStr...)
-	log.Println(logPrefix, "Adb start cmd: ", adbStart)
-	cmd = exec.Command(adbPath, adbStart[0:]...)
-
-	stdout, _ := cmd.StdoutPipe()
-	err = cmd.Start()
-	if err != nil {
-		log.Println(logPrefix, err.Error())
+	if nil == t.executeCB {
+		log.Println(logPrefix, "Java callback is nil")
+		err = errors.New("Failed to execute: Java Callback is nil")
 		return
 	}
-
-	scanner := bufio.NewScanner(stdout)
-	for scanner.Scan() {
-		m := scanner.Text()
-		log.Println(m)
+	log.Println(logPrefix, "Invoke java callback with packageName: ", t.ParamStr[0])
+	result = t.executeCB.Execute(t.ParamStr[0])
+	if result < 0 {
+		log.Println(logPrefix, "Failed to execute in java layer")
+		err = errors.New("Failed to execute in java layer")
+		return
 	}
-
-	pid = cmd.Process.Pid
-
+	log.Println(logPrefix, "Successfully executed in java layer")
 	return
 }
 

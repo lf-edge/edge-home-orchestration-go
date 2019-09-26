@@ -32,6 +32,7 @@ import (
 	"controller/servicemgr"
 	"controller/servicemgr/executor/androidexecutor"
 
+
 	"orchestrationapi"
 
 	"restinterface/cipher/sha256"
@@ -124,8 +125,14 @@ const (
 
 var orcheEngine orchestrationapi.Orche
 
+// ExecuteCallback is required to launch application in java layer
+type ExecuteCallback interface {
+	androidexecutor.ExecuteCallback
+}
+
 // OrchestrationInit runs orchestration service and discovers remote orchestration services
-func OrchestrationInit() (errCode int) {
+func OrchestrationInit(executeCallback ExecuteCallback) (errCode int) {
+
 
 	logmgr.Init(logPath)
 	log.Printf("[%s] OrchestrationInit", logPrefix)
@@ -150,6 +157,9 @@ func OrchestrationInit() (errCode int) {
 		log.Fatalf("[%s] Orchestration initialize fail", logPrefix)
 		return
 	}
+
+	// set the android executor callback
+	androidexecutor.GetInstance().SetExecuteCallback(executeCallback);
 
 	orcheEngine.Start(deviceIDFilePath, platform, executionType)
 
