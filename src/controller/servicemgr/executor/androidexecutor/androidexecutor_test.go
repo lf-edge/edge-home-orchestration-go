@@ -77,12 +77,7 @@ func TestExecute(t *testing.T) {
 
 	tExecutor.SetNotiImpl(noti)
 
-	originAdbPath := adbPath
-	adbPath = "echo"
-
 	err := tExecutor.Execute(s)
-
-	adbPath = originAdbPath
 
 	if err != nil {
 		t.Error()
