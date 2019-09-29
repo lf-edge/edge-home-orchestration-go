@@ -123,7 +123,7 @@ func (orcheEngine *orcheImpl) RequestService(serviceInfo ReqeustService) Respons
 	}
 
 	for _, info := range serviceInfo.ServiceInfo {
-		if info.ExecutionType == "native" &&
+		if (info.ExecutionType == "native" || info.ExecutionType == "android") &&
 			info.ExeCmd[0] != commandstore.GetInstance().GetServiceFileName(serviceInfo.ServiceName) {
 			return ResponseService{
 				Message:          NOT_ALLOWED_COMMAND,

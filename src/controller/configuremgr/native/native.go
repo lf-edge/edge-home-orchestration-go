@@ -108,7 +108,6 @@ func (cfgMgr ConfigureMgr) Watch(notifier configuremgr.Notifier) {
 						log.Println(confFileName, "does not exist")
 						continue
 					}
-					//notifier.Notify(getServiceName(event.Name))
 					notifier.Notify(getServiceInfo(event.Name))
 				case fsnotify.Remove:
 					// TODO remove scoring
@@ -127,20 +126,6 @@ func (cfgMgr ConfigureMgr) Watch(notifier configuremgr.Notifier) {
 	}
 	log.Println("start watching for", cfgMgr.confpath)
 	log.Println("configuremgr watcher register end")
-}
-
-func getServiceName(path string) (serviceName string) {
-	confPath, err := getdirname(path)
-	if err != nil {
-		log.Println("wrong libPath or confPath")
-	}
-
-	cfg := new(confdescription.Doc)
-	sconf.Must(cfg).Read(ini.File(confPath))
-
-	serviceName = cfg.ServiceInfo.ServiceName
-
-	return
 }
 
 func getServiceInfo(path string) types.ServiceInfo {
