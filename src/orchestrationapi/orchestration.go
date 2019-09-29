@@ -25,12 +25,14 @@ import (
 
 	"common/networkhelper"
 	"common/resourceutil"
+	"common/types/configuremgrtypes"
 	"controller/configuremgr"
 	"controller/discoverymgr"
 	"controller/scoringmgr"
 	"controller/servicemgr"
 	"controller/servicemgr/executor"
 	"controller/servicemgr/notification"
+	"orchestrationapi/commandstore"
 	"restinterface/client"
 )
 
@@ -172,8 +174,16 @@ func (o *orcheImpl) Start(deviceIDPath string, platform string, executionType st
 }
 
 // Notify gives the notifications to scoringmgr and discoverymgr package after checking installed service applications
-func (o orcheImpl) Notify(service string) {
-	if err := o.discoverIns.AddNewServiceName(service); err != nil {
+//func (o orcheImpl) Notify(service string) {
+//	if err := o.discoverIns.AddNewServiceName(service); err != nil {
+//		log.Println(logtag, "[Error]", err.Error())
+//		return
+//	}
+//}
+
+func (o orcheImpl) Notify(serviceInfo configuremgrtypes.ServiceInfo) {
+	commandstore.GetInstance().StoreServiceInfo(serviceInfo)
+	if err := o.discoverIns.AddNewServiceName(serviceInfo.ServiceName); err != nil {
 		log.Println(logtag, "[Error]", err.Error())
 		return
 	}

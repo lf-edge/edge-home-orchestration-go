@@ -31,6 +31,7 @@ import (
 	"controller/scoringmgr"
 	"controller/servicemgr"
 	"controller/servicemgr/notification"
+	"orchestrationapi/commandstore"
 	"restinterface/client"
 
 	sysDB "db/bolt/system"
@@ -92,6 +93,7 @@ const (
 	INVALID_PARAMETER     = "INVALID_PARAMETER"
 	SERVICE_NOT_FOUND     = "SERVICE_NOT_FOUND"
 	INTERNAL_SERVER_ERROR = "INTERNAL_SERVER_ERROR"
+	NOT_ALLOWED_COMMAND   = "NOT_ALLOWED_COMMAND"
 )
 
 var (
@@ -117,6 +119,17 @@ func (orcheEngine *orcheImpl) RequestService(serviceInfo ReqeustService) Respons
 			Message:          INTERNAL_SERVER_ERROR,
 			ServiceName:      serviceInfo.ServiceName,
 			RemoteTargetInfo: TargetInfo{},
+		}
+	}
+
+	for _, info := range serviceInfo.ServiceInfo {
+		if info.ExecutionType == "native" &&
+			info.ExeCmd[0] != commandstore.GetInstance().GetServiceFileName(serviceInfo.ServiceName) {
+			return ResponseService{
+				Message:          NOT_ALLOWED_COMMAND,
+				ServiceName:      serviceInfo.ServiceName,
+				RemoteTargetInfo: TargetInfo{},
+			}
 		}
 	}
 
