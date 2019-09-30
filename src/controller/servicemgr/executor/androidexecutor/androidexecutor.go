@@ -110,7 +110,7 @@ func (t AndroidExecutor) setService() (result int, err error) {
 
 	switch len(t.ParamStr) {
 	case 1:
-		result = t.executeCB.Execute(t.ParamStr[0])
+		result = t.executeCB.Execute(t.ParamStr[0], "")
 	default:
 		result = t.executeCB.Execute(t.ParamStr[0], t.ParamStr[1])
 	}
