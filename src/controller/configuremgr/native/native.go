@@ -75,7 +75,7 @@ func (cfgMgr ConfigureMgr) Watch(notifier configuremgr.Notifier) {
 	}
 
 	for _, f := range files {
-		notifier.Notify(getServiceName(cfgMgr.confpath + "/" + f.Name()))
+		notifier.Notify(getServiceInfo(cfgMgr.confpath + "/" + f.Name()))
 	}
 
 	watcher, err := fsnotify.NewWatcher()

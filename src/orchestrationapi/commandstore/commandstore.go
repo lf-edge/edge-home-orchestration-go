@@ -35,8 +35,13 @@ type commandListImpl struct {
 
 var commandList commandListImpl
 
-func GetInstance() *CommandList {
+func GetInstance() CommandList {
 	return &commandList
+}
+
+func init() {
+	commandList.mutex = &sync.Mutex{}
+	commandList.serviceInfos = make(map[string]string)
 }
 
 func (c commandListImpl) GetServiceFileName(serviceName string) (string, error) {
@@ -49,7 +54,7 @@ func (c commandListImpl) GetServiceFileName(serviceName string) (string, error) 
 }
 
 func (c *commandListImpl) StoreServiceInfo(serviceInfo configuremgrtypes.ServiceInfo) {
-	mutex.Lock()
+	c.mutex.Lock()
 	c.serviceInfos[serviceInfo.ServiceName] = serviceInfo.ExecutableFileName
-	mutex.Unlock()
+	c.mutex.Unlock()
 }
