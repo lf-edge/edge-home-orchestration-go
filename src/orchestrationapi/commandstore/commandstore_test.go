@@ -43,7 +43,7 @@ func TestStoreServiceInfo(t *testing.T) {
 			}
 		})
 		t.Run("StoreMultipleAsRacing", func(t *testing.T) {
-			iter := 10
+			iter := 10000
 			tests := make(map[string]string, iter)
 
 			for idx := 0; idx < iter; idx++ {
