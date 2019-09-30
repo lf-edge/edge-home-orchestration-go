@@ -107,7 +107,14 @@ func (t AndroidExecutor) setService() (result int, err error) {
 		return
 	}
 	log.Println(logPrefix, "Invoke java callback with packageName: ", t.ParamStr[0])
-	result = t.executeCB.Execute(t.ParamStr[0], t.ParamStr[1])
+
+	switch len(t.ParamStr) {
+	case 1:
+		result = t.executeCB.Execute(t.ParamStr[0])
+	default:
+		result = t.executeCB.Execute(t.ParamStr[0], t.ParamStr[1])
+	}
+
 	if result < 0 {
 		log.Println(logPrefix, "Failed to execute in java layer")
 		err = errors.New("Failed to execute in java layer")
