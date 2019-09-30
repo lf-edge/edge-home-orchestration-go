@@ -32,7 +32,6 @@ import (
 	"github.com/golang/mock/gomock"
 )
 
-// TODO enable testcase
 func TestRequestService(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -44,6 +43,7 @@ func TestRequestService(t *testing.T) {
 
 	var requestServiceInfo ReqeustService
 	requestServiceInfo.ServiceName = appName
+	requestServiceInfo.SelfSelection = true
 	requestServiceInfo.ServiceInfo = []RequestServiceInfo{
 		{
 			ExecutionType: "platform",

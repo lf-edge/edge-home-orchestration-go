@@ -103,6 +103,16 @@ func (h *Handler) APIV1RequestServicePost(w http.ResponseWriter, r *http.Request
 	}
 
 	serviceInfos := orchestrationapi.ReqeustService{}
+	selfSelection, ok := appCommand["SelfSelection"].(string)
+	if !ok {
+		selfSelection = "true"
+	}
+	if selfSelection == "true" {
+		serviceInfos.SelfSelection = true
+	} else {
+		serviceInfos.SelfSelection = false
+	}
+
 	name, ok := appCommand["ServiceName"].(string)
 	if !ok {
 		responseMsg = orchestrationapi.INVALID_PARAMETER
