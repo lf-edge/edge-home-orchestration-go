@@ -22,6 +22,7 @@ import (
 	"errors"
 	"log"
 	"os"
+	"strings"
 	"sync"
 
 	"controller/servicemgr"
@@ -112,7 +113,8 @@ func (t AndroidExecutor) setService() (result int, err error) {
 	case 1:
 		result = t.executeCB.Execute(t.ParamStr[0], "")
 	default:
-		result = t.executeCB.Execute(t.ParamStr[0], t.ParamStr[1])
+		args := strings.Join(t.ParamStr[1:len(t.ParamStr)-1], " ")
+		result = t.executeCB.Execute(t.ParamStr[0], args)
 	}
 
 	if result < 0 {
