@@ -56,7 +56,7 @@ func TestClient(t *testing.T) {
 
 type fakeExecuteCB struct{}
 
-func (fakeExecuteCB) Execute(packageName string) int {
+func (fakeExecuteCB) Execute(packageName string, args string) int {
 	if packageName != "ls" {
 		return -1
 	}
