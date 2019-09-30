@@ -243,7 +243,10 @@ func (orcheEngine orcheImpl) gatherDevicesScore(candidates []dbhelper.ExecutionC
 				return
 			}
 
-			if selfSelection && isLocalhost(cand.Endpoint, localhosts) {
+			if isLocalhost(cand.Endpoint, localhosts) {
+				if !selfSelection {
+					return
+				}
 				score, err = orcheEngine.GetScore(info.Value)
 			} else {
 				score, err = orcheEngine.clientAPI.DoGetScoreRemoteDevice(info.Value, cand.Endpoint[0])
