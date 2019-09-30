@@ -113,7 +113,7 @@ func (t AndroidExecutor) setService() (result int, err error) {
 	case 1:
 		result = t.executeCB.Execute(t.ParamStr[0], "")
 	default:
-		args := strings.Join(t.ParamStr[1:len(t.ParamStr)-1], " ")
+		args := strings.Join(t.ParamStr[1:], " ")
 		result = t.executeCB.Execute(t.ParamStr[0], args)
 	}
 
