@@ -76,8 +76,9 @@ func getReqeustArgs() (orchestrationapi.ReqeustService, map[string]interface{}) 
 	serviceInfo[0].ExecutionType = "native"
 	serviceInfo[0].ExeCmd = args
 	requestService := orchestrationapi.ReqeustService{
-		ServiceName: serviceName,
-		ServiceInfo: serviceInfo,
+		ServiceName:   serviceName,
+		SelfSelection: true,
+		ServiceInfo:   serviceInfo,
 	}
 
 	execCmd := make([]interface{}, len(args))

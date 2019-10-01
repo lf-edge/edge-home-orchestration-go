@@ -32,7 +32,6 @@ import (
 	"controller/servicemgr"
 	"controller/servicemgr/executor/androidexecutor"
 
-
 	"orchestrationapi"
 
 	"restinterface/cipher/sha256"
@@ -47,8 +46,9 @@ type RequestServiceInfo struct {
 }
 
 type ReqeustService struct {
-	ServiceName string
-	ServiceInfo []RequestServiceInfo
+	ServiceName   string
+	SelfSelection bool
+	ServiceInfo   []RequestServiceInfo
 }
 
 func (r *ReqeustService) SetExecutionCommand(execType string, command string) {
@@ -133,7 +133,6 @@ type ExecuteCallback interface {
 // OrchestrationInit runs orchestration service and discovers remote orchestration services
 func OrchestrationInit(executeCallback ExecuteCallback) (errCode int) {
 
-
 	logmgr.Init(logPath)
 	log.Printf("[%s] OrchestrationInit", logPrefix)
 
@@ -159,7 +158,7 @@ func OrchestrationInit(executeCallback ExecuteCallback) (errCode int) {
 	}
 
 	// set the android executor callback
-	androidexecutor.GetInstance().SetExecuteCallback(executeCallback);
+	androidexecutor.GetInstance().SetExecuteCallback(executeCallback)
 
 	orcheEngine.Start(deviceIDFilePath, platform, executionType)
 
@@ -193,7 +192,7 @@ func OrchestrationRequestService(request *ReqeustService) *ResponseService {
 		log.Fatalf("[%s] Orchestaration external api : %s", logPrefix, err.Error())
 	}
 
-	changed := orchestrationapi.ReqeustService{ServiceName: request.ServiceName}
+	changed := orchestrationapi.ReqeustService{ServiceName: request.ServiceName, SelfSelection: request.SelfSelection}
 
 	changed.ServiceInfo = make([]orchestrationapi.RequestServiceInfo, len(request.ServiceInfo))
 	for idx, info := range request.ServiceInfo {
