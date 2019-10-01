@@ -72,8 +72,9 @@ type RequestServiceInfo struct {
 }
 
 type ReqeustService struct {
-	ServiceName string
-	ServiceInfo []RequestServiceInfo
+	SelfSelection bool
+	ServiceName   string
+	ServiceInfo   []RequestServiceInfo
 	// TODO add status callback
 }
 
@@ -168,7 +169,7 @@ func (orcheEngine *orcheImpl) RequestService(serviceInfo ReqeustService) Respons
 		RemoteTargetInfo: TargetInfo{},
 	}
 
-	deviceScores := sortByScore(orcheEngine.gatherDevicesScore(candidates))
+	deviceScores := sortByScore(orcheEngine.gatherDevicesScore(candidates, serviceInfo.SelfSelection))
 	if len(deviceScores) <= 0 {
 		return errorResp
 	} else if deviceScores[0].score == scoringmgr.INVALID_SCORE {
@@ -209,8 +210,11 @@ func (orcheEngine orcheImpl) getCandidate(appName string, execType []string) (de
 	return helper.GetDeviceInfoWithService(appName, execType)
 }
 
-func (orcheEngine orcheImpl) gatherDevicesScore(candidates []dbhelper.ExecutionCandidate) (deviceScores []deviceScore) {
+func (orcheEngine orcheImpl) gatherDevicesScore(candidates []dbhelper.ExecutionCandidate, selfSelection bool) (deviceScores []deviceScore) {
 	count := len(candidates)
+	if !selfSelection {
+		count -= 1
+	}
 	scores := make(chan deviceScore, count)
 
 	info, err := sysDBExecutor.Get(sysDB.ID)
@@ -261,6 +265,9 @@ func (orcheEngine orcheImpl) gatherDevicesScore(candidates []dbhelper.ExecutionC
 			}
 
 			if isLocalhost(cand.Endpoint, localhosts) {
+				if !selfSelection {
+					return
+				}
 				score, err = orcheEngine.GetScore(info.Value)
 			} else {
 				score, err = orcheEngine.clientAPI.DoGetScoreRemoteDevice(info.Value, cand.Endpoint[0])
