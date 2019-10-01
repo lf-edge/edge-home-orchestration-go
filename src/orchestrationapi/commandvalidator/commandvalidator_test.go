@@ -14,12 +14,11 @@
 * limitations under the License.
 *
 *******************************************************************************/
-package commandstore
+package commandvalidator
 
 import (
 	"testing"
 
-	"fmt"
 	"strconv"
 	"sync"
 
@@ -33,7 +32,9 @@ func TestStoreServiceInfo(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		t.Run("StoreOnce", func(t *testing.T) {
 			info := configuremgrtypes.ServiceInfo{ServiceName: serviceName, ExecutableFileName: executableName}
-			GetInstance().StoreServiceInfo(info)
+			if err := GetInstance().StoreServiceInfo(info); err != nil {
+				t.Error("unexpected error: " + err.Error())
+			}
 
 			expected, err := GetInstance().GetServiceFileName(serviceName)
 			if err != nil {
@@ -50,18 +51,18 @@ func TestStoreServiceInfo(t *testing.T) {
 				tests[serviceName+strconv.Itoa(idx)] = executableName + strconv.Itoa(idx)
 			}
 
-			fmt.Println(tests)
-
 			var wait sync.WaitGroup
 			wait.Add(iter)
 
 			for key, value := range tests {
 				go func(k, v string) {
-					GetInstance().StoreServiceInfo(configuremgrtypes.ServiceInfo{
+					defer wait.Done()
+					if err := GetInstance().StoreServiceInfo(configuremgrtypes.ServiceInfo{
 						ServiceName:        k,
 						ExecutableFileName: v,
-					})
-					wait.Done()
+					}); err != nil {
+						t.Error("unexpected error: " + err.Error())
+					}
 				}(key, value)
 			}
 
@@ -73,6 +74,16 @@ func TestStoreServiceInfo(t *testing.T) {
 					t.Error("unexpected error")
 				} else if expected != value {
 					t.Error("stored value not exist")
+				}
+			}
+		})
+	})
+	t.Run("Error", func(t *testing.T) {
+		t.Run("StoreBlackList", func(t *testing.T) {
+			for _, black := range blackList {
+				info := configuremgrtypes.ServiceInfo{ServiceName: serviceName, ExecutableFileName: black}
+				if err := GetInstance().StoreServiceInfo(info); err == nil {
+					t.Error("unexpected succeed, " + black)
 				}
 			}
 		})

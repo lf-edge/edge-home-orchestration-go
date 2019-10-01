@@ -32,7 +32,7 @@ import (
 	"controller/servicemgr"
 	"controller/servicemgr/executor"
 	"controller/servicemgr/notification"
-	"orchestrationapi/commandstore"
+	"orchestrationapi/commandvalidator"
 	"restinterface/client"
 )
 
@@ -174,7 +174,10 @@ func (o *orcheImpl) Start(deviceIDPath string, platform string, executionType st
 }
 
 func (o orcheImpl) Notify(serviceInfo configuremgrtypes.ServiceInfo) {
-	commandstore.GetInstance().StoreServiceInfo(serviceInfo)
+	if err := commandvalidator.GetInstance().StoreServiceInfo(serviceInfo); err != nil {
+		log.Println(logtag, "[Error]", err.Error())
+		return
+	}
 	if err := o.discoverIns.AddNewServiceName(serviceInfo.ServiceName); err != nil {
 		log.Println(logtag, "[Error]", err.Error())
 		return

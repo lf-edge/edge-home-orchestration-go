@@ -14,23 +14,36 @@
 * limitations under the License.
 *
 *******************************************************************************/
-package commandstore
+package commandvalidator
 
 import (
 	"errors"
 	"sync"
 
 	"common/types/configuremgrtypes"
+	"db/bolt/common"
 )
 
 type CommandList interface {
 	GetServiceFileName(serviceName string) (string, error)
-	StoreServiceInfo(serviceInfo configuremgrtypes.ServiceInfo)
+	StoreServiceInfo(serviceInfo configuremgrtypes.ServiceInfo) error
 }
 
 type commandListImpl struct {
 	serviceInfos map[string]string
 	mutex        *sync.Mutex
+	blackList    []string
+}
+
+const (
+	NOT_FOUND_REGISTERED_SERVICE   = "not found registered service"
+	NOT_ALLOWED_EXECUTABLE_SERVICE = "not allowed executable service"
+)
+
+var blackList = []string{
+	"sudo",
+	"su",
+	"cat",
 }
 
 var commandList commandListImpl
@@ -47,14 +60,19 @@ func init() {
 func (c commandListImpl) GetServiceFileName(serviceName string) (string, error) {
 	val, ok := c.serviceInfos[serviceName]
 	if !ok {
-		return "", errors.New("not found registered service")
+		return "", errors.New(NOT_FOUND_REGISTERED_SERVICE)
 	}
 
 	return val, nil
 }
 
-func (c *commandListImpl) StoreServiceInfo(serviceInfo configuremgrtypes.ServiceInfo) {
+func (c *commandListImpl) StoreServiceInfo(serviceInfo configuremgrtypes.ServiceInfo) error {
+	if common.HasElem(blackList, serviceInfo.ExecutableFileName) {
+		return errors.New(NOT_ALLOWED_EXECUTABLE_SERVICE)
+	}
 	c.mutex.Lock()
+	defer c.mutex.Unlock()
 	c.serviceInfos[serviceInfo.ServiceName] = serviceInfo.ExecutableFileName
-	c.mutex.Unlock()
+
+	return nil
 }

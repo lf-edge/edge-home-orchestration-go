@@ -31,7 +31,7 @@ import (
 	"controller/scoringmgr"
 	"controller/servicemgr"
 	"controller/servicemgr/notification"
-	"orchestrationapi/commandstore"
+	"orchestrationapi/commandvalidator"
 	"restinterface/client"
 
 	sysDB "db/bolt/system"
@@ -125,7 +125,7 @@ func (orcheEngine *orcheImpl) RequestService(serviceInfo ReqeustService) Respons
 
 	for _, info := range serviceInfo.ServiceInfo {
 		if info.ExecutionType == "native" || info.ExecutionType == "android" {
-			expected, err := commandstore.GetInstance().GetServiceFileName(serviceInfo.ServiceName)
+			expected, err := commandvalidator.GetInstance().GetServiceFileName(serviceInfo.ServiceName)
 			if err != nil {
 				return ResponseService{
 					Message:          err.Error(),
