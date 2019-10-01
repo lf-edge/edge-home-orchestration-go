@@ -44,6 +44,12 @@ var blackList = []string{
 	"sudo",
 	"su",
 	"cat",
+	"bash",
+	"bsh",
+	"csh",
+	"sh",
+	"ssh",
+	"scp",
 }
 
 var commandList commandListImpl
