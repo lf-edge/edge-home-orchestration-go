@@ -18,6 +18,7 @@ package commandvalidator
 
 import (
 	"errors"
+	"strings"
 	"sync"
 
 	"common/types/configuremgrtypes"
@@ -38,18 +39,35 @@ type commandListImpl struct {
 const (
 	NOT_FOUND_REGISTERED_SERVICE   = "not found registered service"
 	NOT_ALLOWED_EXECUTABLE_SERVICE = "not allowed executable service"
+	NOT_FOUND_EXECUTABLE_FILE      = "not found executable file"
 )
 
 var blackList = []string{
 	"sudo",
 	"su",
-	"cat",
 	"bash",
 	"bsh",
 	"csh",
+	"adb",
 	"sh",
 	"ssh",
 	"scp",
+	"cat",
+	"chage",
+	"chpasswd",
+	"dmidecode",
+	"dmsetup",
+	"fcinfo",
+	"fdisk",
+	"iscsiadm",
+	"lsof",
+	"multipath",
+	"oratab",
+	"prtvtoc",
+	"ps",
+	"pburn",
+	"pfexec",
+	"dzdo",
 }
 
 var commandList commandListImpl
@@ -73,7 +91,17 @@ func (c commandListImpl) GetServiceFileName(serviceName string) (string, error) 
 }
 
 func (c *commandListImpl) StoreServiceInfo(serviceInfo configuremgrtypes.ServiceInfo) error {
-	if common.HasElem(blackList, serviceInfo.ExecutableFileName) {
+	var command string
+	commands := strings.Split(serviceInfo.ExecutableFileName, "/")
+	switch len(commands) {
+	case 0:
+		return errors.New(NOT_FOUND_EXECUTABLE_FILE)
+	case 1:
+		command = commands[0]
+	default:
+		command = commands[len(commands)-1]
+	}
+	if common.HasElem(blackList, command) {
 		return errors.New(NOT_ALLOWED_EXECUTABLE_SERVICE)
 	}
 	c.mutex.Lock()
