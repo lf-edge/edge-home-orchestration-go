@@ -30,7 +30,9 @@ package main
 import (
 	"errors"
 	"flag"
+	"fmt"
 	"log"
+	"os"
 	"time"
 
 	"common/logmgr"
@@ -66,8 +68,9 @@ const (
 
 	configPath = edgeDir + "apps"
 
-	cipherKeyFilePath = edgeDir + "orchestration_userID.txt"
-	deviceIDFilePath  = edgeDir + "orchestration_deviceID.txt"
+	cipherKeyFilePath   = edgeDir + "orchestration_userID.txt"
+	deviceIDFilePath    = edgeDir + "orchestration_deviceID.txt"
+	certificateFilePaht = "/var/data/cert"
 )
 
 var (
@@ -98,6 +101,9 @@ func orchestrationInit() error {
 	// log.Println(">>> buildTime : ", buildTime)
 	wrapper.SetBoltDBPath(dbPath)
 
+	fmt.Println(os.Environ())
+	_, secured := os.LookupEnv("SECURED")
+
 	restIns := restclient.GetRestClient()
 	restIns.SetCipher(sha256.GetCipher(cipherKeyFilePath))
 
@@ -119,7 +125,12 @@ func orchestrationInit() error {
 
 	orcheEngine.Start(deviceIDFilePath, platform, executionType)
 
-	restEdgeRouter := route.NewRestRouter()
+	var restEdgeRouter *route.RestRouter
+	if secured {
+		restEdgeRouter = route.NewRestRouterWithCerti(certificateFilePaht)
+	} else {
+		restEdgeRouter = route.NewRestRouter()
+	}
 
 	internalapi, err := orchestrationapi.GetInternalAPI()
 	if err != nil {
@@ -127,7 +138,12 @@ func orchestrationInit() error {
 	}
 	ihandle := internalhandler.GetHandler()
 	ihandle.SetOrchestrationAPI(internalapi)
-	ihandle.SetCipher(sha256.GetCipher(cipherKeyFilePath))
+	if secured {
+		ihandle.SetCipher(dummy.GetCipher(cipherKeyFilePath))
+		ihandle.SetCertificateFilePath(certificateFilePaht)
+	} else {
+		ihandle.SetCipher(sha256.GetCipher(cipherKeyFilePath))
+	}
 	restEdgeRouter.Add(ihandle)
 
 	// external rest api

@@ -92,10 +92,16 @@ func (h *Handler) SetOrchestrationAPI(o orchestrationapi.OrcheInternalAPI) {
 	h.isSetAPI = true
 }
 
+func (h *Handler) SetCertificateFilePath(path string) {
+	rh := resthelper.GetHelperWithCertificate()
+	rh.SetCertificateFilePath(path)
+	h.helper = rh
+}
+
 // APIV1Ping handles ping request from remote orchestration
 func (h *Handler) APIV1Ping(w http.ResponseWriter, r *http.Request) {
 	log.Printf("[%s] APIV1Ping", logPrefix)
-	h.helper.ResponseJSON(w, nil, http.StatusOK)
+	h.helper.Response(w, http.StatusOK)
 }
 
 // APIV1ServicemgrServicesPost handles service execution request from remote orchestration

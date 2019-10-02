@@ -1,0 +1,69 @@
+/*******************************************************************************
+ * Copyright 2019 Samsung Electronics All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ *******************************************************************************/
+
+package tls
+
+import (
+	"log"
+	"sync/atomic"
+)
+
+const (
+	CertificateFileName = "edge-orchestration.crt"
+	KeyFileName         = "edge-orchestration.key"
+)
+
+var certFilePath atomic.Value
+
+func init() {
+	certFilePath.Store("")
+}
+
+func SetCertFilePath(path string) {
+	log.Println("SetCertFilePath: ", path)
+	certFilePath.Store(path)
+}
+
+func GetCertFilePath() string {
+	return certFilePath.Load().(string)
+}
+
+type CertificateSetter interface {
+	SetCertificateFilePath(path string)
+}
+
+type certificateGetter interface {
+	GetCertificateFilePath() string
+}
+
+type HasCertificate struct {
+	IsSetCert bool
+}
+
+func (h *HasCertificate) SetCertificateFilePath(path string) {
+	SetCertFilePath(path)
+	h.IsSetCert = true
+}
+
+func (h *HasCertificate) GetCertificateFilePath() string {
+	if h.IsSetCert {
+		return GetCertFilePath()
+	}
+	return ""
+}
+
+// todo catch file update event and

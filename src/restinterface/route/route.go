@@ -19,6 +19,9 @@
 package route
 
 import (
+	cryptotls "crypto/tls"
+	"crypto/x509"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"strconv"
@@ -27,6 +30,7 @@ import (
 	"github.com/gorilla/mux"
 
 	"restinterface"
+	"restinterface/tls"
 )
 
 const (
@@ -38,6 +42,8 @@ const (
 type RestRouter struct {
 	routes restinterface.Routes
 	router *mux.Router
+
+	tls.HasCertificate
 }
 
 // NewRestRouter constructs RestRouter instance
@@ -45,6 +51,14 @@ func NewRestRouter() *RestRouter {
 
 	edgeRouter := new(RestRouter)
 	edgeRouter.router = mux.NewRouter().StrictSlash(true)
+
+	return edgeRouter
+}
+
+// NewRestRouter constructs RestRouter instance with Certificate file path
+func NewRestRouterWithCerti(path string) *RestRouter {
+	edgeRouter := NewRestRouter()
+	edgeRouter.SetCertificateFilePath(path)
 
 	return edgeRouter
 }
@@ -60,8 +74,37 @@ func (r RestRouter) Start() {
 }
 
 func (r RestRouter) listenAndServe() {
-	log.Printf("ListenAndServe")
-	http.ListenAndServe(":"+strconv.Itoa(ConstWellknownPort), r.router)
+	switch r.IsSetCert {
+	case true:
+		log.Printf("ListenAndServeTLS")
+		caCert, err := ioutil.ReadFile(r.GetCertificateFilePath() + "/" + tls.CertificateFileName)
+		if err != nil {
+			log.Println("cert file read fail, run http")
+			http.ListenAndServe(":"+strconv.Itoa(ConstWellknownPort), r.router)
+		} else {
+			caCertPool := x509.NewCertPool()
+			caCertPool.AppendCertsFromPEM(caCert)
+			cfg := &cryptotls.Config{
+				ClientAuth:         cryptotls.RequireAndVerifyClientCert,
+				ClientCAs:          caCertPool,
+				RootCAs:            caCertPool,
+				InsecureSkipVerify: true,
+			}
+			srv := &http.Server{
+				Addr:      ":" + strconv.Itoa(ConstWellknownPort),
+				Handler:   r.router,
+				TLSConfig: cfg,
+			}
+			log.Fatal(srv.ListenAndServeTLS(
+				r.GetCertificateFilePath()+"/"+tls.CertificateFileName,
+				r.GetCertificateFilePath()+"/"+tls.KeyFileName,
+			))
+		}
+	default:
+		log.Printf("ListenAndServe")
+		http.ListenAndServe(":"+strconv.Itoa(ConstWellknownPort), r.router)
+
+	}
 }
 
 func (r RestRouter) add(routes restinterface.Routes) {
