@@ -110,7 +110,7 @@ function install_prerequisite() {
     done
 
     # Rebase gomobile [ Needed due to issues in latest gomobile ]
-    cd $GOPATH/src/golang.org/x/mobile
+    cd "$BASE_DIR/src/golang.org/x/mobile"
     git reset --hard 30c70e3810e97d051f18b66d59ae242540c0c391
     go install ./cmd/...
     cd $BASE_DIR
