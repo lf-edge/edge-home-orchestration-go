@@ -25,13 +25,13 @@ import (
 	"sync/atomic"
 	"time"
 
+	"common/commandvalidator"
 	"common/networkhelper"
 	"controller/configuremgr"
 	"controller/discoverymgr"
 	"controller/scoringmgr"
 	"controller/servicemgr"
 	"controller/servicemgr/notification"
-	"orchestrationapi/commandvalidator"
 	"restinterface/client"
 
 	sysDB "db/bolt/system"
@@ -115,6 +115,7 @@ func init() {
 // RequestService handles service reqeust (ex. offloading) from service application
 func (orcheEngine *orcheImpl) RequestService(serviceInfo ReqeustService) ResponseService {
 	log.Printf("[RequestService] %v: %v\n", serviceInfo.ServiceName, serviceInfo.ServiceInfo)
+
 	if orcheEngine.Ready == false {
 		return ResponseService{
 			Message:          INTERNAL_SERVER_ERROR,
@@ -123,18 +124,12 @@ func (orcheEngine *orcheImpl) RequestService(serviceInfo ReqeustService) Respons
 		}
 	}
 
+	validator := commandvalidator.CommandValidator{}
 	for _, info := range serviceInfo.ServiceInfo {
 		if info.ExecutionType == "native" || info.ExecutionType == "android" {
-			expected, err := commandvalidator.GetInstance().GetServiceFileName(serviceInfo.ServiceName)
-			if err != nil {
+			if err := validator.CheckCommand(serviceInfo.ServiceName, info.ExeCmd); err != nil {
 				return ResponseService{
 					Message:          err.Error(),
-					ServiceName:      serviceInfo.ServiceName,
-					RemoteTargetInfo: TargetInfo{},
-				}
-			} else if info.ExeCmd[0] != expected {
-				return ResponseService{
-					Message:          NOT_ALLOWED_COMMAND,
 					ServiceName:      serviceInfo.ServiceName,
 					RemoteTargetInfo: TargetInfo{},
 				}

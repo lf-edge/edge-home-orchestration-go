@@ -14,7 +14,8 @@
 * limitations under the License.
 *
 *******************************************************************************/
-package commandvalidator
+
+package commands
 
 import (
 	"testing"
@@ -74,16 +75,6 @@ func TestStoreServiceInfo(t *testing.T) {
 					t.Error("unexpected error")
 				} else if expected != value {
 					t.Error("stored value not exist")
-				}
-			}
-		})
-	})
-	t.Run("Error", func(t *testing.T) {
-		t.Run("StoreBlackList", func(t *testing.T) {
-			for _, black := range blackList {
-				info := configuremgrtypes.ServiceInfo{ServiceName: serviceName, ExecutableFileName: black}
-				if err := GetInstance().StoreServiceInfo(info); err == nil {
-					t.Error("unexpected succeed, " + black)
 				}
 			}
 		})

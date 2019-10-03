@@ -23,6 +23,7 @@ import (
 	"log"
 	"time"
 
+	"common/commandvalidator"
 	"common/networkhelper"
 	"common/resourceutil"
 	"common/types/configuremgrtypes"
@@ -32,7 +33,6 @@ import (
 	"controller/servicemgr"
 	"controller/servicemgr/executor"
 	"controller/servicemgr/notification"
-	"orchestrationapi/commandvalidator"
 	"restinterface/client"
 )
 
@@ -174,7 +174,8 @@ func (o *orcheImpl) Start(deviceIDPath string, platform string, executionType st
 }
 
 func (o orcheImpl) Notify(serviceInfo configuremgrtypes.ServiceInfo) {
-	if err := commandvalidator.GetInstance().StoreServiceInfo(serviceInfo); err != nil {
+	validator := commandvalidator.CommandValidator{}
+	if err := validator.AddWhiteCommand(serviceInfo); err != nil {
 		log.Println(logtag, "[Error]", err.Error())
 		return
 	}
