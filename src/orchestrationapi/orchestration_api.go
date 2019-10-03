@@ -127,19 +127,6 @@ func (orcheEngine *orcheImpl) RequestService(serviceInfo ReqeustService) Respons
 		}
 	}
 
-	validator := commandvalidator.CommandValidator{}
-	for _, info := range serviceInfo.ServiceInfo {
-		if info.ExecutionType == "native" || info.ExecutionType == "android" {
-			if err := validator.CheckCommand(serviceInfo.ServiceName, info.ExeCmd); err != nil {
-				return ResponseService{
-					Message:          err.Error(),
-					ServiceName:      serviceInfo.ServiceName,
-					RemoteTargetInfo: TargetInfo{},
-				}
-			}
-		}
-	}
-
 	atomic.AddInt32(&orchClientID, 1)
 
 	handle := int(orchClientID)
@@ -187,6 +174,19 @@ func (orcheEngine *orcheImpl) RequestService(serviceInfo ReqeustService) Respons
 	}
 
 	if common.HasElem(localhosts, deviceScores[0].endpoint) {
+		validator := commandvalidator.CommandValidator{}
+		for _, info := range serviceInfo.ServiceInfo {
+			if info.ExecutionType == "native" || info.ExecutionType == "android" {
+				if err := validator.CheckCommand(serviceInfo.ServiceName, info.ExeCmd); err != nil {
+					return ResponseService{
+						Message:          err.Error(),
+						ServiceName:      serviceInfo.ServiceName,
+						RemoteTargetInfo: TargetInfo{},
+					}
+				}
+			}
+		}
+
 		vRequester := requestervalidator.RequesterValidator{}
 		if err := vRequester.CheckRequester(serviceInfo.ServiceName, serviceInfo.ServiceRequester); err != nil {
 			return ResponseService{
