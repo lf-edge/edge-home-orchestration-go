@@ -71,9 +71,10 @@ type RequestServiceInfo struct {
 }
 
 type ReqeustService struct {
-	SelfSelection bool
-	ServiceName   string
-	ServiceInfo   []RequestServiceInfo
+	SelfSelection    bool
+	ServiceName      string
+	ServiceRequester string
+	ServiceInfo      []RequestServiceInfo
 	// TODO add status callback
 }
 
