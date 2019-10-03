@@ -15,25 +15,4 @@
  *
  *******************************************************************************/
 
-// Package confdescription defines the configuration informantion of service application
-package confdescription
-
-// Doc has config info of each services
-type Doc struct {
-	Version struct {
-		ConfVersion string
-	}
-	ServiceInfo struct {
-		ServiceName        string
-		ExecutableFileName string
-		AllowedRequester   []string
-	}
-	ScoringMethod struct {
-		LibFile      string
-		FunctionName string
-	}
-	ResourceType struct {
-		IntervalTimeMs int
-		MaxCount       int
-	}
-}
+package requesterstore

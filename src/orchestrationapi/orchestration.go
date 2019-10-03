@@ -25,6 +25,7 @@ import (
 
 	"common/commandvalidator"
 	"common/networkhelper"
+	"common/requestervalidator"
 	"common/resourceutil"
 	"common/types/configuremgrtypes"
 	"controller/configuremgr"
@@ -179,6 +180,9 @@ func (o orcheImpl) Notify(serviceInfo configuremgrtypes.ServiceInfo) {
 		log.Println(logtag, "[Error]", err.Error())
 		return
 	}
+	requestervalidator.RequesterValidator{}.
+		StoreRequesterInfo(serviceInfo.ServiceName, serviceInfo.AllowedRequester)
+
 	if err := o.discoverIns.AddNewServiceName(serviceInfo.ServiceName); err != nil {
 		log.Println(logtag, "[Error]", err.Error())
 		return

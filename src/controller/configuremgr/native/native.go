@@ -139,10 +139,13 @@ func getServiceInfo(path string) types.ServiceInfo {
 
 	serviceName := cfg.ServiceInfo.ServiceName
 	executableName := cfg.ServiceInfo.ExecutableFileName
+	allowedRequesterName := make([]string, len(cfg.ServiceInfo.AllowedRequester))
+	copy(allowedRequesterName, cfg.ServiceInfo.AllowedRequester)
 
 	ret := types.ServiceInfo{
 		ServiceName:        serviceName,
 		ExecutableFileName: executableName,
+		AllowedRequester:   allowedRequesterName,
 	}
 
 	return ret

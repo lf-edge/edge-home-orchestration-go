@@ -27,6 +27,7 @@ import (
 
 	"common/commandvalidator"
 	"common/networkhelper"
+	"common/requestervalidator"
 	"controller/configuremgr"
 	"controller/discoverymgr"
 	"controller/scoringmgr"
@@ -135,6 +136,15 @@ func (orcheEngine *orcheImpl) RequestService(serviceInfo ReqeustService) Respons
 					RemoteTargetInfo: TargetInfo{},
 				}
 			}
+		}
+	}
+
+	vRequester := requestervalidator.RequesterValidator{}
+	if err := vRequester.CheckRequester(serviceInfo.ServiceName, serviceInfo.ServiceRequester); err != nil {
+		return ResponseService{
+			Message:          err.Error(),
+			ServiceName:      serviceInfo.ServiceName,
+			RemoteTargetInfo: TargetInfo{},
 		}
 	}
 

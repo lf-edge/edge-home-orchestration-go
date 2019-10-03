@@ -65,7 +65,7 @@ function install_3rdparty_packages() {
     ### sudo apt-get install -y glide
 
     ### glide update
-    glide install
+#    glide install
 
     ### Set GOPATH and link of vendor directory
     export GOPATH=$BASE_DIR:$BASE_DIR/vendor:$GOPATH
@@ -90,12 +90,12 @@ function install_prerequisite() {
     echo " Install prerequisite packages"
     echo "-----------------------------------"
     pkg_list=(
-        "github.com/axw/gocov/gocov"
-        "github.com/matm/gocov-html"
-        "golang.org/x/lint/golint"
-        "github.com/Songmu/make2help/cmd/make2help"
-        "golang.org/x/mobile/cmd/gomobile"
-        "golang.org/x/mobile/cmd/gobind"
+#        "github.com/axw/gocov/gocov"
+#        "github.com/matm/gocov-html"
+#        "golang.org/x/lint/golint"
+#        "github.com/Songmu/make2help/cmd/make2help"
+#        "golang.org/x/mobile/cmd/gomobile"
+#        "golang.org/x/mobile/cmd/gobind"
     )
     idx=1
     for pkg in "${pkg_list[@]}"; do
@@ -394,4 +394,4 @@ case "$1" in
         ;;
 esac
 
-build_clean_vendor
+#build_clean_vendor
