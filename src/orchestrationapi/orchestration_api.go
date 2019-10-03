@@ -197,7 +197,13 @@ func (orcheEngine *orcheImpl) RequestService(serviceInfo ReqeustService) Respons
 		}
 	}
 
-	orcheEngine.executeApp(deviceScores[0].endpoint, serviceInfo.ServiceName, args, serviceClient.notiChan)
+	orcheEngine.executeApp(
+		deviceScores[0].endpoint,
+		serviceInfo.ServiceName,
+		serviceInfo.ServiceRequester,
+		args,
+		serviceClient.notiChan,
+	)
 	log.Println("[orchestrationapi] ", deviceScores)
 
 	return ResponseService{
@@ -301,13 +307,13 @@ func (orcheEngine orcheImpl) gatherDevicesScore(candidates []dbhelper.ExecutionC
 	return
 }
 
-func (orcheEngine orcheImpl) executeApp(endpoint string, serviceName string, args []string, notiChan chan string) {
+func (orcheEngine orcheImpl) executeApp(endpoint, serviceName, requester string, args []string, notiChan chan string) {
 	ifArgs := make([]interface{}, len(args))
 	for i, v := range args {
 		ifArgs[i] = v
 	}
 
-	orcheEngine.serviceIns.Execute(endpoint, serviceName, ifArgs, notiChan)
+	orcheEngine.serviceIns.Execute(endpoint, serviceName, requester, ifArgs, notiChan)
 }
 
 func (client *orcheClient) listenNotify() {

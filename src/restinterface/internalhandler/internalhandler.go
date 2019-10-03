@@ -25,6 +25,7 @@ import (
 	"net/http"
 	"strings"
 
+	"common/requestervalidator"
 	"common/types/servicemgrtypes"
 	"orchestrationapi"
 	"restinterface"
@@ -123,6 +124,16 @@ func (h *Handler) APIV1ServicemgrServicesPost(w http.ResponseWriter, r *http.Req
 
 	appInfo["NotificationTargetURL"] = remoteAddr
 	log.Println(appInfo)
+
+	vRequester := requestervalidator.RequesterValidator{}
+	if err := vRequester.CheckRequester(
+		appInfo["ServiceName"].(string),
+		appInfo["Requester"].(string),
+	); err != nil {
+		log.Printf("[%s] ", err.Error())
+		h.helper.Response(w, http.StatusBadRequest)
+		return
+	}
 
 	h.api.ExecuteAppOnLocal(appInfo)
 
