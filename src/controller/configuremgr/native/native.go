@@ -27,6 +27,7 @@ import (
 	"strings"
 	"time"
 
+	types "common/types/configuremgrtypes"
 	"controller/configuremgr"
 	confdescription "controller/configuremgr/native/description"
 
@@ -74,7 +75,7 @@ func (cfgMgr ConfigureMgr) Watch(notifier configuremgr.Notifier) {
 	}
 
 	for _, f := range files {
-		notifier.Notify(getServiceName(cfgMgr.confpath + "/" + f.Name()))
+		notifier.Notify(getServiceInfo(cfgMgr.confpath + "/" + f.Name()))
 	}
 
 	watcher, err := fsnotify.NewWatcher()
@@ -107,7 +108,7 @@ func (cfgMgr ConfigureMgr) Watch(notifier configuremgr.Notifier) {
 						log.Println(confFileName, "does not exist")
 						continue
 					}
-					notifier.Notify(getServiceName(event.Name))
+					notifier.Notify(getServiceInfo(event.Name))
 				case fsnotify.Remove:
 					// TODO remove scoring
 				}
@@ -127,7 +128,7 @@ func (cfgMgr ConfigureMgr) Watch(notifier configuremgr.Notifier) {
 	log.Println("configuremgr watcher register end")
 }
 
-func getServiceName(path string) (serviceName string) {
+func getServiceInfo(path string) types.ServiceInfo {
 	confPath, err := getdirname(path)
 	if err != nil {
 		log.Println("wrong libPath or confPath")
@@ -136,9 +137,15 @@ func getServiceName(path string) (serviceName string) {
 	cfg := new(confdescription.Doc)
 	sconf.Must(cfg).Read(ini.File(confPath))
 
-	serviceName = cfg.ServiceInfo.ServiceName
+	serviceName := cfg.ServiceInfo.ServiceName
+	executableName := cfg.ServiceInfo.ExecutableFileName
 
-	return
+	ret := types.ServiceInfo{
+		ServiceName:        serviceName,
+		ExecutableFileName: executableName,
+	}
+
+	return ret
 }
 
 func getdirname(path string) (confPath string, err error) {

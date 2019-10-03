@@ -25,6 +25,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	"common/commandvalidator"
 	"common/networkhelper"
 	"controller/configuremgr"
 	"controller/discoverymgr"
@@ -94,6 +95,7 @@ const (
 	INVALID_PARAMETER     = "INVALID_PARAMETER"
 	SERVICE_NOT_FOUND     = "SERVICE_NOT_FOUND"
 	INTERNAL_SERVER_ERROR = "INTERNAL_SERVER_ERROR"
+	NOT_ALLOWED_COMMAND   = "NOT_ALLOWED_COMMAND"
 )
 
 var (
@@ -114,11 +116,25 @@ func init() {
 // RequestService handles service reqeust (ex. offloading) from service application
 func (orcheEngine *orcheImpl) RequestService(serviceInfo ReqeustService) ResponseService {
 	log.Printf("[RequestService] %v: %v\n", serviceInfo.ServiceName, serviceInfo.ServiceInfo)
+
 	if orcheEngine.Ready == false {
 		return ResponseService{
 			Message:          INTERNAL_SERVER_ERROR,
 			ServiceName:      serviceInfo.ServiceName,
 			RemoteTargetInfo: TargetInfo{},
+		}
+	}
+
+	validator := commandvalidator.CommandValidator{}
+	for _, info := range serviceInfo.ServiceInfo {
+		if info.ExecutionType == "native" || info.ExecutionType == "android" {
+			if err := validator.CheckCommand(serviceInfo.ServiceName, info.ExeCmd); err != nil {
+				return ResponseService{
+					Message:          err.Error(),
+					ServiceName:      serviceInfo.ServiceName,
+					RemoteTargetInfo: TargetInfo{},
+				}
+			}
 		}
 	}
 
