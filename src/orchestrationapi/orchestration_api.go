@@ -35,6 +35,7 @@ import (
 	"controller/servicemgr/notification"
 	"restinterface/client"
 
+	"db/bolt/common"
 	sysDB "db/bolt/system"
 	dbhelper "db/helper"
 )
@@ -139,15 +140,6 @@ func (orcheEngine *orcheImpl) RequestService(serviceInfo ReqeustService) Respons
 		}
 	}
 
-	vRequester := requestervalidator.RequesterValidator{}
-	if err := vRequester.CheckRequester(serviceInfo.ServiceName, serviceInfo.ServiceRequester); err != nil {
-		return ResponseService{
-			Message:          err.Error(),
-			ServiceName:      serviceInfo.ServiceName,
-			RemoteTargetInfo: TargetInfo{},
-		}
-	}
-
 	atomic.AddInt32(&orchClientID, 1)
 
 	handle := int(orchClientID)
@@ -187,6 +179,22 @@ func (orcheEngine *orcheImpl) RequestService(serviceInfo ReqeustService) Respons
 		log.Println(err.Error())
 		errorResp.Message = err.Error()
 		return errorResp
+	}
+
+	localhosts, err := orcheEngine.networkhelper.GetIPs()
+	if err != nil {
+		log.Println("[orchestrationapi] ", "localhost ip gettering fail", "maybe skipped localhost")
+	}
+
+	if common.HasElem(localhosts, deviceScores[0].endpoint) {
+		vRequester := requestervalidator.RequesterValidator{}
+		if err := vRequester.CheckRequester(serviceInfo.ServiceName, serviceInfo.ServiceRequester); err != nil {
+			return ResponseService{
+				Message:          err.Error(),
+				ServiceName:      serviceInfo.ServiceName,
+				RemoteTargetInfo: TargetInfo{},
+			}
+		}
 	}
 
 	orcheEngine.executeApp(deviceScores[0].endpoint, serviceInfo.ServiceName, args, serviceClient.notiChan)
