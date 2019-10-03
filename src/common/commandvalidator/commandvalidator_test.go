@@ -71,7 +71,7 @@ func TestStoreServiceInfo(t *testing.T) {
 			wait.Wait()
 
 			for key, value := range tests {
-				expected, err := GetInstance().GetServiceFileName(key)
+				expected, err := validator.GetCommand(key)
 				if err != nil {
 					t.Error("unexpected error")
 				} else if expected != value {
@@ -84,7 +84,7 @@ func TestStoreServiceInfo(t *testing.T) {
 		t.Run("StoreBlackList", func(t *testing.T) {
 			for _, black := range blackList {
 				info := configuremgrtypes.ServiceInfo{ServiceName: serviceName, ExecutableFileName: black}
-				if err := GetInstance().StoreServiceInfo(info); err == nil {
+				if err := validator.AddWhiteCommand(info); err == nil {
 					t.Error("unexpected succeed, " + black)
 				}
 			}
@@ -95,11 +95,14 @@ func TestStoreServiceInfo(t *testing.T) {
 func TestGetServiceFileName(t *testing.T) {
 	serviceName := "test"
 	executableName := "testExecutable"
+
+	validator := CommandValidator{}
+
 	t.Run("Success", func(t *testing.T) {
 		info := configuremgrtypes.ServiceInfo{ServiceName: serviceName, ExecutableFileName: executableName}
-		GetInstance().StoreServiceInfo(info)
+		validator.AddWhiteCommand(info)
 
-		expected, err := GetInstance().GetServiceFileName(serviceName)
+		expected, err := validator.GetCommand(serviceName)
 		if err != nil {
 			t.Error("unexpected error")
 		} else if expected != executableName {
@@ -108,9 +111,37 @@ func TestGetServiceFileName(t *testing.T) {
 	})
 
 	t.Run("Error", func(t *testing.T) {
-		_, err := GetInstance().GetServiceFileName(serviceName + "error")
+		_, err := validator.GetCommand(serviceName + "error")
 		if err == nil {
 			t.Error("unexpected succeed")
 		}
 	})
+}
+
+var blackList = []string{
+	"sudo",
+	"su",
+	"bash",
+	"bsh",
+	"csh",
+	"adb",
+	"sh",
+	"ssh",
+	"scp",
+	"cat",
+	"chage",
+	"chpasswd",
+	"dmidecode",
+	"dmsetup",
+	"fcinfo",
+	"fdisk",
+	"iscsiadm",
+	"lsof",
+	"multipath",
+	"oratab",
+	"prtvtoc",
+	"ps",
+	"pburn",
+	"pfexec",
+	"dzdo",
 }

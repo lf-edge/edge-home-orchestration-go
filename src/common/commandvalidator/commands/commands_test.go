@@ -22,8 +22,6 @@ import (
 
 	"strconv"
 	"sync"
-
-	"common/types/configuremgrtypes"
 )
 
 func TestStoreServiceInfo(t *testing.T) {
@@ -32,10 +30,7 @@ func TestStoreServiceInfo(t *testing.T) {
 
 	t.Run("Success", func(t *testing.T) {
 		t.Run("StoreOnce", func(t *testing.T) {
-			info := configuremgrtypes.ServiceInfo{ServiceName: serviceName, ExecutableFileName: executableName}
-			if err := GetInstance().StoreServiceInfo(info); err != nil {
-				t.Error("unexpected error: " + err.Error())
-			}
+			GetInstance().StoreServiceInfo(serviceName, executableName)
 
 			expected, err := GetInstance().GetServiceFileName(serviceName)
 			if err != nil {
@@ -58,12 +53,7 @@ func TestStoreServiceInfo(t *testing.T) {
 			for key, value := range tests {
 				go func(k, v string) {
 					defer wait.Done()
-					if err := GetInstance().StoreServiceInfo(configuremgrtypes.ServiceInfo{
-						ServiceName:        k,
-						ExecutableFileName: v,
-					}); err != nil {
-						t.Error("unexpected error: " + err.Error())
-					}
+					GetInstance().StoreServiceInfo(k, v)
 				}(key, value)
 			}
 
@@ -85,8 +75,7 @@ func TestGetServiceFileName(t *testing.T) {
 	serviceName := "test"
 	executableName := "testExecutable"
 	t.Run("Success", func(t *testing.T) {
-		info := configuremgrtypes.ServiceInfo{ServiceName: serviceName, ExecutableFileName: executableName}
-		GetInstance().StoreServiceInfo(info)
+		GetInstance().StoreServiceInfo(serviceName, executableName)
 
 		expected, err := GetInstance().GetServiceFileName(serviceName)
 		if err != nil {
