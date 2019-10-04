@@ -29,11 +29,9 @@ import (
 
 	types "common/types/configuremgrtypes"
 	"controller/configuremgr"
-	confdescription "controller/configuremgr/native/description"
 
 	"github.com/fsnotify/fsnotify"
-	ini "gopkg.in/sconf/ini.v0"
-	sconf "gopkg.in/sconf/sconf.v0"
+	"gopkg.in/ini.v1"
 )
 
 const logPrefix = "nativeconfiguremgr"
@@ -134,13 +132,11 @@ func getServiceInfo(path string) types.ServiceInfo {
 		log.Println("wrong libPath or confPath")
 	}
 
-	cfg := new(confdescription.Doc)
-	sconf.Must(cfg).Read(ini.File(confPath))
+	cfg, err := ini.Load(confPath)
 
-	serviceName := cfg.ServiceInfo.ServiceName
-	executableName := cfg.ServiceInfo.ExecutableFileName
-	allowedRequesterName := make([]string, len(cfg.ServiceInfo.AllowedRequester))
-	copy(allowedRequesterName, cfg.ServiceInfo.AllowedRequester)
+	serviceName := cfg.Section("ServiceInfo").Key("ServiceName").String()
+	executableName := cfg.Section("ServiceInfo").Key("ExecutableFileName").String()
+	allowedRequesterName := cfg.Section("ServiceInfo").Key("AllowedRequester").Strings(",")
 
 	ret := types.ServiceInfo{
 		ServiceName:        serviceName,
