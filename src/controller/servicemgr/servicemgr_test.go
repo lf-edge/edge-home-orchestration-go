@@ -37,6 +37,7 @@ import (
 const (
 	serviceName  = "ls"
 	serviceName2 = "main2"
+	requester    = "test_request"
 )
 
 var (
@@ -68,7 +69,7 @@ func TestExecuteAppOnLocal(t *testing.T) {
 		ifArgs[i] = v
 	}
 
-	err := serviceIns.Execute(targetLocalAddr, serviceName, ifArgs, notiChan)
+	err := serviceIns.Execute(targetLocalAddr, serviceName, requester, ifArgs, notiChan)
 	checkError(t, err)
 
 	time.Sleep(time.Millisecond * 10)
@@ -96,7 +97,7 @@ func TestExecuteAppOnRemote(t *testing.T) {
 	serviceIns.SetLocalServiceExecutor(exec)
 	notiChan := make(chan string)
 
-	err := serviceIns.Execute(targetRemoteAddr, serviceName, paramStrWithArgs, notiChan)
+	err := serviceIns.Execute(targetRemoteAddr, serviceName, requester, paramStrWithArgs, notiChan)
 	checkError(t, err)
 }
 

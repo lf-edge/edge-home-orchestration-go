@@ -16,3 +16,25 @@
  *******************************************************************************/
 
 package requestervalidator
+
+import (
+	"testing"
+)
+
+func TestStoreRequesterInfo(t *testing.T) {
+	serviceName := "test"
+	requesters := []string{"test1", "test2"}
+
+	RequesterValidator{}.StoreRequesterInfo(serviceName, requesters)
+
+	t.Run("Success", func(t *testing.T) {
+		t.Run("StoreOnce", func(t *testing.T) {
+			for _, req := range requesters {
+				err := RequesterValidator{}.CheckRequester(serviceName, req)
+				if err != nil {
+					t.Error("unexpected error")
+				}
+			}
+		})
+	})
+}

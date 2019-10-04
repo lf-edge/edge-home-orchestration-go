@@ -87,7 +87,8 @@ func TestRequestService(t *testing.T) {
 			mockClient.EXPECT().DoGetScoreRemoteDevice(gomock.Any(), gomock.Any()).Return(scores[0], nil),
 			mockClient.EXPECT().DoGetScoreRemoteDevice(gomock.Any(), gomock.Any()).Return(scores[1], nil),
 			mockClient.EXPECT().DoGetScoreRemoteDevice(gomock.Any(), gomock.Any()).Return(scores[2], nil),
-			mockService.EXPECT().Execute(gomock.Any(), appName, gomock.Any(), gomock.Any()),
+			mockNetwork.EXPECT().GetIPs().Return([]string{""}, nil),
+			mockService.EXPECT().Execute(gomock.Any(), appName, gomock.Any(), gomock.Any(), gomock.Any()),
 		)
 
 		o := getOcheIns(ctrl)
