@@ -138,6 +138,10 @@ func getServiceInfo(path string) types.ServiceInfo {
 	executableName := cfg.Section("ServiceInfo").Key("ExecutableFileName").String()
 	allowedRequesterName := cfg.Section("ServiceInfo").Key("AllowedRequester").Strings(",")
 
+	log.Println("[configuremgr] ServiceName:", serviceName)
+	log.Println("[configuremgr] ExecutableFileName:", executableName)
+	log.Println("[configuremgr] AllowedRequester:", allowedRequesterName)
+
 	ret := types.ServiceInfo{
 		ServiceName:        serviceName,
 		ExecutableFileName: executableName,
