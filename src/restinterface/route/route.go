@@ -84,14 +84,16 @@ func logger(inner http.Handler, name string) http.Handler {
 
 		inner.ServeHTTP(w, r)
 
-		log.Printf(
-			"From [%s] %s %s %s %s",
-			readClientIP(r),
-			r.Method,
-			r.RequestURI,
-			name,
-			time.Since(start),
-		)
+		if name != "APIV1Ping" {
+			log.Printf(
+				"From [%s] %s %s %s %s",
+				readClientIP(r),
+				r.Method,
+				r.RequestURI,
+				name,
+				time.Since(start),
+			)
+		}
 	})
 }
 
