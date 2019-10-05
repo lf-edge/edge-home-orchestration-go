@@ -95,7 +95,7 @@ func (h *Handler) SetOrchestrationAPI(o orchestrationapi.OrcheInternalAPI) {
 func (h *Handler) SetCertificateFilePath(path string) {
 	rh := resthelper.GetHelperWithCertificate()
 	rh.SetCertificateFilePath(path)
-	h.helper = rh
+	h.helper = resthelper.GetHelper()
 }
 
 // APIV1Ping handles ping request from remote orchestration

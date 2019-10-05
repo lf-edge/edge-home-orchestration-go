@@ -59,8 +59,7 @@ package main
 //	char*      ServiceName;
 //	TargetInfo RemoteTargetInfo;
 //} ResponseService;
-
-/*import "C"
+import "C"
 import (
 	"flag"
 	"log"
@@ -79,6 +78,7 @@ import (
 
 	"orchestrationapi"
 
+	"restinterface/cipher/dummy"
 	"restinterface/cipher/sha256"
 	"restinterface/client/restclient"
 	"restinterface/internalhandler"
@@ -100,8 +100,9 @@ const (
 
 	configPath = edgeDir + "apps"
 
-	cipherKeyFilePath = edgeDir + "orchestration_userID.txt"
-	deviceIDFilePath  = edgeDir + "orchestration_deviceID.txt"
+	cipherKeyFilePath   = edgeDir + "orchestration_userID.txt"
+	deviceIDFilePath    = edgeDir + "orchestration_deviceID.txt"
+	certificateFilePath = "/var/data/cert"
 )
 
 var (
@@ -144,7 +145,7 @@ func OrchestrationInit() (errCode C.int) {
 
 	orcheEngine.Start(deviceIDFilePath, platform, executionType)
 
-	restEdgeRouter := route.NewRestRouter()
+	restEdgeRouter := route.NewRestRouterWithCerti(certificateFilePath)
 
 	internalapi, err := orchestrationapi.GetInternalAPI()
 	if err != nil {
@@ -152,7 +153,8 @@ func OrchestrationInit() (errCode C.int) {
 	}
 	ihandle := internalhandler.GetHandler()
 	ihandle.SetOrchestrationAPI(internalapi)
-	ihandle.SetCipher(sha256.GetCipher(cipherKeyFilePath))
+	ihandle.SetCipher(dummy.GetCipher(cipherKeyFilePath))
+	ihandle.SetCertificateFilePath(certificateFilePath)
 	restEdgeRouter.Add(ihandle)
 	restEdgeRouter.Start()
 
@@ -220,4 +222,3 @@ func PrintLog(cMsg *C.char) (count C.int) {
 func main() {
 
 }
-*/

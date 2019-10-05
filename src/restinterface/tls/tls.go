@@ -18,6 +18,7 @@
 package tls
 
 import (
+	"io/ioutil"
 	"log"
 	"sync/atomic"
 )
@@ -64,6 +65,19 @@ func (h *HasCertificate) GetCertificateFilePath() string {
 		return GetCertFilePath()
 	}
 	return ""
+}
+
+func GetIdentity() string {
+	// TODO change to device id
+	return "clientid"
+}
+
+func GetKey(id string) ([]byte, error) {
+	key, err := ioutil.ReadFile(GetCertFilePath() + "/" + KeyFileName)
+	if err != nil {
+		return nil, err
+	}
+	return key, nil
 }
 
 // todo catch file update event and

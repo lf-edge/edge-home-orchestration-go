@@ -20,16 +20,14 @@ package resthelper
 
 import (
 	"bytes"
-	cryptotls "crypto/tls"
-	"crypto/x509"
 	"fmt"
 	"io/ioutil"
 	"log"
-	"net"
 	"net/http"
-	//	"strconv"
-	"time"
 
+	"restinterface/resthelper/client"
+	"restinterface/resthelper/client/httphelper"
+	"restinterface/resthelper/client/tlshelper"
 	"restinterface/tls"
 )
 
@@ -64,6 +62,7 @@ type responseHelper interface {
 }
 
 type helperImpl struct {
+	c client.Requester
 	tls.HasCertificate
 }
 
@@ -75,53 +74,17 @@ func init() {
 
 // GetHelper returns helperImpl instance
 func GetHelper() RestHelper {
+	switch helper.IsSetCert {
+	case true:
+		helper.c = tlshelper.TLSHelper{}
+	default:
+		helper.c = httphelper.HttpHelper{}
+	}
 	return helper
 }
 
 func GetHelperWithCertificate() RestHelperWithCertificateSetter {
 	return helper
-}
-
-func (h helperImpl) getNetTransport() *http.Transport {
-	switch h.IsSetCert {
-	case true:
-		caCert, err := ioutil.ReadFile(h.GetCertificateFilePath() + "/" + tls.CertificateFileName)
-		if err != nil {
-			log.Println("read cert file failed !!", err)
-			return nil
-		}
-		caCertPool := x509.NewCertPool()
-		caCertPool.AppendCertsFromPEM(caCert)
-
-		cert, err := cryptotls.LoadX509KeyPair(
-			h.GetCertificateFilePath()+"/"+tls.CertificateFileName,
-			h.GetCertificateFilePath()+"/"+tls.KeyFileName,
-		)
-		if err != nil {
-			log.Println("read cert, key file failed !!", err)
-			return nil
-		}
-
-		return &http.Transport{
-			Dial: (&net.Dialer{
-				Timeout: 5 * time.Second,
-			}).Dial,
-			TLSHandshakeTimeout: 5 * time.Second,
-			TLSClientConfig: &cryptotls.Config{
-				RootCAs:            caCertPool,
-				Certificates:       []cryptotls.Certificate{cert},
-				InsecureSkipVerify: true,
-			},
-		}
-
-	default:
-		return &http.Transport{
-			Dial: (&net.Dialer{
-				Timeout: 5 * time.Second,
-			}).Dial,
-			TLSHandshakeTimeout: 5 * time.Second,
-		}
-	}
 }
 
 // DoGet is for get request
@@ -131,20 +94,19 @@ func (h helperImpl) DoGet(targetURL string) (respBytes []byte, statusCode int, e
 		return
 	}
 
-	transport := h.getNetTransport()
-	if transport == nil {
-		log.Println("create transport failed !!", err)
-		return
-	}
-
-	client := &http.Client{
-		Timeout:   time.Second * 10,
-		Transport: transport,
-	}
-
-	resp, err := client.Do(req)
+	resp, err := h.c.Do(req)
 	if err != nil {
 		log.Println("reqeust get failed !!", err)
+		if resp != nil {
+			statusCode = resp.StatusCode
+			log.Printf("response code: %d", statusCode)
+			respBytes, err = ioutil.ReadAll(resp.Body)
+			if err != nil {
+				log.Println("read resp.Body failed !!", err)
+				return
+			}
+			log.Printf("response body: %s", string(respBytes))
+		}
 		return
 	}
 
@@ -176,17 +138,7 @@ func (h helperImpl) DoGetWithBody(targetURL string, bodybytes []byte) (respBytes
 	// Content-Type Header
 	req.Header.Add("Content-Type", "application/json")
 
-	transport := h.getNetTransport()
-	if transport == nil {
-		log.Println("create transport failed !!", err)
-		return
-	}
-	client := &http.Client{
-		Timeout:   time.Second * 10,
-		Transport: transport,
-	}
-
-	resp, err := client.Do(req)
+	resp, err := h.c.Do(req)
 	if err != nil {
 		return
 	}
@@ -218,17 +170,7 @@ func (h helperImpl) DoPost(targetURL string, bodybytes []byte) (respBytes []byte
 	// Content-Type Header
 	req.Header.Add("Content-Type", "application/json")
 
-	transport := h.getNetTransport()
-	if transport == nil {
-		log.Println("create transport failed !!", err)
-		return
-	}
-	client := &http.Client{
-		Timeout:   time.Second * 10,
-		Transport: transport,
-	}
-
-	resp, err := client.Do(req)
+	resp, err := h.c.Do(req)
 	if err != nil {
 		return
 	}
@@ -252,17 +194,7 @@ func (h helperImpl) DoDelete(targetURL string) (respBytes []byte, statusCode int
 		return
 	}
 
-	transport := h.getNetTransport()
-	if transport == nil {
-		log.Println("create transport failed !!", err)
-		return
-	}
-	client := &http.Client{
-		Timeout:   time.Second * 10,
-		Transport: transport,
-	}
-
-	resp, err := client.Do(req)
+	resp, err := h.c.Do(req)
 	if err != nil {
 		return
 	}

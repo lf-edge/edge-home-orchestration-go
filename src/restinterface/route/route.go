@@ -19,9 +19,6 @@
 package route
 
 import (
-	cryptotls "crypto/tls"
-	"crypto/x509"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"strconv"
@@ -30,18 +27,23 @@ import (
 	"github.com/gorilla/mux"
 
 	"restinterface"
+	"restinterface/externalhandler"
+	"restinterface/internalhandler"
+	"restinterface/route/tlspskserver"
 	"restinterface/tls"
 )
 
 const (
 	// ConstWellknownPort is the common port for REST API
 	ConstWellknownPort = 56001
+	ConstInternalPort  = 56002
 )
 
 // RestRouter struct {
 type RestRouter struct {
-	routes restinterface.Routes
-	router *mux.Router
+	routes         restinterface.Routes
+	routerInternal *mux.Router
+	routerExternal *mux.Router
 
 	tls.HasCertificate
 }
@@ -50,7 +52,8 @@ type RestRouter struct {
 func NewRestRouter() *RestRouter {
 
 	edgeRouter := new(RestRouter)
-	edgeRouter.router = mux.NewRouter().StrictSlash(true)
+	edgeRouter.routerExternal = nil
+	edgeRouter.routerInternal = nil
 
 	return edgeRouter
 }
@@ -65,61 +68,71 @@ func NewRestRouterWithCerti(path string) *RestRouter {
 
 // Add registers REST API to RestRouter
 func (r *RestRouter) Add(s restinterface.IRestRoutes) {
-	r.add(s.GetRoutes())
-}
+	router := mux.NewRouter().StrictSlash(true)
 
-// Start wraps ListenAndServe function
-func (r RestRouter) Start() {
-	go r.listenAndServe()
-}
-
-func (r RestRouter) listenAndServe() {
-	switch r.IsSetCert {
-	case true:
-		log.Printf("ListenAndServeTLS")
-		caCert, err := ioutil.ReadFile(r.GetCertificateFilePath() + "/" + tls.CertificateFileName)
-		if err != nil {
-			log.Println("cert file read fail, run http")
-			http.ListenAndServe(":"+strconv.Itoa(ConstWellknownPort), r.router)
-		} else {
-			caCertPool := x509.NewCertPool()
-			caCertPool.AppendCertsFromPEM(caCert)
-			cfg := &cryptotls.Config{
-				ClientAuth:         cryptotls.RequireAndVerifyClientCert,
-				ClientCAs:          caCertPool,
-				RootCAs:            caCertPool,
-				InsecureSkipVerify: true,
-			}
-			srv := &http.Server{
-				Addr:      ":" + strconv.Itoa(ConstWellknownPort),
-				Handler:   r.router,
-				TLSConfig: cfg,
-			}
-			log.Fatal(srv.ListenAndServeTLS(
-				r.GetCertificateFilePath()+"/"+tls.CertificateFileName,
-				r.GetCertificateFilePath()+"/"+tls.KeyFileName,
-			))
-		}
-	default:
-		log.Printf("ListenAndServe")
-		http.ListenAndServe(":"+strconv.Itoa(ConstWellknownPort), r.router)
-
-	}
-}
-
-func (r RestRouter) add(routes restinterface.Routes) {
-	for _, route := range routes {
+	for _, route := range s.GetRoutes() {
 		handler := logger(route.HandlerFunc, route.Name)
 
 		log.Printf("%v", route)
 
-		r.router.
+		router.
 			Methods(route.Method).
 			Path(route.Pattern).
 			Name(route.Name).
 			Handler(handler)
 	}
+
+	switch s.(type) {
+	case *internalhandler.Handler:
+		r.routerInternal = router
+	case *externalhandler.Handler:
+		r.routerExternal = router
+	default:
+		log.Println("added unknown type, ignore")
+	}
+
+	//	r.add(s.GetRoutes())
 }
+
+// Start wraps ListenAndServe function
+func (r RestRouter) Start() {
+	r.listenAndServe()
+}
+
+func (r RestRouter) listenAndServe() {
+	// start internal server
+	switch r.IsSetCert {
+	case true:
+		log.Printf("ListenAndServeTLS_For_Inter")
+		go tlspskserver.TLSPSKServer{}.ListenAndServe(":"+strconv.Itoa(ConstInternalPort), r.routerInternal)
+	default:
+		log.Printf("ListenAndServe_For_Inter")
+		go http.ListenAndServe(":"+strconv.Itoa(ConstInternalPort), r.routerInternal)
+	}
+
+	if r.routerExternal != nil {
+		log.Printf("ListenAndServe")
+		go http.ListenAndServe(":"+strconv.Itoa(ConstWellknownPort), r.routerExternal)
+	}
+}
+
+//func (r *RestRouter) add(routes restinterface.Routes) {
+//	router := mux.NewRouter().StrictSlash(true)
+//
+//	for _, route := range routes {
+//		handler := logger(route.HandlerFunc, route.Name)
+//
+//		log.Printf("%v", route)
+//
+//		router.
+//			Methods(route.Method).
+//			Path(route.Pattern).
+//			Name(route.Name).
+//			Handler(handler)
+//	}
+//
+//	r.router = append(r.router, router)
+//}
 
 func logger(inner http.Handler, name string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

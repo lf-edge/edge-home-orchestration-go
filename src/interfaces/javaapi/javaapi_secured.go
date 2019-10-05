@@ -18,7 +18,6 @@
 // Package javaapi provides Java interface for orchestration
 package javaapi
 
-/*
 import (
 	"db/bolt/wrapper"
 	"log"
@@ -35,6 +34,7 @@ import (
 
 	"orchestrationapi"
 
+	"restinterface/cipher/dummy"
 	"restinterface/cipher/sha256"
 	"restinterface/client/restclient"
 	"restinterface/internalhandler"
@@ -120,8 +120,12 @@ const (
 	configPath = edgeDir + "apps"
 	dbPath     = edgeDir + "db"
 
+	deviceIDFilePath = edgeDir + "orchestration_deviceID.txt"
+
+	// Warning!! Should change folder for Certification key as internal storage.
 	cipherKeyFilePath = edgeDir + "orchestration_userID.txt"
-	deviceIDFilePath  = edgeDir + "orchestration_deviceID.txt"
+	// Warning!! Should change folder for Certification key as internal storage.
+	certificateFilePath = edgeDir + "cert"
 )
 
 var orcheEngine orchestrationapi.Orche
@@ -163,7 +167,7 @@ func OrchestrationInit(executeCallback ExecuteCallback) (errCode int) {
 
 	orcheEngine.Start(deviceIDFilePath, platform, executionType)
 
-	restEdgeRouter := route.NewRestRouter()
+	restEdgeRouter := route.NewRestRouterWithCerti(certificateFilePath)
 
 	internalapi, err := orchestrationapi.GetInternalAPI()
 	if err != nil {
@@ -171,7 +175,8 @@ func OrchestrationInit(executeCallback ExecuteCallback) (errCode int) {
 	}
 	ihandle := internalhandler.GetHandler()
 	ihandle.SetOrchestrationAPI(internalapi)
-	ihandle.SetCipher(sha256.GetCipher(cipherKeyFilePath))
+	ihandle.SetCipher(dummy.GetCipher(cipherKeyFilePath))
+	ihandle.SetCertificateFilePath(certificateFilePath)
 	restEdgeRouter.Add(ihandle)
 
 	restEdgeRouter.Start()
@@ -227,4 +232,3 @@ func PrintLog(cMsg string) (count int) {
 	count++
 	return
 }
-*/

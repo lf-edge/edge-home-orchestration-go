@@ -30,7 +30,8 @@ import (
 )
 
 type restClientImpl struct {
-	port int
+	internalPort int
+	externalPort int
 
 	helper resthelper.RestHelper
 	cipher.HasCipher
@@ -38,6 +39,7 @@ type restClientImpl struct {
 
 const (
 	constWellknownPort = 56001
+	constInternalPort  = 56002
 	logPrefix          = "[restclient]"
 )
 
@@ -46,7 +48,8 @@ var restClient *restClientImpl
 func init() {
 	restClient = new(restClientImpl)
 	restClient.helper = resthelper.GetHelper()
-	restClient.port = constWellknownPort
+	restClient.externalPort = constWellknownPort
+	restClient.internalPort = constInternalPort
 }
 
 // GetRestClient returns the singleton restClientImpl instance
@@ -62,7 +65,8 @@ func (c restClientImpl) DoExecuteRemoteDevice(appInfo map[string]interface{}, ta
 
 	restapi := "/api/v1/servicemgr/services"
 
-	targetURL := c.helper.MakeTargetURL(target, c.port, restapi)
+	targetURL := c.helper.MakeTargetURL(target, c.internalPort, restapi)
+
 	encryptBytes, err := c.Key.EncryptJSONToByte(appInfo)
 	if err != nil {
 		return errors.New("[" + logPrefix + "] can not encryption " + err.Error())
@@ -96,7 +100,8 @@ func (c restClientImpl) DoNotifyAppStatusRemoteDevice(statusNotificationInfo map
 
 	restapi := fmt.Sprintf("/api/v1/servicemgr/services/notification/%d", appID)
 
-	targetURL := c.helper.MakeTargetURL(target, c.port, restapi)
+	targetURL := c.helper.MakeTargetURL(target, c.internalPort, restapi)
+
 	encryptBytes, err := c.Key.EncryptJSONToByte(statusNotificationInfo)
 	if err != nil {
 		return errors.New("[" + logPrefix + "] can not encryption " + err.Error())
@@ -118,7 +123,7 @@ func (c restClientImpl) DoGetScoreRemoteDevice(devID string, endpoint string) (s
 
 	restapi := "/api/v1/scoringmgr/score"
 
-	targetURL := c.helper.MakeTargetURL(endpoint, c.port, restapi)
+	targetURL := c.helper.MakeTargetURL(endpoint, c.internalPort, restapi)
 
 	info := make(map[string]interface{})
 	info["devID"] = devID
