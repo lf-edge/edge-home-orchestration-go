@@ -88,6 +88,7 @@ func (h *Handler) APIV1RequestServicePost(w http.ResponseWriter, r *http.Request
 		responseName string
 		resp         orchestrationapi.ResponseService
 
+		name               string
 		executeEnvs        []interface{}
 		responseTargetInfo map[string]interface{}
 	)
@@ -113,7 +114,16 @@ func (h *Handler) APIV1RequestServicePost(w http.ResponseWriter, r *http.Request
 		serviceInfos.SelfSelection = false
 	}
 
-	name, ok := appCommand["ServiceName"].(string)
+	// TODO change
+	serviceRequester, ok := appCommand["ServiceRequester"].(string)
+	if !ok {
+		responseMsg = orchestrationapi.INVALID_PARAMETER
+		responseName = ""
+		goto SEND_RESP
+	}
+	serviceInfos.ServiceRequester = serviceRequester
+
+	name, ok = appCommand["ServiceName"].(string)
 	if !ok {
 		responseMsg = orchestrationapi.INVALID_PARAMETER
 		responseName = ""

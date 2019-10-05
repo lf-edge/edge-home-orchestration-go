@@ -18,9 +18,11 @@
 // Package configuremgr provides interfaces between ochrestrationapi and configuremgr
 package configuremgr
 
+import "common/types/configuremgrtypes"
+
 // Notifier is the interface to get scoring infomation for each service application
 type Notifier interface {
-	Notify(serviceName string)
+	Notify(serviceinfo configuremgrtypes.ServiceInfo)
 }
 
 // Watcher is the interface to check if service application is installed/updated/deleted

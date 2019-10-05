@@ -25,7 +25,9 @@ import (
 	"sync/atomic"
 	"time"
 
+	"common/commandvalidator"
 	"common/networkhelper"
+	"common/requestervalidator"
 	"controller/configuremgr"
 	"controller/discoverymgr"
 	"controller/scoringmgr"
@@ -33,6 +35,7 @@ import (
 	"controller/servicemgr/notification"
 	"restinterface/client"
 
+	"db/bolt/common"
 	sysDB "db/bolt/system"
 	dbhelper "db/helper"
 )
@@ -71,9 +74,10 @@ type RequestServiceInfo struct {
 }
 
 type ReqeustService struct {
-	SelfSelection bool
-	ServiceName   string
-	ServiceInfo   []RequestServiceInfo
+	SelfSelection    bool
+	ServiceName      string
+	ServiceRequester string
+	ServiceInfo      []RequestServiceInfo
 	// TODO add status callback
 }
 
@@ -93,6 +97,7 @@ const (
 	INVALID_PARAMETER     = "INVALID_PARAMETER"
 	SERVICE_NOT_FOUND     = "SERVICE_NOT_FOUND"
 	INTERNAL_SERVER_ERROR = "INTERNAL_SERVER_ERROR"
+	NOT_ALLOWED_COMMAND   = "NOT_ALLOWED_COMMAND"
 )
 
 var (
@@ -113,6 +118,7 @@ func init() {
 // RequestService handles service reqeust (ex. offloading) from service application
 func (orcheEngine *orcheImpl) RequestService(serviceInfo ReqeustService) ResponseService {
 	log.Printf("[RequestService] %v: %v\n", serviceInfo.ServiceName, serviceInfo.ServiceInfo)
+
 	if orcheEngine.Ready == false {
 		return ResponseService{
 			Message:          INTERNAL_SERVER_ERROR,
@@ -162,7 +168,42 @@ func (orcheEngine *orcheImpl) RequestService(serviceInfo ReqeustService) Respons
 		return errorResp
 	}
 
-	orcheEngine.executeApp(deviceScores[0].endpoint, serviceInfo.ServiceName, args, serviceClient.notiChan)
+	localhosts, err := orcheEngine.networkhelper.GetIPs()
+	if err != nil {
+		log.Println("[orchestrationapi] ", "localhost ip gettering fail", "maybe skipped localhost")
+	}
+
+	if common.HasElem(localhosts, deviceScores[0].endpoint) {
+		validator := commandvalidator.CommandValidator{}
+		for _, info := range serviceInfo.ServiceInfo {
+			if info.ExecutionType == "native" || info.ExecutionType == "android" {
+				if err := validator.CheckCommand(serviceInfo.ServiceName, info.ExeCmd); err != nil {
+					return ResponseService{
+						Message:          err.Error(),
+						ServiceName:      serviceInfo.ServiceName,
+						RemoteTargetInfo: TargetInfo{},
+					}
+				}
+			}
+		}
+
+		vRequester := requestervalidator.RequesterValidator{}
+		if err := vRequester.CheckRequester(serviceInfo.ServiceName, serviceInfo.ServiceRequester); err != nil {
+			return ResponseService{
+				Message:          err.Error(),
+				ServiceName:      serviceInfo.ServiceName,
+				RemoteTargetInfo: TargetInfo{},
+			}
+		}
+	}
+
+	orcheEngine.executeApp(
+		deviceScores[0].endpoint,
+		serviceInfo.ServiceName,
+		serviceInfo.ServiceRequester,
+		args,
+		serviceClient.notiChan,
+	)
 	log.Println("[orchestrationapi] ", deviceScores)
 
 	return ResponseService{
@@ -266,13 +307,13 @@ func (orcheEngine orcheImpl) gatherDevicesScore(candidates []dbhelper.ExecutionC
 	return
 }
 
-func (orcheEngine orcheImpl) executeApp(endpoint string, serviceName string, args []string, notiChan chan string) {
+func (orcheEngine orcheImpl) executeApp(endpoint, serviceName, requester string, args []string, notiChan chan string) {
 	ifArgs := make([]interface{}, len(args))
 	for i, v := range args {
 		ifArgs[i] = v
 	}
 
-	orcheEngine.serviceIns.Execute(endpoint, serviceName, ifArgs, notiChan)
+	orcheEngine.serviceIns.Execute(endpoint, serviceName, requester, ifArgs, notiChan)
 }
 
 func (client *orcheClient) listenNotify() {
