@@ -15,6 +15,10 @@ ignore:
   - common/resourceutil/types/servicemgrtypes
   - common/types/configuremgrtypes
   - common/types/servicemgrtypes
+  - common/commandvalidator
+  - common/commandvalidator/blacklist
+  - common/commandvalidator/commands
+  - common/commandvalidator/injectionchecker
   - controller/configuremgr
   - controller/configuremgr/container
   - controller/configuremgr/native
