@@ -20,6 +20,7 @@ package logmgr
 
 import (
 	"log"
+	"os"
 
 	"github.com/leemcloughlin/logfile"
 )
@@ -28,6 +29,13 @@ var logFileName = "logmgr.log"
 
 // Init sets the enviroments for logging
 func Init(logFilePath string) {
+	if _, err := os.Stat(logFilePath); err != nil {
+		err := os.MkdirAll(logFilePath, os.ModePerm)
+		if err != nil {
+			log.Panicf("Failed to create logFilePath %s: %s\n", logFilePath, err)
+		}
+	}
+
 	logFile, err := logfile.New(
 		&logfile.LogFile{
 			FileName:    logFilePath + "/" + logFileName,
