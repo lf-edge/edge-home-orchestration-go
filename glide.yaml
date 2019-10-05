@@ -7,6 +7,8 @@ ignore:
   - common/logmgr
   - common/networkhelper
   - common/networkhelper/detector
+  - common/requestervalidator
+  - common/requestervalidator/requesterstore
   - common/resourceutil
   - common/resourceutil/cpu
   - common/resourceutil/native
@@ -102,11 +104,11 @@ import:
     subpackages:
       - ipv4
       - ipv6
-  - package: gopkg.in/sconf/ini.v0
-  - package: gopkg.in/sconf/sconf.v0
   - package: github.com/Sirupsen/logrus
     version: v1.4.0
   - package: github.com/spf13/pflag
     version: v1.0.3
   - package: github.com/boltdb/bolt
     version: v1.3.1
+  - package: gopkg.in/ini.v1
+    version: v1.48.0

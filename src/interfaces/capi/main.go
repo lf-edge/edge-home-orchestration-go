@@ -162,7 +162,7 @@ func OrchestrationInit() (errCode C.int) {
 }
 
 //export OrchestrationRequestService
-func OrchestrationRequestService(cAppName *C.char, selfSelection C.int, serviceInfo *C.RequestServiceInfo, count C.int) C.ResponseService {
+func OrchestrationRequestService(cAppName *C.char, cSelfSelection C.int, cRequester *C.char, serviceInfo *C.RequestServiceInfo, count C.int) C.ResponseService {
 	log.Printf("[%s] OrchestrationRequestService", logPrefix)
 
 	appName := C.GoString(cAppName)
@@ -187,11 +187,18 @@ func OrchestrationRequestService(cAppName *C.char, selfSelection C.int, serviceI
 	}
 
 	selfSel := true
-	if selfSelection == 0 {
+	if cSelfSelection == 0 {
 		selfSel = false
 	}
 
-	res := externalAPI.RequestService(orchestrationapi.ReqeustService{ServiceName: appName, SelfSelection: selfSel, ServiceInfo: requestInfos})
+	requester := C.GoString(cRequester)
+
+	res := externalAPI.RequestService(orchestrationapi.ReqeustService{
+		ServiceName:      appName,
+		SelfSelection:    selfSel,
+		ServiceInfo:      requestInfos,
+		ServiceRequester: requester,
+	})
 	log.Println("requestService handle : ", res)
 
 	ret := C.ResponseService{}

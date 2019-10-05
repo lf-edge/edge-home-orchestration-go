@@ -15,25 +15,31 @@
  *
  *******************************************************************************/
 
-// Package confdescription defines the configuration informantion of service application
-package confdescription
+package requesterstore
 
-// Doc has config info of each services
-type Doc struct {
-	Version struct {
-		ConfVersion string
-	}
-	ServiceInfo struct {
-		ServiceName        string
-		ExecutableFileName string
-		AllowedRequester   []string
-	}
-	ScoringMethod struct {
-		LibFile      string
-		FunctionName string
-	}
-	ResourceType struct {
-		IntervalTimeMs int
-		MaxCount       int
-	}
+import (
+	"testing"
+)
+
+func TestStoreRequesterInfo(t *testing.T) {
+	serviceName := "test"
+	requesters := []string{"test1", "test2"}
+
+	t.Run("Success", func(t *testing.T) {
+		t.Run("StoreOnce", func(t *testing.T) {
+			GetInstance().StoreRequesterInfo(serviceName, requesters)
+
+			expected, err := GetInstance().GetRequester(serviceName)
+			if err != nil {
+				t.Error("unexpected error")
+			}
+
+			for idx, req := range expected {
+				if req != requesters[idx] {
+					t.Error("unexpected result")
+				}
+			}
+
+		})
+	})
 }

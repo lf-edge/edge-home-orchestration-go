@@ -23,6 +23,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"common/requestervalidator"
 	orchestrationapi "orchestrationapi"
 	orchemock "orchestrationapi/mocks"
 	ciphermock "restinterface/cipher/mocks"
@@ -76,10 +77,13 @@ func getReqeustArgs() (orchestrationapi.ReqeustService, map[string]interface{}) 
 	serviceInfo[0].ExecutionType = "native"
 	serviceInfo[0].ExeCmd = args
 	requestService := orchestrationapi.ReqeustService{
-		ServiceName:   serviceName,
-		SelfSelection: true,
-		ServiceInfo:   serviceInfo,
+		ServiceName:      serviceName,
+		SelfSelection:    true,
+		ServiceRequester: "test",
+		ServiceInfo:      serviceInfo,
 	}
+
+	requestervalidator.RequesterValidator{}.StoreRequesterInfo(serviceName, []string{"test"})
 
 	execCmd := make([]interface{}, len(args))
 	for idx, arg := range args {
@@ -96,6 +100,7 @@ func getReqeustArgs() (orchestrationapi.ReqeustService, map[string]interface{}) 
 	appCommand := make(map[string]interface{})
 	appCommand["ServiceName"] = serviceName
 	appCommand["ServiceInfo"] = sInfos
+	appCommand["ServiceRequester"] = "test"
 
 	return requestService, appCommand
 }

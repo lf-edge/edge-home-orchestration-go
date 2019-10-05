@@ -23,13 +23,14 @@ $ go test -failfast -v -count=1 orchestrationapi
 package orchestrationapi
 
 import (
-	sysDB "db/bolt/system"
-	dbhelper "db/helper"
 	"errors"
+	"github.com/golang/mock/gomock"
 
 	"testing"
 
-	"github.com/golang/mock/gomock"
+	"common/requestervalidator"
+	sysDB "db/bolt/system"
+	dbhelper "db/helper"
 )
 
 func TestRequestService(t *testing.T) {
@@ -39,17 +40,19 @@ func TestRequestService(t *testing.T) {
 	createMockIns(ctrl)
 
 	appName := "MyApp"
-	args := []string{"-a", "-b", "-c"}
+	args := []string{"a", "-b", "-c"}
 
 	var requestServiceInfo ReqeustService
 	requestServiceInfo.ServiceName = appName
 	requestServiceInfo.SelfSelection = true
+	requestServiceInfo.ServiceRequester = "my"
 	requestServiceInfo.ServiceInfo = []RequestServiceInfo{
 		{
 			ExecutionType: "platform",
 			ExeCmd:        args,
 		},
 	}
+	requestervalidator.RequesterValidator{}.StoreRequesterInfo(appName, []string{"my"})
 
 	candidateInfos := make([]dbhelper.ExecutionCandidate, 0)
 	candidateInfos = append(candidateInfos, dbhelper.ExecutionCandidate{
@@ -84,7 +87,8 @@ func TestRequestService(t *testing.T) {
 			mockClient.EXPECT().DoGetScoreRemoteDevice(gomock.Any(), gomock.Any()).Return(scores[0], nil),
 			mockClient.EXPECT().DoGetScoreRemoteDevice(gomock.Any(), gomock.Any()).Return(scores[1], nil),
 			mockClient.EXPECT().DoGetScoreRemoteDevice(gomock.Any(), gomock.Any()).Return(scores[2], nil),
-			mockService.EXPECT().Execute(gomock.Any(), appName, gomock.Any(), gomock.Any()),
+			mockNetwork.EXPECT().GetIPs().Return([]string{""}, nil),
+			mockService.EXPECT().Execute(gomock.Any(), appName, gomock.Any(), gomock.Any(), gomock.Any()),
 		)
 
 		o := getOcheIns(ctrl)
