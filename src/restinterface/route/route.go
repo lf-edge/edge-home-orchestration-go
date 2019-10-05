@@ -90,8 +90,6 @@ func (r *RestRouter) Add(s restinterface.IRestRoutes) {
 	default:
 		log.Println("added unknown type, ignore")
 	}
-
-	//	r.add(s.GetRoutes())
 }
 
 // Start wraps ListenAndServe function
@@ -115,24 +113,6 @@ func (r RestRouter) listenAndServe() {
 		go http.ListenAndServe(":"+strconv.Itoa(ConstWellknownPort), r.routerExternal)
 	}
 }
-
-//func (r *RestRouter) add(routes restinterface.Routes) {
-//	router := mux.NewRouter().StrictSlash(true)
-//
-//	for _, route := range routes {
-//		handler := logger(route.HandlerFunc, route.Name)
-//
-//		log.Printf("%v", route)
-//
-//		router.
-//			Methods(route.Method).
-//			Path(route.Pattern).
-//			Name(route.Name).
-//			Handler(handler)
-//	}
-//
-//	r.router = append(r.router, router)
-//}
 
 func logger(inner http.Handler, name string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
