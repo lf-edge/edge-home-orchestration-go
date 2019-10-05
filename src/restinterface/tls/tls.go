@@ -21,6 +21,8 @@ import (
 	"io/ioutil"
 	"log"
 	"sync/atomic"
+
+	"github.com/satori/go.uuid"
 )
 
 const (
@@ -68,8 +70,7 @@ func (h *HasCertificate) GetCertificateFilePath() string {
 }
 
 func GetIdentity() string {
-	// TODO change to device id
-	return "clientid"
+	return uuid.Must(uuid.NewV4(), nil).String()
 }
 
 func GetKey(id string) ([]byte, error) {
