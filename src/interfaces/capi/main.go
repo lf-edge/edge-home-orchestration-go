@@ -1,3 +1,5 @@
+// +build !secure
+
 /*******************************************************************************
  * Copyright 2019 Samsung Electronics All Rights Reserved.
  *
@@ -59,8 +61,7 @@ package main
 //	char*      ServiceName;
 //	TargetInfo RemoteTargetInfo;
 //} ResponseService;
-
-/*import "C"
+import "C"
 import (
 	"flag"
 	"log"
@@ -107,6 +108,7 @@ const (
 var (
 	flagVersion                  bool
 	commitID, version, buildTime string
+	buildTags                    string
 
 	orcheEngine orchestrationapi.Orche
 )
@@ -122,6 +124,7 @@ func OrchestrationInit() (errCode C.int) {
 	log.Println(">>> commitID  : ", commitID)
 	log.Println(">>> version   : ", version)
 	log.Println(">>> buildTime : ", buildTime)
+	log.Println(">>> buildTags : ", buildTags)
 	wrapper.SetBoltDBPath(dbPath)
 
 	restIns := restclient.GetRestClient()
@@ -227,4 +230,3 @@ func PrintLog(cMsg *C.char) (count C.int) {
 func main() {
 
 }
-*/

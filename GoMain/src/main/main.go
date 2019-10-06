@@ -1,3 +1,5 @@
+// +build !secure
+
 /*******************************************************************************
  * Copyright 2019 Samsung Electronics All Rights Reserved.
  *
@@ -18,7 +20,6 @@
 // Package main provides REST interface for edge-orchestration
 package main
 
-/*
 import (
 	"errors"
 	"flag"
@@ -66,6 +67,7 @@ const (
 var (
 	flagVersion                  bool
 	commitID, version, buildTime string
+	buildTags                    string
 )
 
 func main() {
@@ -86,9 +88,10 @@ func orchestrationInit() error {
 
 	logmgr.Init(logPath)
 	log.Printf("[%s] OrchestrationInit", logPrefix)
-	// log.Println(">>> commitID  : ", commitID)
-	// log.Println(">>> version   : ", version)
-	// log.Println(">>> buildTime : ", buildTime)
+	log.Println(">>> commitID  : ", commitID)
+	log.Println(">>> version   : ", version)
+	log.Println(">>> buildTime : ", buildTime)
+	log.Println(">>> buildTags : ", buildTags)
 	wrapper.SetBoltDBPath(dbPath)
 
 	restIns := restclient.GetRestClient()
@@ -144,4 +147,3 @@ func orchestrationInit() error {
 
 	return nil
 }
-*/

@@ -1,3 +1,5 @@
+// +build secure
+
 /*******************************************************************************
  * Copyright 2019 Samsung Electronics All Rights Reserved.
  *

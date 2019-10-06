@@ -1,3 +1,5 @@
+// +build secure
+
 /*******************************************************************************
  * Copyright 2019 Samsung Electronics All Rights Reserved.
  *
@@ -108,6 +110,7 @@ const (
 var (
 	flagVersion                  bool
 	commitID, version, buildTime string
+	buildTags                    string
 
 	orcheEngine orchestrationapi.Orche
 )
@@ -123,6 +126,7 @@ func OrchestrationInit() (errCode C.int) {
 	log.Println(">>> commitID  : ", commitID)
 	log.Println(">>> version   : ", version)
 	log.Println(">>> buildTime : ", buildTime)
+	log.Println(">>> buildTags : ", buildTags)
 	wrapper.SetBoltDBPath(dbPath)
 
 	restIns := restclient.GetRestClient()

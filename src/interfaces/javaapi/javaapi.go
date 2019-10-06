@@ -1,3 +1,5 @@
+// +build !secure
+
 /*******************************************************************************
  * Copyright 2019 Samsung Electronics All Rights Reserved.
  *
@@ -18,7 +20,6 @@
 // Package javaapi provides Java interface for orchestration
 package javaapi
 
-/*
 import (
 	"db/bolt/wrapper"
 	"log"
@@ -232,4 +233,3 @@ func PrintLog(cMsg string) (count int) {
 	count++
 	return
 }
-*/
