@@ -176,6 +176,7 @@ func (orcheEngine *orcheImpl) RequestService(serviceInfo ReqeustService) Respons
 		errorResp.Message = err.Error()
 		return errorResp
 	}
+	args = append(args, deviceScores[0].execType)
 
 	localhosts, err := orcheEngine.networkhelper.GetIPs()
 	if err != nil {

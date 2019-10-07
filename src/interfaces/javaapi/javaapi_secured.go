@@ -124,9 +124,7 @@ const (
 
 	deviceIDFilePath = edgeDir + "orchestration_deviceID.txt"
 
-	// Warning!! Should change folder for Certification key as internal storage.
-	cipherKeyFilePath = edgeDir + "orchestration_userID.txt"
-	// Warning!! Should change folder for Certification key as internal storage.
+	cipherKeyFilePath   = edgeDir + "orchestration_userID.txt"
 	certificateFilePath = edgeDir + "cert"
 )
 
