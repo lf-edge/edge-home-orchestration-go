@@ -108,8 +108,7 @@ func (r RestRouter) listenAndServe() {
 		go http.ListenAndServe(":"+strconv.Itoa(ConstInternalPort), r.routerInternal)
 	}
 
-	if r.routerExternal != nil {
-		log.Printf("ListenAndServe")
+	if log.Printf("ListenAndServe"); r.routerExternal != nil {
 		go http.ListenAndServe(":"+strconv.Itoa(ConstWellknownPort), r.routerExternal)
 	}
 }

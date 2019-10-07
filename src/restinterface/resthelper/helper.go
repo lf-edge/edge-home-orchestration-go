@@ -97,16 +97,6 @@ func (h helperImpl) DoGet(targetURL string) (respBytes []byte, statusCode int, e
 	resp, err := h.c.Do(req)
 	if err != nil {
 		log.Println("reqeust get failed !!", err)
-		if resp != nil {
-			statusCode = resp.StatusCode
-			log.Printf("response code: %d", statusCode)
-			respBytes, err = ioutil.ReadAll(resp.Body)
-			if err != nil {
-				log.Println("read resp.Body failed !!", err)
-				return
-			}
-			log.Printf("response body: %s", string(respBytes))
-		}
 		return
 	}
 

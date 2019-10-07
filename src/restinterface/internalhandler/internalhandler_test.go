@@ -21,6 +21,8 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
+	"strings"
+
 	"testing"
 
 	"common/commandvalidator"
@@ -88,6 +90,7 @@ func TestAPIV1ServicemgrServicesPost(t *testing.T) {
 
 	req := make(map[string]interface{})
 	req["ServiceName"] = "test_service"
+	req["ServiceID"] = 1.0
 	req["Requester"] = "test_requester"
 	args := make([]interface{}, 1)
 	args[0] = "test_execute"
@@ -333,4 +336,15 @@ func TestAPIV1ScoringmgrScoreLibnameGet(t *testing.T) {
 
 		handler.APIV1ScoringmgrScoreLibnameGet(w, r)
 	})
+}
+
+func TestSetCertificateFilePath(t *testing.T) {
+	testHandler := new(Handler)
+	testHandler.SetCertificateFilePath("test")
+
+	testUrl := testHandler.helper.MakeTargetURL("", 1, "")
+
+	if strings.Contains(testUrl, "https") != true {
+		t.Error("expected key is set, but not set on helper: ", testUrl)
+	}
 }

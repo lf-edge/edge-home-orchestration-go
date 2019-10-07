@@ -16,3 +16,23 @@
 *******************************************************************************/
 
 package injectionchecker
+
+import (
+	"testing"
+)
+
+func TestHasInjectionOperator(t *testing.T) {
+	t.Run("Error", func(t *testing.T) {
+		for _, str := range injectionOperators {
+			if HasInjectionOperator(str) != true {
+				t.Error("unexpected success")
+			}
+		}
+	})
+	t.Run("Success", func(t *testing.T) {
+		str := "12345"
+		if HasInjectionOperator(str) != false {
+			t.Error("unexpected error")
+		}
+	})
+}

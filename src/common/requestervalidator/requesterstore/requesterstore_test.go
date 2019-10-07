@@ -21,6 +21,17 @@ import (
 	"testing"
 )
 
+func TestGetRequester(t *testing.T) {
+	t.Run("Error", func(t *testing.T) {
+		t.Run("NotRegistered", func(t *testing.T) {
+			_, err := GetInstance().GetRequester("notRegistered")
+			if err == nil {
+				t.Error("unexpected succeed")
+			}
+		})
+	})
+}
+
 func TestStoreRequesterInfo(t *testing.T) {
 	serviceName := "test"
 	requesters := []string{"test1", "test2"}

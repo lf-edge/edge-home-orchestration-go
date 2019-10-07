@@ -34,8 +34,8 @@ const NOT_ALLOWED_SERVICE_EXECUTION = "not allowed service execution"
 
 type RequesterValidator struct{}
 
-func (RequesterValidator) CheckRequester(serviceName, requester string) error {
-	stored, err := requesterstore.GetInstance().GetRequester(serviceName)
+func (r RequesterValidator) CheckRequester(serviceName, requester string) error {
+	stored, err := r.GetRequester(serviceName)
 	if err != nil {
 		return err
 	}
