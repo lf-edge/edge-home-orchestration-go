@@ -334,10 +334,9 @@ function run_docker_container() {
                 --name $DOCKER_IMAGE \
                 -v /var/data/db/:/var/data/db/:rw \
                 -v /var/data/cert/:/var/data/cert/:rw \
-                -v /var/run/:/var/run/:rw \
-                -v /var/log/:/var/log/:rw \
-                -v /etc/:/etc/:rw \
-                -v /usr/bin/docker:/usr/bin/docker \
+                -v /var/run/docker.sock:/var/run/docker.sock:rw \
+                -v /var/log/edge-orchestration/:/var/log/edge-orchestration/:rw \
+                -v /etc/edge-orchestration/:/etc/edge-orchestration/:rw \
                 $DOCKER_IMAGE:$CONTAINER_VERSION
     docker container ls
 }
