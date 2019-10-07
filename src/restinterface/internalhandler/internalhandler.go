@@ -142,7 +142,7 @@ func (h *Handler) APIV1ServicemgrServicesPost(w http.ResponseWriter, r *http.Req
 	for _, arg := range appInfo["UserArgs"].([]interface{}) {
 		args = append(args, arg.(string))
 	}
-	executionType := args[len(args)-1:]
+	executionType := args[len(args)-1]
 	args = args[:len(args)-1]
 
 	if executionType != "container" {
