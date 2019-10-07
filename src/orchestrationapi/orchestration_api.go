@@ -140,6 +140,15 @@ func (orcheEngine *orcheImpl) RequestService(serviceInfo ReqeustService) Respons
 	}
 
 	candidates, err := orcheEngine.getCandidate(serviceInfo.ServiceName, executionTypes)
+
+	log.Printf("[RequestService] getCandidate")
+	for index, candidate := range candidates {
+		log.Printf("[%d] Id       : %v", index, candidate.Id)
+		log.Printf("[%d] ExecType : %v", index, candidate.ExecType)
+		log.Printf("[%d] Endpoint : %v", index, candidate.Endpoint)
+		log.Printf("")
+	}
+
 	if err != nil {
 		return ResponseService{
 			Message:          err.Error(),
@@ -170,7 +179,7 @@ func (orcheEngine *orcheImpl) RequestService(serviceInfo ReqeustService) Respons
 
 	localhosts, err := orcheEngine.networkhelper.GetIPs()
 	if err != nil {
-		log.Println("[orchestrationapi] ", "localhost ip gettering fail", "maybe skipped localhost")
+		log.Println("[orchestrationapi] localhost ip gettering fail. maybe skipped localhost")
 	}
 
 	if common.HasElem(localhosts, deviceScores[0].endpoint) {
@@ -239,7 +248,7 @@ func (orcheEngine orcheImpl) gatherDevicesScore(candidates []dbhelper.ExecutionC
 
 	info, err := sysDBExecutor.Get(sysDB.ID)
 	if err != nil {
-		log.Println("[orchestrationapi] ", "localhost devid gettering fail")
+		log.Println("[orchestrationapi] localhost devid gettering fail")
 		return
 	}
 
@@ -270,7 +279,7 @@ func (orcheEngine orcheImpl) gatherDevicesScore(candidates []dbhelper.ExecutionC
 
 	localhosts, err := orcheEngine.networkhelper.GetIPs()
 	if err != nil {
-		log.Println("[orchestrationapi] ", "localhost ip gettering fail", "maybe skipped localhost")
+		log.Println("[orchestrationapi] localhost ip gettering fail. maybe skipped localhost")
 	}
 
 	for _, candidate := range candidates {
@@ -279,7 +288,7 @@ func (orcheEngine orcheImpl) gatherDevicesScore(candidates []dbhelper.ExecutionC
 			var err error
 
 			if len(cand.Endpoint) == 0 {
-				log.Println("[orchestrationapi] ", "cannot getting score, cause by ip list is empty")
+				log.Println("[orchestrationapi] cannot getting score, cause by ip list is empty")
 				scores <- deviceScore{endpoint: "", score: float64(0.0), id: cand.Id}
 				return
 			}
@@ -294,10 +303,15 @@ func (orcheEngine orcheImpl) gatherDevicesScore(candidates []dbhelper.ExecutionC
 			}
 
 			if err != nil {
-				log.Println("[orchestrationapi] ", "cannot getting score from : ", cand.Endpoint[0], " cause by ", err.Error())
+				log.Println("[orchestrationapi] cannot getting score from :", cand.Endpoint[0], "cause by", err.Error())
 				scores <- deviceScore{endpoint: cand.Endpoint[0], score: float64(0.0), id: cand.Id}
 				return
 			}
+			log.Printf("[orchestrationapi] deviceScore")
+			log.Printf("candidate Id       : %v", cand.Id)
+			log.Printf("candidate ExecType : %v", cand.ExecType)
+			log.Printf("candidate Endpoint : %v", cand.Endpoint[0])
+			log.Printf("candidate score    : %v", score)
 			scores <- deviceScore{endpoint: cand.Endpoint[0], score: score, id: cand.Id, execType: cand.ExecType}
 		}(candidate)
 	}

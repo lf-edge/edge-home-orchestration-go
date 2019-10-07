@@ -184,7 +184,6 @@ func OrchestrationRequestService(cAppName *C.char, cSelfSelection C.int, cReques
 		requestInfos[idx].ExeCmd = append([]string{}, args...)
 	}
 
-	log.Println("appName:", appName, "infos:", requestInfos)
 	externalAPI, err := orchestrationapi.GetExternalAPI()
 	if err != nil {
 		log.Fatalf("[%s] Orchestaration external api : %s", logPrefix, err.Error())
@@ -196,6 +195,11 @@ func OrchestrationRequestService(cAppName *C.char, cSelfSelection C.int, cReques
 	}
 
 	requester := C.GoString(cRequester)
+
+	log.Printf("[OrchestrationRequestService] appName:%s", appName)
+	log.Printf("[OrchestrationRequestService] selfSel:%v", selfSel)
+	log.Printf("[OrchestrationRequestService] requester:%s", requester)
+	log.Printf("[OrchestrationRequestService] infos:%v", requestInfos)
 
 	res := externalAPI.RequestService(orchestrationapi.ReqeustService{
 		ServiceName:      appName,

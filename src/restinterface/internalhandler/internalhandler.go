@@ -130,7 +130,13 @@ func (h *Handler) APIV1ServicemgrServicesPost(w http.ResponseWriter, r *http.Req
 	}
 
 	appInfo["NotificationTargetURL"] = remoteAddr
-	log.Println(appInfo)
+
+	log.Printf("[%s] Requested AppInfo", logPrefix)
+	log.Printf("[%s] Requester    : %v", logPrefix, appInfo["Requester"].(string))
+	log.Printf("[%s] ServiceID    : %v", logPrefix, appInfo["ServiceID"].(float64))
+	log.Printf("[%s] ServiceName  : %v", logPrefix, appInfo["ServiceName"].(string))
+	log.Printf("[%s] NotificationTargetURL : %v", logPrefix, appInfo["NotificationTargetURL"].(string))
+	log.Printf("[%s] ExecutionCmd : %v", logPrefix, appInfo["UserArgs"].([]interface{}))
 
 	serviceName := appInfo["ServiceName"].(string)
 	requester := appInfo["Requester"].(string)
