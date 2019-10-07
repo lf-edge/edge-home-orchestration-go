@@ -37,7 +37,6 @@ import (
 	"orchestrationapi"
 
 	"restinterface/cipher/dummy"
-	"restinterface/cipher/sha256"
 	"restinterface/client/restclient"
 	"restinterface/externalhandler"
 	"restinterface/internalhandler"
@@ -95,7 +94,7 @@ func orchestrationInit() error {
 	wrapper.SetBoltDBPath(dbPath)
 
 	restIns := restclient.GetRestClient()
-	restIns.SetCipher(sha256.GetCipher(cipherKeyFilePath))
+	restIns.SetCipher(dummy.GetCipher(cipherKeyFilePath))
 
 	servicemgr.GetInstance().SetClient(restIns)
 

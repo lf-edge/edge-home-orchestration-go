@@ -81,7 +81,6 @@ import (
 	"orchestrationapi"
 
 	"restinterface/cipher/dummy"
-	"restinterface/cipher/sha256"
 	"restinterface/client/restclient"
 	"restinterface/internalhandler"
 	"restinterface/route"
@@ -130,7 +129,7 @@ func OrchestrationInit() (errCode C.int) {
 	wrapper.SetBoltDBPath(dbPath)
 
 	restIns := restclient.GetRestClient()
-	restIns.SetCipher(sha256.GetCipher(cipherKeyFilePath))
+	restIns.SetCipher(dummy.GetCipher(cipherKeyFilePath))
 
 	servicemgr.GetInstance().SetClient(restIns)
 
@@ -199,7 +198,6 @@ func OrchestrationRequestService(cAppName *C.char, cSelfSelection C.int, cReques
 	}
 
 	requester := C.GoString(cRequester)
-
 
 	res := externalAPI.RequestService(orchestrationapi.ReqeustService{
 		ServiceName:      appName,
