@@ -366,6 +366,12 @@ func deviceDetectionRoutine() {
 
 				_, confInfo, netInfo, serviceInfo := convertToDBInfo(*data)
 
+				log.Printf("[deviceDetectionRoutine] %s", data.DeviceID)
+				log.Printf("[deviceDetectionRoutine] confInfo    : ExecType(%s), Platform(%s)", confInfo.ExecType, confInfo.Platform)
+				log.Printf("[deviceDetectionRoutine] netInfo     : IPv4(%s)", netInfo.IPv4)
+				log.Printf("[deviceDetectionRoutine] serviceInfo : Services(%v)", serviceInfo.Services)
+				log.Printf("")
+
 				if len(netInfo.IPv4) != 0 {
 					setNetworkDB(netInfo)
 				}
@@ -575,6 +581,7 @@ func deleteDevice(deviceID string) {
 // activeDiscovery calls advertise function of Zeroconf
 // Does Not Clear Map
 func activeDiscovery() {
+	log.Printf("[discoverymgr] activeDiscovery!!!")
 	wrapperIns.Advertise()
 }
 

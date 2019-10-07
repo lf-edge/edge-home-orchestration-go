@@ -96,7 +96,6 @@ func (h *Handler) SetOrchestrationAPI(o orchestrationapi.OrcheInternalAPI) {
 
 // APIV1Ping handles ping request from remote orchestration
 func (h *Handler) APIV1Ping(w http.ResponseWriter, r *http.Request) {
-	log.Printf("[%s] APIV1Ping", logPrefix)
 	h.helper.ResponseJSON(w, nil, http.StatusOK)
 }
 
@@ -124,7 +123,13 @@ func (h *Handler) APIV1ServicemgrServicesPost(w http.ResponseWriter, r *http.Req
 	}
 
 	appInfo["NotificationTargetURL"] = remoteAddr
-	log.Println(appInfo)
+
+	log.Printf("[%s] Requested AppInfo", logPrefix)
+	log.Printf("[%s] Requester    : %v", logPrefix, appInfo["Requester"].(string))
+	log.Printf("[%s] ServiceID    : %v", logPrefix, appInfo["ServiceID"].(float64))
+	log.Printf("[%s] ServiceName  : %v", logPrefix, appInfo["ServiceName"].(string))
+	log.Printf("[%s] NotificationTargetURL : %v", logPrefix, appInfo["NotificationTargetURL"].(string))
+	log.Printf("[%s] ExecutionCmd : %v", logPrefix, appInfo["UserArgs"].([]interface{}))
 
 	serviceName := appInfo["ServiceName"].(string)
 	requester := appInfo["Requester"].(string)

@@ -133,6 +133,9 @@ func getServiceInfo(path string) types.ServiceInfo {
 	}
 
 	cfg, err := ini.Load(confPath)
+	if err != nil {
+		log.Printf("Fail to read %v file, err = %v", confPath, err)
+	}
 
 	serviceName := cfg.Section("ServiceInfo").Key("ServiceName").String()
 	executableName := cfg.Section("ServiceInfo").Key("ExecutableFileName").String()
