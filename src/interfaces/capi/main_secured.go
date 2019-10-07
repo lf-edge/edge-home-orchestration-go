@@ -198,6 +198,8 @@ func OrchestrationRequestService(cAppName *C.char, cSelfSelection C.int, cReques
 		selfSel = false
 	}
 
+	requester := C.GoString(cRequester)
+
 
 	res := externalAPI.RequestService(orchestrationapi.ReqeustService{
 		ServiceName:      appName,
