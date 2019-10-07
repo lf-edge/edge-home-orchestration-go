@@ -22,11 +22,13 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"orchestrationapi"
 	"restinterface"
 	"restinterface/cipher"
+	"restinterface/externalhandler/senderresolver"
 	"restinterface/resthelper"
 )
 
@@ -115,13 +117,28 @@ func (h *Handler) APIV1RequestServicePost(w http.ResponseWriter, r *http.Request
 	}
 
 	// TODO change
-	serviceRequester, ok := appCommand["ServiceRequester"].(string)
-	if !ok {
-		responseMsg = orchestrationapi.INVALID_PARAMETER
-		responseName = ""
-		goto SEND_RESP
+	isParseRequesterFromPort := true
+	port, err := strconv.Atoi(strings.Split(r.RemoteAddr, ":")[1])
+	if err != nil {
+		isParseRequesterFromPort = false
+	} else {
+		requester, err := senderresolver.GetNameByPort(int64(port))
+		if err != nil {
+			isParseRequesterFromPort = false
+		} else {
+			serviceInfos.ServiceRequester = requester
+		}
 	}
-	serviceInfos.ServiceRequester = serviceRequester
+
+	if isParseRequesterFromPort != true {
+		serviceRequester, ok := appCommand["ServiceRequester"].(string)
+		if !ok {
+			responseMsg = orchestrationapi.INVALID_PARAMETER
+			responseName = ""
+			goto SEND_RESP
+		}
+		serviceInfos.ServiceRequester = serviceRequester
+	}
 
 	name, ok = appCommand["ServiceName"].(string)
 	if !ok {

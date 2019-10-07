@@ -337,6 +337,7 @@ function run_docker_container() {
                 -v /var/run/docker.sock:/var/run/docker.sock:rw \
                 -v /var/log/edge-orchestration/:/var/log/edge-orchestration/:rw \
                 -v /etc/edge-orchestration/:/etc/edge-orchestration/:rw \
+                -v /proc/:/process/:ro \
                 $DOCKER_IMAGE:$CONTAINER_VERSION
     docker container ls
 }

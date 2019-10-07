@@ -92,8 +92,9 @@ func TestAPIV1ServicemgrServicesPost(t *testing.T) {
 	req["ServiceName"] = "test_service"
 	req["ServiceID"] = 1.0
 	req["Requester"] = "test_requester"
-	args := make([]interface{}, 1)
+	args := make([]interface{}, 2)
 	args[0] = "test_execute"
+	args[1] = "test_executetype"
 	req["UserArgs"] = args
 
 	serviceInfo := configuremgrtypes.ServiceInfo{
