@@ -25,6 +25,8 @@ import (
 	"strconv"
 	"strings"
 
+	"common/networkhelper"
+	"db/bolt/common"
 	"orchestrationapi"
 	"restinterface"
 	"restinterface/cipher"
@@ -43,6 +45,8 @@ type Handler struct {
 
 	restinterface.HasRoutes
 	cipher.HasCipher
+
+	netHelper networkhelper.Network
 }
 
 var handler *Handler
@@ -59,6 +63,7 @@ func init() {
 			HandlerFunc: handler.APIV1RequestServicePost,
 		},
 	}
+	handler.netHelper = networkhelper.GetInstance()
 }
 
 // GetHandler returns the singleton Handler instance
@@ -82,6 +87,29 @@ func (h *Handler) APIV1RequestServicePost(w http.ResponseWriter, r *http.Request
 	} else if h.IsSetKey == false {
 		log.Printf("[%s] does not set key", logPrefix)
 		h.helper.Response(w, http.StatusServiceUnavailable)
+		return
+	}
+
+	println("remote addr : ", r.RemoteAddr)
+	reqAddr := strings.Split(r.RemoteAddr, ":")
+	var addr string
+	var portStr string
+	if strings.Contains(r.RemoteAddr, "::1") {
+		addr = "localhost"
+		portStr = reqAddr[len(reqAddr)-1]
+	} else {
+		addr = reqAddr[0]
+		portStr = reqAddr[1]
+	}
+
+	ips, err := h.netHelper.GetIPs()
+	println(ips[0])
+	if err != nil {
+		log.Printf("[%s] can not find ip", logPrefix)
+		h.helper.Response(w, http.StatusServiceUnavailable)
+		return
+	} else if addr != "localhost" && common.HasElem(ips, addr) == false {
+		h.helper.Response(w, http.StatusNotAcceptable)
 		return
 	}
 
@@ -116,9 +144,8 @@ func (h *Handler) APIV1RequestServicePost(w http.ResponseWriter, r *http.Request
 		serviceInfos.SelfSelection = false
 	}
 
-	// TODO change
 	isParseRequesterFromPort := true
-	port, err := strconv.Atoi(strings.Split(r.RemoteAddr, ":")[1])
+	port, err := strconv.Atoi(portStr)
 	if err != nil {
 		isParseRequesterFromPort = false
 	} else {
