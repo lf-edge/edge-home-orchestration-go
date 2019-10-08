@@ -21,6 +21,28 @@ import (
 	"testing"
 )
 
+func TestCheckRequester(t *testing.T) {
+	serviceName := "test"
+	requesters := []string{"test1", "test2"}
+
+	RequesterValidator{}.StoreRequesterInfo(serviceName, requesters)
+
+	t.Run("Error", func(t *testing.T) {
+		t.Run("NotStoredService", func(t *testing.T) {
+			err := RequesterValidator{}.CheckRequester("notStored", "")
+			if err == nil {
+				t.Error("unexpected succeed")
+			}
+		})
+		t.Run("NotAllowedRequester", func(t *testing.T) {
+			err := RequesterValidator{}.CheckRequester("test", "notAllowed")
+			if err == nil {
+				t.Error("unexpected succeed")
+			}
+		})
+	})
+}
+
 func TestStoreRequesterInfo(t *testing.T) {
 	serviceName := "test"
 	requesters := []string{"test1", "test2"}

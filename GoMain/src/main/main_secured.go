@@ -1,4 +1,4 @@
-// +build !secure
+// +build secure
 
 /*******************************************************************************
  * Copyright 2019 Samsung Electronics All Rights Reserved.
@@ -37,7 +37,6 @@ import (
 	"orchestrationapi"
 
 	"restinterface/cipher/dummy"
-	"restinterface/cipher/sha256"
 	"restinterface/client/restclient"
 	"restinterface/externalhandler"
 	"restinterface/internalhandler"
@@ -95,7 +94,7 @@ func orchestrationInit() error {
 	wrapper.SetBoltDBPath(dbPath)
 
 	restIns := restclient.GetRestClient()
-	restIns.SetCipher(sha256.GetCipher(cipherKeyFilePath))
+	restIns.SetCipher(dummy.GetCipher(cipherKeyFilePath))
 
 	servicemgr.GetInstance().SetClient(restIns)
 
@@ -115,8 +114,7 @@ func orchestrationInit() error {
 
 	orcheEngine.Start(deviceIDFilePath, platform, executionType)
 
-	var restEdgeRouter *route.RestRouter
-	restEdgeRouter = route.NewRestRouter()
+	restEdgeRouter := route.NewRestRouterWithCerti(certificateFilePath)
 
 	internalapi, err := orchestrationapi.GetInternalAPI()
 	if err != nil {
@@ -124,7 +122,8 @@ func orchestrationInit() error {
 	}
 	ihandle := internalhandler.GetHandler()
 	ihandle.SetOrchestrationAPI(internalapi)
-	ihandle.SetCipher(sha256.GetCipher(cipherKeyFilePath))
+	ihandle.SetCipher(dummy.GetCipher(cipherKeyFilePath))
+	ihandle.SetCertificateFilePath(certificateFilePath)
 	restEdgeRouter.Add(ihandle)
 
 	// external rest api

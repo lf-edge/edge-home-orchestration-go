@@ -15,42 +15,39 @@
  *
  *******************************************************************************/
 
-package requesterstore
+package tlspskserver
 
 import (
-	"testing"
+	"log"
+	"net/http"
+
+	rafftls "github.com/raff/tls-ext"
+	"github.com/raff/tls-psk"
+
+	"restinterface/tls"
 )
 
-func TestGetRequester(t *testing.T) {
-	t.Run("Error", func(t *testing.T) {
-		t.Run("NotRegistered", func(t *testing.T) {
-			_, err := GetInstance().GetRequester("notRegistered")
-			if err == nil {
-				t.Error("unexpected succeed")
-			}
-		})
-	})
+type TLSPSKServerListener interface {
+	ListenAndServe(addr string, handler http.Handler)
 }
 
-func TestStoreRequesterInfo(t *testing.T) {
-	serviceName := "test"
-	requesters := []string{"test1", "test2"}
+type TLSPSKServer struct{}
 
-	t.Run("Success", func(t *testing.T) {
-		t.Run("StoreOnce", func(t *testing.T) {
-			GetInstance().StoreRequesterInfo(serviceName, requesters)
+func (TLSPSKServer) ListenAndServe(addr string, handler http.Handler) {
+	var config = &rafftls.Config{
+		CipherSuites: []uint16{psk.TLS_PSK_WITH_AES_128_CBC_SHA},
+		Certificates: []rafftls.Certificate{rafftls.Certificate{}},
+		Extra: psk.PSKConfig{
+			GetKey:      tls.GetKey,
+			GetIdentity: tls.GetIdentity,
+		},
+	}
 
-			expected, err := GetInstance().GetRequester(serviceName)
-			if err != nil {
-				t.Error("unexpected error")
-			}
+	listener, err := rafftls.Listen("tcp", addr, config)
+	if err != nil {
+		log.Println(err.Error())
+	}
+	defer listener.Close()
 
-			for idx, req := range expected {
-				if req != requesters[idx] {
-					t.Error("unexpected result")
-				}
-			}
-
-		})
-	})
+	(&http.Server{Handler: handler}).Serve(listener)
 }

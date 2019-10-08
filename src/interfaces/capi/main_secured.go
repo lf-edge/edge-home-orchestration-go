@@ -1,4 +1,4 @@
-// +build !secure
+// +build secure
 
 /*******************************************************************************
  * Copyright 2019 Samsung Electronics All Rights Reserved.
@@ -80,7 +80,7 @@ import (
 
 	"orchestrationapi"
 
-	"restinterface/cipher/sha256"
+	"restinterface/cipher/dummy"
 	"restinterface/client/restclient"
 	"restinterface/internalhandler"
 	"restinterface/route"
@@ -101,8 +101,9 @@ const (
 
 	configPath = edgeDir + "apps"
 
-	cipherKeyFilePath = edgeDir + "orchestration_userID.txt"
-	deviceIDFilePath  = edgeDir + "orchestration_deviceID.txt"
+	cipherKeyFilePath   = edgeDir + "orchestration_userID.txt"
+	deviceIDFilePath    = edgeDir + "orchestration_deviceID.txt"
+	certificateFilePath = "/var/data/cert"
 )
 
 var (
@@ -128,7 +129,7 @@ func OrchestrationInit() (errCode C.int) {
 	wrapper.SetBoltDBPath(dbPath)
 
 	restIns := restclient.GetRestClient()
-	restIns.SetCipher(sha256.GetCipher(cipherKeyFilePath))
+	restIns.SetCipher(dummy.GetCipher(cipherKeyFilePath))
 
 	servicemgr.GetInstance().SetClient(restIns)
 
@@ -147,7 +148,7 @@ func OrchestrationInit() (errCode C.int) {
 
 	orcheEngine.Start(deviceIDFilePath, platform, executionType)
 
-	restEdgeRouter := route.NewRestRouter()
+	restEdgeRouter := route.NewRestRouterWithCerti(certificateFilePath)
 
 	internalapi, err := orchestrationapi.GetInternalAPI()
 	if err != nil {
@@ -155,7 +156,8 @@ func OrchestrationInit() (errCode C.int) {
 	}
 	ihandle := internalhandler.GetHandler()
 	ihandle.SetOrchestrationAPI(internalapi)
-	ihandle.SetCipher(sha256.GetCipher(cipherKeyFilePath))
+	ihandle.SetCipher(dummy.GetCipher(cipherKeyFilePath))
+	ihandle.SetCertificateFilePath(certificateFilePath)
 	restEdgeRouter.Add(ihandle)
 	restEdgeRouter.Start()
 
@@ -184,6 +186,7 @@ func OrchestrationRequestService(cAppName *C.char, cSelfSelection C.int, cReques
 		requestInfos[idx].ExeCmd = append([]string{}, args...)
 	}
 
+	log.Println("appName:", appName, "infos:", requestInfos)
 	externalAPI, err := orchestrationapi.GetExternalAPI()
 	if err != nil {
 		log.Fatalf("[%s] Orchestaration external api : %s", logPrefix, err.Error())
@@ -195,11 +198,6 @@ func OrchestrationRequestService(cAppName *C.char, cSelfSelection C.int, cReques
 	}
 
 	requester := C.GoString(cRequester)
-
-	log.Printf("[OrchestrationRequestService] appName:%s", appName)
-	log.Printf("[OrchestrationRequestService] selfSel:%v", selfSel)
-	log.Printf("[OrchestrationRequestService] requester:%s", requester)
-	log.Printf("[OrchestrationRequestService] infos:%v", requestInfos)
 
 	res := externalAPI.RequestService(orchestrationapi.ReqeustService{
 		ServiceName:      appName,

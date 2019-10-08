@@ -94,9 +94,15 @@ func (h *Handler) SetOrchestrationAPI(o orchestrationapi.OrcheInternalAPI) {
 	h.isSetAPI = true
 }
 
+func (h *Handler) SetCertificateFilePath(path string) {
+	rh := resthelper.GetHelperWithCertificate()
+	rh.SetCertificateFilePath(path)
+	h.helper = resthelper.GetHelper()
+}
+
 // APIV1Ping handles ping request from remote orchestration
 func (h *Handler) APIV1Ping(w http.ResponseWriter, r *http.Request) {
-	h.helper.ResponseJSON(w, nil, http.StatusOK)
+	h.helper.Response(w, http.StatusOK)
 }
 
 // APIV1ServicemgrServicesPost handles service execution request from remote orchestration
@@ -131,25 +137,29 @@ func (h *Handler) APIV1ServicemgrServicesPost(w http.ResponseWriter, r *http.Req
 	log.Printf("[%s] NotificationTargetURL : %v", logPrefix, appInfo["NotificationTargetURL"].(string))
 	log.Printf("[%s] ExecutionCmd : %v", logPrefix, appInfo["UserArgs"].([]interface{}))
 
-	serviceName := appInfo["ServiceName"].(string)
-	requester := appInfo["Requester"].(string)
-	vRequester := requestervalidator.RequesterValidator{}
-	if err := vRequester.CheckRequester(serviceName, requester); err != nil {
-		log.Printf("[%s] ", err.Error())
-		h.helper.Response(w, http.StatusBadRequest)
-		return
-	}
-
 	args := make([]string, 0)
 	for _, arg := range appInfo["UserArgs"].([]interface{}) {
 		args = append(args, arg.(string))
 	}
+	executionType := args[len(args)-1]
+	args = args[:len(args)-1]
 
-	validator := commandvalidator.CommandValidator{}
-	if err := validator.CheckCommand(serviceName, args); err != nil {
-		log.Printf("[%s] ", err.Error())
-		h.helper.Response(w, http.StatusBadRequest)
-		return
+	if executionType != "container" {
+		serviceName := appInfo["ServiceName"].(string)
+		requester := appInfo["Requester"].(string)
+		vRequester := requestervalidator.RequesterValidator{}
+		if err := vRequester.CheckRequester(serviceName, requester); err != nil {
+			log.Printf("[%s] ", err.Error())
+			h.helper.Response(w, http.StatusBadRequest)
+			return
+		}
+
+		validator := commandvalidator.CommandValidator{}
+		if err := validator.CheckCommand(serviceName, args); err != nil {
+			log.Printf("[%s] ", err.Error())
+			h.helper.Response(w, http.StatusBadRequest)
+			return
+		}
 	}
 
 	h.api.ExecuteAppOnLocal(appInfo)

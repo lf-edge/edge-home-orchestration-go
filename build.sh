@@ -1,6 +1,7 @@
 #! /bin/bash
 
 export BASE_DIR=$( cd "$(dirname "$0")" ; pwd )
+export BUILD_TAGS=""
 
 DOCKER_IMAGE="edge-orchestration"
 BINARY_FILE="edge-orchestration"
@@ -54,6 +55,16 @@ PKG_LIST=(
 
 export CONTAINER_VERSION="alpha"
 export BUILD_DATE=$(date +%Y%m%d.%H%M)
+
+CERT_KEY_FILE=$BASE_DIR/doc/sampleTLSKey/edge-orchestration.key
+
+function set_secure_option() {
+    echo ""
+    echo "-----------------------------------"
+    echo " Set tags for secure build"
+    echo "-----------------------------------"
+    export BUILD_TAGS="secure"
+}
 
 function install_3rdparty_packages() {
     echo ""
@@ -309,6 +320,9 @@ function run_docker_container() {
     echo "--------------------------------------------"
     sudo mkdir -p /var/log/$BINARY_FILE
     sudo mkdir -p /var/data/db
+    sudo mkdir -p /var/data/cert
+
+    sudo cp $CERT_KEY_FILE /var/data/cert/
 
     echo ""
     echo "**********************************"
@@ -319,10 +333,11 @@ function run_docker_container() {
                 --network="host" \
                 --name $DOCKER_IMAGE \
                 -v /var/data/db/:/var/data/db/:rw \
-                -v /var/run/:/var/run/:rw \
-                -v /var/log/:/var/log/:rw \
-                -v /etc/:/etc/:rw \
-                -v /usr/bin/docker:/usr/bin/docker \
+                -v /var/data/cert/:/var/data/cert/:rw \
+                -v /var/run/docker.sock:/var/run/docker.sock:rw \
+                -v /var/log/edge-orchestration/:/var/log/edge-orchestration/:rw \
+                -v /etc/edge-orchestration/:/etc/edge-orchestration/:rw \
+                -v /proc/:/process/:ro \
                 $DOCKER_IMAGE:$CONTAINER_VERSION
     docker container ls
 }
@@ -339,6 +354,9 @@ function stop_docker_container() {
 
 case "$1" in
     "container")
+        if [ "$2" == "secure" ]; then
+            set_secure_option
+        fi
         install_prerequisite
         install_3rdparty_packages
         build_binary
@@ -346,6 +364,9 @@ case "$1" in
         run_docker_container
         ;;
     "object")
+        if [ "$2" == "secure" ]; then
+            set_secure_option
+        fi
         install_prerequisite
         install_3rdparty_packages
         build_clean
@@ -380,16 +401,27 @@ case "$1" in
         build_docker_container
         run_docker_container
         ;;
+    "secure")
+        set_secure_option
+        install_prerequisite
+        install_3rdparty_packages
+        build_binary
+        build_docker_container
+        run_docker_container
+        ;;
     *)
         echo "build script"
         echo "Usage:"
-        echo "---------------------------------------------------------------------------"
+        echo "----------------------------------------------------------------------------------------------"
         echo "  $0                  : build edge-orchestration by default container"
+        echo "  $0 secure           : build edge-orchestration by default container with secure option"
         echo "  $0 container        : build Docker container as build system environmet"
+        echo "  $0 container secure : build Docker container as build system environmet with secure option"
         echo "  $0 object           : build object (c-object, java-object)"
+        echo "  $0 object secure    : build object (c-object, java-object) with secure option"
         echo "  $0 clean            : build clean"
         echo "  $0 test [PKG_NAME]  : run unittests (optional for PKG_NAME)"
-        echo "---------------------------------------------------------------------------"
+        echo "----------------------------------------------------------------------------------------------"
         exit 0
         ;;
 esac

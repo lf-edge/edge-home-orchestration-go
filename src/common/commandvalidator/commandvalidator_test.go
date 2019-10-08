@@ -25,6 +25,65 @@ import (
 	"common/types/configuremgrtypes"
 )
 
+func TestCheckCommand(t *testing.T) {
+	t.Run("Error", func(t *testing.T) {
+		t.Run("HasInjectionOperator", func(t *testing.T) {
+			serviceName := "test"
+			command := []string{"ls", ";", "ps"}
+			err := CommandValidator{}.CheckCommand(serviceName, command)
+			if err == nil {
+				t.Error("unexpected succeed")
+			}
+		})
+		t.Run("NotSotredService", func(t *testing.T) {
+			serviceName := "test"
+			command := []string{"ls"}
+			err := CommandValidator{}.CheckCommand(serviceName, command)
+			if err == nil {
+				t.Error("unexpected succeed")
+			}
+		})
+		t.Run("NotMatchedService", func(t *testing.T) {
+			serviceName := "test"
+			command := []string{"ls"}
+			validator := CommandValidator{}
+			info := configuremgrtypes.ServiceInfo{ServiceName: serviceName, ExecutableFileName: "dir"}
+			err := validator.AddWhiteCommand(info)
+			if err != nil {
+				t.Error("unexpected error: ", err.Error())
+			}
+
+			err = validator.CheckCommand(serviceName, command)
+			if err == nil {
+				t.Error("unexpected succeed")
+			}
+		})
+		t.Run("InvalidCommand", func(t *testing.T) {
+			serviceName := "test"
+			command := []string{""}
+			err := CommandValidator{}.CheckCommand(serviceName, command)
+			if err == nil {
+				t.Error("unexpected succeed")
+			}
+		})
+	})
+	t.Run("Success", func(t *testing.T) {
+		serviceName := "test"
+		command := []string{"ls"}
+		validator := CommandValidator{}
+		info := configuremgrtypes.ServiceInfo{ServiceName: serviceName, ExecutableFileName: command[0]}
+		err := validator.AddWhiteCommand(info)
+		if err != nil {
+			t.Error("unexpected error: ", err.Error())
+		}
+
+		err = validator.CheckCommand(serviceName, command)
+		if err != nil {
+			t.Error("unexpected succeed")
+		}
+	})
+}
+
 func TestStoreServiceInfo(t *testing.T) {
 	serviceName := "test"
 	executableName := "testExecutable"
@@ -115,6 +174,47 @@ func TestGetServiceFileName(t *testing.T) {
 		if err == nil {
 			t.Error("unexpected succeed")
 		}
+	})
+}
+
+func TestAddWhiteCommand(t *testing.T) {
+	t.Run("Error", func(t *testing.T) {
+		serviceName := "test"
+		executableName := ""
+		info := configuremgrtypes.ServiceInfo{ServiceName: serviceName, ExecutableFileName: executableName}
+		err := CommandValidator{}.AddWhiteCommand(info)
+		if err == nil {
+			t.Error("unexpected success")
+		}
+	})
+}
+
+func TestGetExecutableName(t *testing.T) {
+	t.Run("Error", func(t *testing.T) {
+		command, err := getExecutableName("")
+		if err == nil {
+			t.Error("unexpected success")
+		} else if command != "" {
+			t.Error("unexpected command")
+		}
+	})
+	t.Run("Success", func(t *testing.T) {
+		t.Run("CommandInPath", func(t *testing.T) {
+			command, err := getExecutableName("ls")
+			if err != nil {
+				t.Error("unexpected error: ", err.Error())
+			} else if command != "ls" {
+				t.Error("unexpected command")
+			}
+		})
+		t.Run("DirectPath", func(t *testing.T) {
+			command, err := getExecutableName("/usr/bin/ls")
+			if err != nil {
+				t.Error("unexpected error: ", err.Error())
+			} else if command != "ls" {
+				t.Error("unexpected command")
+			}
+		})
 	})
 }
 

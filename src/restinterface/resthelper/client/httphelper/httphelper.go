@@ -15,42 +15,30 @@
  *
  *******************************************************************************/
 
-package requesterstore
+package httphelper
 
 import (
-	"testing"
+	"net"
+	"net/http"
+	"time"
 )
 
-func TestGetRequester(t *testing.T) {
-	t.Run("Error", func(t *testing.T) {
-		t.Run("NotRegistered", func(t *testing.T) {
-			_, err := GetInstance().GetRequester("notRegistered")
-			if err == nil {
-				t.Error("unexpected succeed")
-			}
-		})
-	})
+var client *http.Client
+
+type HttpHelper struct{}
+
+func init() {
+	client = &http.Client{
+		Timeout: time.Second * 10,
+		Transport: &http.Transport{
+			Dial: (&net.Dialer{
+				Timeout: 5 * time.Second,
+			}).Dial,
+			TLSHandshakeTimeout: 5 * time.Second,
+		},
+	}
 }
 
-func TestStoreRequesterInfo(t *testing.T) {
-	serviceName := "test"
-	requesters := []string{"test1", "test2"}
-
-	t.Run("Success", func(t *testing.T) {
-		t.Run("StoreOnce", func(t *testing.T) {
-			GetInstance().StoreRequesterInfo(serviceName, requesters)
-
-			expected, err := GetInstance().GetRequester(serviceName)
-			if err != nil {
-				t.Error("unexpected error")
-			}
-
-			for idx, req := range expected {
-				if req != requesters[idx] {
-					t.Error("unexpected result")
-				}
-			}
-
-		})
-	})
+func (HttpHelper) Do(req *http.Request) (*http.Response, error) {
+	return client.Do(req)
 }

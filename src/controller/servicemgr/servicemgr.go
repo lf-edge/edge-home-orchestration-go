@@ -92,6 +92,7 @@ func (sm SMMgrImpl) ExecuteAppOnLocal(appInfo map[string]interface{}) {
 	var serviceExecutionInfo executor.ServiceExecutionInfo
 
 	serviceID, serviceName, args, notitargetURL := parseAppInfo(appInfo)
+	args = args[:len(args)-1]
 
 	serviceExecutionInfo = executor.ServiceExecutionInfo{
 		ServiceID:             serviceID,

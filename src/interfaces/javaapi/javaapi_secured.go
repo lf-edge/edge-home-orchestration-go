@@ -1,4 +1,4 @@
-// +build !secure
+// +build secure
 
 /*******************************************************************************
  * Copyright 2019 Samsung Electronics All Rights Reserved.
@@ -36,7 +36,7 @@ import (
 
 	"orchestrationapi"
 
-	"restinterface/cipher/sha256"
+	"restinterface/cipher/dummy"
 	"restinterface/client/restclient"
 	"restinterface/internalhandler"
 	"restinterface/route"
@@ -122,8 +122,10 @@ const (
 	configPath = edgeDir + "apps"
 	dbPath     = edgeDir + "db"
 
-	cipherKeyFilePath = edgeDir + "orchestration_userID.txt"
-	deviceIDFilePath  = edgeDir + "orchestration_deviceID.txt"
+	deviceIDFilePath = edgeDir + "orchestration_deviceID.txt"
+
+	cipherKeyFilePath   = edgeDir + "orchestration_userID.txt"
+	certificateFilePath = edgeDir + "cert"
 )
 
 var orcheEngine orchestrationapi.Orche
@@ -142,7 +144,7 @@ func OrchestrationInit(executeCallback ExecuteCallback) (errCode int) {
 	wrapper.SetBoltDBPath(dbPath)
 
 	restIns := restclient.GetRestClient()
-	restIns.SetCipher(sha256.GetCipher(cipherKeyFilePath))
+	restIns.SetCipher(dummy.GetCipher(cipherKeyFilePath))
 
 	servicemgr.GetInstance().SetClient(restIns)
 
@@ -165,7 +167,7 @@ func OrchestrationInit(executeCallback ExecuteCallback) (errCode int) {
 
 	orcheEngine.Start(deviceIDFilePath, platform, executionType)
 
-	restEdgeRouter := route.NewRestRouter()
+	restEdgeRouter := route.NewRestRouterWithCerti(certificateFilePath)
 
 	internalapi, err := orchestrationapi.GetInternalAPI()
 	if err != nil {
@@ -173,7 +175,8 @@ func OrchestrationInit(executeCallback ExecuteCallback) (errCode int) {
 	}
 	ihandle := internalhandler.GetHandler()
 	ihandle.SetOrchestrationAPI(internalapi)
-	ihandle.SetCipher(sha256.GetCipher(cipherKeyFilePath))
+	ihandle.SetCipher(dummy.GetCipher(cipherKeyFilePath))
+	ihandle.SetCertificateFilePath(certificateFilePath)
 	restEdgeRouter.Add(ihandle)
 
 	restEdgeRouter.Start()

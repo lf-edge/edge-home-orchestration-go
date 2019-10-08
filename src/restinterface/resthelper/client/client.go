@@ -15,42 +15,12 @@
  *
  *******************************************************************************/
 
-package requesterstore
+package client
 
 import (
-	"testing"
+	"net/http"
 )
 
-func TestGetRequester(t *testing.T) {
-	t.Run("Error", func(t *testing.T) {
-		t.Run("NotRegistered", func(t *testing.T) {
-			_, err := GetInstance().GetRequester("notRegistered")
-			if err == nil {
-				t.Error("unexpected succeed")
-			}
-		})
-	})
-}
-
-func TestStoreRequesterInfo(t *testing.T) {
-	serviceName := "test"
-	requesters := []string{"test1", "test2"}
-
-	t.Run("Success", func(t *testing.T) {
-		t.Run("StoreOnce", func(t *testing.T) {
-			GetInstance().StoreRequesterInfo(serviceName, requesters)
-
-			expected, err := GetInstance().GetRequester(serviceName)
-			if err != nil {
-				t.Error("unexpected error")
-			}
-
-			for idx, req := range expected {
-				if req != requesters[idx] {
-					t.Error("unexpected result")
-				}
-			}
-
-		})
-	})
+type Requester interface {
+	Do(req *http.Request) (*http.Response, error)
 }

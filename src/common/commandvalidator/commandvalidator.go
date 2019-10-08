@@ -86,10 +86,10 @@ func (CommandValidator) CheckCommand(serviceName string, command []string) error
 func getExecutableName(str string) (string, error) {
 	var command string
 	commandList := strings.Split(str, "/")
-	switch len(commandList) {
-	case 0:
+	switch {
+	case str == "":
 		return "", errors.New(NOT_FOUND_EXECUTABLE_FILE)
-	case 1:
+	case len(commandList) == 1:
 		command = commandList[0]
 	default:
 		command = commandList[len(commandList)-1]
