@@ -90,7 +90,6 @@ func (h *Handler) APIV1RequestServicePost(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	println("remote addr : ", r.RemoteAddr)
 	reqAddr := strings.Split(r.RemoteAddr, ":")
 	var addr string
 	var portStr string
@@ -103,12 +102,10 @@ func (h *Handler) APIV1RequestServicePost(w http.ResponseWriter, r *http.Request
 	}
 
 	ips, err := h.netHelper.GetIPs()
-	println(ips[0])
 	if err != nil {
-		log.Printf("[%s] can not find ip", logPrefix)
 		h.helper.Response(w, http.StatusServiceUnavailable)
 		return
-	} else if addr != "localhost" && common.HasElem(ips, addr) == false {
+	} else if addr != "localhost" && addr != "127.0.0.1" && common.HasElem(ips, addr) == false {
 		h.helper.Response(w, http.StatusNotAcceptable)
 		return
 	}
@@ -146,10 +143,12 @@ func (h *Handler) APIV1RequestServicePost(w http.ResponseWriter, r *http.Request
 
 	isParseRequesterFromPort := true
 	port, err := strconv.Atoi(portStr)
+	log.Println("port: ", port)
 	if err != nil {
 		isParseRequesterFromPort = false
 	} else {
 		requester, err := senderresolver.GetNameByPort(int64(port))
+		log.Println("requester: ", requester)
 		if err != nil {
 			isParseRequesterFromPort = false
 		} else {
