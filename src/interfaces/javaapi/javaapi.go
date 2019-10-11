@@ -118,12 +118,13 @@ const (
 
 	edgeDir = "/data/user/0/com.samsung.orchestration.service/files/"
 
-	logPath    = edgeDir + "log/edge-orchestration"
-	configPath = edgeDir + "apps"
-	dbPath     = edgeDir + "db"
+	logPath             = edgeDir + "/log"
+	configPath          = edgeDir + "/apps"
+	dbPath              = edgeDir + "/data/db"
+	certificateFilePath = edgeDir + "/data/cert"
 
-	cipherKeyFilePath = edgeDir + "orchestration_userID.txt"
-	deviceIDFilePath  = edgeDir + "orchestration_deviceID.txt"
+	cipherKeyFilePath = edgeDir + "/user/orchestration_userID.txt"
+	deviceIDFilePath  = edgeDir + "/device/orchestration_deviceID.txt"
 )
 
 var orcheEngine orchestrationapi.Orche
