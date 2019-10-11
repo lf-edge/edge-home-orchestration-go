@@ -100,6 +100,9 @@ function install_prerequisite() {
     echo "-----------------------------------"
     echo " Install prerequisite packages"
     echo "-----------------------------------"
+    mkdir $BASE_DIR/go
+    export GOPATH=$BASE_DIR/go
+
     pkg_list=(
         "github.com/axw/gocov/gocov"
         "github.com/matm/gocov-html"
