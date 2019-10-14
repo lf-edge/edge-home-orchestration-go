@@ -188,6 +188,7 @@ func (orcheEngine *orcheImpl) RequestService(serviceInfo ReqeustService) Respons
 		for _, info := range serviceInfo.ServiceInfo {
 			if info.ExecutionType == "native" || info.ExecutionType == "android" {
 				if err := validator.CheckCommand(serviceInfo.ServiceName, info.ExeCmd); err != nil {
+					log.Println(err.Error())
 					return ResponseService{
 						Message:          err.Error(),
 						ServiceName:      serviceInfo.ServiceName,
@@ -198,7 +199,9 @@ func (orcheEngine *orcheImpl) RequestService(serviceInfo ReqeustService) Respons
 		}
 
 		vRequester := requestervalidator.RequesterValidator{}
-		if err := vRequester.CheckRequester(serviceInfo.ServiceName, serviceInfo.ServiceRequester); err != nil {
+		if err := vRequester.CheckRequester(serviceInfo.ServiceName, serviceInfo.ServiceRequester); err != nil &&
+			(deviceScores[0].execType == "native" || deviceScores[0].execType == "android") {
+			log.Println(err.Error())
 			return ResponseService{
 				Message:          err.Error(),
 				ServiceName:      serviceInfo.ServiceName,
