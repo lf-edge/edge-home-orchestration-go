@@ -116,7 +116,7 @@ const (
 	platform      = "android"
 	executionType = "android"
 
-	edgeDir = "/data/user/0/com.samsung.orchestration.service/files/"
+	edgeDir = "/data/user/0/com.samsung.orchestration.service/files"
 
 	logPath             = edgeDir + "/log"
 	configPath          = edgeDir + "/apps"
