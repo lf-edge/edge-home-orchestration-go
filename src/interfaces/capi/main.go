@@ -95,14 +95,15 @@ const (
 	platform      = "linux"
 	executionType = "native"
 
-	logPath = "/var/log/edge-orchestration"
-	dbPath  = "/var/data/db"
-	edgeDir = "/etc/edge-orchestration/"
+	edgeDir = "/var/edge-orchestration"
 
-	configPath = edgeDir + "apps"
+	logPath             = edgeDir + "/log"
+	configPath          = edgeDir + "/apps"
+	dbPath              = edgeDir + "/data/db"
+	certificateFilePath = edgeDir + "/data/cert"
 
-	cipherKeyFilePath = edgeDir + "orchestration_userID.txt"
-	deviceIDFilePath  = edgeDir + "orchestration_deviceID.txt"
+	cipherKeyFilePath = edgeDir + "/user/orchestration_userID.txt"
+	deviceIDFilePath  = edgeDir + "/device/orchestration_deviceID.txt"
 )
 
 var (

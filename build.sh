@@ -318,12 +318,15 @@ function run_docker_container() {
     echo "--------------------------------------------"
     echo "  Create prerequisite Folder [SuperUser]"
     echo "--------------------------------------------"
-    sudo mkdir -p /var/log/$BINARY_FILE
-    sudo mkdir -p /var/data/db
-    sudo mkdir -p /var/data/cert
+    sudo mkdir -p /var/edge-orchestration/log
+    sudo mkdir -p /var/edge-orchestration/apps
+    sudo mkdir -p /var/edge-orchestration/data/db
+    sudo mkdir -p /var/edge-orchestration/data/cert
+    sudo mkdir -p /var/edge-orchestration/user
+    sudo mkdir -p /var/edge-orchestration/device
 
-    sudo cp $CERT_KEY_FILE /var/data/cert/
-    sudo chmod 640 /var/data/cert/edge-orchestration.key
+    sudo cp $CERT_KEY_FILE /var/edge-orchestration/data/cert/
+    sudo chmod 640 /var/edge-orchestration/data/cert/edge-orchestration.key
 
     echo ""
     echo "**********************************"
@@ -333,11 +336,8 @@ function run_docker_container() {
                 --privileged \
                 --network="host" \
                 --name $DOCKER_IMAGE \
-                -v /var/data/db/:/var/data/db/:rw \
-                -v /var/data/cert/:/var/data/cert/:rw \
+                -v /var/edge-orchestration/:/var/edge-orchestration/:rw \
                 -v /var/run/docker.sock:/var/run/docker.sock:rw \
-                -v /var/log/edge-orchestration/:/var/log/edge-orchestration/:rw \
-                -v /etc/edge-orchestration/:/etc/edge-orchestration/:rw \
                 -v /proc/:/process/:ro \
                 $DOCKER_IMAGE:$CONTAINER_VERSION
     docker container ls
