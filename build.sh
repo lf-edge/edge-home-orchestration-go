@@ -326,6 +326,7 @@ function run_docker_container() {
     sudo mkdir -p /var/edge-orchestration/device
 
     sudo cp $CERT_KEY_FILE /var/edge-orchestration/data/cert/
+    sudo chmod 640 /var/edge-orchestration/data/cert/edge-orchestration.key
 
     echo ""
     echo "**********************************"
