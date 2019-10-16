@@ -55,10 +55,9 @@ $ docker run -it -d \
                 --privileged \
                 --network="host" \
                 --name edge-orchestration \
-                -v /var/run/:/var/run/:rw \
-                -v /var/log/:/var/log/:rw \
-                -v /etc/:/etc/:rw \
-                -v /usr/bin/docker:/usr/bin/docker \
+                -v /var/edge-orchestration/:/var/edge-orchestration/:rw \
+                -v /var/run/docker.sock:/var/run/docker.sock:rw \
+                -v /proc/:/process/:ro \
                 edge-orchestration:baobab
 ``` 
 
@@ -136,10 +135,9 @@ $ docker run -it -d \
                 --privileged \
                 --network="host" \
                 --name edge-orchestration \
-                -v /var/run/:/var/run/:rw \
-                -v /var/log/:/var/log/:rw \
-                -v /etc/:/etc/:rw \
-                -v /usr/bin/docker:/usr/bin/docker \
+                -v /var/edge-orchestration/:/var/edge-orchestration/:rw \
+                -v /var/run/docker.sock:/var/run/docker.sock:rw \
+                -v /proc/:/process/:ro \
                 edge-orchestration:baobab
 ``` 
 - Result 
