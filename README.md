@@ -22,7 +22,7 @@ This section provides how to download and run pre-built Docker image without bui
   - [How to install](https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/)
 
 #### 2. Download Docker image ####
-Please download [edge-orchestration](https://github.com/lf-edge/edge-home-orchestration-go/releases/download/alpha/edge-orchestration.tar)
+Please download [edge-orchestration](https://github.com/lf-edge/edge-home-orchestration-go/releases/download/Baobab_rc1/edge-orchestration.tar)
 
 #### 3. Load Docker image from tar file ####
 ```shell
@@ -32,7 +32,7 @@ If it succeeds, you can see the Docker image as follows:
 ```shell
 $ docker images
 REPOSITORY                 TAG                 IMAGE ID            CREATED             SIZE
-edge-orchestration         alpha               533ae9f5f9a5        3 minutes ago       131MB
+edge-orchestration         baobab              502e3c07b01f        3 minutes ago       132MB
 ```
 
 #### 4. Add User ID #### 
@@ -59,7 +59,7 @@ $ docker run -it -d \
                 -v /var/log/:/var/log/:rw \
                 -v /etc/:/etc/:rw \
                 -v /usr/bin/docker:/usr/bin/docker \
-                edge-orchestration:alpha
+                edge-orchestration:baobab
 ``` 
 
 ## Build Prerequisites ##
@@ -67,7 +67,7 @@ $ docker run -it -d \
     - Version: 17.06 (or above)
     - [How to install](https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/)
 - go compiler
-    - Version: 1.8 (or above)
+    - Version: 1.10 (or above)
     - [How to install](https://golang.org/dl/)
 
 ## How to build ##
@@ -86,14 +86,14 @@ If it succeeds, you can see the container runs as follows:
 **********************************
 5d2efd81057fe56236602acfece0e8f11d447b54627f4f3669b18c85a95b8687
 CONTAINER ID        IMAGE                      COMMAND             CREATED                  STATUS                  PORTS               NAMES
-5d2efd81057f        edge-orchestration:alpha   "sh run.sh"         Less than a second ago   Up Less than a second                       edge-orchestration
+5d2efd81057f        edge-orchestration:baobab  "sh run.sh"         Less than a second ago   Up Less than a second                       edge-orchestration
 ```
 
 and the built image as follows:
 ```shell
 $ docker images
 REPOSITORY                 TAG                 IMAGE ID            CREATED             SIZE
-edge-orchestration         alpha               533ae9f5f9a5        3 seconds ago       131MB
+edge-orchestration         baobab              502e3c07b01f        3 seconds ago       132MB
 ```
 
 - All Build Options
@@ -101,13 +101,16 @@ edge-orchestration         alpha               533ae9f5f9a5        3 seconds ago
 ```shell
 build script
 Usage:
---------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------
   ./build.sh                  : build edge-orchestration by default container
+  ./build.sh secure           : build edge-orchestration by default container with secure option
   ./build.sh container        : build Docker container as build system environmet
-  ./build.sh object           : build edge-orchestration archive for c and java
+  ./build.sh container secure : build Docker container as build system environmet with secure option
+  ./build.sh object           : build object (c-object, java-object)
+  ./build.sh object secure    : build object (c-object, java-object) with secure option
   ./build.sh clean            : build clean
   ./build.sh test [PKG_NAME]  : run unittests (optional for PKG_NAME)
---------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------
 ```
  
 ## API Document ##
@@ -137,28 +140,35 @@ $ docker run -it -d \
                 -v /var/log/:/var/log/:rw \
                 -v /etc/:/etc/:rw \
                 -v /usr/bin/docker:/usr/bin/docker \
-                edge-orchestration:alpha
+                edge-orchestration:baobab
 ``` 
 - Result 
 
 ```shell
 $ docker logs -f edge-orchestration 
 
-2019/06/07 05:45:29 main.go:102: [interface] OrchestrationInit
-2019/06/07 05:45:29 orchestration.go:163: Orchestration Start In
-2019/06/07 05:45:29 networkhelper.go:152: >>  192.168.1.37
-2019/06/07 05:45:29 networkhelper.go:152: >>  fe80::f112:19a8:eca4:724f
-2019/06/07 05:45:29 discovery.go:317: [discoverymgr] Platform:: docker  OnboardType:: container
-2019/06/07 05:45:29 discovery.go:312: [discoverymgr] UUID :  80924bc5-afc8-4135-85c2-105bf9a5a5c4
-2019/06/07 05:45:29 discovery.go:370: [discoverymgr] ip : 192.168.1.37
-2019/06/07 05:45:29 discovery.go:455: [discoverymgr] [mdnsTXTSizeChecker] size ::  32  Bytes
-2019/06/07 05:45:29 orchestration.go:170: Orchestration Start Out
-2019/06/07 05:45:29 route.go:71: {APIV1ServicemgrServicesPost POST /api/v1/servicemgr/services 0x7d35c0}
-2019/06/07 05:45:29 route.go:71: {APIV1ServicemgrServicesNotificationServiceIDPost POST /api/v1/servicemgr/services/notification/{serviceid} 0x7d3620}
-2019/06/07 05:45:29 route.go:71: {APIV1ScoringmgrScoreLibnameGet GET /api/v1/scoringmgr/score 0x7d3680}
-2019/06/07 05:45:29 route.go:71: {APIV1RequestServicePost POST /api/v1/orchestration/services 0x7d1e30}
-2019/06/07 05:45:29 main.go:151: interface orchestration init done
-2019/06/07 05:45:29 route.go:63: ListenAndServe
+2019/10/16 07:35:45 main_secured.go:89: [interface] OrchestrationInit
+2019/10/16 07:35:45 main_secured.go:90: >>> commitID  :  c3041ae
+2019/10/16 07:35:45 main_secured.go:91: >>> version   :  
+2019/10/16 07:35:45 main_secured.go:92: >>> buildTime :  {build time}
+2019/10/16 07:35:45 main_secured.go:93: >>> buildTags :  secure
+2019/10/16 07:35:45 discovery.go:256: [discoverymgr] UUID :  {$UUID}
+2019/10/16 07:35:45 discovery.go:338: [discoverymgr] [{$discovery_ip_list}]
+2019/10/16 07:35:45 discovery.go:369: [deviceDetectionRoutine] edge-orchestration-{$UUID}
+2019/10/16 07:35:45 discovery.go:370: [deviceDetectionRoutine] confInfo    : ExecType(container), Platform(docker)
+2019/10/16 07:35:45 discovery.go:371: [deviceDetectionRoutine] netInfo     : IPv4({$discovery_ip_list})
+2019/10/16 07:35:45 discovery.go:372: [deviceDetectionRoutine] serviceInfo : Services([])
+2019/10/16 07:35:45 discovery.go:373: 
+2019/10/16 07:35:45 tls.go:40: SetCertFilePath:  /var/edge-orchestration/data/cert
+2019/10/16 07:35:45 tls.go:40: SetCertFilePath:  /var/edge-orchestration/data/cert
+2019/10/16 07:35:45 route.go:76: {APIV1Ping GET /api/v1/ping 0x8090f0}
+2019/10/16 07:35:45 route.go:76: {APIV1ServicemgrServicesPost POST /api/v1/servicemgr/services 0x809160}
+2019/10/16 07:35:45 route.go:76: {APIV1ServicemgrServicesNotificationServiceIDPost POST /api/v1/servicemgr/services/notification/{serviceid} 0x8091c0}
+2019/10/16 07:35:45 route.go:76: {APIV1ScoringmgrScoreLibnameGet GET /api/v1/scoringmgr/score 0x809220}
+2019/10/16 07:35:45 route.go:76: {APIV1RequestServicePost POST /api/v1/orchestration/services 0x806cb0}
+2019/10/16 07:35:45 route.go:104: ListenAndServeTLS_For_Inter
+2019/10/16 07:35:45 route.go:111: ListenAndServe
+2019/10/16 07:35:45 main_secured.go:141: interface orchestration init done
 ```
 
 #### 2. Request to execute a service ####
