@@ -182,7 +182,7 @@ func TestExecuteWaitInvokedError(t *testing.T) {
 
 	go func() {
 		err := cExecutor.Execute(serviceInfo)
-		if strings.Compare(err.Error(), "wait error") != 0 {
+		if err != nil && strings.Compare(err.Error(), "wait error") != 0 {
 			t.Error()
 		}
 		wait.Done()
