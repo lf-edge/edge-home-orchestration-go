@@ -53,7 +53,7 @@ PKG_LIST=(
         "restinterface/route"
 )
 
-export CONTAINER_VERSION="alpha"
+export CONTAINER_VERSION="baobab"
 export BUILD_DATE=$(date +%Y%m%d.%H%M)
 
 CERT_KEY_FILE=$BASE_DIR/doc/sampleTLSKey/edge-orchestration.key
