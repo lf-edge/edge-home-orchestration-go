@@ -231,7 +231,7 @@ func TestNotify(t *testing.T) {
 			t.Error("unexpected error " + err.Error())
 		}
 		api.Notify(configuremgrtypes.ServiceInfo{
-			ServiceName:        defaultServiceName,
+			ServiceName:        defaultServiceName + "/Success",
 			ExecutableFileName: defaultServiceName,
 		})
 	})
@@ -248,7 +248,7 @@ func TestNotify(t *testing.T) {
 				t.Error("unexpected error " + err.Error())
 			}
 			api.Notify(configuremgrtypes.ServiceInfo{
-				ServiceName:        defaultServiceName,
+				ServiceName:        defaultServiceName + "/Error",
 				ExecutableFileName: defaultServiceName,
 			})
 		})

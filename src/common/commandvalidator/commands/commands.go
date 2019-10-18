@@ -45,7 +45,10 @@ func init() {
 	commandList.serviceInfos = make(map[string]string)
 }
 
-func (c commands) GetServiceFileName(serviceName string) (string, error) {
+func (c *commands) GetServiceFileName(serviceName string) (string, error) {
+	c.mutex.Lock()
+	defer c.mutex.Unlock()
+
 	val, ok := c.serviceInfos[serviceName]
 	if !ok {
 		return "", errors.New(NOT_FOUND_REGISTERED_SERVICE)

@@ -68,7 +68,7 @@ func TestCheckCommand(t *testing.T) {
 		})
 	})
 	t.Run("Success", func(t *testing.T) {
-		serviceName := "test"
+		serviceName := "TestCheckCommand/Success"
 		command := []string{"ls"}
 		validator := CommandValidator{}
 		info := configuremgrtypes.ServiceInfo{ServiceName: serviceName, ExecutableFileName: command[0]}
@@ -85,7 +85,7 @@ func TestCheckCommand(t *testing.T) {
 }
 
 func TestStoreServiceInfo(t *testing.T) {
-	serviceName := "test"
+	serviceName := "TestStoreServiceInfo"
 	executableName := "testExecutable"
 
 	validator := CommandValidator{}
@@ -152,7 +152,7 @@ func TestStoreServiceInfo(t *testing.T) {
 }
 
 func TestGetServiceFileName(t *testing.T) {
-	serviceName := "test"
+	serviceName := "TestGetServiceFileName"
 	executableName := "testExecutable"
 
 	validator := CommandValidator{}
