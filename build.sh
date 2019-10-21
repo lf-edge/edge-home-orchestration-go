@@ -56,8 +56,6 @@ PKG_LIST=(
 export CONTAINER_VERSION="alpha"
 export BUILD_DATE=$(date +%Y%m%d.%H%M)
 
-CERT_KEY_FILE=$BASE_DIR/doc/sampleTLSKey/edge-orchestration.key
-
 function set_secure_option() {
     echo ""
     echo "-----------------------------------"
@@ -324,9 +322,6 @@ function run_docker_container() {
     sudo mkdir -p /var/edge-orchestration/data/cert
     sudo mkdir -p /var/edge-orchestration/user
     sudo mkdir -p /var/edge-orchestration/device
-
-    sudo cp $CERT_KEY_FILE /var/edge-orchestration/data/cert/
-    sudo chmod 640 /var/edge-orchestration/data/cert/edge-orchestration.key
 
     echo ""
     echo "**********************************"
