@@ -32,6 +32,7 @@ const (
 	NOT_ALLOWED_EXECUTABLE_SERVICE      = "not allowed executable service"
 	NOT_FOUND_EXECUTABLE_FILE           = "not found executable file"
 	FOUND_INJECTION_COMMAND             = "found injection command"
+	ALREADY_REGISTERED                  = "already registered service name"
 )
 
 type ICommandValidator interface {
@@ -54,6 +55,11 @@ func (CommandValidator) AddWhiteCommand(serviceInfo configuremgrtypes.ServiceInf
 
 	if blacklist.IsBlack(command) {
 		return errors.New(NOT_ALLOWED_EXECUTABLE_SERVICE)
+	}
+
+	_, err = commands.GetInstance().GetServiceFileName(serviceInfo.ServiceName)
+	if err == nil {
+		return errors.New(ALREADY_REGISTERED)
 	}
 
 	commands.GetInstance().StoreServiceInfo(serviceInfo.ServiceName, command)
