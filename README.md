@@ -35,17 +35,16 @@ REPOSITORY                 TAG                 IMAGE ID            CREATED      
 edge-orchestration         baobab              502e3c07b01f        3 minutes ago       132MB
 ```
 
-#### 4. Add User ID #### 
+#### 4. Add Key file #### 
 
 To let the Edge Orchestration devices communicate with each other, each devices should have same authentication key in:
 
-/etc/edge-orchestration/orchestration_userID.txt
+/var/edge-orchestration/data/cert/edge-orchestration.key
 ```shell
-$ cat /etc/edge-orchestration/orchestration_userID.txt
+$ sudo cp {SampleKey.key} /var/edge-orchestration/data/cert/edge-orchestration.key
 
-thisIsAuthenticationKey
 ```
-*Any string can be authentication key
+*Any cert file can be authentication key
 
 #### 5. Run with Docker image ####
 You can execute Edge Orchestration with a Docker image as follows:
