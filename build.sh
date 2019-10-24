@@ -98,9 +98,6 @@ function install_prerequisite() {
     echo "-----------------------------------"
     echo " Install prerequisite packages"
     echo "-----------------------------------"
-    mkdir $BASE_DIR/go
-    export GOPATH=$BASE_DIR/go
-
     pkg_list=(
         "github.com/axw/gocov/gocov"
         "github.com/matm/gocov-html"
@@ -120,12 +117,6 @@ function install_prerequisite() {
         echo ": Done"
         idx=$((idx+1))
     done
-
-    # Rebase gomobile [ Needed due to issues in latest gomobile ]
-    cd $BASE_DIR/go/src/golang.org/x/mobile
-    git reset --hard 30c70e3810e97d051f18b66d59ae242540c0c391
-    go install ./cmd/...
-    cd $BASE_DIR
 }
 
 function build_clean() {

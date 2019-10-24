@@ -49,7 +49,6 @@ endif
 
 # Go 3rdParty packages
 BUILD_VENDOR_DIR	:= $(BASE_DIR)/vendor
-BUILD_GO_DIR		:= $(BASE_DIR)/go
 GLIDE_LOCK_FILE		:= $(BASE_DIR)/glide.lock
 
 # Go Library for android
@@ -82,7 +81,6 @@ build-result:
 clean-tmp-packages:
 	-rm -rf $(BUILD_VENDOR_DIR)
 	-rm -rf $(GLIDE_LOCK_FILE)
-	-rm -rf $(BUILD_GO_DIR)
 
 ## edge-orchestration android library build
 build-object-java:
