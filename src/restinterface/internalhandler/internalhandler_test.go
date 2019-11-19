@@ -21,8 +21,13 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
+	"strings"
+
 	"testing"
 
+	"common/commandvalidator"
+	"common/requestervalidator"
+	"common/types/configuremgrtypes"
 	orchemock "orchestrationapi/mocks"
 	ciphermock "restinterface/cipher/mocks"
 	helpermock "restinterface/resthelper/mocks"
@@ -83,6 +88,27 @@ func TestAPIV1ServicemgrServicesPost(t *testing.T) {
 	r := httptest.NewRequest("POST", "http://test.test", nil)
 	w := httptest.NewRecorder()
 
+	req := make(map[string]interface{})
+	req["ServiceName"] = "test_service"
+	req["ServiceID"] = 1.0
+	req["Requester"] = "test_requester"
+	args := make([]interface{}, 2)
+	args[0] = "test_execute"
+	args[1] = "test_executetype"
+	req["UserArgs"] = args
+
+	serviceInfo := configuremgrtypes.ServiceInfo{
+		ServiceName:        "test_service",
+		ExecutableFileName: "test_execute",
+		AllowedRequester:   []string{"test_requester"},
+	}
+
+	commandvalidator.CommandValidator{}.AddWhiteCommand(serviceInfo)
+	requestervalidator.RequesterValidator{}.StoreRequesterInfo(
+		serviceInfo.ServiceName,
+		serviceInfo.AllowedRequester,
+	)
+
 	t.Run("Error", func(t *testing.T) {
 		t.Run("IsNotSetApi", func(t *testing.T) {
 			handler.setHelper(mockHelper)
@@ -114,8 +140,9 @@ func TestAPIV1ServicemgrServicesPost(t *testing.T) {
 			handler.SetCipher(mockCipher)
 			handler.SetOrchestrationAPI(mockOrchestration)
 			handler.setHelper(mockHelper)
+
 			gomock.InOrder(
-				mockCipher.EXPECT().DecryptByteToJSON(gomock.Any()).Return(make(map[string]interface{}), nil),
+				mockCipher.EXPECT().DecryptByteToJSON(gomock.Any()).Return(req, nil),
 				mockOrchestration.EXPECT().ExecuteAppOnLocal(gomock.Any()),
 				mockCipher.EXPECT().EncryptJSONToByte(gomock.Any()).Return(nil, errors.New("")),
 				mockHelper.EXPECT().Response(gomock.Any(), gomock.Eq(http.StatusServiceUnavailable)),
@@ -131,7 +158,7 @@ func TestAPIV1ServicemgrServicesPost(t *testing.T) {
 		handler.setHelper(mockHelper)
 
 		gomock.InOrder(
-			mockCipher.EXPECT().DecryptByteToJSON(gomock.Any()).Return(make(map[string]interface{}), nil),
+			mockCipher.EXPECT().DecryptByteToJSON(gomock.Any()).Return(req, nil),
 			mockOrchestration.EXPECT().ExecuteAppOnLocal(gomock.Any()),
 			mockCipher.EXPECT().EncryptJSONToByte(gomock.Any()).Return(nil, nil),
 			mockHelper.EXPECT().ResponseJSON(gomock.Any(), gomock.Any(), gomock.Eq(http.StatusOK)),
@@ -310,4 +337,15 @@ func TestAPIV1ScoringmgrScoreLibnameGet(t *testing.T) {
 
 		handler.APIV1ScoringmgrScoreLibnameGet(w, r)
 	})
+}
+
+func TestSetCertificateFilePath(t *testing.T) {
+	testHandler := new(Handler)
+	testHandler.SetCertificateFilePath("test")
+
+	testUrl := testHandler.helper.MakeTargetURL("", 1, "")
+
+	if strings.Contains(testUrl, "https") != true {
+		t.Error("expected key is set, but not set on helper: ", testUrl)
+	}
 }

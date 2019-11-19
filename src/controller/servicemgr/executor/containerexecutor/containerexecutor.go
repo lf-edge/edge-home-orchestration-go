@@ -63,7 +63,7 @@ func GetInstance() *ContainerExecutor {
 }
 
 // Execute executes container service application
-func (c ContainerExecutor) Execute(s executor.ServiceExecutionInfo) (err error) {
+func (c ContainerExecutor) Execute(s executor.ServiceExecutionInfo) error {
 	c.ServiceExecutionInfo = s
 
 	log.Println(logPrefix, c.ServiceName, c.ParamStr)
@@ -71,14 +71,14 @@ func (c ContainerExecutor) Execute(s executor.ServiceExecutionInfo) (err error) 
 	paramLen := len(c.ParamStr)
 
 	// @Note : Pull docker image
-	pullErr := c.ceImplIns.ImagePull(s.ParamStr[paramLen-1])
-	if pullErr != nil {
+	err := c.ceImplIns.ImagePull(s.ParamStr[paramLen-1])
+	if err != nil {
 		log.Println(logPrefix, err.Error())
 	}
 
 	// @Note : Create containers with converting configuration
-	resp, createErr := c.ceImplIns.Create(convertConfig(s.ParamStr))
-	if createErr != nil {
+	resp, err := c.ceImplIns.Create(convertConfig(s.ParamStr))
+	if err != nil {
 		log.Println(logPrefix, err.Error())
 	} else {
 		log.Println(logPrefix, "create container :", resp.ID[:10])
@@ -106,8 +106,8 @@ func (c ContainerExecutor) Execute(s executor.ServiceExecutionInfo) (err error) 
 	}
 
 	// @Note : get log of container
-	out, logErr := c.ceImplIns.Logs(resp.ID)
-	if logErr != nil {
+	out, err := c.ceImplIns.Logs(resp.ID)
+	if err != nil {
 		log.Println(logPrefix, err.Error())
 	} else {
 		stdcopy.StdCopy(os.Stdout, os.Stderr, out)
@@ -117,12 +117,12 @@ func (c ContainerExecutor) Execute(s executor.ServiceExecutionInfo) (err error) 
 	c.NotiImplIns.InvokeNotification(c.NotificationTargetURL, float64(c.ServiceID), executionStatus)
 
 	// @Note : Remove container after execution
-	removeErr := c.ceImplIns.Remove(resp.ID)
-	if removeErr != nil {
+	err = c.ceImplIns.Remove(resp.ID)
+	if err != nil {
 		log.Println(logPrefix, err.Error())
 	}
 
-	return
+	return nil
 }
 
 // SetCEImpl sets executor implementation

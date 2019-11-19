@@ -21,8 +21,11 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
+	networkhelper "common/networkhelper/mocks"
+	"common/requestervalidator"
 	orchestrationapi "orchestrationapi"
 	orchemock "orchestrationapi/mocks"
 	ciphermock "restinterface/cipher/mocks"
@@ -76,9 +79,13 @@ func getReqeustArgs() (orchestrationapi.ReqeustService, map[string]interface{}) 
 	serviceInfo[0].ExecutionType = "native"
 	serviceInfo[0].ExeCmd = args
 	requestService := orchestrationapi.ReqeustService{
-		ServiceName: serviceName,
-		ServiceInfo: serviceInfo,
+		ServiceName:      serviceName,
+		SelfSelection:    true,
+		ServiceRequester: "test",
+		ServiceInfo:      serviceInfo,
 	}
+
+	requestervalidator.RequesterValidator{}.StoreRequesterInfo(serviceName, []string{"test"})
 
 	execCmd := make([]interface{}, len(args))
 	for idx, arg := range args {
@@ -95,6 +102,7 @@ func getReqeustArgs() (orchestrationapi.ReqeustService, map[string]interface{}) 
 	appCommand := make(map[string]interface{})
 	appCommand["ServiceName"] = serviceName
 	appCommand["ServiceInfo"] = sInfos
+	appCommand["ServiceRequester"] = "test"
 
 	return requestService, appCommand
 }
@@ -124,9 +132,12 @@ func TestAPIV1RequestServicePost(t *testing.T) {
 	mockOrchestration := orchemock.NewMockOrcheExternalAPI(ctrl)
 	mockCipher := ciphermock.NewMockIEdgeCipherer(ctrl)
 	mockHelper := helpermock.NewMockRestHelper(ctrl)
+	mockNetHelper := networkhelper.NewMockNetwork(ctrl)
 
-	r := httptest.NewRequest("POST", "http://test.test", nil)
+	r := httptest.NewRequest("POST", "http://localhost:1234", nil)
 	w := httptest.NewRecorder()
+
+	addr := strings.Split(r.RemoteAddr, ":")[0]
 
 	t.Run("Error", func(t *testing.T) {
 		t.Run("IsNotSetApi", func(t *testing.T) {
@@ -148,7 +159,9 @@ func TestAPIV1RequestServicePost(t *testing.T) {
 			handler.SetCipher(mockCipher)
 			handler.SetOrchestrationAPI(mockOrchestration)
 			handler.setHelper(mockHelper)
+			handler.netHelper = mockNetHelper
 			gomock.InOrder(
+				mockNetHelper.EXPECT().GetIPs().Return([]string{addr}, nil),
 				mockCipher.EXPECT().DecryptByteToJSON(gomock.Any()).Return(nil, errors.New("")),
 				mockHelper.EXPECT().Response(gomock.Any(), gomock.Eq(http.StatusServiceUnavailable)),
 			)
@@ -159,10 +172,12 @@ func TestAPIV1RequestServicePost(t *testing.T) {
 			handler.SetCipher(mockCipher)
 			handler.SetOrchestrationAPI(mockOrchestration)
 			handler.setHelper(mockHelper)
+			handler.netHelper = mockNetHelper
 
 			requestService, appCommand := getReqeustArgs()
 
 			gomock.InOrder(
+				mockNetHelper.EXPECT().GetIPs().Return([]string{addr}, nil),
 				mockCipher.EXPECT().DecryptByteToJSON(gomock.Any()).Return(appCommand, nil),
 				mockOrchestration.EXPECT().RequestService(gomock.Eq(requestService)),
 				mockCipher.EXPECT().EncryptJSONToByte(gomock.Any()).Return(nil, errors.New("")),
@@ -176,11 +191,13 @@ func TestAPIV1RequestServicePost(t *testing.T) {
 				handler.SetCipher(mockCipher)
 				handler.SetOrchestrationAPI(mockOrchestration)
 				handler.setHelper(mockHelper)
+				handler.netHelper = mockNetHelper
 
 				_, appCommand := getReqeustArgs()
 				delete(appCommand, "ServiceName")
 
 				gomock.InOrder(
+					mockNetHelper.EXPECT().GetIPs().Return([]string{addr}, nil),
 					mockCipher.EXPECT().DecryptByteToJSON(gomock.Any()).Return(appCommand, nil),
 					mockCipher.EXPECT().EncryptJSONToByte(gomock.Any()).Do(func(resp map[string]interface{}) {
 						if resp["Message"] != orchestrationapi.INVALID_PARAMETER {
@@ -196,11 +213,13 @@ func TestAPIV1RequestServicePost(t *testing.T) {
 				handler.SetCipher(mockCipher)
 				handler.SetOrchestrationAPI(mockOrchestration)
 				handler.setHelper(mockHelper)
+				handler.netHelper = mockNetHelper
 
 				_, appCommand := getReqeustArgs()
 				delete(appCommand, "ServiceInfo")
 
 				gomock.InOrder(
+					mockNetHelper.EXPECT().GetIPs().Return([]string{addr}, nil),
 					mockCipher.EXPECT().DecryptByteToJSON(gomock.Any()).Return(appCommand, nil),
 					mockCipher.EXPECT().EncryptJSONToByte(gomock.Any()).Do(func(resp map[string]interface{}) {
 						if resp["Message"] != orchestrationapi.INVALID_PARAMETER {
@@ -216,6 +235,7 @@ func TestAPIV1RequestServicePost(t *testing.T) {
 				handler.SetCipher(mockCipher)
 				handler.SetOrchestrationAPI(mockOrchestration)
 				handler.setHelper(mockHelper)
+				handler.netHelper = mockNetHelper
 
 				_, appCommand := getReqeustArgs()
 				tmp := appCommand["ServiceInfo"].([]interface{})
@@ -223,6 +243,7 @@ func TestAPIV1RequestServicePost(t *testing.T) {
 				delete(serviceInfo, "ExecutionType")
 
 				gomock.InOrder(
+					mockNetHelper.EXPECT().GetIPs().Return([]string{addr}, nil),
 					mockCipher.EXPECT().DecryptByteToJSON(gomock.Any()).Return(appCommand, nil),
 					mockCipher.EXPECT().EncryptJSONToByte(gomock.Any()).Do(func(resp map[string]interface{}) {
 						if resp["Message"] != orchestrationapi.INVALID_PARAMETER {
@@ -238,6 +259,7 @@ func TestAPIV1RequestServicePost(t *testing.T) {
 				handler.SetCipher(mockCipher)
 				handler.SetOrchestrationAPI(mockOrchestration)
 				handler.setHelper(mockHelper)
+				handler.netHelper = mockNetHelper
 
 				_, appCommand := getReqeustArgs()
 				tmp := appCommand["ServiceInfo"].([]interface{})
@@ -245,6 +267,7 @@ func TestAPIV1RequestServicePost(t *testing.T) {
 				delete(serviceInfo, "ExecCmd")
 
 				gomock.InOrder(
+					mockNetHelper.EXPECT().GetIPs().Return([]string{addr}, nil),
 					mockCipher.EXPECT().DecryptByteToJSON(gomock.Any()).Return(appCommand, nil),
 					mockCipher.EXPECT().EncryptJSONToByte(gomock.Any()).Do(func(resp map[string]interface{}) {
 						if resp["Message"] != orchestrationapi.INVALID_PARAMETER {
@@ -263,11 +286,13 @@ func TestAPIV1RequestServicePost(t *testing.T) {
 		handler.SetCipher(mockCipher)
 		handler.SetOrchestrationAPI(mockOrchestration)
 		handler.setHelper(mockHelper)
+		handler.netHelper = mockNetHelper
 
 		requestService, appCommand := getReqeustArgs()
 		respByte := []byte{'1'}
 
 		gomock.InOrder(
+			mockNetHelper.EXPECT().GetIPs().Return([]string{addr}, nil),
 			mockCipher.EXPECT().DecryptByteToJSON(gomock.Any()).Return(appCommand, nil),
 			mockOrchestration.EXPECT().RequestService(gomock.Eq(requestService)),
 			mockCipher.EXPECT().EncryptJSONToByte(gomock.Any()).Return(respByte, nil),

@@ -23,9 +23,12 @@ import (
 	"github.com/golang/mock/gomock"
 
 	"net/http"
+	"net/http/httptest"
 
 	"restinterface"
-	routemock "restinterface/mocks"
+	"restinterface/cipher"
+	"restinterface/externalhandler"
+	"restinterface/internalhandler"
 )
 
 func TestNewRestRouter(t *testing.T) {
@@ -49,15 +52,49 @@ func TestAdd(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockRoute := routemock.NewMockIRestRoutes(ctrl)
-
-	mockRoute.EXPECT().GetRoutes().Return(getTestRoutes(t))
-
 	router := NewRestRouter()
 	if router == nil {
 		t.Error("unexpected return value")
 	}
-	router.Add(mockRoute)
+
+	type fakeRouter struct {
+		restinterface.HasRoutes
+		cipher.HasCipher
+	}
+	router.Add(&fakeRouter{})
+	if router.routerInternal != nil || router.routerExternal != nil {
+		t.Error("unexpected not set internal handler")
+	}
+
+	router.Add(internalhandler.GetHandler())
+	if router.routerInternal == nil {
+		t.Error("unexpected not set internal handler")
+	}
+	router.Add(externalhandler.GetHandler())
+	if router.routerExternal == nil {
+		t.Error("unexpected not set internal handler")
+	}
 }
 
-// TODO check to call expected function as restapi using httpserver mock
+func TestReadClientIP(t *testing.T) {
+	req := httptest.NewRequest(http.MethodGet, "http://0.0.0.0:12345", nil)
+	req.RemoteAddr = "RemoteAddr"
+	if readClientIP(req) != "RemoteAddr" {
+		t.Error("unexpected value: ", readClientIP(req))
+	}
+	req.Header.Set("X-Forwarded-For", "X-Forwarded-For")
+	if readClientIP(req) != "X-Forwarded-For" {
+		t.Error("unexpected value: ", readClientIP(req))
+	}
+	req.Header.Set("X-Real-Ip", "X-Real-Ip")
+	if readClientIP(req) != "X-Real-Ip" {
+		t.Error("unexpected value: ", readClientIP(req))
+	}
+}
+
+func TestNewRestRouterWithCerti(t *testing.T) {
+	edgeRoute := NewRestRouterWithCerti("test")
+	if edgeRoute.IsSetCert != true {
+		t.Error("expected certificate is set, but not set")
+	}
+}
