@@ -48,7 +48,7 @@ else
 endif
 
 # Go 3rdParty packages
-BUILD_VENDOR_DIR	:= $(BASE_DIR)/vendor/
+BUILD_VENDOR_DIR	:= $(BASE_DIR)/vendor
 GLIDE_LOCK_FILE		:= $(BASE_DIR)/glide.lock
 
 # Go Library for android

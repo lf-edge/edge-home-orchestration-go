@@ -8,7 +8,6 @@ bin/*
 pkg/*
 vendor/src
 doc/generate-api/*
-3rdparty/
 vendor/
 glide.lock
 
