@@ -64,9 +64,25 @@ $ docker run -it -d \
 - docker-ce
     - Version: 17.06 (or above)
     - [How to install](https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/)
+
+> For [execution of docker commands with non-root privileges](https://docs.docker.com/install/linux/linux-postinstall/#manage-docker-as-a-non-root-user) you need to add `$USER` to docker group.  
+`$ sudo usermod -aG docker $USER`
 - go compiler
     - Version: 1.10 (or above)
     - [How to install](https://golang.org/dl/)
+
+> To build Edge Orchestrator from Go sources, you need to set GOPATH environment variable:  
+`$ export GOPATH=$HOME/go`  
+`$ export PATH=$PATH:$GOPATH/bin`
+
+- glide
+
+To install `glide`, you need to add appropriate repository to apt list. To do that, execute following shell commands:
+
+```shell
+sudo add-apt-repository -y ppa:masterminds/glide && sudo apt-get update
+sudo apt-get install -y glide
+```
 
 ## How to build ##
 
@@ -121,7 +137,7 @@ Note that you can visit [Swagger Editor](https://editor.swagger.io/) to graphica
 #### 0. Prerequisites ####
   - 2 or more devices with Ubuntu 14.04 (or above) and Docker 17.09 (or above)
   - Same WIFI network connected among the devices.
-  - Same Authentication key in /etc/edge-orchestration/orchestration_userID.txt
+  - Same Authentication key in /var/edge-orchestration/user/orchestration_userID.txt
     - Please see the above [4. Add User ID](#4-add-user-id) to know how to add authentication key
   - Edge Orchestration Docker image
     - Please see the above [How to build](#how-to-build) to know how to build Edge Orchestration Docker image
