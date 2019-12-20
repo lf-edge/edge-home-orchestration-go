@@ -24,7 +24,9 @@ type Doc struct {
 		ConfVersion string
 	}
 	ServiceInfo struct {
-		ServiceName string
+		ServiceName        string
+		ExecutableFileName string
+		AllowedRequester   []string
 	}
 	ScoringMethod struct {
 		LibFile      string

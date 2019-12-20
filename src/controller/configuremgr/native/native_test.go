@@ -25,6 +25,7 @@ import (
 	"testing"
 	"time"
 
+	"common/types/configuremgrtypes"
 	contextmgr "controller/configuremgr"
 )
 
@@ -36,9 +37,9 @@ const (
 
 type dummyNoti struct{}
 
-func (d dummyNoti) Notify(s string) {
-	log.Println(s)
-	name = s
+func (d dummyNoti) Notify(serviceinfo configuremgrtypes.ServiceInfo) {
+	log.Println(serviceinfo.ServiceName)
+	name = serviceinfo.ServiceName
 }
 
 func TestSetConfigPath(t *testing.T) {

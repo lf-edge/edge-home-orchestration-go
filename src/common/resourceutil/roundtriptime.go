@@ -29,7 +29,7 @@ import (
 
 const (
 	pingAPI            = "/api/v1/ping"
-	internalPort       = 56001
+	internalPort       = 56002
 	defaultRttDuration = 5
 )
 

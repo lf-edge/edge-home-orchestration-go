@@ -27,54 +27,89 @@ import (
 	"github.com/gorilla/mux"
 
 	"restinterface"
+	"restinterface/externalhandler"
+	"restinterface/internalhandler"
+	"restinterface/route/tlspskserver"
+	"restinterface/tls"
 )
 
 const (
 	// ConstWellknownPort is the common port for REST API
 	ConstWellknownPort = 56001
+	ConstInternalPort  = 56002
 )
 
 // RestRouter struct {
 type RestRouter struct {
-	routes restinterface.Routes
-	router *mux.Router
+	routes         restinterface.Routes
+	routerInternal *mux.Router
+	routerExternal *mux.Router
+
+	tls.HasCertificate
 }
 
 // NewRestRouter constructs RestRouter instance
 func NewRestRouter() *RestRouter {
 
 	edgeRouter := new(RestRouter)
-	edgeRouter.router = mux.NewRouter().StrictSlash(true)
+	edgeRouter.routerExternal = nil
+	edgeRouter.routerInternal = nil
+
+	return edgeRouter
+}
+
+// NewRestRouter constructs RestRouter instance with Certificate file path
+func NewRestRouterWithCerti(path string) *RestRouter {
+	edgeRouter := NewRestRouter()
+	edgeRouter.SetCertificateFilePath(path)
 
 	return edgeRouter
 }
 
 // Add registers REST API to RestRouter
 func (r *RestRouter) Add(s restinterface.IRestRoutes) {
-	r.add(s.GetRoutes())
-}
+	router := mux.NewRouter().StrictSlash(true)
 
-// Start wraps ListenAndServe function
-func (r RestRouter) Start() {
-	go r.listenAndServe()
-}
-
-func (r RestRouter) listenAndServe() {
-	log.Printf("ListenAndServe")
-	http.ListenAndServe(":"+strconv.Itoa(ConstWellknownPort), r.router)
-}
-
-func (r RestRouter) add(routes restinterface.Routes) {
-	for _, route := range routes {
+	for _, route := range s.GetRoutes() {
 		handler := logger(route.HandlerFunc, route.Name)
 
 		log.Printf("%v", route)
 
-		r.router.
+		router.
 			Methods(route.Method).
 			Path(route.Pattern).
 			Name(route.Name).
 			Handler(handler)
+	}
+
+	switch s.(type) {
+	case *internalhandler.Handler:
+		r.routerInternal = router
+	case *externalhandler.Handler:
+		r.routerExternal = router
+	default:
+		log.Println("added unknown type, ignore")
+	}
+}
+
+// Start wraps ListenAndServe function
+func (r RestRouter) Start() {
+	r.listenAndServe()
+}
+
+func (r RestRouter) listenAndServe() {
+	// start internal server
+	switch r.IsSetCert {
+	case true:
+		log.Printf("ListenAndServeTLS_For_Inter")
+		go tlspskserver.TLSPSKServer{}.ListenAndServe(":"+strconv.Itoa(ConstInternalPort), r.routerInternal)
+	default:
+		log.Printf("ListenAndServe_For_Inter")
+		go http.ListenAndServe(":"+strconv.Itoa(ConstInternalPort), r.routerInternal)
+	}
+
+	if log.Printf("ListenAndServe"); r.routerExternal != nil {
+		go http.ListenAndServe(":"+strconv.Itoa(ConstWellknownPort), r.routerExternal)
 	}
 }
 
@@ -84,14 +119,16 @@ func logger(inner http.Handler, name string) http.Handler {
 
 		inner.ServeHTTP(w, r)
 
-		log.Printf(
-			"From [%s] %s %s %s %s",
-			readClientIP(r),
-			r.Method,
-			r.RequestURI,
-			name,
-			time.Since(start),
-		)
+		if name != "APIV1Ping" {
+			log.Printf(
+				"From [%s] %s %s %s %s",
+				readClientIP(r),
+				r.Method,
+				r.RequestURI,
+				name,
+				time.Since(start),
+			)
+		}
 	})
 }
 

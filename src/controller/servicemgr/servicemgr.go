@@ -29,7 +29,7 @@ import (
 
 // ServiceMgr is the interface to execute service application
 type ServiceMgr interface {
-	Execute(target string, name string, args []interface{}, notiChan chan string) (err error)
+	Execute(target, name, requester string, args []interface{}, notiChan chan string) (err error)
 	SetLocalServiceExecutor(s executor.ServiceExecutor)
 
 	// for internal api
@@ -67,9 +67,9 @@ func (sm *SMMgrImpl) SetLocalServiceExecutor(s executor.ServiceExecutor) {
 }
 
 // Execute selects local execution and remote execution
-func (sm SMMgrImpl) Execute(target string, name string, args []interface{}, notiChan chan string) (err error) {
+func (sm SMMgrImpl) Execute(target, name, requester string, args []interface{}, notiChan chan string) (err error) {
 	serviceID := createServiceMap(name)
-	appInfo := makeAppInfo(target, name, args, float64(serviceID))
+	appInfo := makeAppInfo(target, name, requester, args, float64(serviceID))
 
 	notification.GetInstance().AddNotificationChan(serviceID, notiChan)
 
@@ -92,6 +92,7 @@ func (sm SMMgrImpl) ExecuteAppOnLocal(appInfo map[string]interface{}) {
 	var serviceExecutionInfo executor.ServiceExecutionInfo
 
 	serviceID, serviceName, args, notitargetURL := parseAppInfo(appInfo)
+	args = args[:len(args)-1]
 
 	serviceExecutionInfo = executor.ServiceExecutionInfo{
 		ServiceID:             serviceID,
@@ -107,12 +108,13 @@ func (sm SMMgrImpl) executeAppOnRemote(target string, appInfo map[string]interfa
 	return
 }
 
-func makeAppInfo(target string, name string, args []interface{}, serviceID float64) (appInfo map[string]interface{}) {
+func makeAppInfo(target, name, requester string, args []interface{}, serviceID float64) (appInfo map[string]interface{}) {
 	appInfo = make(map[string]interface{})
 
 	appInfo[ConstKeyServiceID] = serviceID
 	appInfo[ConstKeyServiceName] = name
 	appInfo[ConstKeyNotiTargetURL] = target
+	appInfo[ConstKeyRequester] = requester
 
 	if args != nil {
 		appInfo[ConstKeyUserArgs] = args

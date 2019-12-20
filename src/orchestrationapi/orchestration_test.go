@@ -25,6 +25,7 @@ import (
 
 	networkmocks "common/networkhelper/mocks"
 	resourceutilmocks "common/resourceutil/mocks"
+	"common/types/configuremgrtypes"
 	contextmgrmocks "controller/configuremgr/mocks"
 	discoverymocks "controller/discoverymgr/mocks"
 	scoringmocks "controller/scoringmgr/mocks"
@@ -229,7 +230,10 @@ func TestNotify(t *testing.T) {
 		if err != nil {
 			t.Error("unexpected error " + err.Error())
 		}
-		api.Notify(defaultServiceName)
+		api.Notify(configuremgrtypes.ServiceInfo{
+			ServiceName:        defaultServiceName + "/Success",
+			ExecutableFileName: defaultServiceName,
+		})
 	})
 	t.Run("Error", func(t *testing.T) {
 		t.Run("AddNewServiceName", func(t *testing.T) {
@@ -243,7 +247,10 @@ func TestNotify(t *testing.T) {
 			if err != nil {
 				t.Error("unexpected error " + err.Error())
 			}
-			api.Notify(defaultServiceName)
+			api.Notify(configuremgrtypes.ServiceInfo{
+				ServiceName:        defaultServiceName + "/Error",
+				ExecutableFileName: defaultServiceName,
+			})
 		})
 	})
 }

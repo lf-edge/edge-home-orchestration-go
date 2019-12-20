@@ -1,3 +1,5 @@
+// +build !secure
+
 /*******************************************************************************
  * Copyright 2019 Samsung Electronics All Rights Reserved.
  *
@@ -46,9 +48,10 @@ type RequestServiceInfo struct {
 }
 
 type ReqeustService struct {
-	ServiceName   string
-	SelfSelection bool
-	ServiceInfo   []RequestServiceInfo
+	ServiceName      string
+	SelfSelection    bool
+	ServiceRequester string
+	ServiceInfo      []RequestServiceInfo
 }
 
 func (r *ReqeustService) SetExecutionCommand(execType string, command string) {
@@ -113,14 +116,15 @@ const (
 	platform      = "android"
 	executionType = "android"
 
-	edgeDir = "/storage/emulated/0/Android/data/com.samsung.orchestration.service/files/"
+	edgeDir = "/data/user/0/com.samsung.orchestration.service/files"
 
-	logPath    = edgeDir + "log/edge-orchestration"
-	configPath = edgeDir + "apps"
-	dbPath     = edgeDir + "db"
+	logPath             = edgeDir + "/log"
+	configPath          = edgeDir + "/apps"
+	dbPath              = edgeDir + "/data/db"
+	certificateFilePath = edgeDir + "/data/cert"
 
-	cipherKeyFilePath = edgeDir + "orchestration_userID.txt"
-	deviceIDFilePath  = edgeDir + "orchestration_deviceID.txt"
+	cipherKeyFilePath = edgeDir + "/user/orchestration_userID.txt"
+	deviceIDFilePath  = edgeDir + "/device/orchestration_deviceID.txt"
 )
 
 var orcheEngine orchestrationapi.Orche
@@ -192,7 +196,11 @@ func OrchestrationRequestService(request *ReqeustService) *ResponseService {
 		log.Fatalf("[%s] Orchestaration external api : %s", logPrefix, err.Error())
 	}
 
-	changed := orchestrationapi.ReqeustService{ServiceName: request.ServiceName, SelfSelection: request.SelfSelection}
+	changed := orchestrationapi.ReqeustService{
+		ServiceName:      request.ServiceName,
+		SelfSelection:    request.SelfSelection,
+		ServiceRequester: request.ServiceRequester,
+	}
 
 	changed.ServiceInfo = make([]orchestrationapi.RequestServiceInfo, len(request.ServiceInfo))
 	for idx, info := range request.ServiceInfo {

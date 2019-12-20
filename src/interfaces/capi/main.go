@@ -1,3 +1,5 @@
+// +build !secure
+
 /*******************************************************************************
  * Copyright 2019 Samsung Electronics All Rights Reserved.
  *
@@ -93,19 +95,21 @@ const (
 	platform      = "linux"
 	executionType = "native"
 
-	logPath = "/var/log/edge-orchestration"
-	dbPath  = "/var/data/db"
-	edgeDir = "/etc/edge-orchestration/"
+	edgeDir = "/var/edge-orchestration"
 
-	configPath = edgeDir + "apps"
+	logPath             = edgeDir + "/log"
+	configPath          = edgeDir + "/apps"
+	dbPath              = edgeDir + "/data/db"
+	certificateFilePath = edgeDir + "/data/cert"
 
-	cipherKeyFilePath = edgeDir + "orchestration_userID.txt"
-	deviceIDFilePath  = edgeDir + "orchestration_deviceID.txt"
+	cipherKeyFilePath = edgeDir + "/user/orchestration_userID.txt"
+	deviceIDFilePath  = edgeDir + "/device/orchestration_deviceID.txt"
 )
 
 var (
 	flagVersion                  bool
 	commitID, version, buildTime string
+	buildTags                    string
 
 	orcheEngine orchestrationapi.Orche
 )
@@ -121,6 +125,7 @@ func OrchestrationInit() (errCode C.int) {
 	log.Println(">>> commitID  : ", commitID)
 	log.Println(">>> version   : ", version)
 	log.Println(">>> buildTime : ", buildTime)
+	log.Println(">>> buildTags : ", buildTags)
 	wrapper.SetBoltDBPath(dbPath)
 
 	restIns := restclient.GetRestClient()
@@ -162,7 +167,7 @@ func OrchestrationInit() (errCode C.int) {
 }
 
 //export OrchestrationRequestService
-func OrchestrationRequestService(cAppName *C.char, selfSelection C.int, serviceInfo *C.RequestServiceInfo, count C.int) C.ResponseService {
+func OrchestrationRequestService(cAppName *C.char, cSelfSelection C.int, cRequester *C.char, serviceInfo *C.RequestServiceInfo, count C.int) C.ResponseService {
 	log.Printf("[%s] OrchestrationRequestService", logPrefix)
 
 	appName := C.GoString(cAppName)
@@ -180,18 +185,29 @@ func OrchestrationRequestService(cAppName *C.char, selfSelection C.int, serviceI
 		requestInfos[idx].ExeCmd = append([]string{}, args...)
 	}
 
-	log.Println("appName:", appName, "infos:", requestInfos)
 	externalAPI, err := orchestrationapi.GetExternalAPI()
 	if err != nil {
 		log.Fatalf("[%s] Orchestaration external api : %s", logPrefix, err.Error())
 	}
 
 	selfSel := true
-	if selfSelection == 0 {
+	if cSelfSelection == 0 {
 		selfSel = false
 	}
 
-	res := externalAPI.RequestService(orchestrationapi.ReqeustService{ServiceName: appName, SelfSelection: selfSel, ServiceInfo: requestInfos})
+	requester := C.GoString(cRequester)
+
+	log.Printf("[OrchestrationRequestService] appName:%s", appName)
+	log.Printf("[OrchestrationRequestService] selfSel:%v", selfSel)
+	log.Printf("[OrchestrationRequestService] requester:%s", requester)
+	log.Printf("[OrchestrationRequestService] infos:%v", requestInfos)
+
+	res := externalAPI.RequestService(orchestrationapi.ReqeustService{
+		ServiceName:      appName,
+		SelfSelection:    selfSel,
+		ServiceInfo:      requestInfos,
+		ServiceRequester: requester,
+	})
 	log.Println("requestService handle : ", res)
 
 	ret := C.ResponseService{}

@@ -5,6 +5,7 @@
 package mocks
 
 import (
+	configuremgrtypes "common/types/configuremgrtypes"
 	gomock "github.com/golang/mock/gomock"
 	orchestrationapi "orchestrationapi"
 	reflect "reflect"
@@ -106,15 +107,15 @@ func (m *MockOrcheInternalAPI) EXPECT() *MockOrcheInternalAPIMockRecorder {
 }
 
 // Notify mocks base method
-func (m *MockOrcheInternalAPI) Notify(serviceName string) {
+func (m *MockOrcheInternalAPI) Notify(serviceinfo configuremgrtypes.ServiceInfo) {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "Notify", serviceName)
+	m.ctrl.Call(m, "Notify", serviceinfo)
 }
 
 // Notify indicates an expected call of Notify
-func (mr *MockOrcheInternalAPIMockRecorder) Notify(serviceName interface{}) *gomock.Call {
+func (mr *MockOrcheInternalAPIMockRecorder) Notify(serviceinfo interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Notify", reflect.TypeOf((*MockOrcheInternalAPI)(nil).Notify), serviceName)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Notify", reflect.TypeOf((*MockOrcheInternalAPI)(nil).Notify), serviceinfo)
 }
 
 // ExecuteAppOnLocal mocks base method
