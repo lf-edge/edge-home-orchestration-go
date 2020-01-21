@@ -48,6 +48,14 @@ package main
 /*
 #include <stdlib.h>
 
+#ifndef __ORCHESTRATION_H__
+#define __ORCHESTRATION_H__
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #define MAX_SVC_INFO_NUM 3
 typedef struct {
 	char* ExecutionType;
@@ -83,6 +91,13 @@ static char* bridge_iGetter(){
 static char* bridge_kGetter(char* id){
 	return kGetter(id);
 }
+#ifdef __cplusplus
+}
+
+#endif
+
+#endif // __ORCHESTRATION_H__
+
 */
 import "C"
 import (

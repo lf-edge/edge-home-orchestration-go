@@ -40,6 +40,7 @@ import (
 	"restinterface/client/restclient"
 	"restinterface/internalhandler"
 	"restinterface/route"
+	"restinterface/tls"
 )
 
 type RequestServiceInfo struct {
@@ -221,6 +222,14 @@ func OrchestrationRequestService(request *ReqeustService) *ResponseService {
 		},
 	}
 	return ret
+}
+
+type PSKHandler interface {
+	tls.PSKHandler
+}
+
+func OrchestrationSetPSKHandler(pskHandler PSKHandler) {
+	tls.SetPSKHandler(pskHandler)
 }
 
 var count int
