@@ -45,24 +45,63 @@ package main
 // * limitations under the License.
 // *
 // *******************************************************************************/
-//#define MAX_SVC_INFO_NUM 3
-//typedef struct {
-//	char* ExecutionType;
-//	char* ExeCmd;
-//} RequestServiceInfo;
-//
-//typedef struct {
-//	char* ExecutionType;
-//	char* Target;
-//} TargetInfo;
-//
-//typedef struct {
-//	char*      Message;
-//	char*      ServiceName;
-//	TargetInfo RemoteTargetInfo;
-//} ResponseService;
+/*
+#include <stdlib.h>
+
+#ifndef __ORCHESTRATION_H__
+#define __ORCHESTRATION_H__
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+#define MAX_SVC_INFO_NUM 3
+typedef struct {
+	char* ExecutionType;
+	char* ExeCmd;
+} RequestServiceInfo;
+
+typedef struct {
+	char* ExecutionType;
+	char* Target;
+} TargetInfo;
+
+typedef struct {
+	char*      Message;
+	char*      ServiceName;
+	TargetInfo RemoteTargetInfo;
+} ResponseService;
+
+typedef char* (*identityGetterFunc)();
+typedef char* (*keyGetterFunc)(char* id);
+
+identityGetterFunc iGetter;
+keyGetterFunc kGetter;
+
+static void setPSKHandler(identityGetterFunc ihandle, keyGetterFunc khandle){
+	iGetter = ihandle;
+	kGetter = khandle;
+}
+
+static char* bridge_iGetter(){
+	return iGetter();
+}
+
+static char* bridge_kGetter(char* id){
+	return kGetter(id);
+}
+#ifdef __cplusplus
+}
+
+#endif
+
+#endif // __ORCHESTRATION_H__
+
+*/
 import "C"
 import (
+	"errors"
 	"flag"
 	"log"
 	"math"
@@ -84,6 +123,7 @@ import (
 	"restinterface/client/restclient"
 	"restinterface/internalhandler"
 	"restinterface/route"
+	"restinterface/tls"
 
 	"db/bolt/wrapper"
 )
@@ -227,6 +267,34 @@ func PrintLog(cMsg *C.char) (count C.int) {
 	log.Printf(msg)
 	count++
 	return
+}
+
+type customPSKHandler struct{}
+
+func (cHandler customPSKHandler) GetIdentity() string {
+	var cIdentity *C.char
+	cIdentity = C.bridge_iGetter()
+	identity := C.GoString(cIdentity)
+	return identity
+}
+
+func (cHandler customPSKHandler) GetKey(id string) ([]byte, error) {
+	var cKey *C.char
+	cStr := C.CString(id)
+	defer C.free(unsafe.Pointer(cStr))
+
+	cKey = C.bridge_kGetter(cStr)
+	key := C.GoString(cKey)
+	if len(key) == 0 {
+		return nil, errors.New("key is empty")
+	}
+	return []byte(key), nil
+}
+
+//export SetPSKHandler
+func SetPSKHandler(iGetter C.identityGetterFunc, kGetter C.keyGetterFunc) {
+	C.setPSKHandler(iGetter, kGetter)
+	tls.SetPSKHandler(customPSKHandler{})
 }
 
 func main() {
