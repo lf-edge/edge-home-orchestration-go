@@ -116,18 +116,26 @@ const (
 	platform      = "android"
 	executionType = "android"
 
-	edgeDir = "/data/user/0/com.samsung.orchestration.service/files"
+	logStr          = "/log"
+	configStr       = "/apps"
+	dbStr           = "/data/db"
+	certificateFile = "/data/cert"
 
-	logPath             = edgeDir + "/log"
-	configPath          = edgeDir + "/apps"
-	dbPath              = edgeDir + "/data/db"
-	certificateFilePath = edgeDir + "/data/cert"
-
-	cipherKeyFilePath = edgeDir + "/user/orchestration_userID.txt"
-	deviceIDFilePath  = edgeDir + "/device/orchestration_deviceID.txt"
+	cipherKeyFile = "/user/orchestration_userID.txt"
+	deviceIDFile  = "/device/orchestration_deviceID.txt"
 )
 
 var orcheEngine orchestrationapi.Orche
+
+var (
+	edgeDir             string
+	logPath             string
+	configPath          string
+	dbPath              string
+	certificateFilePath string
+	cipherKeyFilePath   string
+	deviceIDFilePath    string
+)
 
 // ExecuteCallback is required to launch application in java layer
 type ExecuteCallback interface {
@@ -135,10 +143,18 @@ type ExecuteCallback interface {
 }
 
 // OrchestrationInit runs orchestration service and discovers remote orchestration services
-func OrchestrationInit(executeCallback ExecuteCallback) (errCode int) {
+func OrchestrationInit(executeCallback ExecuteCallback, edgeDir string) (errCode int) {
 
 	logmgr.Init(logPath)
 	log.Printf("[%s] OrchestrationInit", logPrefix)
+
+	logPath = edgeDir + logStr
+	configPath = edgeDir + configStr
+	dbPath = edgeDir + dbStr
+	certificateFilePath = edgeDir + certificateFile
+
+	cipherKeyFilePath = edgeDir + cipherKeyFile
+	deviceIDFilePath = edgeDir + deviceIDFile
 
 	wrapper.SetBoltDBPath(dbPath)
 
