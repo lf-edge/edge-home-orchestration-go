@@ -1,5 +1,3 @@
-// +build !secure
-
 /*******************************************************************************
  * Copyright 2019 Samsung Electronics All Rights Reserved.
  *
@@ -36,11 +34,49 @@ import (
 
 	"orchestrationapi"
 
+	"restinterface/cipher/dummy"
 	"restinterface/cipher/sha256"
 	"restinterface/client/restclient"
 	"restinterface/internalhandler"
 	"restinterface/route"
+	"restinterface/tls"
 )
+
+// Handle Platform Dependencies
+const (
+	logPrefix     = "interface"
+	platform      = "android"
+	executionType = "android"
+
+	logStr          = "/log"
+	configStr       = "/apps"
+	dbStr           = "/data/db"
+	certificateFile = "/data/cert"
+
+	cipherKeyFile = "/user/orchestration_userID.txt"
+	deviceIDFile  = "/device/orchestration_deviceID.txt"
+)
+
+var (
+	orcheEngine         orchestrationapi.Orche
+	edgeDir             string
+	logPath             string
+	configPath          string
+	dbPath              string
+	certificateFilePath string
+	cipherKeyFilePath   string
+	deviceIDFilePath    string
+)
+
+func initPlatformPath(edgeDir string) {
+	logPath = edgeDir + logStr
+	configPath = edgeDir + configStr
+	dbPath = edgeDir + dbStr
+	certificateFilePath = edgeDir + certificateFile
+
+	cipherKeyFilePath = edgeDir + cipherKeyFile
+	deviceIDFilePath = edgeDir + deviceIDFile
+}
 
 type RequestServiceInfo struct {
 	ExecutionType string
@@ -109,57 +145,41 @@ func (r ResponseService) GetTarget() string {
 	return r.RemoteTargetInfo.Target
 }
 
-const logPrefix = "interface"
-
-// Handle Platform Dependencies
-const (
-	platform      = "android"
-	executionType = "android"
-
-	logStr          = "/log"
-	configStr       = "/apps"
-	dbStr           = "/data/db"
-	certificateFile = "/data/cert"
-
-	cipherKeyFile = "/user/orchestration_userID.txt"
-	deviceIDFile  = "/device/orchestration_deviceID.txt"
-)
-
-var orcheEngine orchestrationapi.Orche
-
-var (
-	edgeDir             string
-	logPath             string
-	configPath          string
-	dbPath              string
-	certificateFilePath string
-	cipherKeyFilePath   string
-	deviceIDFilePath    string
-)
-
 // ExecuteCallback is required to launch application in java layer
 type ExecuteCallback interface {
 	androidexecutor.ExecuteCallback
 }
 
+var (
+	commitID, version, buildTime string
+	buildTags                    string
+)
+
 // OrchestrationInit runs orchestration service and discovers remote orchestration services
 func OrchestrationInit(executeCallback ExecuteCallback, edgeDir string) (errCode int) {
+	initPlatformPath(edgeDir)
 
 	logmgr.Init(logPath)
 	log.Printf("[%s] OrchestrationInit", logPrefix)
+	log.Println(">>> commitID  : ", commitID)
+	log.Println(">>> version   : ", version)
+	log.Println(">>> buildTime : ", buildTime)
+	log.Println(">>> buildTags : ", buildTags)
 
-	logPath = edgeDir + logStr
-	configPath = edgeDir + configStr
-	dbPath = edgeDir + dbStr
-	certificateFilePath = edgeDir + certificateFile
-
-	cipherKeyFilePath = edgeDir + cipherKeyFile
-	deviceIDFilePath = edgeDir + deviceIDFile
+	isSecured := false
+	if buildTags == "secure" {
+		log.Println("Orchestration init with secure option")
+		isSecured = true
+	}
 
 	wrapper.SetBoltDBPath(dbPath)
 
 	restIns := restclient.GetRestClient()
-	restIns.SetCipher(sha256.GetCipher(cipherKeyFilePath))
+	if isSecured {
+		restIns.SetCipher(dummy.GetCipher(cipherKeyFilePath))
+	} else {
+		restIns.SetCipher(sha256.GetCipher(cipherKeyFilePath))
+	}
 
 	servicemgr.GetInstance().SetClient(restIns)
 
@@ -182,7 +202,12 @@ func OrchestrationInit(executeCallback ExecuteCallback, edgeDir string) (errCode
 
 	orcheEngine.Start(deviceIDFilePath, platform, executionType)
 
-	restEdgeRouter := route.NewRestRouter()
+	var restEdgeRouter *route.RestRouter
+	if isSecured {
+		restEdgeRouter = route.NewRestRouterWithCerti(certificateFilePath)
+	} else {
+		restEdgeRouter = route.NewRestRouter()
+	}
 
 	internalapi, err := orchestrationapi.GetInternalAPI()
 	if err != nil {
@@ -190,7 +215,14 @@ func OrchestrationInit(executeCallback ExecuteCallback, edgeDir string) (errCode
 	}
 	ihandle := internalhandler.GetHandler()
 	ihandle.SetOrchestrationAPI(internalapi)
-	ihandle.SetCipher(sha256.GetCipher(cipherKeyFilePath))
+
+	if isSecured {
+		ihandle.SetCipher(dummy.GetCipher(cipherKeyFilePath))
+		ihandle.SetCertificateFilePath(certificateFilePath)
+	} else {
+		ihandle.SetCipher(sha256.GetCipher(cipherKeyFilePath))
+	}
+
 	restEdgeRouter.Add(ihandle)
 
 	restEdgeRouter.Start()
@@ -236,6 +268,14 @@ func OrchestrationRequestService(request *ReqeustService) *ResponseService {
 		},
 	}
 	return ret
+}
+
+type PSKHandler interface {
+	tls.PSKHandler
+}
+
+func OrchestrationSetPSKHandler(pskHandler PSKHandler) {
+	tls.SetPSKHandler(pskHandler)
 }
 
 var count int
