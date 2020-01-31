@@ -30,10 +30,14 @@ const (
 	KeyFileName         = "edge-orchestration.key"
 )
 
-var certFilePath atomic.Value
+var (
+	certFilePath atomic.Value
+	handler      PSKHandler
+)
 
 func init() {
 	certFilePath.Store("")
+	handler = defaultIdentifier{}
 }
 
 func SetCertFilePath(path string) {
@@ -43,6 +47,11 @@ func SetCertFilePath(path string) {
 
 func GetCertFilePath() string {
 	return certFilePath.Load().(string)
+}
+
+type PSKHandler interface {
+	GetIdentity() string
+	GetKey(identity string) ([]byte, error)
 }
 
 type CertificateSetter interface {
@@ -55,6 +64,10 @@ type certificateGetter interface {
 
 type HasCertificate struct {
 	IsSetCert bool
+}
+
+func SetPSKHandler(h PSKHandler) {
+	handler = h
 }
 
 func (h *HasCertificate) SetCertificateFilePath(path string) {
@@ -70,15 +83,23 @@ func (h *HasCertificate) GetCertificateFilePath() string {
 }
 
 func GetIdentity() string {
-	return uuid.Must(uuid.NewV4(), nil).String()
+	return handler.GetIdentity()
 }
 
 func GetKey(id string) ([]byte, error) {
+	return handler.GetKey(id)
+}
+
+type defaultIdentifier struct{}
+
+func (defaultIdentifier) GetIdentity() string {
+	return uuid.Must(uuid.NewV4(), nil).String()
+}
+
+func (defaultIdentifier) GetKey(id string) ([]byte, error) {
 	key, err := ioutil.ReadFile(GetCertFilePath() + "/" + KeyFileName)
 	if err != nil {
 		return nil, err
 	}
 	return key, nil
 }
-
-// todo catch file update event and
