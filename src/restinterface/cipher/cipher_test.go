@@ -21,6 +21,26 @@ import (
 	"testing"
 )
 
-func TestXYZ(t *testing.T) {
+type fakeCipher struct{}
 
+func TestSetCipher(t *testing.T) {
+	testHasCipher := HasCipher{}
+	testHasCipher.SetCipher(fakeCipher{})
+
+	if testHasCipher.IsSetKey != true {
+		t.Error("expecte key is set, but not set")
+	}
+}
+
+func (fakeCipher) EncryptByte(byteData []byte) (encryptedByte []byte, err error) {
+	return
+}
+func (fakeCipher) EncryptJSONToByte(jsonMap map[string]interface{}) (encryptedByte []byte, err error) {
+	return
+}
+func (fakeCipher) DecryptByte(byteData []byte) (decryptedByte []byte, err error) {
+	return
+}
+func (fakeCipher) DecryptByteToJSON(data []byte) (jsonMap map[string]interface{}, err error) {
+	return
 }

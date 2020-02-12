@@ -19,17 +19,8 @@ COPY $APP_BIN_DIR/$APP_NAME $APP_MAIN_DIR/run.sh $TARGET_DIR/
 # expose ports
 EXPOSE $HTTP_PORT $MDNS_PORT $ZEROCONF_PORT
 
-# make boltdb volume
-RUN mkdir -p /var
-RUN mkdir -p /var/data
-RUN mkdir -p /var/data/db
-
-
 # set the working directory
 WORKDIR $TARGET_DIR
-
-# make boltdb volume
-RUN mkdir -p /var/data/db
 
 # kick off the edge-orchestration container
 CMD ["sh", "run.sh"]

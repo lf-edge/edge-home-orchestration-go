@@ -33,8 +33,14 @@ type InfoStat struct {
 	core int
 }
 
+var fileOpen func(name string) (*os.File, error)
+
+func init() {
+	fileOpen = os.Open
+}
+
 func readCPUUsage() ([]float64, error) {
-	f, err := os.Open("/proc/stat")
+	f, err := fileOpen("/proc/stat")
 	defer f.Close()
 	if err != nil {
 		log.Println(err.Error())
@@ -119,7 +125,7 @@ func Info() ([]InfoStat, error) {
 }
 
 func getCPUMaxFreq() (float64, error) {
-	f, err := os.Open("/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq")
+	f, err := fileOpen("/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq")
 	defer f.Close()
 	if err != nil {
 		return 0.0, err
@@ -146,7 +152,7 @@ func getCPUMaxFreq() (float64, error) {
 }
 
 func getCPUs() ([]InfoStat, error) {
-	f, err := os.Open("/proc/cpuinfo")
+	f, err := fileOpen("/proc/cpuinfo")
 	defer f.Close()
 	if err != nil {
 		return nil, err

@@ -35,17 +35,17 @@ func (m *MockServiceMgr) EXPECT() *MockServiceMgrMockRecorder {
 }
 
 // Execute mocks base method
-func (m *MockServiceMgr) Execute(target, name string, args []interface{}, notiChan chan string) error {
+func (m *MockServiceMgr) Execute(target, name, requester string, args []interface{}, notiChan chan string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Execute", target, name, args, notiChan)
+	ret := m.ctrl.Call(m, "Execute", target, name, requester, args, notiChan)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Execute indicates an expected call of Execute
-func (mr *MockServiceMgrMockRecorder) Execute(target, name, args, notiChan interface{}) *gomock.Call {
+func (mr *MockServiceMgrMockRecorder) Execute(target, name, requester, args, notiChan interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Execute", reflect.TypeOf((*MockServiceMgr)(nil).Execute), target, name, args, notiChan)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Execute", reflect.TypeOf((*MockServiceMgr)(nil).Execute), target, name, requester, args, notiChan)
 }
 
 // SetLocalServiceExecutor mocks base method

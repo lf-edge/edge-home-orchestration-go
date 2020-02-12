@@ -182,7 +182,7 @@ func TestExecuteWaitInvokedError(t *testing.T) {
 
 	go func() {
 		err := cExecutor.Execute(serviceInfo)
-		if strings.Compare(err.Error(), "wait error") != 0 {
+		if err != nil && strings.Compare(err.Error(), "wait error") != 0 {
 			t.Error()
 		}
 		wait.Done()
@@ -190,13 +190,6 @@ func TestExecuteWaitInvokedError(t *testing.T) {
 
 	errCh <- errors.New("wait error")
 	wait.Wait()
-}
-
-func TestConvertConfigWithAddHost(t *testing.T) {
-	t.Skip()
-
-	validStr := []string{"docker", "run", "--add-host", "127.0.0.1"}
-	convertConfig(validStr)
 }
 
 func TestSuccessConvertConfigWithAttach(t *testing.T) {
@@ -329,14 +322,6 @@ func TestSuccessConvertConfigWithCPUOption(t *testing.T) {
 	})
 }
 
-func TestSuccessConvertDetachOption(t *testing.T) {
-	t.Skip()
-	t.Run("Success", func(t *testing.T) {
-		// TODO check the run option
-		// -detach -detach-key
-	})
-}
-
 func TestSuccessConvertConfigDeviceOption(t *testing.T) {
 	t.Run("Device", func(t *testing.T) {
 		validStr := []string{"docker", "run", "--device", "/dev/sda1:/dev/sdb1", imageName}
@@ -404,12 +389,6 @@ func TestSuccessConvertConfigDeviceOption(t *testing.T) {
 			t.Fail()
 		}
 	})
-}
-
-func TestSuccessConvertConfigWithDisableContentTrust(t *testing.T) {
-	t.Skip()
-	// TODO check the run option
-	// --disable-content-trust
 }
 
 func TestSuccessConvertConfigDNSOption(t *testing.T) {
@@ -790,14 +769,6 @@ func TestSuccessConvertConfigWithMount(t *testing.T) {
 	}
 }
 
-func TestSuccessConvertConfigWithName(t *testing.T) {
-	t.Skip()
-	// @TODO : check --name option
-
-	// validStr := []string{"docker", "run", "--name", "testContainer", imageName}
-	// container, _, _ := convertConfig(validStr)
-}
-
 func TestSuccessConvertConfigNetworkOption(t *testing.T) {
 	t.Run("Network", func(t *testing.T) {
 		// @Note : allow for both "--net" and "--network", although the latter is the recommended way.
@@ -890,14 +861,6 @@ func TestSuccessConvertConfigWithPrivileged(t *testing.T) {
 }
 
 func TestSuccessConvertConfigPublishOption(t *testing.T) {
-	t.Run("Publish", func(t *testing.T) {
-		t.Skip()
-		// validStr := []string{"docker", "run", "-p", "80:80", "-p", "443.443", imageName}
-		// _, host, _ := convertConfig(validStr)
-
-		// @TODO : check -p option affect which structrue
-		// ports, portBindings
-	})
 	t.Run("PublishAll", func(t *testing.T) {
 		// validStr := []string{"docker", "run", "--publish-all", "true", imageName}
 		validStr := []string{"docker", "run", "--publish-all", imageName}
@@ -967,13 +930,6 @@ func TestSuccessConvertConfigWithShmSize(t *testing.T) {
 	if host.ShmSize != int64(2147483648) {
 		t.Fail()
 	}
-}
-
-func TestSuccessConvertConfigWithSigProxy(t *testing.T) {
-	t.Skip()
-	// @TODO : check --sig-proxy option
-	// validStr := []string{"docker", "run", "--sig-proxy", "false", imageName}
-	// _, host, _ := convertConfig(validStr)
 }
 
 func TestSuccessConvertConfigStopOption(t *testing.T) {

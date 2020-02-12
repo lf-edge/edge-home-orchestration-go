@@ -1,3 +1,5 @@
+// +build !secure
+
 /*******************************************************************************
  * Copyright 2019 Samsung Electronics All Rights Reserved.
  *
@@ -43,25 +45,30 @@ package main
 // * limitations under the License.
 // *
 // *******************************************************************************/
-//struct RequestServiceInfo {
+//#define MAX_SVC_INFO_NUM 3
+//typedef struct {
 //	char* ExecutionType;
 //	char* ExeCmd;
-//};
-//struct TargetInfo {
+//} RequestServiceInfo;
+//
+//typedef struct {
 //	char* ExecutionType;
 //	char* Target;
-//};
-//struct ResponseService {
+//} TargetInfo;
+//
+//typedef struct {
 //	char*      Message;
 //	char*      ServiceName;
-//	struct TargetInfo RemoteTargetInfo;
-//};
+//	TargetInfo RemoteTargetInfo;
+//} ResponseService;
 import "C"
 import (
 	"flag"
 	"log"
+	"math"
 	"strings"
 	"sync"
+	"unsafe"
 
 	"common/logmgr"
 
@@ -77,6 +84,8 @@ import (
 	"restinterface/client/restclient"
 	"restinterface/internalhandler"
 	"restinterface/route"
+
+	"db/bolt/wrapper"
 )
 
 const logPrefix = "interface"
@@ -84,20 +93,23 @@ const logPrefix = "interface"
 // Handle Platform Dependencies
 const (
 	platform      = "linux"
-	executionType = "rpm"
+	executionType = "native"
 
-	logPath = "/var/log/edge-orchestration"
-	edgeDir = "/etc/edge-orchestration/"
+	edgeDir = "/var/edge-orchestration"
 
-	configPath = edgeDir + "apps"
+	logPath             = edgeDir + "/log"
+	configPath          = edgeDir + "/apps"
+	dbPath              = edgeDir + "/data/db"
+	certificateFilePath = edgeDir + "/data/cert"
 
-	cipherKeyFilePath = edgeDir + "orchestration_userID.txt"
-	deviceIDFilePath  = edgeDir + "orchestration_deviceID.txt"
+	cipherKeyFilePath = edgeDir + "/user/orchestration_userID.txt"
+	deviceIDFilePath  = edgeDir + "/device/orchestration_deviceID.txt"
 )
 
 var (
 	flagVersion                  bool
 	commitID, version, buildTime string
+	buildTags                    string
 
 	orcheEngine orchestrationapi.Orche
 )
@@ -113,6 +125,8 @@ func OrchestrationInit() (errCode C.int) {
 	log.Println(">>> commitID  : ", commitID)
 	log.Println(">>> version   : ", version)
 	log.Println(">>> buildTime : ", buildTime)
+	log.Println(">>> buildTags : ", buildTags)
+	wrapper.SetBoltDBPath(dbPath)
 
 	restIns := restclient.GetRestClient()
 	restIns.SetCipher(sha256.GetCipher(cipherKeyFilePath))
@@ -153,31 +167,50 @@ func OrchestrationInit() (errCode C.int) {
 }
 
 //export OrchestrationRequestService
-func OrchestrationRequestService(cAppName *C.char, serviceInfo *C.struct_RequestServiceInfo, count C.int) C.struct_ResponseService {
+func OrchestrationRequestService(cAppName *C.char, cSelfSelection C.int, cRequester *C.char, serviceInfo *C.RequestServiceInfo, count C.int) C.ResponseService {
 	log.Printf("[%s] OrchestrationRequestService", logPrefix)
 
 	appName := C.GoString(cAppName)
 
 	requestInfos := make([]orchestrationapi.RequestServiceInfo, count)
-	for _, requestInfo := range requestInfos {
-		requestInfo.ExecutionType = C.GoString(serviceInfo.ExecutionType)
-		args := strings.Split(C.GoString(serviceInfo.ExeCmd), " ")
+	CServiceInfo := (*[(math.MaxInt16 - 1) / unsafe.Sizeof(serviceInfo)]C.RequestServiceInfo)(unsafe.Pointer(serviceInfo))[:count:count]
+
+	for idx, requestInfo := range CServiceInfo {
+		requestInfos[idx].ExecutionType = C.GoString(requestInfo.ExecutionType)
+
+		args := strings.Split(C.GoString(requestInfo.ExeCmd), " ")
 		if strings.Compare(args[0], "") == 0 {
 			args = nil
 		}
-		copy(requestInfo.ExeCmd, args)
+		requestInfos[idx].ExeCmd = append([]string{}, args...)
 	}
 
-	log.Println("appName:", appName, "infos:", requestInfos)
 	externalAPI, err := orchestrationapi.GetExternalAPI()
 	if err != nil {
 		log.Fatalf("[%s] Orchestaration external api : %s", logPrefix, err.Error())
 	}
 
-	res := externalAPI.RequestService(orchestrationapi.ReqeustService{ServiceName: appName, ServiceInfo: requestInfos})
+	selfSel := true
+	if cSelfSelection == 0 {
+		selfSel = false
+	}
+
+	requester := C.GoString(cRequester)
+
+	log.Printf("[OrchestrationRequestService] appName:%s", appName)
+	log.Printf("[OrchestrationRequestService] selfSel:%v", selfSel)
+	log.Printf("[OrchestrationRequestService] requester:%s", requester)
+	log.Printf("[OrchestrationRequestService] infos:%v", requestInfos)
+
+	res := externalAPI.RequestService(orchestrationapi.ReqeustService{
+		ServiceName:      appName,
+		SelfSelection:    selfSel,
+		ServiceInfo:      requestInfos,
+		ServiceRequester: requester,
+	})
 	log.Println("requestService handle : ", res)
 
-	ret := C.struct_ResponseService{}
+	ret := C.ResponseService{}
 	ret.Message = C.CString(res.Message)
 	ret.ServiceName = C.CString(res.ServiceName)
 	ret.RemoteTargetInfo.ExecutionType = C.CString(res.RemoteTargetInfo.ExecutionType)

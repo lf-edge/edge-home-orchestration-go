@@ -25,14 +25,21 @@ import (
 	"testing"
 	"time"
 
-	types "common/types/configuremgrtypes"
+	"common/types/configuremgrtypes"
 	contextmgr "controller/configuremgr"
+)
+
+var name string
+
+const (
+	expectedName = "HelloWorldService"
 )
 
 type dummyNoti struct{}
 
-func (d dummyNoti) Notify(s types.ServiceInfo) {
-	log.Println(s)
+func (d dummyNoti) Notify(serviceinfo configuremgrtypes.ServiceInfo) {
+	log.Println(serviceinfo.ServiceName)
+	name = serviceinfo.ServiceName
 }
 
 func TestSetConfigPath(t *testing.T) {
@@ -74,7 +81,12 @@ func TestBasicMockConfigureMgr(t *testing.T) {
 
 	//user scenario
 	execCommand(fmt.Sprintf("cp -ar %s %s", src, dst))
+
 	time.Sleep(time.Duration(5) * time.Second)
+
+	if name != expectedName {
+		t.Errorf("Not matched notified serviceName")
+	}
 
 	// testConfigObj.Done <- true
 }

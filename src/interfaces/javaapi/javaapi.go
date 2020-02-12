@@ -1,3 +1,5 @@
+// +build !secure
+
 /*******************************************************************************
  * Copyright 2019 Samsung Electronics All Rights Reserved.
  *
@@ -21,15 +23,16 @@ package javaapi
 import (
 	"db/bolt/wrapper"
 	"log"
+	"strings"
 	"sync"
 
 	"common/logmgr"
 
-	configuremgr "controller/configuremgr/container"
+	configuremgr "controller/configuremgr/native"
 	"controller/discoverymgr"
 	scoringmgr "controller/scoringmgr"
 	"controller/servicemgr"
-	"controller/servicemgr/executor/nativeexecutor"
+	"controller/servicemgr/executor/androidexecutor"
 
 	"orchestrationapi"
 
@@ -45,8 +48,46 @@ type RequestServiceInfo struct {
 }
 
 type ReqeustService struct {
-	ServiceName string
-	ServiceInfo []RequestServiceInfo
+	ServiceName      string
+	SelfSelection    bool
+	ServiceRequester string
+	ServiceInfo      []RequestServiceInfo
+}
+
+func (r *ReqeustService) SetExecutionCommand(execType string, command string) {
+	switch execType {
+	case "native", "android", "container":
+	default:
+		log.Printf("[%s] Invalid execution type: %s", logPrefix, execType)
+		return
+	}
+
+	args := strings.Split(command, " ")
+
+	for _, info := range r.ServiceInfo {
+		if info.ExecutionType == execType {
+			info.ExeCmd = make([]string, len(args))
+			copy(info.ExeCmd, args)
+			return
+		}
+	}
+	info := RequestServiceInfo{ExecutionType: execType}
+	info.ExeCmd = make([]string, len(args))
+	copy(info.ExeCmd, args)
+
+	r.ServiceInfo = append(r.ServiceInfo, info)
+}
+
+func (r ReqeustService) GetExecutionCommand(execType string) string {
+	switch execType {
+	case "native", "android", "container":
+		for _, info := range r.ServiceInfo {
+			if info.ExecutionType == execType {
+				return strings.Join(info.ExeCmd, " ")
+			}
+		}
+	}
+	return ""
 }
 
 type TargetInfo struct {
@@ -57,7 +98,15 @@ type TargetInfo struct {
 type ResponseService struct {
 	Message          string
 	ServiceName      string
-	RemoteTargetInfo TargetInfo
+	RemoteTargetInfo *TargetInfo
+}
+
+func (r ResponseService) GetExecutedType() string {
+	return r.RemoteTargetInfo.ExecutionType
+}
+
+func (r ResponseService) GetTarget() string {
+	return r.RemoteTargetInfo.Target
 }
 
 const logPrefix = "interface"
@@ -65,25 +114,47 @@ const logPrefix = "interface"
 // Handle Platform Dependencies
 const (
 	platform      = "android"
-	executionType = "apk"
+	executionType = "android"
 
-	edgeDir = "/storage/emulated/0/Android/data/com.samsung.orchestration.service/files/"
+	logStr          = "/log"
+	configStr       = "/apps"
+	dbStr           = "/data/db"
+	certificateFile = "/data/cert"
 
-	logPath    = edgeDir + "log/edge-orchestration"
-	configPath = edgeDir + "apps"
-	dbPath     = edgeDir + "db"
-
-	cipherKeyFilePath = edgeDir + "orchestration_userID.txt"
-	deviceIDFilePath  = edgeDir + "orchestration_deviceID.txt"
+	cipherKeyFile = "/user/orchestration_userID.txt"
+	deviceIDFile  = "/device/orchestration_deviceID.txt"
 )
 
 var orcheEngine orchestrationapi.Orche
 
-// OrchestrationInit runs orchestration service and discovers other orchestration services in other devices
-func OrchestrationInit() (errCode int) {
+var (
+	edgeDir             string
+	logPath             string
+	configPath          string
+	dbPath              string
+	certificateFilePath string
+	cipherKeyFilePath   string
+	deviceIDFilePath    string
+)
+
+// ExecuteCallback is required to launch application in java layer
+type ExecuteCallback interface {
+	androidexecutor.ExecuteCallback
+}
+
+// OrchestrationInit runs orchestration service and discovers remote orchestration services
+func OrchestrationInit(executeCallback ExecuteCallback, edgeDir string) (errCode int) {
 
 	logmgr.Init(logPath)
 	log.Printf("[%s] OrchestrationInit", logPrefix)
+
+	logPath = edgeDir + logStr
+	configPath = edgeDir + configStr
+	dbPath = edgeDir + dbStr
+	certificateFilePath = edgeDir + certificateFile
+
+	cipherKeyFilePath = edgeDir + cipherKeyFile
+	deviceIDFilePath = edgeDir + deviceIDFile
 
 	wrapper.SetBoltDBPath(dbPath)
 
@@ -97,14 +168,17 @@ func OrchestrationInit() (errCode int) {
 	builder.SetDiscovery(discoverymgr.GetInstance())
 	builder.SetScoring(scoringmgr.GetInstance())
 	builder.SetService(servicemgr.GetInstance())
-	builder.SetExecutor(nativeexecutor.GetInstance()) // TODO modify for android if needed
+	builder.SetExecutor(androidexecutor.GetInstance())
 	builder.SetClient(restIns)
 
 	orcheEngine = builder.Build()
 	if orcheEngine == nil {
-		log.Fatalf("[%s] Orchestaration initalize fail", logPrefix)
+		log.Fatalf("[%s] Orchestration initialize fail", logPrefix)
 		return
 	}
+
+	// set the android executor callback
+	androidexecutor.GetInstance().SetExecuteCallback(executeCallback)
 
 	orcheEngine.Start(deviceIDFilePath, platform, executionType)
 
@@ -112,7 +186,7 @@ func OrchestrationInit() (errCode int) {
 
 	internalapi, err := orchestrationapi.GetInternalAPI()
 	if err != nil {
-		log.Fatalf("[%s] Orchestaration internal api : %s", logPrefix, err.Error())
+		log.Fatalf("[%s] Orchestration internal api : %s", logPrefix, err.Error())
 	}
 	ihandle := internalhandler.GetHandler()
 	ihandle.SetOrchestrationAPI(internalapi)
@@ -121,42 +195,46 @@ func OrchestrationInit() (errCode int) {
 
 	restEdgeRouter.Start()
 
-	log.Println(logPrefix, "orchestration init done")
+	log.Println(logPrefix, "Orchestration init done")
 
 	errCode = 0
 
 	return
 }
 
-// OrchestrationRequestService performs request from service applications who uses orchestration service
-func OrchestrationRequestService(request ReqeustService) ResponseService {
+// OrchestrationRequestService performs request from service applications which uses orchestration service
+func OrchestrationRequestService(request *ReqeustService) *ResponseService {
 	log.Printf("[%s] OrchestrationRequestService", logPrefix)
+	log.Println("Service name: ", request.ServiceName)
 
-	log.Println("request info:", request)
 	externalAPI, err := orchestrationapi.GetExternalAPI()
 	if err != nil {
 		log.Fatalf("[%s] Orchestaration external api : %s", logPrefix, err.Error())
 	}
 
-	changed := orchestrationapi.ReqeustService{ServiceName: request.ServiceName}
+	changed := orchestrationapi.ReqeustService{
+		ServiceName:      request.ServiceName,
+		SelfSelection:    request.SelfSelection,
+		ServiceRequester: request.ServiceRequester,
+	}
+
 	changed.ServiceInfo = make([]orchestrationapi.RequestServiceInfo, len(request.ServiceInfo))
 	for idx, info := range request.ServiceInfo {
 		changed.ServiceInfo[idx].ExecutionType = info.ExecutionType
-		copy(changed.ServiceInfo[idx].ExeCmd, info.ExeCmd)
+		changed.ServiceInfo[idx].ExeCmd = info.ExeCmd
 	}
 
 	response := externalAPI.RequestService(changed)
-	log.Println("response : ", response)
+	log.Println("Response : ", response)
 
-	ret := ResponseService{
-		Message: response.Message,
-		RemoteTargetInfo: TargetInfo{
+	ret := &ResponseService{
+		Message:     response.Message,
+		ServiceName: response.ServiceName,
+		RemoteTargetInfo: &TargetInfo{
 			ExecutionType: response.RemoteTargetInfo.ExecutionType,
 			Target:        response.RemoteTargetInfo.Target,
 		},
-		ServiceName: response.ServiceName,
 	}
-
 	return ret
 }
 

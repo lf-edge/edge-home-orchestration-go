@@ -23,7 +23,6 @@ import (
 	"net"
 	"time"
 
-	errormsg "common/errormsg"
 	errors "common/errors"
 	networkhelper "common/networkhelper"
 	wrapper "controller/discoverymgr/wrapper"
@@ -84,6 +83,13 @@ func (discoveryImpl) StartDiscovery(UUIDpath string, platform string, executionT
 	startServer(UUIDStr, platform, executionType)
 
 	go detectNetworkChgRoutine()
+
+	go func() {
+		for {
+			time.Sleep(time.Minute)
+			activeDiscovery()
+		}
+	}()
 
 	return
 }
@@ -321,16 +327,10 @@ func setDeviceArgument(deviceUUID string, platform string, executionType string)
 }
 
 func setNetwotkArgument() (hostIPAddr []string, netIface []net.Interface) {
-	var err error
-	// TODO : change to channel
 	for {
-		hostIPAddr, err = networkIns.GetIPs()
+		hostIPAddr, _ = networkIns.GetIPs()
 		if len(hostIPAddr) != 0 {
 			break
-		}
-
-		if err != nil {
-			log.Println(logPrefix, errormsg.ToString(err))
 		}
 		time.Sleep(1 * time.Second)
 	}
@@ -366,9 +366,17 @@ func deviceDetectionRoutine() {
 
 				_, confInfo, netInfo, serviceInfo := convertToDBInfo(*data)
 
+				log.Printf("[deviceDetectionRoutine] %s", data.DeviceID)
+				log.Printf("[deviceDetectionRoutine] confInfo    : ExecType(%s), Platform(%s)", confInfo.ExecType, confInfo.Platform)
+				log.Printf("[deviceDetectionRoutine] netInfo     : IPv4(%s)", netInfo.IPv4)
+				log.Printf("[deviceDetectionRoutine] serviceInfo : Services(%v)", serviceInfo.Services)
+				log.Printf("")
+
+				if len(netInfo.IPv4) != 0 {
+					setNetworkDB(netInfo)
+				}
 				// @Note Is it need to call Update API?
 				setConfigurationDB(confInfo)
-				setNetworkDB(netInfo)
 				setServiceDB(serviceInfo)
 			}
 		}
@@ -573,6 +581,7 @@ func deleteDevice(deviceID string) {
 // activeDiscovery calls advertise function of Zeroconf
 // Does Not Clear Map
 func activeDiscovery() {
+	log.Printf("[discoverymgr] activeDiscovery!!!")
 	wrapperIns.Advertise()
 }
 

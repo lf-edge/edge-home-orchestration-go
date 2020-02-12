@@ -23,16 +23,19 @@ import (
 	"sort"
 	"sync"
 	"sync/atomic"
+	"time"
 
+	"common/commandvalidator"
 	"common/networkhelper"
+	"common/requestervalidator"
 	"controller/configuremgr"
 	"controller/discoverymgr"
 	"controller/scoringmgr"
 	"controller/servicemgr"
 	"controller/servicemgr/notification"
-	dbcommon "db/bolt/common"
 	"restinterface/client"
 
+	"db/bolt/common"
 	sysDB "db/bolt/system"
 	dbhelper "db/helper"
 )
@@ -71,8 +74,10 @@ type RequestServiceInfo struct {
 }
 
 type ReqeustService struct {
-	ServiceName string
-	ServiceInfo []RequestServiceInfo
+	SelfSelection    bool
+	ServiceName      string
+	ServiceRequester string
+	ServiceInfo      []RequestServiceInfo
 	// TODO add status callback
 }
 
@@ -92,6 +97,7 @@ const (
 	INVALID_PARAMETER     = "INVALID_PARAMETER"
 	SERVICE_NOT_FOUND     = "SERVICE_NOT_FOUND"
 	INTERNAL_SERVER_ERROR = "INTERNAL_SERVER_ERROR"
+	NOT_ALLOWED_COMMAND   = "NOT_ALLOWED_COMMAND"
 )
 
 var (
@@ -112,6 +118,7 @@ func init() {
 // RequestService handles service reqeust (ex. offloading) from service application
 func (orcheEngine *orcheImpl) RequestService(serviceInfo ReqeustService) ResponseService {
 	log.Printf("[RequestService] %v: %v\n", serviceInfo.ServiceName, serviceInfo.ServiceInfo)
+
 	if orcheEngine.Ready == false {
 		return ResponseService{
 			Message:          INTERNAL_SERVER_ERROR,
@@ -133,6 +140,15 @@ func (orcheEngine *orcheImpl) RequestService(serviceInfo ReqeustService) Respons
 	}
 
 	candidates, err := orcheEngine.getCandidate(serviceInfo.ServiceName, executionTypes)
+
+	log.Printf("[RequestService] getCandidate")
+	for index, candidate := range candidates {
+		log.Printf("[%d] Id       : %v", index, candidate.Id)
+		log.Printf("[%d] ExecType : %v", index, candidate.ExecType)
+		log.Printf("[%d] Endpoint : %v", index, candidate.Endpoint)
+		log.Printf("")
+	}
+
 	if err != nil {
 		return ResponseService{
 			Message:          err.Error(),
@@ -141,26 +157,66 @@ func (orcheEngine *orcheImpl) RequestService(serviceInfo ReqeustService) Respons
 		}
 	}
 
-	deviceScores := sortByScore(orcheEngine.gatherDevicesScore(candidates))
-	if len(deviceScores) > 0 {
-		return ResponseService{
-			Message:          SERVICE_NOT_FOUND,
-			ServiceName:      serviceInfo.ServiceName,
-			RemoteTargetInfo: TargetInfo{},
-		}
+	errorResp := ResponseService{
+		Message:          SERVICE_NOT_FOUND,
+		ServiceName:      serviceInfo.ServiceName,
+		RemoteTargetInfo: TargetInfo{},
+	}
+
+	deviceScores := sortByScore(orcheEngine.gatherDevicesScore(candidates, serviceInfo.SelfSelection))
+	if len(deviceScores) <= 0 {
+		return errorResp
+	} else if deviceScores[0].score == scoringmgr.INVALID_SCORE {
+		return errorResp
 	}
 
 	args, err := getExecCmds(deviceScores[0].execType, serviceInfo.ServiceInfo)
 	if err != nil {
 		log.Println(err.Error())
-		return ResponseService{
-			Message:          err.Error(),
-			ServiceName:      serviceInfo.ServiceName,
-			RemoteTargetInfo: TargetInfo{},
+		errorResp.Message = err.Error()
+		return errorResp
+	}
+	args = append(args, deviceScores[0].execType)
+
+	localhosts, err := orcheEngine.networkhelper.GetIPs()
+	if err != nil {
+		log.Println("[orchestrationapi] localhost ip gettering fail. maybe skipped localhost")
+	}
+
+	if common.HasElem(localhosts, deviceScores[0].endpoint) {
+		validator := commandvalidator.CommandValidator{}
+		for _, info := range serviceInfo.ServiceInfo {
+			if info.ExecutionType == "native" || info.ExecutionType == "android" {
+				if err := validator.CheckCommand(serviceInfo.ServiceName, info.ExeCmd); err != nil {
+					log.Println(err.Error())
+					return ResponseService{
+						Message:          err.Error(),
+						ServiceName:      serviceInfo.ServiceName,
+						RemoteTargetInfo: TargetInfo{},
+					}
+				}
+			}
+		}
+
+		vRequester := requestervalidator.RequesterValidator{}
+		if err := vRequester.CheckRequester(serviceInfo.ServiceName, serviceInfo.ServiceRequester); err != nil &&
+			(deviceScores[0].execType == "native" || deviceScores[0].execType == "android") {
+			log.Println(err.Error())
+			return ResponseService{
+				Message:          err.Error(),
+				ServiceName:      serviceInfo.ServiceName,
+				RemoteTargetInfo: TargetInfo{},
+			}
 		}
 	}
 
-	orcheEngine.executeApp(deviceScores[0].endpoint, serviceInfo.ServiceName, args, serviceClient.notiChan)
+	orcheEngine.executeApp(
+		deviceScores[0].endpoint,
+		serviceInfo.ServiceName,
+		serviceInfo.ServiceRequester,
+		args,
+		serviceClient.notiChan,
+	)
 	log.Println("[orchestrationapi] ", deviceScores)
 
 	return ResponseService{
@@ -187,36 +243,47 @@ func (orcheEngine orcheImpl) getCandidate(appName string, execType []string) (de
 	return helper.GetDeviceInfoWithService(appName, execType)
 }
 
-func (orcheEngine orcheImpl) gatherDevicesScore(candidates []dbhelper.ExecutionCandidate) (deviceScores []deviceScore) {
-	scores := make(chan deviceScore, len(candidates))
+func (orcheEngine orcheImpl) gatherDevicesScore(candidates []dbhelper.ExecutionCandidate, selfSelection bool) (deviceScores []deviceScore) {
 	count := len(candidates)
-
-	index := 0
+	if !selfSelection {
+		count -= 1
+	}
+	scores := make(chan deviceScore, count)
 
 	info, err := sysDBExecutor.Get(sysDB.ID)
 	if err != nil {
-		log.Println("[orchestrationapi] ", "localhost devid gettering fail")
+		log.Println("[orchestrationapi] localhost devid gettering fail")
 		return
 	}
 
+	timeout := make(chan bool, 1)
+	go func() {
+		time.Sleep(3 * time.Second)
+		timeout <- true
+	}()
+
 	var wait sync.WaitGroup
 	wait.Add(1)
-
+	index := 0
 	go func() {
+		defer wait.Done()
 		for {
-			score := <-scores
-			deviceScores = append(deviceScores, score)
-			if index++; count == index {
-				break
+			select {
+			case score := <-scores:
+				deviceScores = append(deviceScores, score)
+				if index++; count == index {
+					return
+				}
+			case <-timeout:
+				return
 			}
 		}
-		wait.Done()
 		return
 	}()
 
-	localhost, err := orcheEngine.networkhelper.GetOutboundIP()
+	localhosts, err := orcheEngine.networkhelper.GetIPs()
 	if err != nil {
-		log.Println("[orchestrationapi] ", "localhost ip gettering fail", "maybe skipped localhost")
+		log.Println("[orchestrationapi] localhost ip gettering fail. maybe skipped localhost")
 	}
 
 	for _, candidate := range candidates {
@@ -224,18 +291,31 @@ func (orcheEngine orcheImpl) gatherDevicesScore(candidates []dbhelper.ExecutionC
 			var score float64
 			var err error
 
-			if dbcommon.HasElem(cand.Endpoint, localhost) {
+			if len(cand.Endpoint) == 0 {
+				log.Println("[orchestrationapi] cannot getting score, cause by ip list is empty")
+				scores <- deviceScore{endpoint: "", score: float64(0.0), id: cand.Id}
+				return
+			}
+
+			if isLocalhost(cand.Endpoint, localhosts) {
+				if !selfSelection {
+					return
+				}
 				score, err = orcheEngine.GetScore(info.Value)
 			} else {
-				// TODO change index of ips
 				score, err = orcheEngine.clientAPI.DoGetScoreRemoteDevice(info.Value, cand.Endpoint[0])
 			}
 
 			if err != nil {
-				log.Println("[orchestrationapi] ", "cannot getting score from : ", cand.Endpoint[0], " cause by ", err.Error())
+				log.Println("[orchestrationapi] cannot getting score from :", cand.Endpoint[0], "cause by", err.Error())
 				scores <- deviceScore{endpoint: cand.Endpoint[0], score: float64(0.0), id: cand.Id}
 				return
 			}
+			log.Printf("[orchestrationapi] deviceScore")
+			log.Printf("candidate Id       : %v", cand.Id)
+			log.Printf("candidate ExecType : %v", cand.ExecType)
+			log.Printf("candidate Endpoint : %v", cand.Endpoint[0])
+			log.Printf("candidate score    : %v", score)
 			scores <- deviceScore{endpoint: cand.Endpoint[0], score: score, id: cand.Id, execType: cand.ExecType}
 		}(candidate)
 	}
@@ -245,13 +325,13 @@ func (orcheEngine orcheImpl) gatherDevicesScore(candidates []dbhelper.ExecutionC
 	return
 }
 
-func (orcheEngine orcheImpl) executeApp(endpoint string, serviceName string, args []string, notiChan chan string) {
+func (orcheEngine orcheImpl) executeApp(endpoint, serviceName, requester string, args []string, notiChan chan string) {
 	ifArgs := make([]interface{}, len(args))
 	for i, v := range args {
 		ifArgs[i] = v
 	}
 
-	orcheEngine.serviceIns.Execute(endpoint, serviceName, ifArgs, notiChan)
+	orcheEngine.serviceIns.Execute(endpoint, serviceName, requester, ifArgs, notiChan)
 }
 
 func (client *orcheClient) listenNotify() {
@@ -259,6 +339,17 @@ func (client *orcheClient) listenNotify() {
 	case str := <-client.notiChan:
 		log.Printf("[orchestrationapi] service status changed [appNames:%s][status:%s]\n", client.appName, str)
 	}
+}
+
+func isLocalhost(endpoints1, endpoints2 []string) bool {
+	for _, endpoint1 := range endpoints1 {
+		for _, endpoint2 := range endpoints2 {
+			if endpoint1 == endpoint2 {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 func addServiceClient(clientID int, appName string) (client *orcheClient) {

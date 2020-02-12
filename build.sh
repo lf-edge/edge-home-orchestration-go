@@ -1,28 +1,45 @@
 #! /bin/bash
 
 export BASE_DIR=$( cd "$(dirname "$0")" ; pwd )
+export BUILD_TAGS=""
 
 DOCKER_IMAGE="edge-orchestration"
 BINARY_FILE="edge-orchestration"
 
 PKG_LIST=(
         "common/errormsg"
+        "common/errors"
         "common/logmgr"
         "common/networkhelper"
         "common/networkhelper/detector"
         "common/resourceutil"
-        "common/resourceutil/container"
+        "common/resourceutil/cpu"
+        "common/resourceutil/native"
+        "common/resourceutil/types/servicemgrtypes"
         "common/types/configuremgrtypes"
         "common/types/servicemgrtypes"
         "controller/configuremgr"
         "controller/configuremgr/container"
+        "controller/configuremgr/native"
         "controller/discoverymgr"
         "controller/discoverymgr/wrapper"
         "controller/scoringmgr"
         "controller/servicemgr"
         "controller/servicemgr/executor"
+        "controller/servicemgr/executor/androidexecutor"
         "controller/servicemgr/executor/containerexecutor"
+        "controller/servicemgr/executor/nativeexecutor"
         "controller/servicemgr/notification"
+        "db/bolt/common"
+        "db/bolt/configuration"
+        "db/bolt/network"
+        "db/bolt/resource"
+        "db/bolt/service"
+        "db/bolt/system"
+        "db/bolt/wrapper"
+        "db/helper"
+        "interfaces/capi"
+        "interfaces/javaapi"
         "orchestrationapi"
         "restinterface"
         "restinterface/cipher"
@@ -36,8 +53,16 @@ PKG_LIST=(
         "restinterface/route"
 )
 
-export CONTAINER_VERSION="alpha"
+export CONTAINER_VERSION="baobab"
 export BUILD_DATE=$(date +%Y%m%d.%H%M)
+
+function set_secure_option() {
+    echo ""
+    echo "-----------------------------------"
+    echo " Set tags for secure build"
+    echo "-----------------------------------"
+    export BUILD_TAGS="secure"
+}
 
 function install_3rdparty_packages() {
     echo ""
@@ -285,8 +310,12 @@ function run_docker_container() {
     echo "--------------------------------------------"
     echo "  Create prerequisite Folder [SuperUser]"
     echo "--------------------------------------------"
-    sudo mkdir -p /var/log/$BINARY_FILE
-    sudo mkdir -p /var/data/db
+    sudo mkdir -p /var/edge-orchestration/log
+    sudo mkdir -p /var/edge-orchestration/apps
+    sudo mkdir -p /var/edge-orchestration/data/db
+    sudo mkdir -p /var/edge-orchestration/data/cert
+    sudo mkdir -p /var/edge-orchestration/user
+    sudo mkdir -p /var/edge-orchestration/device
 
     echo ""
     echo "**********************************"
@@ -296,10 +325,9 @@ function run_docker_container() {
                 --privileged \
                 --network="host" \
                 --name $DOCKER_IMAGE \
-                -v /var/run/:/var/run/:rw \
-                -v /var/log/:/var/log/:rw \
-                -v /etc/:/etc/:rw \
-                -v /usr/bin/docker:/usr/bin/docker \
+                -v /var/edge-orchestration/:/var/edge-orchestration/:rw \
+                -v /var/run/docker.sock:/var/run/docker.sock:rw \
+                -v /proc/:/process/:ro \
                 $DOCKER_IMAGE:$CONTAINER_VERSION
     docker container ls
 }
@@ -316,6 +344,9 @@ function stop_docker_container() {
 
 case "$1" in
     "container")
+        if [ "$2" == "secure" ]; then
+            set_secure_option
+        fi
         install_prerequisite
         install_3rdparty_packages
         build_binary
@@ -323,6 +354,9 @@ case "$1" in
         run_docker_container
         ;;
     "object")
+        if [ "$2" == "secure" ]; then
+            set_secure_option
+        fi
         install_prerequisite
         install_3rdparty_packages
         build_clean
@@ -357,16 +391,27 @@ case "$1" in
         build_docker_container
         run_docker_container
         ;;
+    "secure")
+        set_secure_option
+        install_prerequisite
+        install_3rdparty_packages
+        build_binary
+        build_docker_container
+        run_docker_container
+        ;;
     *)
         echo "build script"
         echo "Usage:"
-        echo "---------------------------------------------------------------------------"
+        echo "----------------------------------------------------------------------------------------------"
         echo "  $0                  : build edge-orchestration by default container"
+        echo "  $0 secure           : build edge-orchestration by default container with secure option"
         echo "  $0 container        : build Docker container as build system environmet"
+        echo "  $0 container secure : build Docker container as build system environmet with secure option"
         echo "  $0 object           : build object (c-object, java-object)"
+        echo "  $0 object secure    : build object (c-object, java-object) with secure option"
         echo "  $0 clean            : build clean"
         echo "  $0 test [PKG_NAME]  : run unittests (optional for PKG_NAME)"
-        echo "---------------------------------------------------------------------------"
+        echo "----------------------------------------------------------------------------------------------"
         exit 0
         ;;
 esac

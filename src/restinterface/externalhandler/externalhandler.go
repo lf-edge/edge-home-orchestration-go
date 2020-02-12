@@ -22,11 +22,15 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 
+	"common/networkhelper"
+	"db/bolt/common"
 	"orchestrationapi"
 	"restinterface"
 	"restinterface/cipher"
+	"restinterface/externalhandler/senderresolver"
 	"restinterface/resthelper"
 )
 
@@ -41,6 +45,8 @@ type Handler struct {
 
 	restinterface.HasRoutes
 	cipher.HasCipher
+
+	netHelper networkhelper.Network
 }
 
 var handler *Handler
@@ -57,6 +63,7 @@ func init() {
 			HandlerFunc: handler.APIV1RequestServicePost,
 		},
 	}
+	handler.netHelper = networkhelper.GetInstance()
 }
 
 // GetHandler returns the singleton Handler instance
@@ -83,11 +90,32 @@ func (h *Handler) APIV1RequestServicePost(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	reqAddr := strings.Split(r.RemoteAddr, ":")
+	var addr string
+	var portStr string
+	if strings.Contains(r.RemoteAddr, "::1") {
+		addr = "localhost"
+		portStr = reqAddr[len(reqAddr)-1]
+	} else {
+		addr = reqAddr[0]
+		portStr = reqAddr[1]
+	}
+
+	ips, err := h.netHelper.GetIPs()
+	if err != nil {
+		h.helper.Response(w, http.StatusServiceUnavailable)
+		return
+	} else if addr != "localhost" && addr != "127.0.0.1" && common.HasElem(ips, addr) == false {
+		h.helper.Response(w, http.StatusNotAcceptable)
+		return
+	}
+
 	var (
 		responseMsg  string
 		responseName string
 		resp         orchestrationapi.ResponseService
 
+		name               string
 		executeEnvs        []interface{}
 		responseTargetInfo map[string]interface{}
 	)
@@ -103,7 +131,42 @@ func (h *Handler) APIV1RequestServicePost(w http.ResponseWriter, r *http.Request
 	}
 
 	serviceInfos := orchestrationapi.ReqeustService{}
-	name, ok := appCommand["ServiceName"].(string)
+	selfSelection, ok := appCommand["SelfSelection"].(string)
+	if !ok {
+		selfSelection = "true"
+	}
+	if selfSelection == "true" {
+		serviceInfos.SelfSelection = true
+	} else {
+		serviceInfos.SelfSelection = false
+	}
+
+	isParseRequesterFromPort := true
+	port, err := strconv.Atoi(portStr)
+	log.Println("port: ", port)
+	if err != nil {
+		isParseRequesterFromPort = false
+	} else {
+		requester, err := senderresolver.GetNameByPort(int64(port))
+		log.Println("requester: ", requester)
+		if err != nil {
+			isParseRequesterFromPort = false
+		} else {
+			serviceInfos.ServiceRequester = requester
+		}
+	}
+
+	if isParseRequesterFromPort != true {
+		serviceRequester, ok := appCommand["ServiceRequester"].(string)
+		if !ok {
+			responseMsg = orchestrationapi.INVALID_PARAMETER
+			responseName = ""
+			goto SEND_RESP
+		}
+		serviceInfos.ServiceRequester = serviceRequester
+	}
+
+	name, ok = appCommand["ServiceName"].(string)
 	if !ok {
 		responseMsg = orchestrationapi.INVALID_PARAMETER
 		responseName = ""

@@ -23,9 +23,12 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-	"net"
 	"net/http"
-	"time"
+
+	"restinterface/resthelper/client"
+	"restinterface/resthelper/client/httphelper"
+	"restinterface/resthelper/client/tlshelper"
+	"restinterface/tls"
 )
 
 // RestHelper is the interface implemented by rest helper functions
@@ -33,6 +36,13 @@ type RestHelper interface {
 	urlHelper
 	requestHelper
 	responseHelper
+}
+
+type RestHelperWithCertificateSetter interface {
+	urlHelper
+	requestHelper
+	responseHelper
+	tls.CertificateSetter
 }
 
 type urlHelper interface {
@@ -51,36 +61,42 @@ type responseHelper interface {
 	ResponseJSON(w http.ResponseWriter, bytes []byte, httpStatus int)
 }
 
-type helperImpl struct{}
+type helperImpl struct {
+	c client.Requester
+	tls.HasCertificate
+}
 
-var helper helperImpl
+var helper *helperImpl
+
+func init() {
+	helper = new(helperImpl)
+}
 
 // GetHelper returns helperImpl instance
 func GetHelper() RestHelper {
+	switch helper.IsSetCert {
+	case true:
+		helper.c = tlshelper.TLSHelper{}
+	default:
+		helper.c = httphelper.HttpHelper{}
+	}
+	return helper
+}
+
+func GetHelperWithCertificate() RestHelperWithCertificateSetter {
 	return helper
 }
 
 // DoGet is for get request
-func (helperImpl) DoGet(targetURL string) (respBytes []byte, statusCode int, err error) {
+func (h helperImpl) DoGet(targetURL string) (respBytes []byte, statusCode int, err error) {
 	req, err := http.NewRequest("GET", targetURL, nil)
 	if err != nil {
 		return
 	}
 
-	var netTransport = &http.Transport{
-		Dial: (&net.Dialer{
-			Timeout: 5 * time.Second,
-		}).Dial,
-		TLSHandshakeTimeout: 5 * time.Second,
-	}
-
-	client := &http.Client{
-		Timeout:   time.Second * 10,
-		Transport: netTransport,
-	}
-
-	resp, err := client.Do(req)
+	resp, err := h.c.Do(req)
 	if err != nil {
+		log.Printf("[%v] reqeust get failed !!, err = %v", targetURL, err)
 		return
 	}
 
@@ -89,7 +105,7 @@ func (helperImpl) DoGet(targetURL string) (respBytes []byte, statusCode int, err
 	statusCode = resp.StatusCode
 	respBytes, err = ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Println("read resp.Body failed !!", err)
+		log.Printf("[%v] read resp.Body failed !!, err = %v", targetURL, err)
 		return
 	}
 
@@ -97,7 +113,7 @@ func (helperImpl) DoGet(targetURL string) (respBytes []byte, statusCode int, err
 }
 
 // DoGet is for get request with req' body
-func (helperImpl) DoGetWithBody(targetURL string, bodybytes []byte) (respBytes []byte, statusCode int, err error) {
+func (h helperImpl) DoGetWithBody(targetURL string, bodybytes []byte) (respBytes []byte, statusCode int, err error) {
 	if len(bodybytes) == 0 {
 		log.Printf("DoPost body length is zero(0) !!")
 	}
@@ -112,19 +128,7 @@ func (helperImpl) DoGetWithBody(targetURL string, bodybytes []byte) (respBytes [
 	// Content-Type Header
 	req.Header.Add("Content-Type", "application/json")
 
-	var netTransport = &http.Transport{
-		Dial: (&net.Dialer{
-			Timeout: 5 * time.Second,
-		}).Dial,
-		TLSHandshakeTimeout: 5 * time.Second,
-	}
-
-	client := &http.Client{
-		Timeout:   time.Second * 10,
-		Transport: netTransport,
-	}
-
-	resp, err := client.Do(req)
+	resp, err := h.c.Do(req)
 	if err != nil {
 		return
 	}
@@ -135,14 +139,13 @@ func (helperImpl) DoGetWithBody(targetURL string, bodybytes []byte) (respBytes [
 	respBytes, err = ioutil.ReadAll(resp.Body)
 	if err != nil {
 		log.Println("read resp.Body failed !!", err)
-		return
 	}
 
 	return
 }
 
 // DoPost is for post request
-func (helperImpl) DoPost(targetURL string, bodybytes []byte) (respBytes []byte, statusCode int, err error) {
+func (h helperImpl) DoPost(targetURL string, bodybytes []byte) (respBytes []byte, statusCode int, err error) {
 	if len(bodybytes) == 0 {
 		log.Printf("DoPost body length is zero(0) !!")
 	}
@@ -157,19 +160,7 @@ func (helperImpl) DoPost(targetURL string, bodybytes []byte) (respBytes []byte, 
 	// Content-Type Header
 	req.Header.Add("Content-Type", "application/json")
 
-	var netTransport = &http.Transport{
-		Dial: (&net.Dialer{
-			Timeout: 5 * time.Second,
-		}).Dial,
-		TLSHandshakeTimeout: 5 * time.Second,
-	}
-
-	client := &http.Client{
-		Timeout:   time.Second * 10,
-		Transport: netTransport,
-	}
-
-	resp, err := client.Do(req)
+	resp, err := h.c.Do(req)
 	if err != nil {
 		return
 	}
@@ -187,25 +178,13 @@ func (helperImpl) DoPost(targetURL string, bodybytes []byte) (respBytes []byte, 
 }
 
 // DoDelete is for delete request
-func (helperImpl) DoDelete(targetURL string) (respBytes []byte, statusCode int, err error) {
+func (h helperImpl) DoDelete(targetURL string) (respBytes []byte, statusCode int, err error) {
 	req, err := http.NewRequest("DELETE", targetURL, nil)
 	if err != nil {
 		return
 	}
 
-	var netTransport = &http.Transport{
-		Dial: (&net.Dialer{
-			Timeout: 5 * time.Second,
-		}).Dial,
-		TLSHandshakeTimeout: 5 * time.Second,
-	}
-
-	client := &http.Client{
-		Timeout:   time.Second * 10,
-		Transport: netTransport,
-	}
-
-	resp, err := client.Do(req)
+	resp, err := h.c.Do(req)
 	if err != nil {
 		return
 	}
@@ -223,12 +202,19 @@ func (helperImpl) DoDelete(targetURL string) (respBytes []byte, statusCode int, 
 }
 
 // MakeTargetURL function
-func (helperImpl) MakeTargetURL(target string, port int, restapi string) string {
-	return fmt.Sprintf("http://%s:%d%s", target, port, restapi)
+func (h helperImpl) MakeTargetURL(target string, port int, restapi string) string {
+	var protocol string
+	if h.IsSetCert {
+		protocol = "https"
+	} else {
+		protocol = "http"
+	}
+	return fmt.Sprintf("%s://%s:%d%s", protocol, target, port, restapi)
 }
 
 // ResponseJSON function
 func (helperImpl) ResponseJSON(w http.ResponseWriter, bytes []byte, httpStatus int) {
+	w.Header().Set("Connection", "close")
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(httpStatus)
 	w.Write(bytes)
@@ -236,6 +222,7 @@ func (helperImpl) ResponseJSON(w http.ResponseWriter, bytes []byte, httpStatus i
 
 // Response function
 func (helperImpl) Response(w http.ResponseWriter, httpStatus int) {
+	w.Header().Set("Connection", "close")
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(httpStatus)
 }

@@ -27,12 +27,11 @@ import (
 	"strings"
 	"time"
 
+	types "common/types/configuremgrtypes"
 	"controller/configuremgr"
-	confdescription "controller/configuremgr/native/description"
 
 	"github.com/fsnotify/fsnotify"
-	ini "gopkg.in/sconf/ini.v0"
-	sconf "gopkg.in/sconf/sconf.v0"
+	"gopkg.in/ini.v1"
 )
 
 const logPrefix = "nativeconfiguremgr"
@@ -74,7 +73,7 @@ func (cfgMgr ConfigureMgr) Watch(notifier configuremgr.Notifier) {
 	}
 
 	for _, f := range files {
-		notifier.Notify(getServiceName(cfgMgr.confpath + "/" + f.Name()))
+		notifier.Notify(getServiceInfo(cfgMgr.confpath + "/" + f.Name()))
 	}
 
 	watcher, err := fsnotify.NewWatcher()
@@ -107,7 +106,7 @@ func (cfgMgr ConfigureMgr) Watch(notifier configuremgr.Notifier) {
 						log.Println(confFileName, "does not exist")
 						continue
 					}
-					notifier.Notify(getServiceName(event.Name))
+					notifier.Notify(getServiceInfo(event.Name))
 				case fsnotify.Remove:
 					// TODO remove scoring
 				}
@@ -127,18 +126,32 @@ func (cfgMgr ConfigureMgr) Watch(notifier configuremgr.Notifier) {
 	log.Println("configuremgr watcher register end")
 }
 
-func getServiceName(path string) (serviceName string) {
+func getServiceInfo(path string) types.ServiceInfo {
 	confPath, err := getdirname(path)
 	if err != nil {
 		log.Println("wrong libPath or confPath")
 	}
 
-	cfg := new(confdescription.Doc)
-	sconf.Must(cfg).Read(ini.File(confPath))
+	cfg, err := ini.Load(confPath)
+	if err != nil {
+		log.Printf("Fail to read %v file, err = %v", confPath, err)
+	}
 
-	serviceName = cfg.ServiceInfo.ServiceName
+	serviceName := cfg.Section("ServiceInfo").Key("ServiceName").String()
+	executableName := cfg.Section("ServiceInfo").Key("ExecutableFileName").String()
+	allowedRequesterName := cfg.Section("ServiceInfo").Key("AllowedRequester").Strings(",")
 
-	return
+	log.Println("[configuremgr] ServiceName:", serviceName)
+	log.Println("[configuremgr] ExecutableFileName:", executableName)
+	log.Println("[configuremgr] AllowedRequester:", allowedRequesterName)
+
+	ret := types.ServiceInfo{
+		ServiceName:        serviceName,
+		ExecutableFileName: executableName,
+		AllowedRequester:   allowedRequesterName,
+	}
+
+	return ret
 }
 
 func getdirname(path string) (confPath string, err error) {

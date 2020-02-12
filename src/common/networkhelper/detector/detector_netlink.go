@@ -34,6 +34,8 @@ var (
 	done    chan struct{}
 )
 
+var addrSubscribe func(ch chan<- netlink.AddrUpdate, done <-chan struct{}) error
+
 // Detector adds subscribers that want to detect network interface changes
 type Detector interface {
 	AddrSubscribe(chan<- bool)
@@ -42,6 +44,8 @@ type Detector interface {
 func init() {
 	subChan = make(chan netlink.AddrUpdate, 1)
 	done = make(chan struct{}, 1)
+
+	addrSubscribe = netlink.AddrSubscribe
 }
 
 // GetInstance returns a detectorImpl struct instance
@@ -52,7 +56,7 @@ func GetInstance() Detector {
 // AddrSubscribe is needed to get notification of NW change
 func (dt detectorImpl) AddrSubscribe(isTrue chan<- bool) {
 	for {
-		err := netlink.AddrSubscribe(subChan, done)
+		err := addrSubscribe(subChan, done)
 		if err == nil {
 			break
 		}
