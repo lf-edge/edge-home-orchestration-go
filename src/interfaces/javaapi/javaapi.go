@@ -150,27 +150,12 @@ type ExecuteCallback interface {
 	androidexecutor.ExecuteCallback
 }
 
-var (
-	commitID, version, buildTime string
-	buildTags                    string
-)
-
 // OrchestrationInit runs orchestration service and discovers remote orchestration services
-func OrchestrationInit(executeCallback ExecuteCallback, edgeDir string) (errCode int) {
+func OrchestrationInit(executeCallback ExecuteCallback, edgeDir string, isSecured bool) (errCode int) {
 	initPlatformPath(edgeDir)
 
 	logmgr.Init(logPath)
 	log.Printf("[%s] OrchestrationInit", logPrefix)
-	log.Println(">>> commitID  : ", commitID)
-	log.Println(">>> version   : ", version)
-	log.Println(">>> buildTime : ", buildTime)
-	log.Println(">>> buildTags : ", buildTags)
-
-	isSecured := false
-	if buildTags == "secure" {
-		log.Println("Orchestration init with secure option")
-		isSecured = true
-	}
 
 	wrapper.SetBoltDBPath(dbPath)
 
