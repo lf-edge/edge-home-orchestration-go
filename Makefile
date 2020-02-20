@@ -8,8 +8,8 @@ GOCOVER     := gocov
 GOMOBILE	:= gomobile
 DOCKER		:= docker
 GO_COMMIT_ID	:= $(shell git rev-parse --short HEAD)
-GO_BUILD_TAGS	:= -tags '$(BUILD_TAGS)'
 GO_LDFLAGS		:= -ldflags '-extldflags "-static" -X main.version=$(VERSION) -X main.commitID=$(GO_COMMIT_ID) -X main.buildTime=$(BUILD_DATE) -X main.buildTags=$(BUILD_TAGS)'
+GO_MOBILE_LDFLAGS	:= -ldflags '-X main.version=$(VERSION) -X main.commitID=$(GO_COMMIT_ID) -X main.buildTime=$(BUILD_DATE) -X main.buildTags=$(BUILD_TAGS)'
 
 # Target parameters
 PKG_NAME		:= edge-orchestration
@@ -62,13 +62,13 @@ ANDROID_LIBRARY_OUT_DIR       := $(BASE_DIR)/src/interfaces/javaapi/output
 
 ## edge-orchestration binary build
 build-binary:
-	$(GOBUILD) $(GO_BUILD_TAGS) -a $(GO_LDFLAGS) -o $(GOMAIN_BIN_DIR)/$(GOMAIN_BIN_FILE) $(EXEC_SRC_DIR) || exit 1
+	$(GOBUILD) -a $(GO_LDFLAGS) -o $(GOMAIN_BIN_DIR)/$(GOMAIN_BIN_FILE) $(EXEC_SRC_DIR) || exit 1
 	ls -al $(GOMAIN_BIN_DIR)
 
 ## edge-orchestration static archive build
 build-object-c:
 	mkdir -p $(INTERFACE_OUT_INC_DIR) $(INTERFACE_OUT_LIB_DIR)
-	CGO_ENABLED=1 $(GOBUILD) $(GO_BUILD_TAGS) $(GO_LDFLAGS) -o $(INTERFACE_OUT_LIB_DIR)/$(CUR_LIBRARY_FILE) -buildmode=c-archive $(OBJ_SRC_DIR) || exit 1
+	CGO_ENABLED=1 $(GOBUILD) $(GO_LDFLAGS) -o $(INTERFACE_OUT_LIB_DIR)/$(CUR_LIBRARY_FILE) -buildmode=c-archive $(OBJ_SRC_DIR) || exit 1
 	mv $(INTERFACE_OUT_LIB_DIR)/$(CUR_HEADER_FILE) $(INTERFACE_OUT_INC_DIR)/$(HEADER_FILE)
 	ls -al $(INTERFACE_OUT_LIB_DIR)
 
@@ -86,7 +86,7 @@ clean-tmp-packages:
 build-object-java:
 	mkdir -p $(ANDROID_LIBRARY_OUT_DIR)
 	$(GOMOBILE) init
-	$(GOMOBILE) bind $(GO_BUILD_TAGS) -o $(ANDROID_LIBRARY_OUT_DIR)/$(ANDROID_LIBRARY_FILE) -target=android -androidapi=23 $(ANDROID_SRC_DIR) || exit 1
+	$(GOMOBILE) bind $(GO_MOBILE_LDFLAGS) -o $(ANDROID_LIBRARY_OUT_DIR)/$(ANDROID_LIBRARY_FILE) -target=android -androidapi=23 $(ANDROID_SRC_DIR) || exit 1
 	ls -al $(ANDROID_LIBRARY_OUT_DIR)
 
 ## edge-orchestration container build
