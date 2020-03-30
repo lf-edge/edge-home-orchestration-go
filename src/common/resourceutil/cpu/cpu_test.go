@@ -144,6 +144,36 @@ func removeFakeCPUMaxFreq() {
 	os.Remove("./fakecpumaxfreq")
 }
 
+func TestGetCPUFreqCpuInfo(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
+		originFileOpen = fileOpen
+		fileOpen = fakeFileOpenCPUInfo
+		defer func() {
+			fileOpen = originFileOpen
+			removeFakeCPUInfo()
+		}()
+
+		ret, err := getCPUFreqCpuInfo()
+		if err != nil {
+			t.Error("unexpected error")
+		} else if ret != 3300.0 {
+			t.Error("unexpected result")
+		}
+	})
+	t.Run("Error", func(t *testing.T) {
+		originFileOpen = fileOpen
+		fileOpen = fakeFileOpenError
+		defer func() {
+			fileOpen = originFileOpen
+		}()
+
+		_, err := getCPUFreqCpuInfo()
+		if err == nil {
+			t.Error("unexpected success")
+		}
+	})
+}
+
 func TestGetCPUs(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		originFileOpen = fileOpen
@@ -181,7 +211,9 @@ func fakeFileOpenError(name string) (*os.File, error) {
 func fakeFileOpenCPUInfo(name string) (*os.File, error) {
 	f, _ := os.Create("./fakecpuinfo")
 
-	fakeFile := []byte("processor	: 0\nprocessor	: 1\nprocessor	: 2\nprocessor	: 3\nprocessor\nprocessor	: asd\n")
+	fakeFile := []byte("processor	: 0\nprocessor	: 1\nprocessor	: 2\n" +
+		"processor	: 3\nprocessor\nprocessor	: asd\n" +
+		"model name : Intel(R) Core(TM) i3-2120 CPU @ 3.30GHz\n")
 	f.Write(fakeFile)
 	f.Close()
 
