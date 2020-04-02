@@ -24,6 +24,7 @@ PKG_LIST=(
         "controller/discoverymgr"
         "controller/discoverymgr/wrapper"
         "controller/scoringmgr"
+        "controller/securemgr"
         "controller/servicemgr"
         "controller/servicemgr/executor"
         "controller/servicemgr/executor/androidexecutor"
