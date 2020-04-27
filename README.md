@@ -138,7 +138,7 @@ Note that you can visit [Swagger Editor](https://editor.swagger.io/) to graphica
   - 2 or more devices with Ubuntu 14.04 (or above) and Docker 17.09 (or above)
   - Same WIFI network connected among the devices.
   - Same Authentication key in /var/edge-orchestration/user/orchestration_userID.txt
-    - Please see the above [4. Add User ID](#4-add-user-id) to know how to add authentication key
+    - Please see the above [4. Add Key file](#4-add-key-file) to know how to add authentication key
   - Edge Orchestration Docker image
     - Please see the above [How to build](#how-to-build) to know how to build Edge Orchestration Docker image
 
