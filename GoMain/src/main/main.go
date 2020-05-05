@@ -153,6 +153,15 @@ func orchestrationInit() error {
 	}
 	ehandle := externalhandler.GetHandler()
 	ehandle.SetOrchestrationAPI(externalapi)
+	// external secure rest api
+	if isSecured {
+		securemgrexternalapi, err := securemgr.GetExternalAPI()
+		if err != nil {
+			log.Fatalf("[%s] Secure manager external api : %s", logPrefix, err.Error())
+		} else {
+			ehandle.SetSecuremgrAPI(securemgrexternalapi)
+		}
+	}
 	ehandle.SetCipher(dummy.GetCipher(cipherKeyFilePath))
 	restEdgeRouter.Add(ehandle)
 

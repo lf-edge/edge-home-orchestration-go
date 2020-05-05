@@ -25,10 +25,13 @@ import (
 )
 
 // cwl - Container White List
-
 const (
-	cwlFileName 		= "containerwhitelist.txt"
-	hashHelloWorld		= "fc6a51919cfeb2e6763f62b6d9e8815acbf7cd2e476ea353743570610737b752"
+	cwlFileName			= "containerwhitelist.txt"
+
+	ERROR_NONE			= "ERROR_NONE"
+	INVALID_PARAMETER	= "INVALID_PARAMETER"
+	SECUREMGR_ERROR		= "INTERNAL_SECUREMGR_ERROR"
+	NOT_ALLOWED_COMMAND	= "NOT_ALLOWED_COMMAND"
 )
 
 // VerifierImpl structure
@@ -36,27 +39,60 @@ type VerifierImpl struct{}
 
 var (
 	containerWhiteList	[]string
-	logPrefix			= "[verifier]"
-	verifierIns 		*VerifierImpl
-	initialized		  	= false
+	logPrefix			= "[securemgr: verifier]"
+	verifierIns			*VerifierImpl
+	initialized			= false
+	cwlFilePath			= ""
 )
+
+type RequestDescInfo struct {
+	//ContainerName string
+	ContainerHash string
+}
+
+type RequestSecureMgr struct {
+	SecureInsName	string
+	CmdType			string
+	Desc			[]RequestDescInfo
+}
+
+type ResponseSecureMgr struct {
+	Message			string
+	SecureCmpName	string
+}
+
+// SecureMgrExternalAPI is the interface implemented by external REST API
+type SecureMgrExternalAPI interface {
+	RequestSecureMgr(containerInfo RequestSecureMgr) ResponseSecureMgr
+}
 
 func init() {
 	verifierIns = new(VerifierImpl)
 }
 
-// initContainerWhiteList fill the containerWhiteList by reading the information
+// GetExternalAPI registers the securemgr external API
+func GetExternalAPI() (SecureMgrExternalAPI, error) {
+	if verifierIns == nil {
+		return verifierIns, errors.New("securemgr not initialized")
+	}
+	return verifierIns, nil
+}
+
+// initContainerWhiteList fills the containerWhiteList by reading the information
 // from the file if it exists or creates it otherwise
-func initContainerWhiteList(cwlFilePath string) error {
+func initContainerWhiteList() error {
 	fileContent, err := ioutil.ReadFile(cwlFilePath)
 	if err != nil {
-		containerWhiteList = append(containerWhiteList, hashHelloWorld) // hello-world container image
-		err = ioutil.WriteFile(cwlFilePath, []byte(hashHelloWorld + "\n"), 0666)
+		containerWhiteList = nil
+		err = ioutil.WriteFile(cwlFilePath, []byte(""), 0666)
 		if err != nil {
-			log.Println(logPrefix, "Can't create " + cwlFileName + ": ", err)
+			log.Println(logPrefix, "cannot create " + cwlFileName + ": ", err)
 		}
 	} else {
 		containerWhiteList = strings.Split(string(fileContent),"\n")
+		if len(containerWhiteList) > 0 {
+			containerWhiteList = containerWhiteList[:len(containerWhiteList)-1]
+		}
 		//for _, whitelistItem := range containerWhiteList {
 		//	log.Println(logPrefix, whitelistItem)
 		//}
@@ -71,7 +107,7 @@ func GetInstance() *VerifierImpl {
 
 func containerHashIsInWhiteList(hash string) bool {
 	for _, whitelistItem := range containerWhiteList {
-		if (hash == whitelistItem) {
+		if hash == whitelistItem {
 			return true
 		}
 	}
@@ -81,7 +117,7 @@ func containerHashIsInWhiteList(hash string) bool {
 func getIndexHashInContainerName(containerName string) (int, error) {
 	digestIndex := strings.Index(containerName, "@sha256:")
 	if digestIndex == -1 {
-		return -1, errors.New("Container name doesn't contain a digest")
+		return -1, errors.New("Container name does not contain a digest")
 	}
 	digestIndex = digestIndex + len("@sha256:")
 	return digestIndex, nil
@@ -95,9 +131,11 @@ func Init(cwlPath string) {
 			log.Panicf("Failed to create cwlPath %s: %s\n", cwlPath, err)
 		}
 	}
-	initContainerWhiteList(cwlPath + "/" + cwlFileName)
+	cwlFilePath = cwlPath + "/" + cwlFileName
+	initContainerWhiteList()
 	initialized = true
 }
+
 // ContainerIsInWhiteList checks if the containerName is in containerWhiteList
 func (VerifierImpl) ContainerIsInWhiteList(containerName string) error {
 	if initialized == false {
@@ -107,11 +145,148 @@ func (VerifierImpl) ContainerIsInWhiteList(containerName string) error {
 	if err != nil {
 		return err
 	}
-	//log.Println(logPrefix, "SHA:" , containerName[index:])
 	if containerHashIsInWhiteList(containerName[index:]) {
-		log.Println(logPrefix, "Container is in whitelist")
+		log.Printf("%s container's hash: %s is in container white list\n", logPrefix, containerName[index:])
 		return nil
 	} else {
-		return errors.New("Container is not in whitelist")
+		log.Printf("%s container's hash: %s is not in container white list\n", logPrefix, containerName[index:])
+		return errors.New("container's hash is not in container white list")
+	}
+}
+
+// addHashToContainerWhiteList add the hash to containerWhiteList
+// if it exists then ignore this command
+func addHashToContainerWhiteList(hash string) error {
+	fileContent, err := ioutil.ReadFile(cwlFilePath)
+	if err != nil {
+		fileContentStr := hash + "\n"
+		err = ioutil.WriteFile(cwlFilePath, []byte(fileContentStr), 0666)
+		if err != nil {
+			log.Printf("%s cannot create %s file: %s\n", logPrefix, cwlFileName, err)
+			return err
+		}
+		containerWhiteList = append(containerWhiteList, hash)
+	} else {
+		fileContentStr := string(fileContent)
+		log.Println(logPrefix, "Len filecontentstr = ", len(fileContentStr))
+			containerWhiteList = strings.Split(fileContentStr, "\n")
+			if len(containerWhiteList) > 0 {
+				containerWhiteList = containerWhiteList[:len(containerWhiteList)-1]
+			}
+			for _, whitelistItem := range containerWhiteList {
+				if whitelistItem == hash {
+					log.Printf("%s container's hash %s already exists in conatiner white list\n", logPrefix, hash)
+					return nil
+				}
+			}
+		fileContentStr = fileContentStr + hash + "\n"
+		err = ioutil.WriteFile(cwlFilePath, []byte(fileContentStr), 0666)
+		if err != nil {
+			log.Printf("%s cannot create %s file: %s\n", logPrefix, cwlFileName, err)
+			return err
+		}
+		containerWhiteList = append(containerWhiteList, hash)
+	}
+	return nil
+}
+
+// delHashFromContainerWhiteList deletes the hash from containerWhiteList file,
+// if hash is absent then ignore this command
+func delHashFromContainerWhiteList(hash string) error {
+	fileContent, err := ioutil.ReadFile(cwlFilePath)
+	if err != nil {
+		err = ioutil.WriteFile(cwlFilePath, []byte(""), 0666)
+		if err != nil {
+			log.Printf("%s cannot create %s file: %s\n", logPrefix, cwlFileName, err)
+			return err
+		}
+	} else {
+		fileContentStr := string(fileContent)
+		digestIndex := strings.Index(fileContentStr, hash)
+		if digestIndex == -1 {
+			log.Printf("%s hash: %s not found in %s\n", logPrefix, hash, cwlFileName)
+			return nil
+		}
+		fileContentStr = fileContentStr[:digestIndex] + fileContentStr[digestIndex+65:]
+		err = ioutil.WriteFile(cwlFilePath, []byte(fileContentStr), 0666)
+		if err != nil {
+			log.Printf("%s cannot create %s file: %s\n", logPrefix, cwlFileName, err)
+			return err
+		}
+		containerWhiteList = strings.Split(fileContentStr,"\n")
+		if len(containerWhiteList) > 0 {
+			containerWhiteList = containerWhiteList[:len(containerWhiteList)-1]
+		}
+		log.Printf("%s hash: %s successfully deleted from %s file\n", logPrefix, hash,  cwlFileName)
+	}
+	return nil
+}
+
+// delAllHashFromContainerWhiteList deletes all hashes from containerWhiteList file
+func delAllHashFromContainerWhiteList() error {
+	err := ioutil.WriteFile(cwlFilePath, []byte(""), 0666)
+	if err != nil {
+		log.Printf("%s cannot create %s file: %s\n", logPrefix, cwlFileName, err)
+		return err
+	}
+	containerWhiteList = nil
+	log.Printf("%s all hashes successfully deleted from %s file\n", logPrefix, cwlFileName)
+	return err
+}
+
+// printAllHashFromContainerWhiteList displays all records from containerWhiteList file,
+func printAllHashFromContainerWhiteList() {
+	if containerWhiteList != nil {
+		for idx, whitelistItem := range containerWhiteList {
+			log.Printf("%s container's hash[%d]: len = %d %s\n", logPrefix, idx, len(whitelistItem), whitelistItem)
+		}
+	} else {
+		log.Println(logPrefix, "container white list is empty")
+	}
+}
+
+func (verifier *VerifierImpl) RequestSecureMgr(containerInfo RequestSecureMgr) ResponseSecureMgr {
+	log.Printf("%s command type: %s\n", logPrefix, containerInfo.CmdType)
+	switch containerInfo.CmdType {
+	case "addHashCWL":
+		for _, containerDesc := range containerInfo.Desc {
+			err := addHashToContainerWhiteList(containerDesc.ContainerHash)
+			if err != nil {
+				return ResponseSecureMgr{
+					Message:     	SECUREMGR_ERROR,
+					SecureCmpName:	"verifier",
+				}
+			}
+		}
+	case "delHashCWL":
+		for _, containerDesc := range containerInfo.Desc {
+			err := delHashFromContainerWhiteList(containerDesc.ContainerHash)
+			if err != nil {
+				return ResponseSecureMgr{
+					Message:     	SECUREMGR_ERROR,
+					SecureCmpName:	"verifier",
+				}
+			}
+		}
+	case "delAllHashCWL":
+		err := delAllHashFromContainerWhiteList()
+		if err != nil {
+			return ResponseSecureMgr{
+				Message:     	SECUREMGR_ERROR,
+				SecureCmpName:	"verifier",
+			}
+		}
+	case "printAllHashCWL":
+		printAllHashFromContainerWhiteList()
+	default:
+		log.Println(logPrefix, "command does not supported: ", containerInfo.CmdType)
+		return ResponseSecureMgr{
+			Message:     NOT_ALLOWED_COMMAND,
+			SecureCmpName: "verifier",
+		}
+	}
+	return ResponseSecureMgr{
+		Message:     ERROR_NONE,
+		SecureCmpName: "verifier",
 	}
 }
