@@ -29,6 +29,7 @@ import (
 	"controller/discoverymgr"
 	"controller/scoringmgr"
 	"controller/servicemgr"
+	"controller/securemgr"
 	executor "controller/servicemgr/executor/containerexecutor"
 
 	"orchestrationapi"
@@ -56,6 +57,7 @@ const (
 	configPath          = edgeDir + "/apps"
 	dbPath              = edgeDir + "/data/db"
 	certificateFilePath = edgeDir + "/data/cert"
+	containerWhiteListPath = edgeDir + "/data/cwl"
 
 	cipherKeyFilePath = edgeDir + "/user/orchestration_userID.txt"
 	deviceIDFilePath  = edgeDir + "/device/orchestration_deviceID.txt"
@@ -90,6 +92,10 @@ func orchestrationInit() error {
 	if buildTags == "secure" {
 		log.Println("Orchestration init with secure option")
 		isSecured = true
+	}
+
+	if isSecured {
+		securemgr.Init(containerWhiteListPath)
 	}
 
 	restIns := restclient.GetRestClient()
@@ -147,6 +153,15 @@ func orchestrationInit() error {
 	}
 	ehandle := externalhandler.GetHandler()
 	ehandle.SetOrchestrationAPI(externalapi)
+	// external secure rest api
+	if isSecured {
+		securemgrexternalapi, err := securemgr.GetExternalAPI()
+		if err != nil {
+			log.Fatalf("[%s] Secure manager external api : %s", logPrefix, err.Error())
+		} else {
+			ehandle.SetSecuremgrAPI(securemgrexternalapi)
+		}
+	}
 	ehandle.SetCipher(dummy.GetCipher(cipherKeyFilePath))
 	restEdgeRouter.Add(ehandle)
 

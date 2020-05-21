@@ -208,8 +208,19 @@ RESTAPI
     ```
 - Curl Example:
     ```json
-  - curl -X POST "IP:56001/api/v1/orchestration/services" -H "accept: application/json" -H "Content-Type: application/json" -d "{ \"ServiceName\": \"hello-world\", \"ServiceInfo\": [{ \"ExecutionType\": \"container\", \"ExecCmd\": [ \"docker\", \"run\", \"-v\", \"/var/run:/var/run:rw\", \"hello-world\"]}], \"StatusCallbackURI\": \"http://localhost:8888/api/v1/services/notification\"}"
+  $ curl -X POST "IP:56001/api/v1/orchestration/services" -H "accept: application/json" -H "Content-Type: application/json" -d "{ \"ServiceName\": \"hello-world\", \"ServiceInfo\": [{ \"ExecutionType\": \"container\", \"ExecCmd\": [ \"docker\", \"run\", \"-v\", \"/var/run:/var/run:rw\", \"hello-world\"]}], \"StatusCallbackURI\": \"http://localhost:8888/api/v1/services/notification\"}"
     ```
+  ---
+   If the `edge-orchestration` was assembled with `secure` option.
+   You need to add a digest (sha256) to the last parameter. `"hello-world@sha256:fc6a51919cfeb2e6763f62b6d9e8815acbf7cd2e476ea353743570610737b752"`. More information about it you can find [here](doc/secure_manager.md).
+   ```
+   $ curl -X POST "IP:56001/api/v1/orchestration/services" -H "accept: application/json" -H "Content-Type: application/json" -d "{ \"ServiceName\": \"hello-world\", \"ServiceInfo\": [{ \"ExecutionType\": \"container\", \"ExecCmd\": [ \"docker\", \"run\", \"-v\", \"/var/run:/var/run:rw\", \"hello-world@sha256:fc6a51919cfeb2e6763f62b6d9e8815acbf7cd2e476ea353743570610737b752\"]}], \"StatusCallbackURI\": \"http://localhost:8888/api/v1/services/notification\"}"
+   ```  
+   To add your container hash to the container white list `/var/edge-erchestration/data/cwl/containerwhitelist.txt`, you need to add a hash line to the end file.  
+   ```
+   # echo "fc6a51919cfeb2e6763f62b6d9e8815acbf7cd2e476ea353743570610737b752" >> /var/edge-erchestration/data/cwl/containerwhitelist.txt
+   ```
+  ---
 
 - Result(Execution on itself)
   

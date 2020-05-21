@@ -31,6 +31,7 @@ import (
 	"github.com/spf13/pflag"
 
 	servicemgr "controller/servicemgr"
+	securemgr "controller/securemgr"
 	"controller/servicemgr/executor"
 	"controller/servicemgr/notification"
 )
@@ -70,8 +71,14 @@ func (c ContainerExecutor) Execute(s executor.ServiceExecutionInfo) error {
 	log.Println(logPrefix, "parameter length :", len(c.ParamStr))
 	paramLen := len(c.ParamStr)
 
+	err := securemgr.GetInstance().ContainerIsInWhiteList(s.ParamStr[paramLen-1])
+	if err != nil {
+		log.Println(logPrefix, err.Error())
+		return err
+	}
+
 	// @Note : Pull docker image
-	err := c.ceImplIns.ImagePull(s.ParamStr[paramLen-1])
+	err = c.ceImplIns.ImagePull(s.ParamStr[paramLen-1])
 	if err != nil {
 		log.Println(logPrefix, err.Error())
 	}
