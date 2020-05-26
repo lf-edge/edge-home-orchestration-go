@@ -106,6 +106,7 @@ function install_prerequisite() {
         "github.com/Songmu/make2help/cmd/make2help"
         "golang.org/x/mobile/cmd/gomobile"
         "golang.org/x/mobile/cmd/gobind"
+        "github.com/dgrijalva/jwt-go"
     )
     idx=1
     for pkg in "${pkg_list[@]}"; do

@@ -28,8 +28,8 @@ import (
 	configuremgr "controller/configuremgr/container"
 	"controller/discoverymgr"
 	"controller/scoringmgr"
-	"controller/servicemgr"
 	"controller/securemgr"
+	"controller/servicemgr"
 	executor "controller/servicemgr/executor/containerexecutor"
 
 	"orchestrationapi"
@@ -53,11 +53,12 @@ const (
 
 	edgeDir = "/var/edge-orchestration"
 
-	logPath             = edgeDir + "/log"
-	configPath          = edgeDir + "/apps"
-	dbPath              = edgeDir + "/data/db"
-	certificateFilePath = edgeDir + "/data/cert"
+	logPath                = edgeDir + "/log"
+	configPath             = edgeDir + "/apps"
+	dbPath                 = edgeDir + "/data/db"
+	certificateFilePath    = edgeDir + "/data/cert"
 	containerWhiteListPath = edgeDir + "/data/cwl"
+	passPhraseJWTPath      = edgeDir + "/data/jwt"
 
 	cipherKeyFilePath = edgeDir + "/user/orchestration_userID.txt"
 	deviceIDFilePath  = edgeDir + "/device/orchestration_deviceID.txt"
@@ -96,6 +97,7 @@ func orchestrationInit() error {
 
 	if isSecured {
 		securemgr.Init(containerWhiteListPath)
+		securemgr.InitA(passPhraseJWTPath)
 	}
 
 	restIns := restclient.GetRestClient()
