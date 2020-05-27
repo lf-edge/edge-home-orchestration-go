@@ -28,7 +28,8 @@ import (
 	configuremgr "controller/configuremgr/container"
 	"controller/discoverymgr"
 	"controller/scoringmgr"
-	"controller/securemgr"
+	"controller/securemgr/authenticator"
+	"controller/securemgr/verifier"
 	"controller/servicemgr"
 	executor "controller/servicemgr/executor/containerexecutor"
 
@@ -96,8 +97,8 @@ func orchestrationInit() error {
 	}
 
 	if isSecured {
-		securemgr.Init(containerWhiteListPath)
-		securemgr.InitA(passPhraseJWTPath)
+		verifier.Init(containerWhiteListPath)
+		authenticator.Init(passPhraseJWTPath)
 	}
 
 	restIns := restclient.GetRestClient()
@@ -113,6 +114,7 @@ func orchestrationInit() error {
 	builder := orchestrationapi.OrchestrationBuilder{}
 	builder.SetWatcher(configuremgr.GetInstance(configPath))
 	builder.SetDiscovery(discoverymgr.GetInstance())
+	builder.SetVerifierConf(verifier.GetInstance())
 	builder.SetScoring(scoringmgr.GetInstance())
 	builder.SetService(servicemgr.GetInstance())
 	builder.SetExecutor(executor.GetInstance())
@@ -155,15 +157,6 @@ func orchestrationInit() error {
 	}
 	ehandle := externalhandler.GetHandler()
 	ehandle.SetOrchestrationAPI(externalapi)
-	// external secure rest api
-	if isSecured {
-		securemgrexternalapi, err := securemgr.GetExternalAPI()
-		if err != nil {
-			log.Fatalf("[%s] Secure manager external api : %s", logPrefix, err.Error())
-		} else {
-			ehandle.SetSecuremgrAPI(securemgrexternalapi)
-		}
-	}
 	ehandle.SetCipher(dummy.GetCipher(cipherKeyFilePath))
 	restEdgeRouter.Add(ehandle)
 

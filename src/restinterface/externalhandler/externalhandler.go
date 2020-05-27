@@ -26,13 +26,13 @@ import (
 	"strings"
 
 	"common/networkhelper"
+	"controller/securemgr/verifier"
 	"db/bolt/common"
 	"orchestrationapi"
 	"restinterface"
 	"restinterface/cipher"
 	"restinterface/externalhandler/senderresolver"
 	"restinterface/resthelper"
-	"controller/securemgr"
 )
 
 const logPrefix = "RestExternalInterface"
@@ -41,9 +41,6 @@ const logPrefix = "RestExternalInterface"
 type Handler struct {
 	isSetAPI bool
 	api      orchestrationapi.OrcheExternalAPI
-
-	isSetSecureAPI bool
-	sapi     securemgr.SecureMgrExternalAPI
 
 	helper resthelper.RestHelper
 
@@ -72,7 +69,6 @@ func init() {
 			Pattern:     "/api/v1/orchestration/securemgr",
 			HandlerFunc: handler.APIV1RequestSecuremgrPost,
 		},
-
 	}
 	handler.netHelper = networkhelper.GetInstance()
 }
@@ -86,12 +82,6 @@ func GetHandler() *Handler {
 func (h *Handler) SetOrchestrationAPI(o orchestrationapi.OrcheExternalAPI) {
 	h.api = o
 	h.isSetAPI = true
-}
-
-// SetSecuremgrAPI sets SecureMgrExternalAPI
-func (h *Handler) SetSecuremgrAPI(s securemgr.SecureMgrExternalAPI) {
-	h.sapi = s
-	h.isSetSecureAPI = true
 }
 
 // APIV1RequestServicePost handles service request from service application
@@ -250,7 +240,7 @@ SEND_RESP:
 // APIV1RequestSecuremgrPost handles securemgr request from securemgr configure application
 func (h *Handler) APIV1RequestSecuremgrPost(w http.ResponseWriter, r *http.Request) {
 	log.Printf("[%s] APIV1RequestSecuremgrPost", logPrefix)
-	if h.isSetSecureAPI == false {
+	if h.isSetAPI == false {
 		log.Printf("[%s] does not set api", logPrefix)
 		h.helper.Response(w, http.StatusServiceUnavailable)
 		return
@@ -278,10 +268,10 @@ func (h *Handler) APIV1RequestSecuremgrPost(w http.ResponseWriter, r *http.Reque
 	}
 
 	var (
-		responseMsg  string
-		responseName string
-		resp         securemgr.ResponseSecureMgr
-		containerDescs        []interface{}
+		responseMsg    string
+		responseName   string
+		resp           verifier.ResponseVerifierConf
+		containerDescs []interface{}
 	)
 
 	//request
@@ -294,7 +284,7 @@ func (h *Handler) APIV1RequestSecuremgrPost(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	containerInfos := securemgr.RequestSecureMgr{}
+	containerInfos := verifier.RequestVerifierConf{}
 
 	SecureInsName, ok := appCommand["SecureMgr"].(string)
 	if ok {
@@ -306,21 +296,21 @@ func (h *Handler) APIV1RequestSecuremgrPost(w http.ResponseWriter, r *http.Reque
 	if ok {
 		log.Println("CmdType: ", containerInfos.CmdType)
 	}
-	if containerInfos.CmdType == "addHashCWL" || containerInfos.CmdType =="delHashCWL" {
+	if containerInfos.CmdType == "addHashCWL" || containerInfos.CmdType == "delHashCWL" {
 		containerDescs, ok = appCommand["Desc"].([]interface{})
 		if !ok {
 			log.Println("Error")
-			responseMsg = securemgr.INVALID_PARAMETER
+			responseMsg = verifier.INVALID_PARAMETER
 			responseName = "verifier"
 			goto SEND_RESP
 		}
 
-		containerInfos.Desc = make([]securemgr.RequestDescInfo, len(containerDescs))
+		containerInfos.Desc = make([]verifier.RequestDescInfo, len(containerDescs))
 		for idx, containerDesc := range containerDescs {
 			tmp := containerDesc.(map[string]interface{})
 			//name, ok := tmp["ContainerName"].(string)
 			//if !ok {
-			//	responseMsg = securemgr.INVALID_PARAMETER
+			//	responseMsg = verifier.INVALID_PARAMETER
 			//	responseName = "verifier"
 			//	goto SEND_RESP
 			//}
@@ -328,7 +318,7 @@ func (h *Handler) APIV1RequestSecuremgrPost(w http.ResponseWriter, r *http.Reque
 
 			hash, ok := tmp["ContainerHash"].(string)
 			if !ok {
-				responseMsg = securemgr.INVALID_PARAMETER
+				responseMsg = verifier.INVALID_PARAMETER
 				responseName = "verifier"
 				goto SEND_RESP
 			}
@@ -336,7 +326,7 @@ func (h *Handler) APIV1RequestSecuremgrPost(w http.ResponseWriter, r *http.Reque
 		}
 	}
 
-	resp = h.sapi.RequestSecureMgr(containerInfos)
+	resp = h.api.RequestVerifierConf(containerInfos)
 
 	responseMsg = resp.Message
 	responseName = resp.SecureCmpName

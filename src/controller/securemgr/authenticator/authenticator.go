@@ -14,7 +14,7 @@
 * limitations under the License.
 *
 *******************************************************************************/
-package securemgr
+package authenticator
 
 import (
 	"errors"
@@ -37,11 +37,11 @@ const (
 )
 
 var (
-	logPrefixA            = "[securemgr: authenticator]"
+	logPrefix             = "[securemgr: authenticator]"
 	authenticatorIns      *AuthenticatorImpl
 	passphrase            = []byte{}
 	passPhraseJWTFilePath = ""
-	initializedA          = false
+	initialized           = false
 )
 
 func init() {
@@ -58,8 +58,8 @@ func randString(n int) string {
 	return string(b)
 }
 
-// InitA sets the environments for securemgr
-func InitA(passPhraseJWTPath string) {
+// Init sets the environments for securemgr
+func Init(passPhraseJWTPath string) {
 	if _, err := os.Stat(passPhraseJWTPath); err != nil {
 		err := os.MkdirAll(passPhraseJWTPath, os.ModePerm)
 		if err != nil {
@@ -77,17 +77,17 @@ func InitA(passPhraseJWTPath string) {
 		passphrase = []byte(randString(16))
 		err = ioutil.WriteFile(passPhraseJWTFilePath, passphrase, 0666)
 		if err != nil {
-			log.Println(logPrefixA, "cannot create "+passPhraseJWTFilePath+": ", err)
+			log.Println(logPrefix, "cannot create "+passPhraseJWTFilePath+": ", err)
 		}
 	}
-	initializedA = true
+	initialized = true
 }
 
 var IsAuthorizedRequest = func(next http.Handler) http.Handler {
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if authenticatorIns == nil {
-			log.Println(logPrefixA, "authenticatorIns not initialized")
+			log.Println(logPrefix, "authenticatorIns not initialized")
 			return
 		}
 
@@ -95,10 +95,10 @@ var IsAuthorizedRequest = func(next http.Handler) http.Handler {
 
 			token, err := jwt.Parse(r.Header["Authorization"][0], func(token *jwt.Token) (interface{}, error) {
 				if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-					log.Println(logPrefixA, "authenticatorIns not initialized")
+					log.Println(logPrefix, "authenticatorIns not initialized")
 					return nil, errors.New("Token has an error")
 				}
-				if !initializedA {
+				if !initialized {
 					passphrase = []byte("")
 				}
 				return passphrase, nil
