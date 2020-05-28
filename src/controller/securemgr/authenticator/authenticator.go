@@ -18,7 +18,6 @@ package authenticator
 
 import (
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"math/rand"
@@ -86,9 +85,24 @@ func Init(passPhraseJWTPath string) {
 var IsAuthorizedRequest = func(next http.Handler) http.Handler {
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if authenticatorIns == nil {
-			log.Println(logPrefix, "authenticatorIns not initialized")
+		if initialized == false {
+			next.ServeHTTP(w, r) // pass control to the next handler
 			return
+		}
+		notReqAuth := []string{
+			"/api/v1/ping",
+			"/api/v1/servicemgr/services",
+			"/api/v1/servicemgr/services/notification/{serviceid}",
+			"/api/v1/scoringmgr/score",
+		}
+
+		// log.Println(logPrefix, r.URL.Path)
+		for _, url := range notReqAuth {
+
+			if url == r.URL.Path {
+				next.ServeHTTP(w, r)
+				return
+			}
 		}
 
 		if r.Header["Authorization"] != nil {
@@ -98,6 +112,7 @@ var IsAuthorizedRequest = func(next http.Handler) http.Handler {
 					log.Println(logPrefix, "authenticatorIns not initialized")
 					return nil, errors.New("Token has an error")
 				}
+				// log.Println(token.Claims)
 				if !initialized {
 					passphrase = []byte("")
 				}
@@ -105,14 +120,14 @@ var IsAuthorizedRequest = func(next http.Handler) http.Handler {
 			})
 
 			if err != nil {
-				fmt.Fprintf(w, err.Error())
+				log.Println(logPrefix, err.Error())
 			}
 
 			if token.Valid {
 				next.ServeHTTP(w, r) // pass control to the next handler
 			}
 		} else {
-			fmt.Fprintf(w, "Request doesn't contain an Authorization token\n")
+			log.Println(logPrefix, "Request doesn't contain an Authorization token\n")
 		}
 	})
 }
