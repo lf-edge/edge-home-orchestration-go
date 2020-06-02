@@ -5,7 +5,7 @@ passphrase=`cat /var/edge-orchestration/data/jwt/passPhraseJWT.txt`
 device_id=`cat /var/edge-orchestration/device/orchestration_deviceID.txt`
 
 payload="{
-	\"exp\": $(($(date +%s)+10)),
+	\"exp\": $(($(date +%s)+60)),
 	\"iat\": $(date +%s),
 	\"deviceid\": \"${device_id}\"
 }"
