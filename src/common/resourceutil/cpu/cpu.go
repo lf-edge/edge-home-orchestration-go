@@ -116,7 +116,10 @@ func Info() ([]InfoStat, error) {
 
 	feq, err := getCPUMaxFreq()
 	if err != nil {
-		return nil, err
+		feq, err = getCPUFreqCpuInfo()
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	ret[0].Mhz = feq
@@ -149,6 +152,51 @@ func getCPUMaxFreq() (float64, error) {
 	}
 
 	return feq, nil
+}
+
+func getCPUFreqCpuInfo() (float64, error) {
+	f, err := fileOpen("/proc/cpuinfo")
+	defer f.Close()
+	if err != nil {
+		return 0.0, err
+	}
+
+	r := bufio.NewReader(f)
+	for {
+		line, err := r.ReadString('\n')
+		if err != nil {
+			break
+		}
+
+		fields := strings.Split(strings.Trim(line, "\n"), ":")
+		if len(fields) < 2 {
+			continue
+		}
+
+		switch strings.TrimSpace(fields[0]) {
+		//case "cpu MHz":
+		//	feq, err := strconv.ParseFloat(strings.TrimSpace(fields[1]), 64)
+		//	if err != nil {
+		//		return 0.0, err
+		//	}
+		//	return feq, nil
+		case "model name":
+			name := strings.Split(fields[1], " ")
+
+			for _, val := range name {
+				if strings.Contains(val, "GHz") {
+					feq, err := strconv.ParseFloat(strings.Trim(val, "GHz"), 64)
+					if err != nil {
+							return 0.0, err
+						}
+					feq *= 1000.0
+					return feq, nil
+				}
+			}
+		}
+	}
+
+	return 0.0, err
 }
 
 func getCPUs() ([]InfoStat, error) {

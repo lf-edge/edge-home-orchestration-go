@@ -1,5 +1,3 @@
-// +build !secure
-
 /*******************************************************************************
  * Copyright 2019 Samsung Electronics All Rights Reserved.
  *
@@ -22,7 +20,6 @@ package main
 
 import (
 	"errors"
-	"flag"
 	"log"
 	"time"
 
@@ -32,6 +29,7 @@ import (
 	"controller/discoverymgr"
 	"controller/scoringmgr"
 	"controller/servicemgr"
+	"controller/securemgr"
 	executor "controller/servicemgr/executor/containerexecutor"
 
 	"orchestrationapi"
@@ -59,13 +57,13 @@ const (
 	configPath          = edgeDir + "/apps"
 	dbPath              = edgeDir + "/data/db"
 	certificateFilePath = edgeDir + "/data/cert"
+	containerWhiteListPath = edgeDir + "/data/cwl"
 
 	cipherKeyFilePath = edgeDir + "/user/orchestration_userID.txt"
 	deviceIDFilePath  = edgeDir + "/device/orchestration_deviceID.txt"
 )
 
 var (
-	flagVersion                  bool
 	commitID, version, buildTime string
 	buildTags                    string
 )
@@ -82,10 +80,6 @@ func main() {
 
 // orchestrationInit runs orchestration service and discovers other orchestration services in other devices
 func orchestrationInit() error {
-	flag.BoolVar(&flagVersion, "v", false, "if true, print version and exit")
-	flag.BoolVar(&flagVersion, "version", false, "if true, print version and exit")
-	flag.Parse()
-
 	logmgr.Init(logPath)
 	log.Printf("[%s] OrchestrationInit", logPrefix)
 	log.Println(">>> commitID  : ", commitID)
@@ -94,8 +88,23 @@ func orchestrationInit() error {
 	log.Println(">>> buildTags : ", buildTags)
 	wrapper.SetBoltDBPath(dbPath)
 
+	isSecured := false
+	if buildTags == "secure" {
+		log.Println("Orchestration init with secure option")
+		isSecured = true
+	}
+
+	if isSecured {
+		securemgr.Init(containerWhiteListPath)
+	}
+
 	restIns := restclient.GetRestClient()
-	restIns.SetCipher(sha256.GetCipher(cipherKeyFilePath))
+
+	if isSecured {
+		restIns.SetCipher(dummy.GetCipher(cipherKeyFilePath))
+	} else {
+		restIns.SetCipher(sha256.GetCipher(cipherKeyFilePath))
+	}
 
 	servicemgr.GetInstance().SetClient(restIns)
 
@@ -116,7 +125,11 @@ func orchestrationInit() error {
 	orcheEngine.Start(deviceIDFilePath, platform, executionType)
 
 	var restEdgeRouter *route.RestRouter
-	restEdgeRouter = route.NewRestRouter()
+	if isSecured {
+		restEdgeRouter = route.NewRestRouterWithCerti(certificateFilePath)
+	} else {
+		restEdgeRouter = route.NewRestRouter()
+	}
 
 	internalapi, err := orchestrationapi.GetInternalAPI()
 	if err != nil {
@@ -124,7 +137,13 @@ func orchestrationInit() error {
 	}
 	ihandle := internalhandler.GetHandler()
 	ihandle.SetOrchestrationAPI(internalapi)
-	ihandle.SetCipher(sha256.GetCipher(cipherKeyFilePath))
+
+	if isSecured {
+		ihandle.SetCipher(dummy.GetCipher(cipherKeyFilePath))
+		ihandle.SetCertificateFilePath(certificateFilePath)
+	} else {
+		ihandle.SetCipher(sha256.GetCipher(cipherKeyFilePath))
+	}
 	restEdgeRouter.Add(ihandle)
 
 	// external rest api
@@ -134,6 +153,15 @@ func orchestrationInit() error {
 	}
 	ehandle := externalhandler.GetHandler()
 	ehandle.SetOrchestrationAPI(externalapi)
+	// external secure rest api
+	if isSecured {
+		securemgrexternalapi, err := securemgr.GetExternalAPI()
+		if err != nil {
+			log.Fatalf("[%s] Secure manager external api : %s", logPrefix, err.Error())
+		} else {
+			ehandle.SetSecuremgrAPI(securemgrexternalapi)
+		}
+	}
 	ehandle.SetCipher(dummy.GetCipher(cipherKeyFilePath))
 	restEdgeRouter.Add(ehandle)
 

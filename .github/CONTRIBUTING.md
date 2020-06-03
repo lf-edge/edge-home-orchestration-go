@@ -72,7 +72,7 @@ $ git add path/to/my/file.go
 
 Commit your changes with a descriptive commit message. Make sure to mention the ticket number with #XXX so github will automatically link your commit with the ticket:
 ```sh
-$ git commit -m "A brief description of this change which fixes #42 goes here"
+$ git commit -m "A brief description of this change which fixes #42 goes here" --signoff
 ```
 
 #### 9. Pull the latest Edge Orchestration code from upstream into your branch
