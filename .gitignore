@@ -34,3 +34,7 @@ src/interfaces/javaapi/output
 
 # VS Code
 .vscode/
+
+# Eclipse
+.project
+.cproject
