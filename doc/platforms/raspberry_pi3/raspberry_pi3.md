@@ -109,8 +109,10 @@ Usage:
 ---
 
 ## API Document
-Edge Orchestration provides only one REST API for its operation. Description for the APIs are stored in <root>/doc folder.
-- **[edge_orchestration_api.yaml](./doc/edge_orchestration_api.yaml)**
+Edge Orchestration provides only one REST API for its operation. Description for the APIs are stored in [/doc](../../) folder.
+- **[edge_orchestration_api.yaml](../../edge_orchestration_api.yaml)** or 
+- **[edge_orchestration_api_secure.yaml](../../edge_orchestration_api_secure.yaml)** for secure mode.
+
 
 Note that you can visit [Swagger Editor](https://editor.swagger.io/) to graphically investigate the REST API in YAML.
 

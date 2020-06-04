@@ -1,0 +1,144 @@
+swagger: '2.0'
+info:
+  title: Edge Orchestration API (secure mode)
+  description: >-
+    
+    This provides functionality to execute a service on a remote edge device & 
+    Security Manager setup. 
+
+    
+  version: v1-20200604
+schemes:
+  - http
+tags:
+  - name: Service Execution
+    description: Execute a Service on the other Device based on Score
+  - name: Security Manager
+    description: Provide Security Manager setup
+paths:
+  '/api/v1/orchestration/services':
+    post:
+      tags:
+        - Service Execution
+      description: Execute a Service on the other Device
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Name is Service Category, declared in config file and it determines which scoring method will be applied.
+        
+        
+        Args is a list of Shell Command to execute Service."
+        
+        required: true
+        schema:
+          $ref: "#/definitions/service"
+      responses:
+        '200':
+          description: Successful operation, return handle, as a client ID    
+          schema:     
+            $ref: "#/definitions/handle"   
+        '401':
+          $ref: '#/definitions/unauthorizederror'
+      security:
+        - Bearer: []
+  '/api/v1/orchestration/securemgr':
+    post:
+      tags:
+        - Security Manager
+      description: Provide Security Manager setup (verification sub-system)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Name is security component, it determines which security subsystem will be setuped.
+        
+        
+        Args is a type of command to security sub-system setup."
+        
+        required: true
+        schema:
+          $ref: "#/definitions/verifier"
+      responses:
+        '200':
+          description: Successful operation, return handle, as a client ID    
+          schema:     
+            $ref: "#/definitions/handle"               
+        '401':
+          $ref: '#/definitions/unauthorizederror'
+      security:
+        - Bearer: []
+securityDefinitions:
+  Bearer:
+    type: apiKey
+    name: Authorization
+    in: header
+    description: |
+     For accessing the API a valid JWT token must be passed in the 'Authorization' header.
+  
+  
+     The following syntax must be used in the 'Authorization' header :
+  
+         Bearer xxxxxx.yyyyyyy.zzzzzz
+
+definitions:
+  service:
+    required:
+      - ServiceName
+      - ServiceInfo
+    properties:
+      ServiceName:
+        type: string
+        example: container_service
+      ServiceInfo:
+        type: array
+        example:
+          - {"ExecutionType":"native", "ExecCmd":["hellow-world"]}
+          - {"ExecutionType":"container", "ExecCmd":["docker", "run", "hello-world@sha256:fc6a51919cfeb2e6763f62b6d9e8815acbf7cd2e476ea353743570610737b752"]}
+          - {"ExecutionType":"android", "ExecCmd":["com.example.hello-world"]}
+      StatusCallbackURI:
+        type: string
+        example: "http://192.168.10.151:9090/example/notification"
+
+  handle:
+    required:
+      - Handle
+    properties:
+      Handle:
+        type: integer
+        format: int32
+        example: 7
+
+  verifier:
+    required:
+      - SecCompName
+      - TypeCmd
+      - Desc
+    properties:
+      SecCompName:
+        type: string
+        example: Verifier
+      TypeCmd:
+        type: string
+        example: 
+          - addHashCWL
+          - delHashCWL
+          - delAllHashCWL
+          - printAllHashCWL
+      Desc:
+        type: array
+        example:
+          - {"ContainerHash": "fc6a51919cfeb2e6763f62b6d9e8815acbf7cd2e476ea353743570610737b752",}
+      StatusCallbackURI:
+        type: string
+        example: "http://192.168.10.151:9090/example/notification"
+
+  unauthorizederror:
+    description: Access token is missing or invalid
+    type: string
