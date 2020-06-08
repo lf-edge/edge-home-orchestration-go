@@ -14,7 +14,7 @@
 * limitations under the License.
 *
 *******************************************************************************/
-package securemgr
+package verifier
 
 import (
 	"errors"
@@ -26,23 +26,23 @@ import (
 
 // cwl - Container White List
 const (
-	cwlFileName			= "containerwhitelist.txt"
+	cwlFileName = "containerwhitelist.txt"
 
-	ERROR_NONE			= "ERROR_NONE"
-	INVALID_PARAMETER	= "INVALID_PARAMETER"
-	SECUREMGR_ERROR		= "INTERNAL_SECUREMGR_ERROR"
-	NOT_ALLOWED_COMMAND	= "NOT_ALLOWED_COMMAND"
+	ERROR_NONE          = "ERROR_NONE"
+	INVALID_PARAMETER   = "INVALID_PARAMETER"
+	SECUREMGR_ERROR     = "INTERNAL_SECUREMGR_ERROR"
+	NOT_ALLOWED_COMMAND = "NOT_ALLOWED_COMMAND"
 )
 
 // VerifierImpl structure
 type VerifierImpl struct{}
 
 var (
-	containerWhiteList	[]string
-	logPrefix			= "[securemgr: verifier]"
-	verifierIns			*VerifierImpl
-	initialized			= false
-	cwlFilePath			= ""
+	containerWhiteList []string
+	logPrefix          = "[securemgr: verifier]"
+	verifierIns        *VerifierImpl
+	initialized        = false
+	cwlFilePath        = ""
 )
 
 type RequestDescInfo struct {
@@ -50,32 +50,24 @@ type RequestDescInfo struct {
 	ContainerHash string
 }
 
-type RequestSecureMgr struct {
-	SecureInsName	string
-	CmdType			string
-	Desc			[]RequestDescInfo
+type RequestVerifierConf struct {
+	SecureInsName string
+	CmdType       string
+	Desc          []RequestDescInfo
 }
 
-type ResponseSecureMgr struct {
-	Message			string
-	SecureCmpName	string
+type ResponseVerifierConf struct {
+	Message       string
+	SecureCmpName string
 }
 
-// SecureMgrExternalAPI is the interface implemented by external REST API
-type SecureMgrExternalAPI interface {
-	RequestSecureMgr(containerInfo RequestSecureMgr) ResponseSecureMgr
+// VerifierConf is the interface implemented by external REST API
+type VerifierConf interface {
+	RequestVerifierConf(containerInfo RequestVerifierConf) ResponseVerifierConf
 }
 
 func init() {
 	verifierIns = new(VerifierImpl)
-}
-
-// GetExternalAPI registers the securemgr external API
-func GetExternalAPI() (SecureMgrExternalAPI, error) {
-	if verifierIns == nil {
-		return verifierIns, errors.New("securemgr not initialized")
-	}
-	return verifierIns, nil
 }
 
 // initContainerWhiteList fills the containerWhiteList by reading the information
@@ -86,10 +78,10 @@ func initContainerWhiteList() error {
 		containerWhiteList = nil
 		err = ioutil.WriteFile(cwlFilePath, []byte(""), 0666)
 		if err != nil {
-			log.Println(logPrefix, "cannot create " + cwlFileName + ": ", err)
+			log.Println(logPrefix, "cannot create "+cwlFileName+": ", err)
 		}
 	} else {
-		containerWhiteList = strings.Split(string(fileContent),"\n")
+		containerWhiteList = strings.Split(string(fileContent), "\n")
 		if len(containerWhiteList) > 0 {
 			containerWhiteList = containerWhiteList[:len(containerWhiteList)-1]
 		}
@@ -169,16 +161,16 @@ func addHashToContainerWhiteList(hash string) error {
 	} else {
 		fileContentStr := string(fileContent)
 		log.Println(logPrefix, "Len filecontentstr = ", len(fileContentStr))
-			containerWhiteList = strings.Split(fileContentStr, "\n")
-			if len(containerWhiteList) > 0 {
-				containerWhiteList = containerWhiteList[:len(containerWhiteList)-1]
+		containerWhiteList = strings.Split(fileContentStr, "\n")
+		if len(containerWhiteList) > 0 {
+			containerWhiteList = containerWhiteList[:len(containerWhiteList)-1]
+		}
+		for _, whitelistItem := range containerWhiteList {
+			if whitelistItem == hash {
+				log.Printf("%s container's hash %s already exists in conatiner white list\n", logPrefix, hash)
+				return nil
 			}
-			for _, whitelistItem := range containerWhiteList {
-				if whitelistItem == hash {
-					log.Printf("%s container's hash %s already exists in conatiner white list\n", logPrefix, hash)
-					return nil
-				}
-			}
+		}
 		fileContentStr = fileContentStr + hash + "\n"
 		err = ioutil.WriteFile(cwlFilePath, []byte(fileContentStr), 0666)
 		if err != nil {
@@ -213,11 +205,11 @@ func delHashFromContainerWhiteList(hash string) error {
 			log.Printf("%s cannot create %s file: %s\n", logPrefix, cwlFileName, err)
 			return err
 		}
-		containerWhiteList = strings.Split(fileContentStr,"\n")
+		containerWhiteList = strings.Split(fileContentStr, "\n")
 		if len(containerWhiteList) > 0 {
 			containerWhiteList = containerWhiteList[:len(containerWhiteList)-1]
 		}
-		log.Printf("%s hash: %s successfully deleted from %s file\n", logPrefix, hash,  cwlFileName)
+		log.Printf("%s hash: %s successfully deleted from %s file\n", logPrefix, hash, cwlFileName)
 	}
 	return nil
 }
@@ -245,16 +237,16 @@ func printAllHashFromContainerWhiteList() {
 	}
 }
 
-func (verifier *VerifierImpl) RequestSecureMgr(containerInfo RequestSecureMgr) ResponseSecureMgr {
+func (verifier *VerifierImpl) RequestVerifierConf(containerInfo RequestVerifierConf) ResponseVerifierConf {
 	log.Printf("%s command type: %s\n", logPrefix, containerInfo.CmdType)
 	switch containerInfo.CmdType {
 	case "addHashCWL":
 		for _, containerDesc := range containerInfo.Desc {
 			err := addHashToContainerWhiteList(containerDesc.ContainerHash)
 			if err != nil {
-				return ResponseSecureMgr{
-					Message:     	SECUREMGR_ERROR,
-					SecureCmpName:	"verifier",
+				return ResponseVerifierConf{
+					Message:       SECUREMGR_ERROR,
+					SecureCmpName: "verifier",
 				}
 			}
 		}
@@ -262,31 +254,31 @@ func (verifier *VerifierImpl) RequestSecureMgr(containerInfo RequestSecureMgr) R
 		for _, containerDesc := range containerInfo.Desc {
 			err := delHashFromContainerWhiteList(containerDesc.ContainerHash)
 			if err != nil {
-				return ResponseSecureMgr{
-					Message:     	SECUREMGR_ERROR,
-					SecureCmpName:	"verifier",
+				return ResponseVerifierConf{
+					Message:       SECUREMGR_ERROR,
+					SecureCmpName: "verifier",
 				}
 			}
 		}
 	case "delAllHashCWL":
 		err := delAllHashFromContainerWhiteList()
 		if err != nil {
-			return ResponseSecureMgr{
-				Message:     	SECUREMGR_ERROR,
-				SecureCmpName:	"verifier",
+			return ResponseVerifierConf{
+				Message:       SECUREMGR_ERROR,
+				SecureCmpName: "verifier",
 			}
 		}
 	case "printAllHashCWL":
 		printAllHashFromContainerWhiteList()
 	default:
 		log.Println(logPrefix, "command does not supported: ", containerInfo.CmdType)
-		return ResponseSecureMgr{
-			Message:     NOT_ALLOWED_COMMAND,
+		return ResponseVerifierConf{
+			Message:       NOT_ALLOWED_COMMAND,
 			SecureCmpName: "verifier",
 		}
 	}
-	return ResponseSecureMgr{
-		Message:     ERROR_NONE,
+	return ResponseVerifierConf{
+		Message:       ERROR_NONE,
 		SecureCmpName: "verifier",
 	}
 }

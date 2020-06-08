@@ -28,8 +28,9 @@ import (
 	configuremgr "controller/configuremgr/container"
 	"controller/discoverymgr"
 	"controller/scoringmgr"
+	"controller/securemgr/authenticator"
+	"controller/securemgr/verifier"
 	"controller/servicemgr"
-	"controller/securemgr"
 	executor "controller/servicemgr/executor/containerexecutor"
 
 	"orchestrationapi"
@@ -53,11 +54,12 @@ const (
 
 	edgeDir = "/var/edge-orchestration"
 
-	logPath             = edgeDir + "/log"
-	configPath          = edgeDir + "/apps"
-	dbPath              = edgeDir + "/data/db"
-	certificateFilePath = edgeDir + "/data/cert"
+	logPath                = edgeDir + "/log"
+	configPath             = edgeDir + "/apps"
+	dbPath                 = edgeDir + "/data/db"
+	certificateFilePath    = edgeDir + "/data/cert"
 	containerWhiteListPath = edgeDir + "/data/cwl"
+	passPhraseJWTPath      = edgeDir + "/data/jwt"
 
 	cipherKeyFilePath = edgeDir + "/user/orchestration_userID.txt"
 	deviceIDFilePath  = edgeDir + "/device/orchestration_deviceID.txt"
@@ -95,7 +97,8 @@ func orchestrationInit() error {
 	}
 
 	if isSecured {
-		securemgr.Init(containerWhiteListPath)
+		verifier.Init(containerWhiteListPath)
+		authenticator.Init(passPhraseJWTPath)
 	}
 
 	restIns := restclient.GetRestClient()
@@ -111,6 +114,7 @@ func orchestrationInit() error {
 	builder := orchestrationapi.OrchestrationBuilder{}
 	builder.SetWatcher(configuremgr.GetInstance(configPath))
 	builder.SetDiscovery(discoverymgr.GetInstance())
+	builder.SetVerifierConf(verifier.GetInstance())
 	builder.SetScoring(scoringmgr.GetInstance())
 	builder.SetService(servicemgr.GetInstance())
 	builder.SetExecutor(executor.GetInstance())
@@ -153,15 +157,6 @@ func orchestrationInit() error {
 	}
 	ehandle := externalhandler.GetHandler()
 	ehandle.SetOrchestrationAPI(externalapi)
-	// external secure rest api
-	if isSecured {
-		securemgrexternalapi, err := securemgr.GetExternalAPI()
-		if err != nil {
-			log.Fatalf("[%s] Secure manager external api : %s", logPrefix, err.Error())
-		} else {
-			ehandle.SetSecuremgrAPI(securemgrexternalapi)
-		}
-	}
 	ehandle.SetCipher(dummy.GetCipher(cipherKeyFilePath))
 	restEdgeRouter.Add(ehandle)
 

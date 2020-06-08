@@ -31,6 +31,7 @@ import (
 	"controller/configuremgr"
 	"controller/discoverymgr"
 	"controller/scoringmgr"
+	"controller/securemgr/verifier"
 	"controller/servicemgr"
 	"controller/servicemgr/notification"
 	"restinterface/client"
@@ -43,6 +44,7 @@ import (
 type orcheImpl struct {
 	Ready bool
 
+	verifierIns     verifier.VerifierConf
 	serviceIns      servicemgr.ServiceMgr
 	scoringIns      scoringmgr.Scoring
 	discoverIns     discoverymgr.Discovery

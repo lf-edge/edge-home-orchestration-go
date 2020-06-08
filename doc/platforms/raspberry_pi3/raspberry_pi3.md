@@ -109,8 +109,10 @@ Usage:
 ---
 
 ## API Document
-Edge Orchestration provides only one REST API for its operation. Description for the APIs are stored in <root>/doc folder.
-- **[edge_orchestration_api.yaml](./doc/edge_orchestration_api.yaml)**
+Edge Orchestration provides only one REST API for its operation. Description for the APIs are stored in [/doc](../../) folder.
+- **[edge_orchestration_api.yaml](../../edge_orchestration_api.yaml)** or 
+- **[edge_orchestration_api_secure.yaml](../../edge_orchestration_api_secure.yaml)** for secure mode.
+
 
 Note that you can visit [Swagger Editor](https://editor.swagger.io/) to graphically investigate the REST API in YAML.
 
@@ -191,8 +193,23 @@ RESTAPI
     ```
 - Curl Example:
     ```json
-  curl -X POST "IP:56001/api/v1/orchestration/services" -H "accept: application/json" -H "Content-Type: application/json" -d "{ \"ServiceName\": \"hello-world\", \"ServiceInfo\": [{ \"ExecutionType\": \"container\", \"ExecCmd\": [ \"docker\", \"run\", \"-v\", \"/var/run:/var/run:rw\", \"hello-world\"]}], \"StatusCallbackURI\": \"http://localhost:8888/api/v1/services/notification\"}"
+  $ curl -X POST "IP:56001/api/v1/orchestration/services" -H "accept: application/json" -H "Content-Type: application/json" -d "{ \"ServiceName\": \"hello-world\", \"ServiceInfo\": [{ \"ExecutionType\": \"container\", \"ExecCmd\": [ \"docker\", \"run\", \"-v\", \"/var/run:/var/run:rw\", \"hello-world\"]}], \"StatusCallbackURI\": \"http://localhost:8888/api/v1/services/notification\"}"
     ```
+  ---
+   If the `edge-orchestration` was assembled with `secure` option.
+   You need to add a JSON Web Token into request header `Authorization: {token}` and a image digest (sha256) to the last parameter. `"hello-world@sha256:fc6a51919cfeb2e6763f62b6d9e8815acbf7cd2e476ea353743570610737b752"`. More information about it you can find [here](doc/secure_manager.md).
+   ```
+   $ curl -X POST "IP:56001/api/v1/orchestration/services" -H "accept: application/json" -H "Content-Type: application/json" -H "Authorization: $EDGE_ORCHESTRATION_TOKEN" -d "{ \"ServiceName\": \"hello-world\", \"ServiceInfo\": [{ \"ExecutionType\": \"container\", \"ExecCmd\": [ \"docker\", \"run\", \"-v\", \"/var/run:/var/run:rw\", \"hello-world@sha256:fc6a51919cfeb2e6763f62b6d9e8815acbf7cd2e476ea353743570610737b752\"]}], \"StatusCallbackURI\": \"http://localhost:8888/api/v1/services/notification\"}"
+   ```  
+   To add the `EDGE_ORCHESTRATION_TOKEN` variable to the environment execute the next command:
+   ```
+   $ . tools/jwt_gen.sh
+   ```
+   To add your container hash to the container white list `/var/edge-erchestration/data/cwl/containerwhitelist.txt`, you need to add a hash line to the end file.  
+   ```
+   # echo "fc6a51919cfeb2e6763f62b6d9e8815acbf7cd2e476ea353743570610737b752" >> /var/edge-erchestration/data/cwl/containerwhitelist.txt
+   ```
+  ---
 
 - Result(Execution on itself)
   

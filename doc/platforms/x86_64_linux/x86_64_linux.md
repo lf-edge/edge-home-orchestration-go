@@ -1,17 +1,17 @@
 # Edge Orchestration on x86_64 Linux
 
-## Quick start ##
+## Quick start
 This section provides how to download and run pre-built Docker image without building the project.
 
-#### 1. Install docker-ce ####
+#### 1. Install docker-ce
 - docker-ce
   - Version: 17.09 (or above)
   - [How to install](https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/)
 
-#### 2. Download Docker image ####
+#### 2. Download Docker image
 Please download [edge-orchestration docker container](https://github.com/lf-edge/edge-home-orchestration-go/releases/download/Baobab_rc1/edge-orchestration.tar)
 
-#### 3. Load Docker image from tar file ####
+#### 3. Load Docker image from tar file
 ```shell
 $ docker load -i edge-orchestration.tar
 ```
@@ -22,7 +22,7 @@ REPOSITORY                 TAG                 IMAGE ID            CREATED      
 edge-orchestration         baobab              502e3c07b01f        3 minutes ago       132MB
 ```
 
-#### 4. Add Key file #### 
+#### 4. Add Key file
 
 To let the Edge Orchestration devices communicate with each other, each devices should have same authentication key in:
 `/var/edge-orchestration/data/cert/edge-orchestration.key`
@@ -32,7 +32,7 @@ $ sudo cp {SampleKey.key} /var/edge-orchestration/data/cert/edge-orchestration.k
 ```
 > Any cert file can be authentication key
 
-#### 5. Run with Docker image ####
+#### 5. Run with Docker image
 You can execute Edge Orchestration with a Docker image as follows:
 
 ```shell
@@ -47,9 +47,9 @@ $ docker run -it -d \
 ```
 ---
 
-## How to build ##
+## How to build
 
-#### Build Prerequisites ##
+#### Build Prerequisites
 - docker-ce
     - Version: 17.06 (or above)
     - [How to install](https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/)
@@ -114,23 +114,26 @@ Usage:
 ```
 ---
 
-## API Document ##
-Edge Orchestration provides only one REST API for its operation. Description for the APIs are stored in <root>/doc folder.
-- **[edge_orchestration_api.yaml](./doc/edge_orchestration_api.yaml)**
+## API Document
+Edge Orchestration provides only one REST API for its operation. Description for the APIs are stored in [/doc](../../) folder.
+- **[edge_orchestration_api.yaml](../../edge_orchestration_api.yaml)** or 
+- **[edge_orchestration_api_secure.yaml](../../edge_orchestration_api_secure.yaml)** for secure mode.
 
 Note that you can visit [Swagger Editor](https://editor.swagger.io/) to graphically investigate the REST API in YAML.
 
 ---
 
-## How to work ##
-#### 0. Prerequisites ####
+## How to work
+
+#### 0. Prerequisites
   - Same network connected among the devices.
   - Same Authentication key in /var/edge-orchestration/user/orchestration_userID.txt
     - Please see the above [4. Add Key file](#4-add-key-file) to know how to add authentication key
   - Edge Orchestration Docker image
     - Please see the above [How to build](#how-to-build) to know how to build Edge Orchestration Docker image
 
-#### 1. Run Edge Orchestration container #### 
+
+#### 1. Run Edge Orchestration container
 
 ```shell
 $ docker run -it -d \
@@ -141,11 +144,11 @@ $ docker run -it -d \
                 -v /var/run/docker.sock:/var/run/docker.sock:rw \
                 -v /proc/:/process/:ro \
                 edge-orchestration:baobab
-``` 
-- Result 
+```
+- Result
 
 ```shell
-$ docker logs -f edge-orchestration 
+$ docker logs -f edge-orchestration
 
 2019/10/16 07:35:45 main_secured.go:89: [interface] OrchestrationInit
 2019/10/16 07:35:45 main_secured.go:90: >>> commitID  :  c3041ae
@@ -171,7 +174,7 @@ $ docker logs -f edge-orchestration
 2019/10/16 07:35:45 main_secured.go:141: interface orchestration init done
 ```
 
-#### 2. Request to execute a service ####
+#### 2. Request to execute a service
 
 RESTAPI
 - POST  
@@ -195,8 +198,23 @@ RESTAPI
     ```
 - Curl Example:
     ```json
-  curl -X POST "IP:56001/api/v1/orchestration/services" -H "accept: application/json" -H "Content-Type: application/json" -d "{ \"ServiceName\": \"hello-world\", \"ServiceInfo\": [{ \"ExecutionType\": \"container\", \"ExecCmd\": [ \"docker\", \"run\", \"-v\", \"/var/run:/var/run:rw\", \"hello-world\"]}], \"StatusCallbackURI\": \"http://localhost:8888/api/v1/services/notification\"}"
+  $ curl -X POST "IP:56001/api/v1/orchestration/services" -H "accept: application/json" -H "Content-Type: application/json" -d "{ \"ServiceName\": \"hello-world\", \"ServiceInfo\": [{ \"ExecutionType\": \"container\", \"ExecCmd\": [ \"docker\", \"run\", \"-v\", \"/var/run:/var/run:rw\", \"hello-world\"]}], \"StatusCallbackURI\": \"http://localhost:8888/api/v1/services/notification\"}"
     ```
+  ---
+   If the `edge-orchestration` was assembled with `secure` option.
+   You need to add a JSON Web Token into request header `Authorization: {token}` and a image digest (sha256) to the last parameter. `"hello-world@sha256:fc6a51919cfeb2e6763f62b6d9e8815acbf7cd2e476ea353743570610737b752"`. More information about it you can find [here](doc/secure_manager.md).
+   ```
+   $ curl -X POST "IP:56001/api/v1/orchestration/services" -H "accept: application/json" -H "Content-Type: application/json" -H "Authorization: $EDGE_ORCHESTRATION_TOKEN" -d "{ \"ServiceName\": \"hello-world\", \"ServiceInfo\": [{ \"ExecutionType\": \"container\", \"ExecCmd\": [ \"docker\", \"run\", \"-v\", \"/var/run:/var/run:rw\", \"hello-world@sha256:fc6a51919cfeb2e6763f62b6d9e8815acbf7cd2e476ea353743570610737b752\"]}], \"StatusCallbackURI\": \"http://localhost:8888/api/v1/services/notification\"}"
+   ```  
+   To add the `EDGE_ORCHESTRATION_TOKEN` variable to the environment execute the next command:
+   ```
+   $ . tools/jwt_gen.sh
+   ```
+   To add your container hash to the container white list `/var/edge-erchestration/data/cwl/containerwhitelist.txt`, you need to add a hash line to the end file.  
+   ```
+   # echo "fc6a51919cfeb2e6763f62b6d9e8815acbf7cd2e476ea353743570610737b752" >> /var/edge-erchestration/data/cwl/containerwhitelist.txt
+   ```
+  ---
 
 - Result(Execution on itself)
   
