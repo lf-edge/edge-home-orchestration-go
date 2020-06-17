@@ -86,7 +86,7 @@ clean-tmp-packages:
 build-object-java:
 	mkdir -p $(ANDROID_LIBRARY_OUT_DIR)
 	$(GOMOBILE) init
-	$(GOMOBILE) bind $(GO_MOBILE_LDFLAGS) -o $(ANDROID_LIBRARY_OUT_DIR)/$(ANDROID_LIBRARY_FILE) -target=android -androidapi=23 $(ANDROID_SRC_DIR) || exit 1
+	$(GOMOBILE) bind $(GO_MOBILE_LDFLAGS) -o $(ANDROID_LIBRARY_OUT_DIR)/$(ANDROID_LIBRARY_FILE) -target=$(ANDROID_TARGET) -androidapi=23 $(ANDROID_SRC_DIR) || exit 1
 	ls -al $(ANDROID_LIBRARY_OUT_DIR)
 
 ## edge-orchestration container build
