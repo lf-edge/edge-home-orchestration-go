@@ -29,6 +29,8 @@ import (
 	configuremgr "controller/configuremgr/native"
 	"controller/discoverymgr"
 	scoringmgr "controller/scoringmgr"
+	"controller/securemgr/authenticator"
+	"controller/securemgr/verifier"
 	"controller/servicemgr"
 	"controller/servicemgr/executor/androidexecutor"
 
@@ -48,10 +50,12 @@ const (
 	platform      = "android"
 	executionType = "android"
 
-	logStr          = "/log"
-	configStr       = "/apps"
-	dbStr           = "/data/db"
-	certificateFile = "/data/cert"
+	logStr                 = "/log"
+	configStr              = "/apps"
+	dbStr                  = "/data/db"
+	certificateFile        = "/data/cert"
+	containerWhiteListPath = "/data/cwl"
+	passPhraseJWTPath      = "/data/jwt"
 
 	cipherKeyFile = "/user/orchestration_userID.txt"
 	deviceIDFile  = "/device/orchestration_deviceID.txt"
@@ -159,6 +163,11 @@ func OrchestrationInit(executeCallback ExecuteCallback, edgeDir string, isSecure
 
 	wrapper.SetBoltDBPath(dbPath)
 
+	if isSecured {
+		verifier.Init(containerWhiteListPath)
+		authenticator.Init(passPhraseJWTPath)
+	}
+
 	restIns := restclient.GetRestClient()
 	if isSecured {
 		restIns.SetCipher(dummy.GetCipher(cipherKeyFilePath))
@@ -171,6 +180,7 @@ func OrchestrationInit(executeCallback ExecuteCallback, edgeDir string, isSecure
 	builder := orchestrationapi.OrchestrationBuilder{}
 	builder.SetWatcher(configuremgr.GetInstance(configPath))
 	builder.SetDiscovery(discoverymgr.GetInstance())
+	builder.SetVerifierConf(verifier.GetInstance())
 	builder.SetScoring(scoringmgr.GetInstance())
 	builder.SetService(servicemgr.GetInstance())
 	builder.SetExecutor(androidexecutor.GetInstance())
