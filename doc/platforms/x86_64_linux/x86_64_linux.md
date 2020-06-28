@@ -208,7 +208,7 @@ RESTAPI
    ```  
    To add the `EDGE_ORCHESTRATION_TOKEN` variable to the environment execute the next command:
    ```
-   $ . tools/jwt_gen.sh
+   $ . tools/jwt_gen.sh HS256
    ```
    To add your container hash to the container white list `/var/edge-erchestration/data/cwl/containerwhitelist.txt`, you need to add a hash line to the end file.  
    ```

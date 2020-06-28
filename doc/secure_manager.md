@@ -170,15 +170,29 @@ node "Home Edge Node #1" {
 
 ### 3.3 JWT generation
 
-To create a JWT, you can use the script [tools/jwt_gen.sh](../tools/jwt_gen.sh) by running it as shown below.
+To create a JWT, you can use the script [tools/jwt_gen.sh](../tools/jwt_gen.sh) by running it as shown below:
+For `HMAC`
 ```shell
-$ . tools/jwt_gen.sh
+$ . tools/jwt_gen.sh HS256
 ```
+or for `RSA256`
+```shell
+$ . tools/jwt_gen.sh RS256
+```
+
 The generated token is exported to the shell environment variable: `EDGE_ORCHESTRATION_TOKEN`.
 Enter the following command to display the token:
 ```shell
 $ echo $EDGE_ORCHESTRATION_TOKEN
 ```
+
+> If you want to use the `RSA256` algorithm, you need to generate keys using the commands:
+```
+$ cd /var/edge-orchestration/data/jwt
+$ openssl genrsa -out app_rsa.key keysize
+$ openssl rsa -in app_rsa.key -pubout > app_rsa.pub
+```
+
 ---
 ### 3.4 JWT usage
 To use a JWT, you must include it in the header of the request: `Authorization: {token}`.
