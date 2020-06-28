@@ -134,7 +134,7 @@ If the `"fc6a51919cfeb2e6763f62b6d9e8815acbf7cd2e476ea353743570610737b752"` hash
 
 ## 3. Authenticator
 ### 3.1 Description
-The **Authenticator** provides access to resources only for authenticated users (services). The current implementation is based on the use of [JSON Web Tokens](https://tools.ietf.org/html/rfc7519) (JWT). The Authenticator uses the `HMAC` algorithm to generate the JWTs. The key phrase (secret) is stored in `/var/edge-orchestration/data/passPhraseJWT.txt` file. 
+The **Authenticator** provides access to resources only for authenticated users (services). The current implementation is based on the use of [JSON Web Tokens](https://tools.ietf.org/html/rfc7519) (JWT). The Authenticator uses the `HMAC` or `RSA256` algorithms to generate the JWTs. The key phrase (secret) is stored in `/var/edge-orchestration/data/jwt/passPhraseJWT.txt` file for HMAC and the pubkey is stored in `/var/edge-orchestration/data/jwt/app_rsa.pub` for RSA256.
 > The distribution of the key phrase is not yet in the field of implementation and should be done manually (especially considering the fact that external REST API requests can only be from the `localhost` or `127.0.0.1`).
 ---
 
