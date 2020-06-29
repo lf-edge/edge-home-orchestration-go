@@ -27,7 +27,7 @@ import (
 
 var logFileName = "logmgr.log"
 
-// Init sets the enviroments for logging
+// Init sets the environments for logging
 func Init(logFilePath string) {
 	if _, err := os.Stat(logFilePath); err != nil {
 		err := os.MkdirAll(logFilePath, os.ModePerm)

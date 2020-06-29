@@ -79,7 +79,7 @@ type Monitor interface {
 	StartMonitoringResource()
 }
 
-// GetResource is an interface to get reource
+// GetResource is an interface to get resource
 type GetResource interface {
 	GetResource(string) (float64, error)
 	SetDeviceID(string)

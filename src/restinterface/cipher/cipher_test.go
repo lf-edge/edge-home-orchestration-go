@@ -28,7 +28,7 @@ func TestSetCipher(t *testing.T) {
 	testHasCipher.SetCipher(fakeCipher{})
 
 	if testHasCipher.IsSetKey != true {
-		t.Error("expecte key is set, but not set")
+		t.Error("expected key is set, but not set")
 	}
 }
 

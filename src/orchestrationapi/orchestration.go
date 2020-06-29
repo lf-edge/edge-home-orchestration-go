@@ -15,7 +15,7 @@
  *
  *******************************************************************************/
 
-// Package orchestrationapi provides orchestration functionalities to handle distributed service in multi-device enviroment
+// Package orchestrationapi provides orchestration functionalities to handle distributed service in multi-device environment
 package orchestrationapi
 
 import (
@@ -40,7 +40,7 @@ import (
 
 const logtag = "Orchestration"
 
-// Orche is the interface implemented by orchestration start funciton
+// Orche is the interface implemented by orchestration start function
 type Orche interface {
 	Start(deviceIDPath string, platform string, executionType string)
 }
@@ -155,7 +155,7 @@ func (o *OrchestrationBuilder) SetClient(c client.Clienter) {
 	o.clientAPI = c
 }
 
-// Build registrers every interface to run orchestration
+// Build registers every interface to run orchestration
 func (o OrchestrationBuilder) Build() Orche {
 	if !o.isSetWatcher || !o.isSetDiscovery || !o.isSetScoring ||
 		!o.isSetService || !o.isSetExecutor || !o.isSetClient ||

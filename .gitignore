@@ -38,3 +38,6 @@ src/interfaces/javaapi/output
 # Eclipse
 .project
 .cproject
+
+# GoLand
+.idea

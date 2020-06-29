@@ -117,7 +117,7 @@ func init() {
 	helper = dbhelper.GetInstance()
 }
 
-// RequestService handles service reqeust (ex. offloading) from service application
+// RequestService handles service request (ex. offloading) from service application
 func (orcheEngine *orcheImpl) RequestService(serviceInfo ReqeustService) ResponseService {
 	log.Printf("[RequestService] %v: %v\n", serviceInfo.ServiceName, serviceInfo.ServiceInfo)
 
