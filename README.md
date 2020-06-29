@@ -9,7 +9,7 @@ The main purpose of **Edge Orchestration project** is to implement distributed c
 
 All the devices (TVs, fridges, washing machines, etc.) connected into *Home Edge Network* are considered *Home Edge Devices*. Some of the devices, possessing significant H/W resources and capable of running containerized applications, are called *Home Edge Nodes*. Tasks performed on devices of *Home Edge Network* are managed by *Home Edge Orchestrator* software. These tasks are called *Home Edge Applications*. They are assigned to specific *Home Edge Nodes*. As of now, *Home Edge Orchestrator* incessantly scans the *Home Edge Network*, forming lists of attached devices, and forms ratings of performance for them. Performance ratings are basis for deciding on which devices *Home Edge Applications* are to be run. If *Home Edge Orchestrator* cannot find device with rating higher than its own device rating, it will start the *Home Edge Application* locally. *Home Edge Networks* support distributed applications consisting of interacting Docker container instances. Docker containers offer quick deployment, easy management, safety and hardware independence. Applications that can run on *Home Edge Network* are deployed from cloud-based centralized storage as needed. Assortment of applications is determined by tasks that must be solved by *Home Edge Network*.
 
-> A description of all terms and abbreviations (*italic*) used in the Edge Orchestratiopn project can be found in the [Home Edge Glossary](https://wiki.lfedge.org/display/HOME/Home+Edge+Glossary)
+> A description of all terms and abbreviations (*italic*) used in the Edge Orchestratiopn project can be found in the [Home Edge Glossary](doc/home_edge_glossary.md)
 
 ---
 
