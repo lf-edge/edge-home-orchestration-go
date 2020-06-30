@@ -41,7 +41,7 @@ type ZeroconfInterface interface {
 	Shutdown()
 }
 
-// Entity provides wapper entity info
+// Entity provides wrapper entity info
 type Entity struct {
 	DeviceID          string
 	TTL               uint32
@@ -92,7 +92,7 @@ func (zc *ZeroconfImpl) RegisterProxy(instance, service, domain string,
 
 }
 
-// GetSubscriberChan subsrcibes serviceEntry info of other devices
+// GetSubscriberChan subscribers serviceEntry info of other devices
 func (zc ZeroconfImpl) GetSubscriberChan() (chan *Entity, error) {
 	subchan, err := zeroconf.EdgeGetSubscriberChan()
 	if err != nil {

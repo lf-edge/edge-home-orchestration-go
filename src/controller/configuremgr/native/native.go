@@ -114,7 +114,7 @@ func (cfgMgr ConfigureMgr) Watch(notifier configuremgr.Notifier) {
 				if err != nil {
 					log.Println("error:", err)
 				}
-			} //selecte end
+			} //select end
 		} //for end
 	}()
 

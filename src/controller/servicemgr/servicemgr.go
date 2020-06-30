@@ -87,7 +87,7 @@ func (sm SMMgrImpl) Execute(target, name, requester string, args []interface{}, 
 	return
 }
 
-// ExecuteAppOnLocal fills out service execution info and deliver it to excutor
+// ExecuteAppOnLocal fills out service execution info and deliver it to executor
 func (sm SMMgrImpl) ExecuteAppOnLocal(appInfo map[string]interface{}) {
 	var serviceExecutionInfo executor.ServiceExecutionInfo
 
