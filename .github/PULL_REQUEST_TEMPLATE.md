@@ -16,10 +16,16 @@ Please delete options that are not relevant.
 
 # How Has This Been Tested?
 
-Please describe the tests that you ran to verify your changes. Provide instructions so we can reproduce. Please also list any relevant details for your test configuration
+Please describe the tests that you ran to verify your changes. Provide instructions so we can reproduce. Please also list any relevant details for your test configuration. Below is just an example and you can delete it when you contribute.
 
-- [ ] Test A
-- [ ] Test B
+```
+Example
+1. Describe the reproduction procedures freely.
+2. Or list up the test description like :
+  - [ ] Unittest
+  - [ ] Execution of Container
+  - [ ] Execution on top of Android
+```
 
 **Test Configuration**:
 * Firmware version: (OS type and version, e.g., Ubuntu 14.04, etc.)
