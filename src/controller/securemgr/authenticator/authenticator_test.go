@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2019 Samsung Electronics All Rights Reserved.
+ * Copyright 2020 Samsung Electronics All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,37 @@
  * limitations under the License.
  *
  *******************************************************************************/
+package authenticator
 
-// Package configuremgr provides interfaces between orchestrationapi and configuremgr
-package configuremgr
+import (
+	"os"
+	"testing"
+)
 
-import "common/types/configuremgrtypes"
+const (
+	fakejwtPath     = "fakejwt"
+	fakejwtFilePath = fakejwtPath + "/" + passPhraseJWTFileName
+)
 
-// Notifier is the interface to get scoring information for each service application
-type Notifier interface {
-	Notify(serviceinfo configuremgrtypes.ServiceInfo)
-}
+func TestInit(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
+		defer os.RemoveAll(fakejwtPath)
 
-// Watcher is the interface to check if service application is installed/updated/deleted
-type Watcher interface {
-	Watch(notifier Notifier)
+		Init("./")
+		if _, err := os.Stat(passPhraseJWTFileName); err != nil {
+			t.Error("unexpected success")
+		}
+		if err := os.Remove(passPhraseJWTFileName); err != nil {
+			t.Error(err.Error())
+		}
+
+		Init(fakejwtPath)
+		if _, err := os.Stat(fakejwtPath); err != nil {
+			t.Error(err.Error())
+		}
+
+		if _, err := os.Stat(fakejwtFilePath); os.IsNotExist(err) {
+			t.Error(err.Error())
+		}
+	})
 }

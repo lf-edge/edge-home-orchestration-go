@@ -24,6 +24,8 @@ PKG_LIST=(
         "controller/discoverymgr"
         "controller/discoverymgr/wrapper"
         "controller/scoringmgr"
+        "controller/securemgr/verifier"
+        "controller/securemgr/authenticator"
         "controller/servicemgr"
         "controller/servicemgr/executor"
         "controller/servicemgr/executor/androidexecutor"
@@ -105,6 +107,7 @@ function install_prerequisite() {
         "github.com/Songmu/make2help/cmd/make2help"
         "golang.org/x/mobile/cmd/gomobile"
         "golang.org/x/mobile/cmd/gobind"
+        "github.com/dgrijalva/jwt-go"
     )
     idx=1
     for pkg in "${pkg_list[@]}"; do
@@ -209,6 +212,32 @@ function draw_callvis() {
     export GOPATH=$BASE_DIR/GoMain:$GOPATH
     go-callvis -http localhost:7010 -group pkg,type -nostd ./GoMain/src/main/main.go &
 }
+
+function build_objects() {
+    case $1 in
+        x86)
+            build_object_x86
+            export ANDROID_TARGET="android/386";;
+        x86_64)
+            build_object_x86-64
+            export ANDROID_TARGET="android/amd64";;
+        arm)
+            build_object_arm
+            export ANDROID_TARGET="android/arm";;
+        arm64)
+            build_object_aarch64
+            export ANDROID_TARGET="android/arm64";;
+        *)
+            build_object_x86
+            build_object_x86-64
+            build_object_arm
+            build_object_aarch64
+            export ANDROID_TARGET="android";;
+    esac
+
+    build_android
+}
+
 
 function build_object_x86() {
     echo ""
@@ -354,17 +383,15 @@ case "$1" in
         run_docker_container
         ;;
     "object")
-        if [ "$2" == "secure" ]; then
-            set_secure_option
-        fi
         install_prerequisite
         install_3rdparty_packages
         build_clean
-        build_android
-        build_object_x86
-        build_object_aarch64
-        build_object_arm
-        build_object_x86-64
+        if [ "$2" == "secure" ]; then
+            set_secure_option
+            build_objects $3
+        else
+            build_objects $2
+        fi
         build_object_result
         ;;
     "test")
@@ -402,16 +429,16 @@ case "$1" in
     *)
         echo "build script"
         echo "Usage:"
-        echo "----------------------------------------------------------------------------------------------"
-        echo "  $0                  : build edge-orchestration by default container"
-        echo "  $0 secure           : build edge-orchestration by default container with secure option"
-        echo "  $0 container        : build Docker container as build system environmet"
-        echo "  $0 container secure : build Docker container as build system environmet with secure option"
-        echo "  $0 object           : build object (c-object, java-object)"
-        echo "  $0 object secure    : build object (c-object, java-object) with secure option"
-        echo "  $0 clean            : build clean"
-        echo "  $0 test [PKG_NAME]  : run unittests (optional for PKG_NAME)"
-        echo "----------------------------------------------------------------------------------------------"
+        echo "-------------------------------------------------------------------------------------------------------------------------------------------"
+        echo "  $0                      : build edge-orchestration by default container"
+        echo "  $0 secure               : build edge-orchestration by default container with secure option"
+        echo "  $0 container            : build Docker container as build system environmet"
+        echo "  $0 container secure     : build Docker container as build system environmet with secure option"
+        echo "  $0 object [Arch]        : build object (c-object, java-object), Arch:{x86, x86_64, arm, arm64} (default:all)"
+        echo "  $0 object secure [Arch] : build object (c-object, java-object) with secure option, Arch:{x86, x86_64, arm, arm64} (default:all)"
+        echo "  $0 clean                : build clean"
+        echo "  $0 test [PKG_NAME]      : run unittests (optional for PKG_NAME)"
+        echo "-------------------------------------------------------------------------------------------------------------------------------------------"
         exit 0
         ;;
 esac

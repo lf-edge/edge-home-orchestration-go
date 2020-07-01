@@ -31,6 +31,7 @@ import (
 	"controller/configuremgr"
 	"controller/discoverymgr"
 	"controller/scoringmgr"
+	"controller/securemgr/verifier"
 	"controller/servicemgr"
 	"controller/servicemgr/notification"
 	"restinterface/client"
@@ -43,6 +44,7 @@ import (
 type orcheImpl struct {
 	Ready bool
 
+	verifierIns     verifier.VerifierConf
 	serviceIns      servicemgr.ServiceMgr
 	scoringIns      scoringmgr.Scoring
 	discoverIns     discoverymgr.Discovery
@@ -115,7 +117,7 @@ func init() {
 	helper = dbhelper.GetInstance()
 }
 
-// RequestService handles service reqeust (ex. offloading) from service application
+// RequestService handles service request (ex. offloading) from service application
 func (orcheEngine *orcheImpl) RequestService(serviceInfo ReqeustService) ResponseService {
 	log.Printf("[RequestService] %v: %v\n", serviceInfo.ServiceName, serviceInfo.ServiceInfo)
 

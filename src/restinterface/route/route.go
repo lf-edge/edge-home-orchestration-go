@@ -26,6 +26,7 @@ import (
 
 	"github.com/gorilla/mux"
 
+	"controller/securemgr/authenticator"
 	"restinterface"
 	"restinterface/externalhandler"
 	"restinterface/internalhandler"
@@ -69,6 +70,7 @@ func NewRestRouterWithCerti(path string) *RestRouter {
 // Add registers REST API to RestRouter
 func (r *RestRouter) Add(s restinterface.IRestRoutes) {
 	router := mux.NewRouter().StrictSlash(true)
+	router.Use(authenticator.IsAuthorizedRequest)
 
 	for _, route := range s.GetRoutes() {
 		handler := logger(route.HandlerFunc, route.Name)

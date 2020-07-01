@@ -22,13 +22,12 @@ import (
 	"io"
 	"os"
 
-	"docker.io/go-docker"
 	"docker.io/go-docker/api/types"
 	"docker.io/go-docker/api/types/container"
 	"docker.io/go-docker/api/types/network"
 )
 
-// CEImpl is the interface implemented by container excution functions
+// CEImpl is the interface implemented by container execution functions
 type CEImpl interface {
 	Create(conf *container.Config, hostConf *container.HostConfig, networkConf *network.NetworkingConfig) (container.ContainerCreateCreatedBody, error)
 	Remove(id string) error
@@ -37,7 +36,7 @@ type CEImpl interface {
 	Logs(id string) (io.ReadCloser, error)
 	ImagePull(image string) error
 
-	// @Note : When below api is need to implments, it will be opened
+	// @Note : When below api is need to implements, it will be opened
 	// PS() ([]types.Container, error)
 	// Stop(id string, timeout *time.Duration) error
 	// Events() (<-chan events.Message, <-chan error)

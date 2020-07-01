@@ -39,7 +39,7 @@ var (
 	getNetworkInformationFP func()
 )
 
-// Network gets the informations of network interfaces of local device
+// Network gets the information of network interfaces of local device
 type Network interface {
 	StartNetwork()
 	CheckConnectivity() error

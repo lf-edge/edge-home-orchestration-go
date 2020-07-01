@@ -15,7 +15,7 @@
  *
  *******************************************************************************/
 
-// Package restclient implements REST client functions to send reqeust to remote orchestration
+// Package restclient implements REST client functions to send request to remote orchestration
 package restclient
 
 import (
