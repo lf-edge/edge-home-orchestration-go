@@ -112,10 +112,10 @@ func (h helperImpl) DoGet(targetURL string) (respBytes []byte, statusCode int, e
 	return
 }
 
-// DoGet is for get request with req' body
+// DoGetWithBody is for get request with req' body
 func (h helperImpl) DoGetWithBody(targetURL string, bodybytes []byte) (respBytes []byte, statusCode int, err error) {
 	if len(bodybytes) == 0 {
-		log.Printf("DoPost body length is zero(0) !!")
+		log.Printf("DoGetWithBody body length is zero(0) !!")
 	}
 
 	buff := bytes.NewBuffer(bodybytes)
