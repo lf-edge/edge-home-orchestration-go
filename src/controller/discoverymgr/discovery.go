@@ -22,6 +22,7 @@ import (
 	"log"
 	"net"
 	"time"
+	"reflect"
 
 	errors "common/errors"
 	networkhelper "common/networkhelper"
@@ -368,13 +369,17 @@ func deviceDetectionRoutine() {
 
 				log.Printf("[deviceDetectionRoutine] %s", data.DeviceID)
 				log.Printf("[deviceDetectionRoutine] confInfo    : ExecType(%s), Platform(%s)", confInfo.ExecType, confInfo.Platform)
-				log.Printf("[deviceDetectionRoutine] netInfo     : IPv4(%s)", netInfo.IPv4)
+				log.Printf("[deviceDetectionRoutine] netInfo     : IPv4(%s), RTT(%v)", netInfo.IPv4, netInfo.RTT)
 				log.Printf("[deviceDetectionRoutine] serviceInfo : Services(%v)", serviceInfo.Services)
 				log.Printf("")
 
-				if len(netInfo.IPv4) != 0 {
+				var info networkdb.NetworkInfo
+				info, err = getNetworkDB(netInfo.ID)
+
+				if err != nil || !reflect.DeepEqual(netInfo.IPv4, info.IPv4) {
 					setNetworkDB(netInfo)
 				}
+
 				// @Note Is it need to call Update API?
 				setConfigurationDB(confInfo)
 				setServiceDB(serviceInfo)
@@ -557,6 +562,15 @@ func getSystemDB(name string) (string, error) {
 	}
 
 	return sysInfo.Value, err
+}
+
+func getNetworkDB(id string) (networkdb.NetworkInfo, error) {
+	netInfo, err := netQuery.Get(id)
+	if err != nil {
+		log.Println(logPrefix, err.Error())
+	}
+
+	return netInfo, err
 }
 
 // DeleteDevice deletes device info by key
