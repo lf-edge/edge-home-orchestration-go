@@ -22,6 +22,7 @@ import (
 	"io"
 	"os"
 
+	"docker.io/go-docker"
 	"docker.io/go-docker/api/types"
 	"docker.io/go-docker/api/types/container"
 	"docker.io/go-docker/api/types/network"
