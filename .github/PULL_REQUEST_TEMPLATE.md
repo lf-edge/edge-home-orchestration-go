@@ -15,7 +15,7 @@ Please delete options that are not relevant.
 - [ ] This change requires a documentation update
 
 # How Has This Been Tested?
-
+**NOTICE : Please verify if your PR triggers any build failure before we fully setup the CI/CD integration for our project.**
 Please describe the tests that you ran to verify your changes. Provide instructions so we can reproduce. Please also list any relevant details for your test configuration. Below is just an example and you can delete it when you contribute.
 
 ```
