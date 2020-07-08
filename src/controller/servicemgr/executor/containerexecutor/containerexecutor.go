@@ -98,6 +98,14 @@ func (c ContainerExecutor) Execute(s executor.ServiceExecutionInfo) error {
 		return err
 	}
 
+	// @Note : get log of container
+	out, err := c.ceImplIns.Logs(resp.ID)
+	if err != nil {
+		log.Println(logPrefix, err.Error())
+	} else {
+		stdcopy.StdCopy(os.Stdout, os.Stderr, out)
+	}
+
 	// @Note : Waiting Container execution status
 	var executionStatus string
 	statusCh, errCh := c.ceImplIns.Wait(resp.ID, container.WaitConditionNotRunning)
@@ -110,14 +118,6 @@ func (c ContainerExecutor) Execute(s executor.ServiceExecutionInfo) error {
 		if status.StatusCode == 0 {
 			executionStatus = servicemgr.ConstServiceStatusFinished
 		}
-	}
-
-	// @Note : get log of container
-	out, err := c.ceImplIns.Logs(resp.ID)
-	if err != nil {
-		log.Println(logPrefix, err.Error())
-	} else {
-		stdcopy.StdCopy(os.Stdout, os.Stderr, out)
 	}
 
 	// @Note : make notification
