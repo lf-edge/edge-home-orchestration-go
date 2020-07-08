@@ -108,8 +108,8 @@ func TestExecute(t *testing.T) {
 		con.EXPECT().ImagePull(gomock.Any()).Return(nil),
 		con.EXPECT().Create(gomock.Any(), gomock.Any(), gomock.Any()).Return(resp, nil),
 		con.EXPECT().Start(containerID).Return(nil),
-		con.EXPECT().Wait(containerID, container.WaitConditionNotRunning).Return(statusChan, errCh),
 		con.EXPECT().Logs(containerID).Return(readCloser, nil),
+		con.EXPECT().Wait(containerID, container.WaitConditionNotRunning).Return(statusChan, errCh),
 		noti.EXPECT().InvokeNotification(gomock.Any(), gomock.Any(), gomock.Any()).AnyTimes(),
 		con.EXPECT().Remove(containerID),
 	)
@@ -168,8 +168,8 @@ func TestExecuteWaitInvokedError(t *testing.T) {
 		con.EXPECT().ImagePull(gomock.Any()).Return(nil),
 		con.EXPECT().Create(gomock.Any(), gomock.Any(), gomock.Any()).Return(resp, nil),
 		con.EXPECT().Start(containerID).Return(nil),
-		con.EXPECT().Wait(containerID, container.WaitConditionNotRunning).Return(statusChan, errCh),
 		con.EXPECT().Logs(containerID).Return(readCloser, nil),
+		con.EXPECT().Wait(containerID, container.WaitConditionNotRunning).Return(statusChan, errCh),
 		noti.EXPECT().InvokeNotification(gomock.Any(), gomock.Any(), gomock.Any()).AnyTimes(),
 		con.EXPECT().Remove(containerID),
 	)
