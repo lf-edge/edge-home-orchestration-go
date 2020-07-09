@@ -95,16 +95,16 @@ edge-orchestration         baobab              502e3c07b01f        3 seconds ago
 ```shell
 build script
 Usage:
-----------------------------------------------------------------------------------------------
-  ./build.sh                  : build edge-orchestration by default container
-  ./build.sh secure           : build edge-orchestration by default container with secure option
-  ./build.sh container        : build Docker container as build system environmet
-  ./build.sh container secure : build Docker container as build system environmet with secure option
-  ./build.sh object           : build object (c-object, java-object)
-  ./build.sh object secure    : build object (c-object, java-object) with secure option
-  ./build.sh clean            : build clean
-  ./build.sh test [PKG_NAME]  : run unittests (optional for PKG_NAME)
-----------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------
+  ./build.sh                      : build edge-orchestration by default container
+  ./build.sh secure               : build edge-orchestration by default container with secure option
+  ./build.sh container            : build Docker container as build system environmet
+  ./build.sh container secure     : build Docker container as build system environmet with secure option
+  ./build.sh object [Arch]        : build object (c-object, java-object), Arch:{x86, x86_64, arm, arm64} (default:all)
+  ./build.sh object secure [Arch] : build object (c-object, java-object) with secure option, Arch:{x86, x86_64, arm, arm64} (default:all)
+  ./build.sh clean                : build clean
+  ./build.sh test [PKG_NAME]      : run unittests (optional for PKG_NAME)
+-------------------------------------------------------------------------------------------------------------------------------------------
 ```
 ---
 
