@@ -85,6 +85,7 @@ func (ce CEDocker) Logs(id string) (io.ReadCloser, error) {
 		ShowStdout: true,
 		ShowStderr: true,
 		Timestamps: true,
+		Follow: true,
 	}
 	return ce.client.ContainerLogs(ce.ctx, id, opts)
 }
