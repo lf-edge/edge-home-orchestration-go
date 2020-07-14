@@ -21,9 +21,9 @@ package main
 import (
 	"errors"
 	"log"
-	"time"
 
 	"common/logmgr"
+	"common/sigmgr"
 
 	configuremgr "controller/configuremgr/container"
 	"controller/discoverymgr"
@@ -74,10 +74,7 @@ func main() {
 	if err := orchestrationInit(); err != nil {
 		log.Fatalf("[%s] Orchestaration initalize fail : %s", logPrefix, err.Error())
 	}
-
-	for {
-		time.Sleep(1000)
-	}
+	sigmgr.Watch()
 }
 
 // orchestrationInit runs orchestration service and discovers other orchestration services in other devices
@@ -163,10 +160,6 @@ func orchestrationInit() error {
 	restEdgeRouter.Start()
 
 	log.Println(logPrefix, "orchestration init done")
-
-	// TODO remove this line
-	// this line is for wait to initialize the mDNS server.
-	time.Sleep(time.Second * 2)
 
 	return nil
 }

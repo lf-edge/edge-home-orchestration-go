@@ -2,6 +2,10 @@ package: .
 excludeDirs:
   - CMain
 ignore:
+  - common/commandvalidator
+  - common/commandvalidator/blacklist
+  - common/commandvalidator/commands
+  - common/commandvalidator/injectionchecker
   - common/errormsg
   - common/errors
   - common/logmgr
@@ -13,12 +17,9 @@ ignore:
   - common/resourceutil/cpu
   - common/resourceutil/native
   - common/resourceutil/types/servicemgrtypes
+  - common/sigmgr
   - common/types/configuremgrtypes
   - common/types/servicemgrtypes
-  - common/commandvalidator
-  - common/commandvalidator/blacklist
-  - common/commandvalidator/commands
-  - common/commandvalidator/injectionchecker
   - controller/configuremgr
   - controller/configuremgr/container
   - controller/configuremgr/native

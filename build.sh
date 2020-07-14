@@ -16,6 +16,7 @@ PKG_LIST=(
         "common/resourceutil/cpu"
         "common/resourceutil/native"
         "common/resourceutil/types/servicemgrtypes"
+        "common/sigmgr"
         "common/types/configuremgrtypes"
         "common/types/servicemgrtypes"
         "controller/configuremgr"
