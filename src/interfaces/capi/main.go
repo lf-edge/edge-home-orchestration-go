@@ -103,6 +103,8 @@ import (
 	configuremgr "controller/configuremgr/native"
 	"controller/discoverymgr"
 	scoringmgr "controller/scoringmgr"
+	"controller/securemgr/authenticator"
+	"controller/securemgr/verifier"
 	"controller/servicemgr"
 	"controller/servicemgr/executor/nativeexecutor"
 
@@ -127,10 +129,12 @@ const (
 
 	edgeDir = "/var/edge-orchestration"
 
-	logPath             = edgeDir + "/log"
-	configPath          = edgeDir + "/apps"
-	dbPath              = edgeDir + "/data/db"
-	certificateFilePath = edgeDir + "/data/cert"
+	logPath                = edgeDir + "/log"
+	configPath             = edgeDir + "/apps"
+	dbPath                 = edgeDir + "/data/db"
+	certificateFilePath    = edgeDir + "/data/cert"
+	containerWhiteListPath = edgeDir + "/data/cwl"
+	passPhraseJWTPath      = edgeDir + "/data/jwt"
 
 	cipherKeyFilePath = edgeDir + "/user/orchestration_userID.txt"
 	deviceIDFilePath  = edgeDir + "/device/orchestration_deviceID.txt"
@@ -164,6 +168,11 @@ func OrchestrationInit() C.int {
 		isSecured = true
 	}
 
+	if isSecured {
+		verifier.Init(containerWhiteListPath)
+		authenticator.Init(passPhraseJWTPath)
+	}
+
 	restIns := restclient.GetRestClient()
 
 	if isSecured {
@@ -177,6 +186,7 @@ func OrchestrationInit() C.int {
 	builder := orchestrationapi.OrchestrationBuilder{}
 	builder.SetWatcher(configuremgr.GetInstance(configPath))
 	builder.SetDiscovery(discoverymgr.GetInstance())
+	builder.SetVerifierConf(verifier.GetInstance())
 	builder.SetScoring(scoringmgr.GetInstance())
 	builder.SetService(servicemgr.GetInstance())
 	builder.SetExecutor(nativeexecutor.GetInstance())
