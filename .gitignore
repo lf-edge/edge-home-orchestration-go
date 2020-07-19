@@ -27,6 +27,8 @@ GoMain/bin/*
 src/interfaces/capi/output
 src/interfaces/javaapi/output
 
+# test app for native
+apps/native/test/edge-orchestration
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
