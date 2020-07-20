@@ -61,8 +61,13 @@ func processRTT() {
 				}
 				go func(info netDB.NetworkInfo) {
 					result := selectMinRTT(ch, totalCount)
-					info.RTT = result
-					netDBExecutor.Update(info)
+					if info.RTT < 0 && result < 0 {
+						log.Println(logPrefix, "Delete", info.ID)
+						netDBExecutor.Delete(info.ID)
+					} else {
+						info.RTT = result
+						netDBExecutor.Update(info)
+					}
 				}(netInfo)
 			}
 			time.Sleep(time.Duration(defaultRttDuration) * time.Second)
@@ -77,7 +82,7 @@ func checkRTT(ip string) (rtt float64) {
 	_, _, err := helper.DoGet(targetURL)
 	if err != nil {
 		log.Println(err.Error())
-		return
+		return -1
 	}
 
 	return time.Now().Sub(reqTime).Seconds()
