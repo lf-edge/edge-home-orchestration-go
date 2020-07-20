@@ -19,7 +19,7 @@
 package resourceutil
 
 import (
-	"fmt"
+	"log"
 	"time"
 
 	"restinterface/resthelper"
@@ -76,7 +76,7 @@ func checkRTT(ip string) (rtt float64) {
 	reqTime := time.Now()
 	_, _, err := helper.DoGet(targetURL)
 	if err != nil {
-		fmt.Println(err.Error())
+		log.Println(err.Error())
 		return
 	}
 
