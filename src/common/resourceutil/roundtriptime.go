@@ -31,6 +31,7 @@ const (
 	pingAPI            = "/api/v1/ping"
 	internalPort       = 56002
 	defaultRttDuration = 5
+	tryLimit           = 12
 )
 
 var (
@@ -62,8 +63,16 @@ func processRTT() {
 				go func(info netDB.NetworkInfo) {
 					result := selectMinRTT(ch, totalCount)
 					if info.RTT < 0 && result < 0 {
-						log.Println(logPrefix, "Delete", info.ID)
-						netDBExecutor.Delete(info.ID)
+						if info.RTT == -1 * tryLimit {
+							_, err := netDBExecutor.Get(info.ID)
+							if err == nil {
+								log.Println(logPrefix, "Delete", info.ID, "from netDB")
+								netDBExecutor.Delete(info.ID)
+							}
+						} else {
+							info.RTT += result
+							netDBExecutor.Update(info)
+						}
 					} else {
 						info.RTT = result
 						netDBExecutor.Update(info)
@@ -92,7 +101,7 @@ func selectMinRTT(ch chan float64, totalCount int) (minRTT float64) {
 	for i := 0; i < totalCount; i++ {
 		select {
 		case rtt := <-ch:
-			if (rtt != 0 && rtt < minRTT) || minRTT == 0 {
+			if (minRTT < 0 && rtt > 0) || (rtt > 0 && rtt < minRTT) || minRTT == 0 {
 				minRTT = rtt
 			}
 		}
