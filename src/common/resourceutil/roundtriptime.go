@@ -19,7 +19,7 @@
 package resourceutil
 
 import (
-	"fmt"
+	"log"
 	"time"
 
 	"restinterface/resthelper"
@@ -31,6 +31,7 @@ const (
 	pingAPI            = "/api/v1/ping"
 	internalPort       = 56002
 	defaultRttDuration = 5
+	tryLimit           = 12
 )
 
 var (
@@ -61,8 +62,21 @@ func processRTT() {
 				}
 				go func(info netDB.NetworkInfo) {
 					result := selectMinRTT(ch, totalCount)
-					info.RTT = result
-					netDBExecutor.Update(info)
+					if info.RTT < 0 && result < 0 {
+						if info.RTT == -1 * tryLimit {
+							_, err := netDBExecutor.Get(info.ID)
+							if err == nil {
+								log.Println(logPrefix, "Delete", info.ID, "from netDB")
+								netDBExecutor.Delete(info.ID)
+							}
+						} else {
+							info.RTT += result
+							netDBExecutor.Update(info)
+						}
+					} else {
+						info.RTT = result
+						netDBExecutor.Update(info)
+					}
 				}(netInfo)
 			}
 			time.Sleep(time.Duration(defaultRttDuration) * time.Second)
@@ -76,8 +90,8 @@ func checkRTT(ip string) (rtt float64) {
 	reqTime := time.Now()
 	_, _, err := helper.DoGet(targetURL)
 	if err != nil {
-		fmt.Println(err.Error())
-		return
+		log.Println(err.Error())
+		return -1
 	}
 
 	return time.Now().Sub(reqTime).Seconds()
@@ -87,7 +101,7 @@ func selectMinRTT(ch chan float64, totalCount int) (minRTT float64) {
 	for i := 0; i < totalCount; i++ {
 		select {
 		case rtt := <-ch:
-			if (rtt != 0 && rtt < minRTT) || minRTT == 0 {
+			if (minRTT < 0 && rtt > 0) || (rtt > 0 && rtt < minRTT) || minRTT == 0 {
 				minRTT = rtt
 			}
 		}
