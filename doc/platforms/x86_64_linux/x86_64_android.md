@@ -4,7 +4,7 @@
 - Android SDK
 1. Download [Android SDK](https://developer.android.com/studio/index.html#command-tools), then extract the downloaded package.
 2. Wrapping `tools` directory inside `cmdline-tools`
-3. Execute folowing commands: 
+3. Go to `cmdline-tools/tools/bin` folder and execute following commands: 
 ```
 $ ./sdkmanager "platform-tools" "platforms;android-28"
 $ export ANDROID_SDK=<path to Android SDK directory>
@@ -12,12 +12,11 @@ $ export ANDROID_HOME=<path to Android SDK directory>
 $ export PATH=$PATH:$ANDROID_SDK/cmdline-tools/tools:$ANDROID_SDK/platform-tools
 ```
 - Android NDK
-1. Download the latest version of [Android NDK](https://developer.android.com/ndk/downloads), then extract the downloaded file.
-2. Execute folowing commands:
+1. Go to `cmdline-tools/tools/bin` folder and execute following commands:
 ```
-$ export ANDROID_NDK=<path to Android NDK directory> 
+$ ./sdkmanager --install ndk-bundle
 $ export ANDROID_NDK_HOME=<path to Android NDK directory> 
-$ export PATH=$PATH:$ANDROID_NDK
+$ export PATH=$PATH:$ANDROID_NDK_HOME
 ```
 
 ## How to build

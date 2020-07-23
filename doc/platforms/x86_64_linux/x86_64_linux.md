@@ -69,8 +69,13 @@ $ docker run -it -d \
 To install `glide`, you need to add appropriate repository to apt list. To do that, execute following shell commands:
 
 ```shell
-sudo add-apt-repository -y ppa:masterminds/glide && sudo apt-get update
-sudo apt-get install -y glide
+$ sudo add-apt-repository -y ppa:masterminds/glide && sudo apt-get update
+$ sudo apt-get install -y glide
+```
+
+- extra linux utility
+```
+$ sudo apt-get install tree
 ```
 
 This project offers Docker image build as a default build option. 
