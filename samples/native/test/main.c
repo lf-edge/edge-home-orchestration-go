@@ -23,37 +23,36 @@
 
 /* Private Data. */
 /* All static data definitions appear here. */
-RequestServiceInfo rsi = { 
-  .ExecutionType  = "native",
-  .ExeCmd         = "ls"
+RequestServiceInfo rsi = {
+    .ExecutionType  = "native",
+    .ExeCmd         = "ls"
 };
 
 ResponseService rs;
 
 char str[1024];
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
 
-	if (OrchestrationInit() != 0) {
-		return -1;
-	}
+    if (OrchestrationInit() != 0) {
+        return -1;
+    }
 
-  rs = OrchestrationRequestService("ls", 1, "bash", &rsi, 1);
-  
-  sprintf(str, "Message: %s", rs.Message);
-  PrintLog(str);
-  sprintf(str, "ServiceName: %s", rs.ServiceName);
-  PrintLog(str);
-  sprintf(str, "ExecutionType: %s", rs.RemoteTargetInfo.ExecutionType);
-  PrintLog(str);
-  sprintf(str, "Target: %s", rs.RemoteTargetInfo.Target);
-  PrintLog(str);
+    rs = OrchestrationRequestService("ls", 1, "bash", &rsi, 1);
 
-  for(;;) {
-    sleep(1);
-  }
+    sprintf(str, "Message: %s", rs.Message);
+    PrintLog(str);
+    sprintf(str, "ServiceName: %s", rs.ServiceName);
+    PrintLog(str);
+    sprintf(str, "ExecutionType: %s", rs.RemoteTargetInfo.ExecutionType);
+    PrintLog(str);
+    sprintf(str, "Target: %s", rs.RemoteTargetInfo.Target);
+    PrintLog(str);
 
-  return 0;
+    for (;;) {
+        sleep(1);
+    }
+
+    return 0;
 }
 
