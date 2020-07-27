@@ -134,7 +134,7 @@ If the `"fc6a51919cfeb2e6763f62b6d9e8815acbf7cd2e476ea353743570610737b752"` hash
 
 ## 3. Authenticator
 ### 3.1 Description
-The **Authenticator** provides access to resources only for authenticated users (services). The current implementation is based on the use of [JSON Web Tokens](https://tools.ietf.org/html/rfc7519) (JWT). The Authenticator uses the `HMAC` algorithm to generate the JWTs. The key phrase (secret) is stored in `/var/edge-orchestration/data/passPhraseJWT.txt` file. 
+The **Authenticator** provides access to resources only for authenticated users (services). The current implementation is based on the use of [JSON Web Tokens](https://tools.ietf.org/html/rfc7519) (JWT). The Authenticator uses the `HMAC` or `RSA256` algorithms to generate the JWTs. The key phrase (secret) is stored in `/var/edge-orchestration/data/jwt/passPhraseJWT.txt` file for HMAC and the pubkey is stored in `/var/edge-orchestration/data/jwt/app_rsa.pub` for RSA256.
 > The distribution of the key phrase is not yet in the field of implementation and should be done manually (especially considering the fact that external REST API requests can only be from the `localhost` or `127.0.0.1`).
 ---
 
@@ -170,15 +170,29 @@ node "Home Edge Node #1" {
 
 ### 3.3 JWT generation
 
-To create a JWT, you can use the script [tools/jwt_gen.sh](../tools/jwt_gen.sh) by running it as shown below.
+To create a JWT, you can use the script [tools/jwt_gen.sh](../tools/jwt_gen.sh) by running it as shown below:
+For `HMAC`
 ```shell
-$ . tools/jwt_gen.sh
+$ . tools/jwt_gen.sh HS256
 ```
+or for `RSA256`
+```shell
+$ . tools/jwt_gen.sh RS256
+```
+
 The generated token is exported to the shell environment variable: `EDGE_ORCHESTRATION_TOKEN`.
 Enter the following command to display the token:
 ```shell
 $ echo $EDGE_ORCHESTRATION_TOKEN
 ```
+
+> If you want to use the `RSA256` algorithm, you need to generate keys using the commands:
+```
+$ cd /var/edge-orchestration/data/jwt
+$ openssl genrsa -out app_rsa.key keysize
+$ openssl rsa -in app_rsa.key -pubout > app_rsa.pub
+```
+
 ---
 ### 3.4 JWT usage
 To use a JWT, you must include it in the header of the request: `Authorization: {token}`.

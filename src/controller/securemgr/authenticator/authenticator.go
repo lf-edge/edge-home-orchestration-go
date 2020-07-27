@@ -17,7 +17,9 @@
 package authenticator
 
 import (
+	"crypto/rsa"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"math/rand"
@@ -33,6 +35,7 @@ type AuthenticatorImpl struct{}
 
 const (
 	passPhraseJWTFileName = "passPhraseJWT.txt"
+	pubKeyPath            = "app_rsa.pub"
 )
 
 var (
@@ -41,6 +44,8 @@ var (
 	passphrase            = []byte{}
 	passPhraseJWTFilePath = ""
 	initialized           = false
+	rsaKeyInitialized     = false
+	verifyKey             *rsa.PublicKey
 )
 
 func init() {
@@ -79,6 +84,19 @@ func Init(passPhraseJWTPath string) {
 			log.Println(logPrefix, "cannot create "+passPhraseJWTFilePath+": ", err)
 		}
 	}
+
+	verifyBytes, err := ioutil.ReadFile(passPhraseJWTPath + "/" + pubKeyPath)
+	if err != nil {
+		log.Println(logPrefix, err)
+	} else {
+		verifyKey, err = jwt.ParseRSAPublicKeyFromPEM(verifyBytes)
+		if err != nil {
+			log.Fatal(err)
+		} else {
+			rsaKeyInitialized = true
+		}
+	}
+
 	initialized = true
 }
 
@@ -108,15 +126,26 @@ var IsAuthorizedRequest = func(next http.Handler) http.Handler {
 		if r.Header["Authorization"] != nil {
 
 			token, err := jwt.Parse(r.Header["Authorization"][0], func(token *jwt.Token) (interface{}, error) {
-				if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-					log.Println(logPrefix, "authenticatorIns not initialized")
-					return nil, errors.New("Token has an error")
-				}
 				// log.Println(token.Claims)
-				if !initialized {
-					passphrase = []byte("")
+				// log.Printf("%s Signing method: %v\n", logPrefix, jwt.GetSigningMethod(fmt.Sprintf("%v", token.Header["alg"])))
+
+				switch token.Header["alg"] {
+				case "HS256":
+					if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+						return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+					}
+					return passphrase, nil
+				case "RS256":
+					if rsaKeyInitialized {
+						if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
+							return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+						}
+						return verifyKey, nil
+					} else {
+						return nil, errors.New("RSA keys are not initialized")
+					}
 				}
-				return passphrase, nil
+				return nil, errors.New("Unsupported algo")
 			})
 
 			if err != nil {
@@ -127,7 +156,7 @@ var IsAuthorizedRequest = func(next http.Handler) http.Handler {
 				next.ServeHTTP(w, r) // pass control to the next handler
 			}
 		} else {
-			log.Println(logPrefix, "Request doesn't contain an Authorization token\n")
+			log.Println(logPrefix, "Request doesn't contain an Authorization token")
 		}
 	})
 }
