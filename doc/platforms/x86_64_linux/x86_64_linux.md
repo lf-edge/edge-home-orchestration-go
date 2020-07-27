@@ -112,6 +112,7 @@ Usage:
   ./build.sh test [PKG_NAME]      : run unittests (optional for PKG_NAME)
 -------------------------------------------------------------------------------------------------------------------------------------------
 ```
+> If you build the edge-orchestration as c-object, then a more detailed description can be found [x86_64_native.md](x86_64_native.md)
 ---
 
 ## API Document
