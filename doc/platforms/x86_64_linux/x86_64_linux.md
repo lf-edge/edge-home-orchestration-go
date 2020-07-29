@@ -73,9 +73,9 @@ $ sudo add-apt-repository -y ppa:masterminds/glide && sudo apt-get update
 $ sudo apt-get install -y glide
 ```
 
-- extra linux utility
+- extra linux utilities
 ```
-$ sudo apt-get install tree
+$ sudo apt-get install tree jq
 ```
 
 This project offers Docker image build as a default build option. 
@@ -121,7 +121,7 @@ Usage:
 ---
 
 ## API Document
-Edge Orchestration provides only one REST API for its operation. Description for the APIs are stored in [/doc](../../) folder.
+Edge Orchestration provides REST API for its operation. Description for the APIs are stored in [/doc](../../) folder.
 - **[edge_orchestration_api.yaml](../../edge_orchestration_api.yaml)** or 
 - **[edge_orchestration_api_secure.yaml](../../edge_orchestration_api_secure.yaml)** for secure mode.
 

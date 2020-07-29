@@ -2,7 +2,7 @@
 The edge-orchestration can be launched as a native Linux application and run services as native Linux processes (outside docker).
 
 ## How to build
-The general preparation steps are described [here](x86_64_linux.md).
+The general preparation steps are described [here](x86_64_linux.md#How-to-build).
 To build an с-object (liborchestration.a), you must run one of the commands depending on normal/secure mode.
 ```
 ...
