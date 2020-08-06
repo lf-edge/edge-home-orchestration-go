@@ -107,14 +107,14 @@ edge-orchestration         baobab              502e3c07b01f        3 seconds ago
 build script
 Usage:
 -------------------------------------------------------------------------------------------------------------------------------------------
-  ./build.sh                      : build edge-orchestration by default container
-  ./build.sh secure               : build edge-orchestration by default container with secure option
-  ./build.sh container            : build Docker container as build system environmet
-  ./build.sh container secure     : build Docker container as build system environmet with secure option
-  ./build.sh object [Arch]        : build object (c-object, java-object), Arch:{x86, x86_64, arm, arm64} (default:all)
-  ./build.sh object secure [Arch] : build object (c-object, java-object) with secure option, Arch:{x86, x86_64, arm, arm64} (default:all)
-  ./build.sh clean                : build clean
-  ./build.sh test [PKG_NAME]      : run unittests (optional for PKG_NAME)
+  ./build.sh                         : build edge-orchestration by default Docker container for x86_64
+  ./build.sh secure                  : build edge-orchestration by default Docker container with secure option for x86_64
+  ./build.sh container [Arch]        : build Docker container Arch:{x86, x86_64, arm, arm64}
+  ./build.sh container secure [Arch] : build Docker container  with secure option Arch:{x86, x86_64, arm, arm64}
+  ./build.sh object [Arch]           : build object (c-object, java-object), Arch:{x86, x86_64, arm, arm64} (default:all)
+  ./build.sh object secure [Arch]    : build object (c-object, java-object) with secure option, Arch:{x86, x86_64, arm, arm64} (default:all)
+  ./build.sh clean                   : build clean
+  ./build.sh test [PKG_NAME]         : run unittests (optional for PKG_NAME)
 -------------------------------------------------------------------------------------------------------------------------------------------
 ```
 > If you build the edge-orchestration as c-object, then a more detailed description can be found [x86_64_native.md](x86_64_native.md)
