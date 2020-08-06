@@ -131,6 +131,37 @@ function build_clean() {
     make clean
 }
 
+function build_binaries() {
+    echo ""
+    echo ""
+    echo "**********************************"
+    echo " Target Binary arch is "$1
+    echo "**********************************"
+    case $1 in
+        x86)
+            export GOARCH=386
+            export ARCH=x86
+            ;;
+        x86_64)
+            export GOARCH=amd64
+            export ARCH=x86-64
+            ;;
+        arm)
+            export GOARCH=arm GOARM=7
+            export ARCH=arm
+            ;;
+        arm64)
+            export GOARCH=arm64
+            export ARCH=aarch64
+            ;;
+        *)
+            echo "Target arch isn't supported" && exit 1
+            ;;
+    esac
+
+    build_binary
+}
+
 function build_binary() {
     echo ""
     echo "----------------------------------------"
@@ -331,7 +362,25 @@ function build_docker_container() {
 
     docker rm -f $DOCKER_IMAGE
     docker rmi -f $DOCKER_IMAGE:$CONTAINER_VERSION
-    make build-container || exit 1
+    case $1 in
+        x86)
+            CONTAINER_ARCH="i386"
+            ;;
+        x86_64)
+            CONTAINER_ARCH="amd64"
+            ;;
+        arm)
+            CONTAINER_ARCH="arm32v7"
+            ;;
+        arm64)
+            CONTAINER_ARCH="arm64v8"
+            ;;
+        *)
+            echo "Target arch isn't supported" && exit 1
+            ;;
+    esac
+
+    make build-container CONTAINER_ARCH=$CONTAINER_ARCH || exit 1
 }
 
 function run_docker_container() {
@@ -374,14 +423,24 @@ function stop_docker_container() {
 
 case "$1" in
     "container")
-        if [ "$2" == "secure" ]; then
-            set_secure_option
-        fi
         install_prerequisite
         install_3rdparty_packages
-        build_binary
-        build_docker_container
-        run_docker_container
+        if [ "$2" == "secure" ]; then
+            set_secure_option
+            build_binaries $3
+            build_docker_container $3
+            docker save -o $BASE_DIR/GoMain/bin/edge-orchestration.tar edge-orchestration
+            if [ "$3" == "x86_64" ]; then
+                run_docker_container
+            fi
+        else
+            build_binaries $2
+            build_docker_container $2
+            docker save -o $BASE_DIR/GoMain/bin/edge-orchestration.tar edge-orchestration
+            if [ "$2" == "x86_64" ]; then
+                run_docker_container
+            fi
+        fi
         ;;
     "object")
         install_prerequisite
@@ -416,7 +475,7 @@ case "$1" in
         install_prerequisite
         install_3rdparty_packages
         build_binary
-        build_docker_container
+        build_docker_container "x86_64"
         run_docker_container
         ;;
     "secure")
@@ -424,21 +483,21 @@ case "$1" in
         install_prerequisite
         install_3rdparty_packages
         build_binary
-        build_docker_container
+        build_docker_container "x86_64"
         run_docker_container
         ;;
     *)
         echo "build script"
         echo "Usage:"
         echo "-------------------------------------------------------------------------------------------------------------------------------------------"
-        echo "  $0                      : build edge-orchestration by default container"
-        echo "  $0 secure               : build edge-orchestration by default container with secure option"
-        echo "  $0 container            : build Docker container as build system environmet"
-        echo "  $0 container secure     : build Docker container as build system environmet with secure option"
-        echo "  $0 object [Arch]        : build object (c-object, java-object), Arch:{x86, x86_64, arm, arm64} (default:all)"
-        echo "  $0 object secure [Arch] : build object (c-object, java-object) with secure option, Arch:{x86, x86_64, arm, arm64} (default:all)"
-        echo "  $0 clean                : build clean"
-        echo "  $0 test [PKG_NAME]      : run unittests (optional for PKG_NAME)"
+        echo "  $0                         : build edge-orchestration by default Docker container for x86_64"
+        echo "  $0 secure                  : build edge-orchestration by default Docker container with secure option for x86_64"
+        echo "  $0 container [Arch]        : build Docker container Arch:{x86, x86_64, arm, arm64}"
+        echo "  $0 container secure [Arch] : build Docker container  with secure option Arch:{x86, x86_64, arm, arm64}"
+        echo "  $0 object [Arch]           : build object (c-object, java-object), Arch:{x86, x86_64, arm, arm64} (default:all)"
+        echo "  $0 object secure [Arch]    : build object (c-object, java-object) with secure option, Arch:{x86, x86_64, arm, arm64} (default:all)"
+        echo "  $0 clean                   : build clean"
+        echo "  $0 test [PKG_NAME]         : run unittests (optional for PKG_NAME)"
         echo "-------------------------------------------------------------------------------------------------------------------------------------------"
         exit 0
         ;;

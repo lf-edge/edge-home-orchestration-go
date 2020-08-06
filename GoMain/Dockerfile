@@ -2,7 +2,8 @@
 # TODO - need to reduce base image of edge-orchestration
 ### ubuntu:16.04 image size is 119MB
 ### alpine:3.6 image size is 4MB
-FROM ubuntu:16.04
+ARG PLATFORM
+FROM $PLATFORM/ubuntu:16.04
 
 # environment variables
 ENV TARGET_DIR=/edge-orchestration
