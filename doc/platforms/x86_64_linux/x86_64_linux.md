@@ -73,9 +73,9 @@ $ sudo add-apt-repository -y ppa:masterminds/glide && sudo apt-get update
 $ sudo apt-get install -y glide
 ```
 
-- extra linux utility
+- extra linux utilities
 ```
-$ sudo apt-get install tree
+$ sudo apt-get install tree jq
 ```
 
 This project offers Docker image build as a default build option. 
@@ -118,10 +118,28 @@ Usage:
 -------------------------------------------------------------------------------------------------------------------------------------------
 ```
 > If you build the edge-orchestration as c-object, then a more detailed description can be found [x86_64_native.md](x86_64_native.md)
+
+The above are the commands for building, but the `build.sh` script also runs `go-callvis`, which generates a visual overview of a Go files using data from call graph and its relations with packages and types.
+To use it, need to take the following steps:
+1. Install go-callvis
+```shell
+$ go get -u github.com/TrueFurby/go-callvis
+$ cd $GOPATH/src/github.com/TrueFurby/go-callvis && make
+```
+2. Comment last line of `build.sh`
+ex) #build_clean_vendor
+
+Then execute the command:
+```shell
+$ ./build.sh callvis
+```
+The result can be seen here `http://localhost:7010/`
+>  If you change the code, you must stop the process (` $ kill PID[go-callvis]`) and run the command again (`$ ./build.sh callvis`).
+
 ---
 
 ## API Document
-Edge Orchestration provides only one REST API for its operation. Description for the APIs are stored in [/doc](../../) folder.
+Edge Orchestration provides REST APIs for its operation. Description of APIs is stored in [/doc](../../) folder.
 - **[edge_orchestration_api.yaml](../../edge_orchestration_api.yaml)** or 
 - **[edge_orchestration_api_secure.yaml](../../edge_orchestration_api_secure.yaml)** for secure mode.
 
