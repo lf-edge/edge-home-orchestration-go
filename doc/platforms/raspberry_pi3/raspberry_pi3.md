@@ -36,7 +36,27 @@ $ sudo cp {SampleKey.key} /var/edge-orchestration/data/cert/edge-orchestration.k
 ---
 
 ## How to build
+There are two options for building a edge-orchestration container:
+1. On your PC and downloading the edge-orchestration container image from the `edge-orchestration.tar` archive (recommended).
+2. Build directly on the Raspberry Pi 3 board.
+### 1. Using your PC
+Run the `./build.sh` script and specify the build parameters - `container`,  architecture - `arm64`  (in the case of building in protected mode, add `secure`), see examples below:
+```shell
+$ ./build.sh container arm64
+```
+or for protected mode:
+```shell
+$ ./build.sh container secure arm64
+```
+the build result will be `edge-orchestration.tar` archive that can be found `GoMain/bin/edge-orchestration.tar`
 
+Next, need to copy `edge-orchestration.tar` archive to the Paspberry Pi 3 board, install the docker container (see [here](#Build-Prerequisites)  only docker part) and load the image using the command:
+```shell
+$ docker load -i edge-orchestration.tar
+```
+The build is finished, how to run see [here](#How-to-work).
+
+### 2. Build directly on the Raspberry Pi 3 board.
 #### Build Prerequisites
 - docker
 
@@ -96,14 +116,14 @@ edge-orchestration         baobab              502e3c07b01f        3 seconds ago
 build script
 Usage:
 -------------------------------------------------------------------------------------------------------------------------------------------
-  ./build.sh                      : build edge-orchestration by default container
-  ./build.sh secure               : build edge-orchestration by default container with secure option
-  ./build.sh container            : build Docker container as build system environmet
-  ./build.sh container secure     : build Docker container as build system environmet with secure option
-  ./build.sh object [Arch]        : build object (c-object, java-object), Arch:{x86, x86_64, arm, arm64} (default:all)
-  ./build.sh object secure [Arch] : build object (c-object, java-object) with secure option, Arch:{x86, x86_64, arm, arm64} (default:all)
-  ./build.sh clean                : build clean
-  ./build.sh test [PKG_NAME]      : run unittests (optional for PKG_NAME)
+  ./build.sh                         : build edge-orchestration by default Docker container for x86_64
+  ./build.sh secure                  : build edge-orchestration by default Docker container with secure option for x86_64
+  ./build.sh container [Arch]        : build Docker container Arch:{x86, x86_64, arm, arm64}
+  ./build.sh container secure [Arch] : build Docker container  with secure option Arch:{x86, x86_64, arm, arm64}
+  ./build.sh object [Arch]           : build object (c-object, java-object), Arch:{x86, x86_64, arm, arm64} (default:all)
+  ./build.sh object secure [Arch]    : build object (c-object, java-object) with secure option, Arch:{x86, x86_64, arm, arm64} (default:all)
+  ./build.sh clean                   : build clean
+  ./build.sh test [PKG_NAME]         : run unittests (optional for PKG_NAME)
 -------------------------------------------------------------------------------------------------------------------------------------------
 ```
 ---

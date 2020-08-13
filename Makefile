@@ -91,7 +91,7 @@ build-object-java:
 
 ## edge-orchestration container build
 build-container:
-	$(DOCKER) build --tag $(PKG_NAME):$(CONTAINER_VERSION) --file $(GOMAIN_DIR)/Dockerfile .
+	$(DOCKER) build --tag $(PKG_NAME):$(CONTAINER_VERSION) --file $(GOMAIN_DIR)/Dockerfile --build-arg PLATFORM=$(CONTAINER_ARCH) .
 
 ## go test and coverage
 test-go:
