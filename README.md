@@ -15,9 +15,9 @@ All the devices (TVs, fridges, washing machines, etc.) connected into *Home Edge
 
 ## Platforms supported
 
-| **x86-64 Linux** | **Raspberry Pi 3** |
-|------------------|--------------------|
-|[![](doc/platforms/x86_64_linux/x86_64_linux.png)](doc/platforms/x86_64_linux/x86_64_linux.md)|[![](doc/platforms/raspberry_pi3/raspberry_pi3.jpg)](doc/platforms/raspberry_pi3/raspberry_pi3.md) |
+| **x86-64 Linux** | **Raspberry Pi 3** | **HiKey960** |
+|------------------|--------------------|--------------| 
+|[![](doc/platforms/x86_64_linux/x86_64_linux.png)](doc/platforms/x86_64_linux/x86_64_linux.md)|[![](doc/platforms/raspberry_pi3/raspberry_pi3.jpg)](doc/platforms/raspberry_pi3/raspberry_pi3.md)|[![](doc/platforms/hikey960/hikey960.png)](doc/platforms/hikey960/hikey960.md)
 
 ---
 
@@ -49,6 +49,7 @@ Please select the target platform in the table below and follow the link.
 |-----------------------|------------|
 | [x86_64 Linux]        | baobab     |
 | [Raspberry Pi3]       | baobab     |
+| [HiKey960]            | baobab     |
 
 ---
 
@@ -74,4 +75,5 @@ you can find here](.github/CONTRIBUTING.md).
 [doc]: ./doc
 [x86_64 Linux]: doc/platforms/x86_64_linux/x86_64_linux.md
 [Raspberry Pi3]: doc/platforms/raspberry_pi3/raspberry_pi3.md
+[HiKey960]: doc/platforms/hikey960/hikey960.md
 
