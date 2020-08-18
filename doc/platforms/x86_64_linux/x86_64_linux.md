@@ -107,8 +107,8 @@ edge-orchestration         baobab              502e3c07b01f        3 seconds ago
 build script
 Usage:
 -------------------------------------------------------------------------------------------------------------------------------------------
-  ./build.sh                         : build edge-orchestration by default Docker container for x86_64
-  ./build.sh secure                  : build edge-orchestration by default Docker container with secure option for x86_64
+  ./build.sh                         : build edge-orchestration by default Docker container
+  ./build.sh secure                  : build edge-orchestration by default Docker container with secure option
   ./build.sh container [Arch]        : build Docker container Arch:{x86, x86_64, arm, arm64}
   ./build.sh container secure [Arch] : build Docker container  with secure option Arch:{x86, x86_64, arm, arm64}
   ./build.sh object [Arch]           : build object (c-object, java-object), Arch:{x86, x86_64, arm, arm64} (default:all)

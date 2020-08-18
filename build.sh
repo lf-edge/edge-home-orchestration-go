@@ -376,7 +376,13 @@ function build_docker_container() {
             CONTAINER_ARCH="arm64v8"
             ;;
         *)
-            echo "Target arch isn't supported" && exit 1
+            if [ "$(uname -m)" == "x86_64" ]; then
+                CONTAINER_ARCH="amd64"
+            elif [ "$(uname -m)" == "armv7l" ]; then
+                CONTAINER_ARCH="arm32v7"
+            else
+                echo "Target arch isn't supported" && exit 1
+            fi
             ;;
     esac
 
@@ -475,7 +481,7 @@ case "$1" in
         install_prerequisite
         install_3rdparty_packages
         build_binary
-        build_docker_container "x86_64"
+        build_docker_container
         run_docker_container
         ;;
     "secure")
@@ -483,15 +489,15 @@ case "$1" in
         install_prerequisite
         install_3rdparty_packages
         build_binary
-        build_docker_container "x86_64"
+        build_docker_container
         run_docker_container
         ;;
     *)
         echo "build script"
         echo "Usage:"
         echo "-------------------------------------------------------------------------------------------------------------------------------------------"
-        echo "  $0                         : build edge-orchestration by default Docker container for x86_64"
-        echo "  $0 secure                  : build edge-orchestration by default Docker container with secure option for x86_64"
+        echo "  $0                         : build edge-orchestration by default Docker container"
+        echo "  $0 secure                  : build edge-orchestration by default Docker container with secure option"
         echo "  $0 container [Arch]        : build Docker container Arch:{x86, x86_64, arm, arm64}"
         echo "  $0 container secure [Arch] : build Docker container  with secure option Arch:{x86, x86_64, arm, arm64}"
         echo "  $0 object [Arch]           : build object (c-object, java-object), Arch:{x86, x86_64, arm, arm64} (default:all)"
