@@ -138,3 +138,79 @@ Get "http://10.0.2.15:56002/api/v1/ping": dial tcp 10.0.2.15:56002: connect: con
 2020/07/20 09:24:11 discovery.go:373: [deviceDetectionRoutine] serviceInfo : Services([])
 2020/07/20 09:24:11 discovery.go:374: 
 ```
+
+## REST API
+Edge Orchestration provides external REST API for execute service.
+
+#### Request to execute a service
+
+REST API
+- POST  
+- **IP:56001/api/v1/orchestration/services** 
+- BODY : 
+    ```json
+    {
+        "ServiceRequester": "curl",
+        "ServiceName": "ls",
+        "ServiceInfo": [
+        {
+            "ExecutionType": "native",
+            "ExecCmd": [
+                "ls"
+            ]
+        }],
+        "StatusCallbackURI": "http://localhost:8888/api/v1/services/notification"
+    }
+    ```
+- Curl Example:
+```json
+$ curl -X POST "IP:56001/api/v1/orchestration/services" -H "accept: application/json" -H "Content-Type: application/json" -d "{ \"ServiceRequester\": \"curl\", \"ServiceName\": \"ls\", \"ServiceInfo\": [{ \"ExecutionType\": \"native\", \"ExecCmd\": [ \"ls\"]}], \"StatusCallbackURI\": \"http://localhost:8888/api/v1/services/notification\"}"
+```
+Response:
+```
+{"Message":"ERROR_NONE","RemoteTargetInfo":{"ExecutionType":"native","Target":"10.0.2.15"},"ServiceName":"ls"}
+```
+log:
+```
+2020/07/28 17:07:59 externalhandler.go:89: [RestExternalInterface] APIV1RequestServicePost
+2020/07/28 17:07:59 externalhandler.go:153: port:  50494
+2020/07/28 17:07:59 externalhandler.go:158: requester:  
+2020/07/28 17:07:59 orchestration_api.go:122: [RequestService] ls: [{native [ls]}]
+2020/07/28 17:07:59 orchestration_api.go:146: [RequestService] getCandidate
+2020/07/28 17:07:59 orchestration_api.go:148: [0] Id       : edge-orchestration-1da15e3d-09d4-4f80-ad72-6ca943dd5bcf
+2020/07/28 17:07:59 orchestration_api.go:149: [0] ExecType : native
+2020/07/28 17:07:59 orchestration_api.go:150: [0] Endpoint : [10.0.2.15]
+2020/07/28 17:07:59 orchestration_api.go:151: 
+2020/07/28 17:07:59 orchestration_api.go:316: [orchestrationapi] deviceScore
+2020/07/28 17:07:59 orchestration_api.go:317: candidate Id       : edge-orchestration-1da15e3d-09d4-4f80-ad72-6ca943dd5bcf
+2020/07/28 17:07:59 orchestration_api.go:318: candidate ExecType : native
+2020/07/28 17:07:59 orchestration_api.go:319: candidate Endpoint : 10.0.2.15
+2020/07/28 17:07:59 orchestration_api.go:320: candidate score    : 20.721974414135058
+2020/07/28 17:07:59 orchestration_api.go:222: [orchestrationapi]  [{edge-orchestration-1da15e3d-09d4-4f80-ad72-6ca943dd5bcf 10.0.2.15 20.721974414135058 native}]
+2020/07/28 17:07:59 route.go:125: From [127.0.0.1:50494] POST /api/v1/orchestration/services APIV1RequestServicePost 3.645139ms
+2020/07/28 17:07:59 nativeexecutor.go:57: [nativeexecutor] ls [ls]
+2020/07/28 17:07:59 nativeexecutor.go:58: [nativeexecutor] parameter length : 1
+2020/07/28 17:07:59 nativeexecutor.go:120: edge-orchestration
+2020/07/28 17:07:59 nativeexecutor.go:120: main.c
+2020/07/28 17:07:59 nativeexecutor.go:120: main.o
+2020/07/28 17:07:59 nativeexecutor.go:120: Makefile
+2020/07/28 17:07:59 nativeexecutor.go:65: [nativeexecutor] Just ran subprocess  11653
+2020/07/28 17:07:59 nativeexecutor.go:141: [nativeexecutor] ls is exited with no error
+2020/07/28 17:07:59 orchestration_api.go:342: [orchestrationapi] service status changed [appNames:ls][status:Finished]
+```
+---
+If the `edge-orchestration` was assembled with `secure` option.
+You need to add a JSON Web Token into request header `Authorization: {token}`. More information about it you can find [here](../../secure_manager.md).
+
+> To add the `EDGE_ORCHESTRATION_TOKEN` variable to the environment execute the next command:
+```
+$ . tools/jwt_gen.sh HS256
+```
+
+```
+$ curl -X POST "127.0.0.1:56001/api/v1/orchestration/services" -H "accept: application/json" -H "Content-Type: application/json" -H "Authorization: $EDGE_ORCHESTRATION_TOKEN" -d "{ \"ServiceRequester\": \"curl\", \"ServiceName\": \"ls\", \"ServiceInfo\": [{ \"ExecutionType\": \"native\", \"ExecCmd\": [ \"ls\"]}], \"StatusCallbackURI\": \"http://localhost:8888/api/v1/services/notification\"}"
+```
+Response:
+```
+{"Message":"ERROR_NONE","RemoteTargetInfo":{"ExecutionType":"native","Target":"10.0.2.15"},"ServiceName":"ls"}
+```  

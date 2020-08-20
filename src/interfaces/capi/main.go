@@ -113,6 +113,7 @@ import (
 	"restinterface/cipher/dummy"
 	"restinterface/cipher/sha256"
 	"restinterface/client/restclient"
+	"restinterface/externalhandler"
 	"restinterface/internalhandler"
 	"restinterface/route"
 	"restinterface/tls"
@@ -221,6 +222,18 @@ func OrchestrationInit() C.int {
 	}
 
 	restEdgeRouter.Add(ihandle)
+
+	externalapi, err := orchestrationapi.GetExternalAPI()
+	if err != nil {
+		log.Fatalf("[%s] Orchestaration external api : %s", logPrefix, err.Error())
+	}
+	ehandle := externalhandler.GetHandler()
+	ehandle.SetOrchestrationAPI(externalapi)
+
+	ehandle.SetCipher(dummy.GetCipher(cipherKeyFilePath))
+
+	restEdgeRouter.Add(ehandle)
+
 	restEdgeRouter.Start()
 
 	log.Println(logPrefix, "orchestration init done")
