@@ -80,6 +80,13 @@ func init() {
 			Pattern:     "/api/v1/scoringmgr/score",
 			HandlerFunc: handler.APIV1ScoringmgrScoreLibnameGet,
 		},
+
+		restinterface.Route{
+			Name:        "APIV1ScoringmgrResourceGet",
+			Method:      strings.ToUpper("Get"),
+			Pattern:     "/api/v1/scoringmgr/resource",
+			HandlerFunc: handler.APIV1ScoringmgrResourceGet,
+		},
 	}
 }
 
@@ -245,6 +252,46 @@ func (h *Handler) APIV1ScoringmgrScoreLibnameGet(w http.ResponseWriter, r *http.
 	respJSONMsg["ScoreValue"] = scoreValue
 
 	respEncryptBytes, err := h.Key.EncryptJSONToByte(respJSONMsg)
+	if err != nil {
+		log.Printf("[%s] can not encryption %s", logPrefix, err.Error())
+		h.helper.Response(w, http.StatusServiceUnavailable)
+		return
+	}
+
+	h.helper.ResponseJSON(w, respEncryptBytes, http.StatusOK)
+}
+
+// APIV1ScoringmgrResourceGet handles Resource request from remote orchestration
+func (h *Handler) APIV1ScoringmgrResourceGet(w http.ResponseWriter, r *http.Request) {
+	log.Printf("[%s] APIV1ScoringmgrResourceGet", logPrefix)
+	if h.isSetAPI == false {
+		log.Printf("[%s] does not set api", logPrefix)
+		h.helper.Response(w, http.StatusServiceUnavailable)
+		return
+	} else if h.IsSetKey == false {
+		log.Printf("[%s] does not set key", logPrefix)
+		h.helper.Response(w, http.StatusServiceUnavailable)
+		return
+	}
+
+	encryptBytes, _ := ioutil.ReadAll(r.Body)
+	Info, err := h.Key.DecryptByteToJSON(encryptBytes)
+	if err != nil {
+		log.Printf("[%s] can not decryption %s", logPrefix, err.Error())
+		h.helper.Response(w, http.StatusServiceUnavailable)
+		return
+	}
+
+	devID := Info["devID"]
+
+	resourceValue, err := h.api.GetResource(devID.(string))
+	if err != nil {
+		log.Printf("[%s] GetResource fail : %s", logPrefix, err.Error())
+		h.helper.Response(w, http.StatusInternalServerError)
+		return
+	}
+
+	respEncryptBytes, err := h.Key.EncryptJSONToByte(resourceValue)
 	if err != nil {
 		log.Printf("[%s] can not encryption %s", logPrefix, err.Error())
 		h.helper.Response(w, http.StatusServiceUnavailable)

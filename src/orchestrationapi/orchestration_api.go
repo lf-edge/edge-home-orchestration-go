@@ -60,6 +60,7 @@ type deviceInfo struct {
 	id       string
 	endpoint string
 	score    float64
+	resource map[string]interface{}
 	execType string
 }
 
@@ -138,8 +139,10 @@ func (orcheEngine *orcheImpl) RequestService(serviceInfo ReqeustService) Respons
 	go serviceClient.listenNotify()
 
 	executionTypes := make([]string, 0)
+	var scoringType string
 	for _, info := range serviceInfo.ServiceInfo {
 		executionTypes = append(executionTypes, info.ExecutionType)
+		scoringType, _ = info.ExeOption["scoringType"].(string)
 	}
 
 	candidates, err := orcheEngine.getCandidate(serviceInfo.ServiceName, executionTypes)
@@ -166,7 +169,21 @@ func (orcheEngine *orcheImpl) RequestService(serviceInfo ReqeustService) Respons
 		RemoteTargetInfo: TargetInfo{},
 	}
 
-	deviceScores := sortByScore(orcheEngine.gatherDevicesScore(candidates, serviceInfo.SelfSelection))
+	var deviceScores []deviceInfo
+
+	if scoringType == "resource" {
+		deviceResources := orcheEngine.gatherDevicesResource(candidates, serviceInfo.SelfSelection)
+		if len(deviceResources) <= 0 {
+			return errorResp
+		}
+		for i, dev := range deviceResources {
+			deviceResources[i].score, err = orcheEngine.GetScoreWithResource(dev.resource)
+		}
+		deviceScores = sortByScore(deviceResources)
+	} else {
+		deviceScores = sortByScore(orcheEngine.gatherDevicesScore(candidates, serviceInfo.SelfSelection))
+	}
+
 	if len(deviceScores) <= 0 {
 		return errorResp
 	} else if deviceScores[0].score == scoringmgr.INVALID_SCORE {
@@ -327,6 +344,90 @@ func (orcheEngine orcheImpl) gatherDevicesScore(candidates []dbhelper.ExecutionC
 
 	return
 }
+
+// gatherDevicesResource gathers resource values from edge devices
+func (orcheEngine orcheImpl) gatherDevicesResource(candidates []dbhelper.ExecutionCandidate, selfSelection bool) (deviceResources []deviceInfo) {
+	count := len(candidates)
+	if !selfSelection {
+		count -= 1
+	}
+	resources := make(chan deviceInfo, count)
+
+	info, err := sysDBExecutor.Get(sysDB.ID)
+	if err != nil {
+		log.Println("[orchestrationapi] localhost devid gettering fail")
+		return
+	}
+
+	timeout := make(chan bool, 1)
+	go func() {
+		time.Sleep(3 * time.Second)
+		timeout <- true
+	}()
+
+	var wait sync.WaitGroup
+	wait.Add(1)
+	index := 0
+	go func() {
+		defer wait.Done()
+		for {
+			select {
+			case resource := <-resources:
+				deviceResources = append(deviceResources, resource)
+				if index++; count == index {
+					return
+				}
+			case <-timeout:
+				return
+			}
+		}
+		return
+	}()
+
+	localhosts, err := orcheEngine.networkhelper.GetIPs()
+	if err != nil {
+		log.Println("[orchestrationapi] localhost ip gettering fail. maybe skipped localhost")
+	}
+
+	for _, candidate := range candidates {
+		go func(cand dbhelper.ExecutionCandidate) {
+			var resource map[string]interface{}
+			var err error
+
+			if len(cand.Endpoint) == 0 {
+				log.Println("[orchestrationapi] cannot getting score, cause by ip list is empty")
+				resources <- deviceInfo{endpoint: "", resource: resource, id: cand.Id, execType: cand.ExecType}
+				return
+			}
+
+			if isLocalhost(cand.Endpoint, localhosts) {
+				if !selfSelection {
+					return
+				}
+				resource, err = orcheEngine.GetResource(info.Value)
+			} else {
+				resource, err = orcheEngine.clientAPI.DoGetResourceRemoteDevice(info.Value, cand.Endpoint[0])
+			}
+
+			if err != nil {
+				log.Println("[orchestrationapi] cannot getting msgs from :", cand.Endpoint[0], "cause by", err.Error())
+				resources <- deviceInfo{endpoint: cand.Endpoint[0], resource: resource, id: cand.Id, execType: cand.ExecType}
+				return
+			}
+			log.Printf("[orchestrationapi] deviceResource")
+			log.Printf("candidate Id       : %v", cand.Id)
+			log.Printf("candidate ExecType : %v", cand.ExecType)
+			log.Printf("candidate Endpoint : %v", cand.Endpoint[0])
+			log.Printf("candidate resource : %v", resource)
+			resources <- deviceInfo{endpoint: cand.Endpoint[0], resource: resource, id: cand.Id, execType: cand.ExecType}
+		}(candidate)
+	}
+
+	wait.Wait()
+
+	return
+}
+
 
 func (orcheEngine orcheImpl) executeApp(endpoint, serviceName, requester string, args []string, notiChan chan string) {
 	ifArgs := make([]interface{}, len(args))
