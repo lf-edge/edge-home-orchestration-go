@@ -73,6 +73,7 @@ type orcheClient struct {
 type RequestServiceInfo struct {
 	ExecutionType string
 	ExeCmd        []string
+	ExeOption     map[string]interface{}
 }
 
 type ReqeustService struct {
