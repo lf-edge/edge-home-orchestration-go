@@ -56,7 +56,7 @@ type orcheImpl struct {
 	clientAPI client.Clienter
 }
 
-type deviceScore struct {
+type deviceInfo struct {
 	id       string
 	endpoint string
 	score    float64
@@ -245,12 +245,12 @@ func (orcheEngine orcheImpl) getCandidate(appName string, execType []string) (de
 	return helper.GetDeviceInfoWithService(appName, execType)
 }
 
-func (orcheEngine orcheImpl) gatherDevicesScore(candidates []dbhelper.ExecutionCandidate, selfSelection bool) (deviceScores []deviceScore) {
+func (orcheEngine orcheImpl) gatherDevicesScore(candidates []dbhelper.ExecutionCandidate, selfSelection bool) (deviceScores []deviceInfo) {
 	count := len(candidates)
 	if !selfSelection {
 		count -= 1
 	}
-	scores := make(chan deviceScore, count)
+	scores := make(chan deviceInfo, count)
 
 	info, err := sysDBExecutor.Get(sysDB.ID)
 	if err != nil {
@@ -295,7 +295,7 @@ func (orcheEngine orcheImpl) gatherDevicesScore(candidates []dbhelper.ExecutionC
 
 			if len(cand.Endpoint) == 0 {
 				log.Println("[orchestrationapi] cannot getting score, cause by ip list is empty")
-				scores <- deviceScore{endpoint: "", score: float64(0.0), id: cand.Id}
+				scores <- deviceInfo{endpoint: "", score: float64(0.0), id: cand.Id}
 				return
 			}
 
@@ -310,7 +310,7 @@ func (orcheEngine orcheImpl) gatherDevicesScore(candidates []dbhelper.ExecutionC
 
 			if err != nil {
 				log.Println("[orchestrationapi] cannot getting score from :", cand.Endpoint[0], "cause by", err.Error())
-				scores <- deviceScore{endpoint: cand.Endpoint[0], score: float64(0.0), id: cand.Id}
+				scores <- deviceInfo{endpoint: cand.Endpoint[0], score: float64(0.0), id: cand.Id}
 				return
 			}
 			log.Printf("[orchestrationapi] deviceScore")
@@ -318,7 +318,7 @@ func (orcheEngine orcheImpl) gatherDevicesScore(candidates []dbhelper.ExecutionC
 			log.Printf("candidate ExecType : %v", cand.ExecType)
 			log.Printf("candidate Endpoint : %v", cand.Endpoint[0])
 			log.Printf("candidate score    : %v", score)
-			scores <- deviceScore{endpoint: cand.Endpoint[0], score: score, id: cand.Id, execType: cand.ExecType}
+			scores <- deviceInfo{endpoint: cand.Endpoint[0], score: score, id: cand.Id, execType: cand.ExecType}
 		}(candidate)
 	}
 
@@ -363,7 +363,7 @@ func addServiceClient(clientID int, appName string) (client *orcheClient) {
 	return
 }
 
-func sortByScore(deviceScores []deviceScore) []deviceScore {
+func sortByScore(deviceScores []deviceInfo) []deviceInfo {
 	sort.Slice(deviceScores, func(i, j int) bool {
 		return deviceScores[i].score > deviceScores[j].score
 	})
