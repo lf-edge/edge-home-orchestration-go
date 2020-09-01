@@ -1,6 +1,9 @@
 # Edge Orchestration
 
 [![Goreport](https://goreportcard.com/badge/github.com/lf-edge/edge-home-orchestration-go)](https://goreportcard.com/report/github.com/lf-edge/edge-home-orchestration-go)
+[![RepoSize](https://img.shields.io/github/repo-size/lf-edge/edge-home-orchestration-go.svg)](https://github.com/lf-edge/edge-home-orchestration-go)
+[![Release](https://img.shields.io/github/v/release/lf-edge/edge-home-orchestration-go.svg)](https://github.com/lf-edge/edge-home-orchestration-go/releases)
+[![LICENSE](https://img.shields.io/github/license/lf-edge/edge-home-orchestration-go.svg)](https://github.com/lf-edge/edge-home-orchestration-go/blob/master/LICENSE)
 
 ## Introduction
 The main purpose of **Edge Orchestration project** is to implement distributed computing between Docker Container enabled devices. 
