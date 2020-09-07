@@ -376,13 +376,23 @@ function build_docker_container() {
             CONTAINER_ARCH="arm64v8"
             ;;
         *)
-            if [ "$(uname -m)" == "x86_64" ]; then
-                CONTAINER_ARCH="amd64"
-            elif [ "$(uname -m)" == "armv7l" ]; then
-                CONTAINER_ARCH="arm32v7"
-            else
-                echo "Target arch isn't supported" && exit 1
-            fi
+            case "$(uname -m)" in
+                "i386"|"i686")
+                    CONTAINER_ARCH="i386"
+                    ;;
+                "x86_64")
+                    CONTAINER_ARCH="amd64"
+                    ;;
+                "armv7l")
+                    CONTAINER_ARCH="arm32v7"
+                    ;;
+                "aarch64")
+                    CONTAINER_ARCH="arm64v8"
+                    ;;
+                *)
+                    echo "Target arch isn't supported" && exit 1
+                    ;;
+            esac
             ;;
     esac
 
