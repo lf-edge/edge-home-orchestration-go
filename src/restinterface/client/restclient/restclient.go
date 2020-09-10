@@ -152,6 +152,42 @@ func (c restClientImpl) DoGetScoreRemoteDevice(devID string, endpoint string) (s
 	return
 }
 
+// DoGetResourceRemoteDevice sends request to remote orchestration (APIV1ScoringmgrResourceGet) to get resource values
+func (c restClientImpl) DoGetResourceRemoteDevice(devID string, endpoint string) (respMsg map[string]interface{}, err error) {
+	log.Printf("%s DoGetResourceRemoteDevice : endpoint[%v]", logPrefix, endpoint)
+	if c.IsSetKey == false {
+		return respMsg, errors.New(logPrefix + " does not set key")
+	}
+
+	restapi := "/api/v1/scoringmgr/resource"
+
+	targetURL := c.helper.MakeTargetURL(endpoint, c.internalPort, restapi)
+
+	info := make(map[string]interface{})
+	info["devID"] = devID
+	encryptBytes, err := c.Key.EncryptJSONToByte(info)
+	if err != nil {
+		return respMsg, errors.New(logPrefix + " can not encryption " + err.Error())
+	}
+
+	respBytes, code, err := c.helper.DoGetWithBody(targetURL, encryptBytes)
+	if err != nil || code != http.StatusOK {
+		return respMsg, errors.New(logPrefix + " get return error")
+	}
+
+	respMsg, err = c.Key.DecryptByteToJSON(respBytes)
+	if err != nil {
+		return respMsg, errors.New(logPrefix + " can not decryption " + err.Error())
+	}
+	log.Printf("%s respMsg From [%v] : %v", logPrefix, endpoint, respMsg)
+
+	if _, found := respMsg["error"]; found {
+		err = errors.New("failed")
+	}
+
+	return
+}
+
 func (c *restClientImpl) setHelper(helper resthelper.RestHelper) {
 	c.helper = helper
 }

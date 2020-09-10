@@ -210,6 +210,11 @@ func (h *Handler) APIV1RequestServicePost(w http.ResponseWriter, r *http.Request
 		for idy, cmd := range exeCmd {
 			serviceInfos.ServiceInfo[idx].ExeCmd[idy] = cmd.(string)
 		}
+
+		exeOption, ok := tmp["ExecOption"].(interface{})
+		if ok {
+			serviceInfos.ServiceInfo[idx].ExeOption = exeOption.(map[string]interface{})
+		}
 	}
 
 	resp = h.api.RequestService(serviceInfos)

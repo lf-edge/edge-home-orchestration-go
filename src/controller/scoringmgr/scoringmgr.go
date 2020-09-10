@@ -20,6 +20,7 @@ package scoringmgr
 
 import (
 	"common/resourceutil"
+	"errors"
 	"math"
 )
 
@@ -31,6 +32,8 @@ const (
 // Scoring is the interface to apply application specific scoring functions
 type Scoring interface {
 	GetScore(ID string) (scoreValue float64, err error)
+	GetScoreWithResource(resource map[string]interface{}) (scoreValue float64, err error)
+	GetResource(ID string) (resource map[string]interface{}, err error)
 }
 
 // ScoringImpl structure
@@ -60,6 +63,65 @@ func GetInstance() *ScoringImpl {
 func (ScoringImpl) GetScore(ID string) (scoreValue float64, err error) {
 	scoreValue = calculateScore(ID)
 	return
+}
+
+// GetResource provides resource value for running applications on local device
+func (ScoringImpl) GetResource(ID string) (resource map[string]interface{}, err error) {
+	resource = make(map[string]interface{})
+	cpuUsage, err := resourceIns.GetResource(resourceutil.CPUUsage)
+	if err != nil {
+		resource["error"] = INVALID_SCORE
+		return
+	} else {
+		resource["cpuUsage"] = cpuUsage
+	}
+
+	cpuCount, err := resourceIns.GetResource(resourceutil.CPUCount)
+	if err != nil {
+		resource["error"] = INVALID_SCORE
+		return
+	} else {
+		resource["cpuCount"] = cpuCount
+	}
+
+	cpuFreq, err := resourceIns.GetResource(resourceutil.CPUFreq)
+	if err != nil {
+		resource["error"] = INVALID_SCORE
+		return
+	} else {
+		resource["cpuFreq"] = cpuFreq
+	}
+
+	netBandwidth, err := resourceIns.GetResource(resourceutil.NetBandwidth)
+	if err != nil {
+		resource["error"] = INVALID_SCORE
+		return
+	} else {
+		resource["netBandwidth"] = netBandwidth
+	}
+
+	resourceIns.SetDeviceID(ID)
+	rtt, err := resourceIns.GetResource(resourceutil.NetRTT)
+	if err != nil {
+		resource["error"] = INVALID_SCORE
+		return
+	} else {
+		resource["rtt"] = rtt
+	}
+
+	return
+}
+
+// GetScoreWithResource provides score value of an edge device
+func (ScoringImpl) GetScoreWithResource(resource map[string]interface{}) (scoreValue float64, err error) {
+	if _, found := resource["error"]; found {
+		return INVALID_SCORE, errors.New("Resource Not Found")
+	}
+
+	cpuScore := cpuScore(resource["cpuUsage"].(float64), resource["cpuCount"].(float64), resource["cpuFreq"].(float64))
+	netScore := netScore(resource["netBandwidth"].(float64))
+	renderingScore := renderingScore(resource["rtt"].(float64))
+	return float64(netScore + (cpuScore / 2) + renderingScore), nil
 }
 
 func calculateScore(ID string) float64 {

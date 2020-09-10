@@ -32,6 +32,7 @@ type Clienter interface {
 
 	// for scoringmgr
 	DoGetScoreRemoteDevice(devID string, endpoint string) (scoreValue float64, err error)
+	DoGetResourceRemoteDevice(devID string, endpoint string) (respMsg map[string]interface{}, err error)
 }
 
 // Setter interface

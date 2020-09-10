@@ -57,6 +57,8 @@ type OrcheInternalAPI interface {
 	ExecuteAppOnLocal(appInfo map[string]interface{})
 	HandleNotificationOnLocal(serviceID float64, status string) error
 	GetScore(target string) (scoreValue float64, err error)
+	GetScoreWithResource(target map[string]interface{}) (scoreValue float64, err error)
+	GetResource(target string) (resourceMsg map[string]interface{}, err error)
 }
 
 var (
@@ -215,6 +217,16 @@ func (o orcheImpl) HandleNotificationOnLocal(serviceID float64, status string) e
 // GetScore gets a resource score of local device for specific app
 func (o orcheImpl) GetScore(devID string) (scoreValue float64, err error) {
 	return o.scoringIns.GetScore(devID)
+}
+
+// GetScoreWithResource gets a resource score of local device for specific app
+func (o orcheImpl) GetScoreWithResource(resource map[string]interface{}) (scoreValue float64, err error) {
+	return o.scoringIns.GetScoreWithResource(resource)
+}
+
+// GetResource gets resource values of local device for running apps
+func (o orcheImpl) GetResource(devID string) (resourceMsg map[string]interface{}, err error) {
+	return o.scoringIns.GetResource(devID)
 }
 
 // RequestVerifierConf setting up configuration of white list containers
