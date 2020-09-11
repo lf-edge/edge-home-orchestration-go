@@ -38,16 +38,6 @@ This section provides how to download and run pre-built Docker image without bui
 
 > TBD
 
-#### Add Key file
-
-To let the Edge Orchestration devices communicate with each other, each devices should have same authentication key in:
-`/var/edge-orchestration/data/cert/edge-orchestration.key`
-
-```shell
-$ sudo cp {SampleKey.key} /var/edge-orchestration/data/cert/edge-orchestration.key
-```
-> Any cert file can be authentication key
-
 ---
 
 ## How to build Edge-Orchestration
