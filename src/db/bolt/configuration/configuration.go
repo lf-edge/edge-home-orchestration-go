@@ -26,9 +26,10 @@ import (
 const bucketName = "configuration"
 
 type Configuration struct {
-	ID       string `json:"id"`
-	Platform string `json:"platform"`
-	ExecType string `json:"executionType"`
+	ID       string   `json:"id"`
+	Platform string   `json:"platform"`
+	ExecType string   `json:"executionType"`
+	Services []string `json:"services"`
 }
 
 type DBInterface interface {
@@ -125,6 +126,7 @@ func (conf Configuration) convertToMap() map[string]interface{} {
 		"id":            conf.ID,
 		"platform":      conf.Platform,
 		"executionType": conf.ExecType,
+		"services":      conf.Services,
 	}
 }
 

@@ -30,7 +30,6 @@ import (
 
 	configurationdb "db/bolt/configuration"
 	networkdb "db/bolt/network"
-	servicedb "db/bolt/service"
 	systemdb "db/bolt/system"
 
 	uuid "github.com/satori/go.uuid"
@@ -63,7 +62,6 @@ func init() {
 	sysQuery = systemdb.Query{}
 	confQuery = configurationdb.Query{}
 	netQuery = networkdb.Query{}
-	serviceQuery = servicedb.Query{}
 }
 
 // GetInstance returns discovery instaance
@@ -190,14 +188,13 @@ func (discoveryImpl) ResetServiceName() {
 		return
 	}
 
-	serviceInfo := servicedb.ServiceInfo{ID: deviceID, Services: nil}
-	setServiceDB(serviceInfo)
-
 	confItem, err := confQuery.Get(deviceID)
 	if err != nil {
 		log.Println(err.Error())
 		return
 	}
+	confItem.Services = nil
+	setConfigurationDB(confItem)
 
 	var serverTXT []string
 	serverTXT = append(serverTXT, confItem.ExecType)
@@ -309,11 +306,10 @@ func startServer(deviceUUID string, platform string, executionType string) {
 	}
 
 	// Set Configuration Information to configuration DB
-	_, confInfo, netInfo, serviceInfo := convertToDBInfo(myDeviceEntity)
+	_, confInfo, netInfo := convertToDBInfo(myDeviceEntity)
 
 	setConfigurationDB(confInfo)
 	setNetworkDB(netInfo)
-	setServiceDB(serviceInfo)
 
 	return
 }
@@ -365,12 +361,12 @@ func deviceDetectionRoutine() {
 					continue
 				}
 
-				_, confInfo, netInfo, serviceInfo := convertToDBInfo(*data)
+				_, confInfo, netInfo := convertToDBInfo(*data)
 
 				log.Printf("[deviceDetectionRoutine] %s", data.DeviceID)
 				log.Printf("[deviceDetectionRoutine] confInfo    : ExecType(%s), Platform(%s)", confInfo.ExecType, confInfo.Platform)
 				log.Printf("[deviceDetectionRoutine] netInfo     : IPv4(%s), RTT(%v)", netInfo.IPv4, netInfo.RTT)
-				log.Printf("[deviceDetectionRoutine] serviceInfo : Services(%v)", serviceInfo.Services)
+				log.Printf("[deviceDetectionRoutine] serviceInfo : Services(%v)", confInfo.Services)
 				log.Printf("")
 
 				var info networkdb.NetworkInfo
@@ -382,7 +378,6 @@ func deviceDetectionRoutine() {
 
 				// @Note Is it need to call Update API?
 				setConfigurationDB(confInfo)
-				setServiceDB(serviceInfo)
 			}
 		}
 	}()
@@ -463,9 +458,13 @@ func setNewServiceList(serverTXT []string) {
 		return
 	}
 
-	serviceInfo := servicedb.ServiceInfo{ID: deviceID, Services: newServiceList}
-
-	setServiceDB(serviceInfo)
+	confItem, err := confQuery.Get(deviceID)
+	if err != nil {
+		log.Println(err.Error())
+		return
+	}
+	confItem.Services = newServiceList
+	setConfigurationDB(confItem)
 
 	wrapperIns.SetText(serverTXT)
 }
@@ -493,24 +492,21 @@ func clearMap() {
 	}
 }
 
-func convertToDBInfo(entity wrapper.Entity) (string, configurationdb.Configuration, networkdb.NetworkInfo, servicedb.ServiceInfo) {
+func convertToDBInfo(entity wrapper.Entity) (string, configurationdb.Configuration, networkdb.NetworkInfo) {
 	data := entity.OrchestrationInfo
 
 	confInfo := configurationdb.Configuration{}
 	netInfo := networkdb.NetworkInfo{}
-	serviceInfo := servicedb.ServiceInfo{}
 
 	confInfo.ID = entity.DeviceID
 	confInfo.ExecType = data.ExecutionType
 	confInfo.Platform = data.Platform
+	confInfo.Services = data.ServiceList
 
 	netInfo.ID = entity.DeviceID
 	netInfo.IPv4 = data.IPv4
 
-	serviceInfo.ID = entity.DeviceID
-	serviceInfo.Services = data.ServiceList
-
-	return entity.DeviceID, confInfo, netInfo, serviceInfo
+	return entity.DeviceID, confInfo, netInfo
 }
 
 func setSystemDB(id string, platform string, execType string) {
@@ -547,13 +543,6 @@ func setNetworkDB(netInfo networkdb.NetworkInfo) {
 	}
 }
 
-func setServiceDB(serviceInfo servicedb.ServiceInfo) {
-	err := serviceQuery.Set(serviceInfo)
-	if err != nil {
-		log.Println(logPrefix, err.Error())
-	}
-}
-
 func getSystemDB(name string) (string, error) {
 	sysInfo, err := sysQuery.Get(name)
 	if err != nil {
@@ -582,11 +571,6 @@ func deleteDevice(deviceID string) {
 	}
 
 	err = netQuery.Delete(deviceID)
-	if err != nil {
-		log.Println(err.Error())
-	}
-
-	err = serviceQuery.Delete(deviceID)
 	if err != nil {
 		log.Println(err.Error())
 	}

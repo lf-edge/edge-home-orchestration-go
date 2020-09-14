@@ -34,9 +34,8 @@ type OrchestrationInformation struct {
 	Platform      string `json:"Platform"`
 	ExecutionType string `json:"ExecutionType"`
 
-	//interface-ip 형태의 구조체 리스트로.
-	IPv4 []string `json:"IPv4"`
-	// IPv6     []string   `json:"IPv6"`
+	IPv4        []string `json:"IPv4"`
+	// IPv6     []string `json:"IPv6"`
 	ServiceList []string `json:"ServiceList"`
 }
 
