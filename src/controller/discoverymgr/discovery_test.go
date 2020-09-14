@@ -87,23 +87,21 @@ func createMockIns(ctrl *gomock.Controller) {
 }
 
 func addDevice(Another bool) {
-	deviceID, confInfo, netInfo, serviceInfo := convertToDBInfo(defaultMyDeviceEntity)
+	deviceID, confInfo, netInfo := convertToDBInfo(defaultMyDeviceEntity)
 
 	log.Println(logPrefix, "[addDevice]", deviceID)
 	setSystemDB(deviceID, defaultPlatform, defaultExecutionType)
 	setConfigurationDB(confInfo)
 	setNetworkDB(netInfo)
-	setServiceDB(serviceInfo)
 
 	if !Another {
 		return
 	}
 
-	deviceID, confInfo, netInfo, serviceInfo = convertToDBInfo(anotherEntity)
+	deviceID, confInfo, netInfo = convertToDBInfo(anotherEntity)
 
 	setConfigurationDB(confInfo)
 	setNetworkDB(netInfo)
-	setServiceDB(serviceInfo)
 }
 
 func checkPresence(t *testing.T, deviceID string) {
@@ -115,11 +113,6 @@ func checkPresence(t *testing.T, deviceID string) {
 	}
 
 	_, err = netQuery.Get(deviceID)
-	if err != nil {
-		t.Error(err.Error())
-	}
-
-	_, err = serviceQuery.Get(deviceID)
 	if err != nil {
 		t.Error(err.Error())
 	}
@@ -136,11 +129,6 @@ func checkNotPresence(t *testing.T, deviceID string) {
 	}
 
 	_, err = netQuery.Get(deviceID)
-	if err == nil {
-		t.Error()
-	}
-
-	_, err = serviceQuery.Get(deviceID)
 	if err == nil {
 		t.Error()
 	}
@@ -163,11 +151,6 @@ func checkClearMap(t *testing.T) {
 	netInfos, err := netQuery.GetList()
 	if len(netInfos) != 1 || err != nil {
 		t.Error("Not Cleared : Network Map")
-	}
-
-	serviceInfos, err := serviceQuery.GetList()
-	if len(serviceInfos) != 1 || err != nil {
-		t.Error("Not Cleared : Service Map")
 	}
 }
 
@@ -257,11 +240,10 @@ func TestDeviceDetectionRoutine(t *testing.T) {
 		time.Sleep(1 * time.Second)
 
 		t.Run("SuccessClearMap", func(t *testing.T) {
-			_, confInfo, netInfo, serviceInfo := convertToDBInfo(anotherEntity)
+			_, confInfo, netInfo := convertToDBInfo(anotherEntity)
 
 			setConfigurationDB(confInfo)
 			setNetworkDB(netInfo)
-			setServiceDB(serviceInfo)
 
 			devicesubchan <- nil
 			time.Sleep(1 * time.Second)
@@ -270,11 +252,10 @@ func TestDeviceDetectionRoutine(t *testing.T) {
 			checkPresence(t, defaultMyDeviceID)
 		})
 		t.Run("SuccessDeleteDevice", func(t *testing.T) {
-			_, confInfo, netInfo, serviceInfo := convertToDBInfo(anotherEntity)
+			_, confInfo, netInfo := convertToDBInfo(anotherEntity)
 
 			setConfigurationDB(confInfo)
 			setNetworkDB(netInfo)
-			setServiceDB(serviceInfo)
 
 			tmpEntity := anotherEntity
 			tmpEntity.TTL = 0
@@ -374,12 +355,12 @@ func TestAddNewServiceName(t *testing.T) {
 				t.Fatal(err.Error())
 			}
 
-			serviceInfo, err := serviceQuery.Get(deviceID)
+			confInfo, err := confQuery.Get(deviceID)
 			if err != nil {
 				t.Fatal(err.Error())
 			}
 
-			for _, service := range serviceInfo.Services {
+			for _, service := range confInfo.Services {
 				if service == newServiceName {
 					presence = true
 				}
@@ -420,12 +401,12 @@ func TestRemoveServiceName(t *testing.T) {
 				t.Fatal(err.Error())
 			}
 
-			serviceInfo, err := serviceQuery.Get(deviceID)
+			confInfo, err := confQuery.Get(deviceID)
 			if err != nil {
 				t.Fatal(err.Error())
 			}
 
-			for _, service := range serviceInfo.Services {
+			for _, service := range confInfo.Services {
 				if service == defaultService {
 					isPresence = true
 				}
@@ -459,12 +440,12 @@ func TestResetServiceName(t *testing.T) {
 				t.Fatal(err.Error())
 			}
 
-			serviceInfo, err := serviceQuery.Get(deviceID)
+			confInfo, err := confQuery.Get(deviceID)
 			if err != nil {
 				t.Fatal(err.Error())
 			}
 
-			if len(serviceInfo.Services) != 0 {
+			if len(confInfo.Services) != 0 {
 				t.Error("Reset failed")
 			}
 		})
