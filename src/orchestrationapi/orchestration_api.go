@@ -177,7 +177,7 @@ func (orcheEngine *orcheImpl) RequestService(serviceInfo ReqeustService) Respons
 			return errorResp
 		}
 		for i, dev := range deviceResources {
-			deviceResources[i].score, err = orcheEngine.GetScoreWithResource(dev.resource)
+			deviceResources[i].score, _ = orcheEngine.GetScoreWithResource(dev.resource)
 		}
 		deviceScores = sortByScore(deviceResources)
 	} else {
@@ -427,7 +427,6 @@ func (orcheEngine orcheImpl) gatherDevicesResource(candidates []dbhelper.Executi
 
 	return
 }
-
 
 func (orcheEngine orcheImpl) executeApp(endpoint, serviceName, requester string, args []string, notiChan chan string) {
 	ifArgs := make([]interface{}, len(args))
