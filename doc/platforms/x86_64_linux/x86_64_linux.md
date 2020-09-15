@@ -22,29 +22,9 @@ REPOSITORY                 TAG                 IMAGE ID            CREATED      
 edge-orchestration         baobab              502e3c07b01f        3 minutes ago       132MB
 ```
 
-#### 4. Add Key file
+#### 4. Run with Docker image
+Please see the below [How to work](#how-to-work) to know how to run Edge Orchestration Docker image
 
-To let the Edge Orchestration devices communicate with each other, each devices should have same authentication key in:
-`/var/edge-orchestration/data/cert/edge-orchestration.key`
-
-```shell
-$ sudo cp {SampleKey.key} /var/edge-orchestration/data/cert/edge-orchestration.key
-```
-> Any cert file can be authentication key
-
-#### 5. Run with Docker image
-You can execute Edge Orchestration with a Docker image as follows:
-
-```shell
-$ docker run -it -d \
-                --privileged \
-                --network="host" \
-                --name edge-orchestration \
-                -v /var/edge-orchestration/:/var/edge-orchestration/:rw \
-                -v /var/run/docker.sock:/var/run/docker.sock:rw \
-                -v /proc/:/process/:ro \
-                edge-orchestration:baobab
-```
 ---
 
 ## How to build
@@ -152,22 +132,15 @@ Note that you can visit [Swagger Editor](https://editor.swagger.io/) to graphica
 #### 0. Prerequisites
   - Same network connected among the devices.
   - Same Authentication key in /var/edge-orchestration/user/orchestration_userID.txt
-    - Please see the above [4. Add Key file](#4-add-key-file) to know how to add authentication key
+    - To let the Edge Orchestration devices communicate with each other, each devices should have same authentication key in:
+`/var/edge-orchestration/data/cert/edge-orchestration.key` (Any cert file can be authentication key)
   - Edge Orchestration Docker image
     - Please see the above [How to build](#how-to-build) to know how to build Edge Orchestration Docker image
-
 
 #### 1. Run Edge Orchestration container
 
 ```shell
-$ docker run -it -d \
-                --privileged \
-                --network="host" \
-                --name edge-orchestration \
-                -v /var/edge-orchestration/:/var/edge-orchestration/:rw \
-                -v /var/run/docker.sock:/var/run/docker.sock:rw \
-                -v /proc/:/process/:ro \
-                edge-orchestration:baobab
+$ docker run -it -d --privileged --network="host" --name edge-orchestration -v /var/edge-orchestration/:/var/edge-orchestration/:rw -v /var/run/docker.sock:/var/run/docker.sock:rw -v /proc/:/process/:ro edge-orchestration:baobab
 ```
 - Result
 
