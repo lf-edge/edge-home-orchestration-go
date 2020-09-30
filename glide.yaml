@@ -33,6 +33,8 @@ ignore:
   - controller/servicemgr/executor/containerexecutor
   - controller/servicemgr/executor/nativeexecutor
   - controller/servicemgr/notification
+  - controller/storagemgr/util
+  - controller/storagemgr/storagedriver
   - db/helper
   - db/bolt/common
   - db/bolt/configuration
@@ -120,4 +122,14 @@ import:
     version: v1.48.0
   - package: github.com/raff/tls-ext
   - package: github.com/raff/tls-psk
+  - package: github.com/edgexfoundry/device-sdk-go 
+    version: v1.1.2
+  - package: github.com/edgexfoundry/go-mod-core-contracts 
+    version: v0.1.36
+  - package: github.com/spf13/cast 
+    version: v1.3.0
+  - package: github.com/edgexfoundry/go-mod-registry
+    version: v0.1.0
+  
+  
 

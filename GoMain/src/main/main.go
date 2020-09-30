@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2019 Samsung Electronics All Rights Reserved.
+ * Copyright 2020 Samsung Electronics All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,8 @@ package main
 import (
 	"errors"
 	"log"
+	"os"
+	"time"
 
 	"common/logmgr"
 	"common/sigmgr"
@@ -32,6 +34,8 @@ import (
 	"controller/securemgr/verifier"
 	"controller/servicemgr"
 	executor "controller/servicemgr/executor/containerexecutor"
+	"controller/storagemgr/storagedriver"
+	storagemgr "controller/storagemgr/util"
 
 	"orchestrationapi"
 
@@ -43,6 +47,8 @@ import (
 	"restinterface/route"
 
 	"db/bolt/wrapper"
+	"github.com/edgexfoundry/device-sdk-go"
+	"github.com/edgexfoundry/device-sdk-go/pkg/startup"
 )
 
 const logPrefix = "interface"
@@ -60,9 +66,13 @@ const (
 	certificateFilePath    = edgeDir + "/data/cert"
 	containerWhiteListPath = edgeDir + "/data/cwl"
 	passPhraseJWTPath      = edgeDir + "/data/jwt"
+	binPath                = "GoMain/bin"
+	YamlFileName           = "/GoMain/bin/res/sample-json-device.yaml"
+	ConfigFileName         = "/GoMain/bin/res/configuration.toml"
 
 	cipherKeyFilePath = edgeDir + "/user/orchestration_userID.txt"
 	deviceIDFilePath  = edgeDir + "/device/orchestration_deviceID.txt"
+	serviceName       = "datastorage"
 )
 
 var (
@@ -75,6 +85,9 @@ func main() {
 		log.Fatalf("[%s] Orchestaration initalize fail : %s", logPrefix, err.Error())
 	}
 	sigmgr.Watch()
+	for {
+		time.Sleep(1000)
+	}
 }
 
 // orchestrationInit runs orchestration service and discovers other orchestration services in other devices
@@ -160,6 +173,25 @@ func orchestrationInit() error {
 	restEdgeRouter.Start()
 
 	log.Println(logPrefix, "orchestration init done")
+	storagemgr.MapYamlFile(YamlFileName)
+	hostIPAddr, _ := discoverymgr.SetNetworkArgument()
+	storagemgr.MapConfigFile(ConfigFileName, hostIPAddr)
+	//the current directory is set to json file directory so changing it
+	err = os.Chdir(binPath)
+	if err != nil {
+		log.Fatalf("[%s] Error in directory change: %s", logPrefix, err.Error())
+	}
+	pwd, err := os.Getwd()
+	if err != nil {
+		log.Fatalf("[%s] Error in directory change: %s", logPrefix, err.Error())
+	}
+	log.Println(logPrefix, "Path set is now", pwd)
+	sd := storagedriver.StorageDriver{}
+	startup.Bootstrap(serviceName, device.Version, &sd)
+
+	// TODO remove this line
+	// this line is for wait to initialize the mDNS server.
+	time.Sleep(time.Second * 2)
 
 	return nil
 }

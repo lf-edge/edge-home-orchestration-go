@@ -45,6 +45,7 @@ type Discovery interface {
 	AddNewServiceName(serviceName string) error
 	RemoveServiceName(serviceName string) error
 	ResetServiceName()
+	GetDeviceID() (id string, err error)
 }
 
 type discoveryImpl struct{}
@@ -113,9 +114,9 @@ func (discoveryImpl) DeleteDeviceWithIP(targetIP string) {
 }
 
 // DeleteDevice delete device using deviceID
-func (discoveryImpl) DeleteDeviceWithID(ID string) {
+func (d discoveryImpl) DeleteDeviceWithID(ID string) {
 	// @Note Delete device with id in DB
-	deviceID, err := getDeviceID()
+	deviceID, err := d.GetDeviceID()
 	if err != nil {
 		log.Println(err.Error())
 		return
@@ -178,14 +179,14 @@ func (discoveryImpl) RemoveServiceName(serviceName string) error {
 }
 
 // ResetServiceName resets text field of mdns message
-func (discoveryImpl) ResetServiceName() {
+func (d discoveryImpl) ResetServiceName() {
 	err := serverPresenceChecker()
 	if err != nil {
 		log.Println(logPrefix, "[ResetServiceName]", err)
 		return
 	}
 
-	deviceID, err := getDeviceID()
+	deviceID, err := d.GetDeviceID()
 	if err != nil {
 		return
 	}
@@ -214,7 +215,7 @@ func detectNetworkChgRoutine() {
 		case <-shutdownChan:
 			return
 		case latestIPs := <-ips:
-			id, err := getDeviceID()
+			id, err := discoveryIns.GetDeviceID()
 			if err != nil {
 				continue
 			}
@@ -258,7 +259,8 @@ func setDeviceID(UUIDPath string) (UUIDstr string, err error) {
 	return UUIDstr, err
 }
 
-func getDeviceID() (id string, err error) {
+//Changing to public to use in uuidmapping
+func (discoveryImpl) GetDeviceID() (id string, err error) {
 	id, err = getSystemDB(systemdb.ID)
 	if err != nil {
 		log.Println(err.Error())
@@ -293,7 +295,7 @@ func startServer(deviceUUID string, platform string, executionType string) {
 	// @Note store system information(id, platform and execution type) to system db
 	setSystemDB(deviceID, platform, executionType)
 
-	hostIPAddr, netIface := setNetwotkArgument()
+	hostIPAddr, netIface := SetNetworkArgument()
 	var myDeviceEntity wrapper.Entity
 
 	for {
@@ -327,7 +329,7 @@ func setDeviceArgument(deviceUUID string, platform string, executionType string)
 	return
 }
 
-func setNetwotkArgument() (hostIPAddr []string, netIface []net.Interface) {
+func SetNetworkArgument() (hostIPAddr []string, netIface []net.Interface) {
 	for {
 		hostIPAddr, _ = networkIns.GetIPs()
 		if len(hostIPAddr) != 0 {
@@ -389,7 +391,7 @@ func deviceDetectionRoutine() {
 }
 
 func serverPresenceChecker() error {
-	_, err := getDeviceID()
+	_, err := discoveryIns.GetDeviceID()
 	if err != nil {
 		return errors.SystemError{Message: "no server initiated yet"}
 	}
@@ -458,7 +460,7 @@ func setNewServiceList(serverTXT []string) {
 	// if len(serverTXT) > 2 {
 	newServiceList := serverTXT[2:]
 
-	deviceID, err := getDeviceID()
+	deviceID, err := discoveryIns.GetDeviceID()
 	if err != nil {
 		return
 	}
@@ -480,7 +482,7 @@ func clearMap() {
 		return
 	}
 
-	deviceID, err := getDeviceID()
+	deviceID, err := discoveryIns.GetDeviceID()
 	if err != nil {
 		return
 	}
