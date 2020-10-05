@@ -72,7 +72,7 @@ const (
 
 	cipherKeyFilePath = edgeDir + "/user/orchestration_userID.txt"
 	deviceIDFilePath  = edgeDir + "/device/orchestration_deviceID.txt"
-	serviceName       = "datastorage"
+	dataStorageService       = "datastorage"
 )
 
 var (
@@ -170,6 +170,7 @@ func orchestrationInit() error {
 	restEdgeRouter.Start()
 
 	log.Println(logPrefix, "orchestration init done")
+	
 	storagemgr.MapYamlFile(YamlFileName)
 	hostIPAddr, _ := discoverymgr.SetNetworkArgument()
 	storagemgr.MapConfigFile(ConfigFileName, hostIPAddr)
@@ -184,11 +185,7 @@ func orchestrationInit() error {
 	}
 	log.Println(logPrefix, "Path set is now", pwd)
 	sd := storagedriver.StorageDriver{}
-	startup.Bootstrap(serviceName, device.Version, &sd)
-
-	// TODO remove this line
-	// this line is for wait to initialize the mDNS server.
-	time.Sleep(time.Second * 2)
+	startup.Bootstrap(dataStorageService, device.Version, &sd)
 
 	return nil
 }

@@ -34,7 +34,7 @@ PKG_LIST=(
         "controller/servicemgr/executor/nativeexecutor"
         "controller/servicemgr/notification"
         "controller/storagemgr/util"
-  		"controller/storagemgr/storagedriver"
+        "controller/storagemgr/storagedriver"
         "db/bolt/common"
         "db/bolt/configuration"
         "db/bolt/network"
