@@ -1,0 +1,78 @@
+[Writable]
+LogLevel = 'DEBUG'
+
+[Service]
+Host = "107.108.87.226"
+Port = 49986
+ConnectRetries = 20
+Labels = []
+OpenMsg = "REST device started"
+Timeout = 5000
+EnableAsyncReadings = true
+AsyncBufferSize = 16
+
+[Registry]
+Host = "107.108.87.226"
+Port = 8500
+Type = "consul"
+CheckInterval = "10s"
+FailLimit = 3
+FailWaitTime = 10
+
+[Clients]
+  [Clients.Data]
+  Protocol = "http"
+  Host = "107.108.87.226"
+  Port = 48080
+  Timeout = 5000
+
+  [Clients.Metadata]
+  Protocol = "http"
+  Host = "107.108.87.226"
+  Port = 48081
+  Timeout = 5000
+
+  [Clients.Logging]
+  Protocol = "http"
+  Host = "107.108.87.226"
+  Port = 48061
+
+[Device]
+  DataTransform = true
+  InitCmd = ""
+  InitCmdArgs = ""
+  MaxCmdOps = 128
+  MaxCmdValueLen = 256
+  RemoveCmd = ""
+  RemoveCmdArgs = ""
+  ProfilesDir = "./res"
+
+# Driver configs
+[Driver]
+
+[Logging]
+EnableRemote = false
+File = "./device-rest-go.log"
+
+# Pre-define Devices
+[[DeviceList]]
+Name = "7e841a12-a083-48fe-8040-83815e0b7410"
+ Profile = "7e841a12-a083-48fe-8040-83815e0b7410"
+  Description = "RESTful Device that sends in JSON data"
+  Labels = [ "rest", "json" ]
+  [DeviceList.Protocols]
+    [DeviceList.Protocols.other]
+[[DeviceList]]
+Name = "7e841a12-a083-48fe-8040-83815e0b7410"
+ Profile = "7e841a12-a083-48fe-8040-83815e0b7410"
+  Description = "RESTful Device that sends in binary image data"
+  Labels = [ "rest", "binary", "image" ]
+  [DeviceList.Protocols]
+    [DeviceList.Protocols.other]
+[[DeviceList]]
+Name = "7e841a12-a083-48fe-8040-83815e0b7410"
+ Profile = "7e841a12-a083-48fe-8040-83815e0b7410"
+  Description = "RESTful Device that sends in numeric data"
+  Labels = [ "rest", "numeric", "float", "int" ]
+  [DeviceList.Protocols]
+    [DeviceList.Protocols.other]
