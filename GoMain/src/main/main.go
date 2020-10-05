@@ -85,9 +85,6 @@ func main() {
 		log.Fatalf("[%s] Orchestaration initalize fail : %s", logPrefix, err.Error())
 	}
 	sigmgr.Watch()
-	for {
-		time.Sleep(1000)
-	}
 }
 
 // orchestrationInit runs orchestration service and discovers other orchestration services in other devices
