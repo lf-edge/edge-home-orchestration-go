@@ -69,8 +69,8 @@ const (
 	containerWhiteListPath = edgeDir + "/data/cwl"
 	passPhraseJWTPath      = edgeDir + "/data/jwt"
 	binPath                = "GoMain/bin"
-	YamlFileName           = "/samples/datastorage/sample-json-device.yaml"
-	ConfigFileName         = "/samples/datastorage/configuration.toml"
+	YamlFileName           = "samples/datastorage/sample-json-device.yaml"
+	ConfigFileName         = "samples/datastorage/configuration.toml"
 
 	cipherKeyFilePath = edgeDir + "/user/orchestration_userID.txt"
 	deviceIDFilePath  = edgeDir + "/device/orchestration_deviceID.txt"
