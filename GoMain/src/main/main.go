@@ -22,7 +22,6 @@ import (
 	"errors"
 	"log"
 	"os"
-	"time"
 
 	"common/logmgr"
 	"common/sigmgr"
@@ -47,6 +46,7 @@ import (
 	"restinterface/route"
 
 	"db/bolt/wrapper"
+
 	"github.com/edgexfoundry/device-sdk-go"
 	"github.com/edgexfoundry/device-sdk-go/pkg/startup"
 )
@@ -58,6 +58,8 @@ const (
 	platform      = "docker"
 	executionType = "container"
 
+	dataStorageService = "datastorage"
+
 	edgeDir = "/var/edge-orchestration"
 
 	logPath                = edgeDir + "/log"
@@ -67,12 +69,11 @@ const (
 	containerWhiteListPath = edgeDir + "/data/cwl"
 	passPhraseJWTPath      = edgeDir + "/data/jwt"
 	binPath                = "GoMain/bin"
-	YamlFileName           = "/GoMain/bin/res/sample-json-device.yaml"
-	ConfigFileName         = "/GoMain/bin/res/configuration.toml"
+	YamlFileName           = "/samples/datastorage/sample-json-device.yaml"
+	ConfigFileName         = "/samples/datastorage/configuration.toml"
 
 	cipherKeyFilePath = edgeDir + "/user/orchestration_userID.txt"
 	deviceIDFilePath  = edgeDir + "/device/orchestration_deviceID.txt"
-	dataStorageService       = "datastorage"
 )
 
 var (
@@ -170,7 +171,7 @@ func orchestrationInit() error {
 	restEdgeRouter.Start()
 
 	log.Println(logPrefix, "orchestration init done")
-	
+
 	storagemgr.MapYamlFile(YamlFileName)
 	hostIPAddr, _ := discoverymgr.SetNetworkArgument()
 	storagemgr.MapConfigFile(ConfigFileName, hostIPAddr)

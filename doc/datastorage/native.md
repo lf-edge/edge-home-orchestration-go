@@ -5,7 +5,7 @@ This section provides how to download and install zeromq
 
 #### 1. Install the dependency packages
 ```
-sudo apt-get install libtool pkg-config build-essential autoconf   automake
+sudo apt-get install libtool pkg-config build-essential autoconf automake
 sudo apt-get install libzmq3-dev
 ```
 

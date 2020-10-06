@@ -1,0 +1,61 @@
+name: "7e841a12-a083-48fe-8040-83815e0b7410"
+manufacturer: "Intel Corp."
+model: "Some 3rd party app sending JSON"
+labels:
+ - "rest"
+ - "json"
+description: "REST Device that sends in Json"
+
+deviceResources:
+  - name: json
+    description: "JSON message"
+    properties:
+      value:
+        { type: "String", readWrite: "W" , mediaType : "application/json" }
+      units:
+        { type: "String", readWrite: "R" }
+  - name: jpeg
+    description: "JPEG Image binary message"
+    properties:
+      value:
+        { type: "Binary", readWrite: "W", mediaType : "image/jpeg" }
+      units:
+        { type: "String", readWrite: "R" }
+  - name: png
+    description: "PNG Image binary message"
+    properties:
+      value:
+        { type: "Binary", readWrite: "W", mediaType : "image/png" }
+      units:
+        { type: "String", readWrite: "R" }
+  - name: int
+    description: "Int64 value"
+    properties:
+      value:
+        { type: "Int64", readWrite: "W" , mediaType : "text/plain" }
+      units:
+        { type: "String", readWrite: "R"}
+  - name: float
+    description: "Float64 value"
+    properties:
+      value:
+        { type: "Float64", readWrite: "W" , mediaType : "text/plain" }
+      units:
+        { type: "String", readWrite: "R" }
+  
+deviceCommands:
+  - name: PostJson
+    get:
+      - { operation: "get", deviceResource: "json"}
+  - name: PostJpeg
+    get:
+      - { operation: "get", deviceResource: "jpeg"}
+  - name: PostPng
+    get:
+      - { operation: "get", deviceResource: "png"}
+  - name: PostInt
+    get:
+      - { operation: "get", deviceResource: "int"}
+  - name: PostFloat
+    get:
+      - { operation: "get", deviceResource: "float"}
