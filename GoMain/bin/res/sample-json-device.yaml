@@ -1,5 +1,5 @@
 name: "7e841a12-a083-48fe-8040-83815e0b7410"
-manufacturer: "Intel Corp."
+manufacturer: "Vendor A"
 model: "Some 3rd party app sending JSON"
 labels:
  - "rest"

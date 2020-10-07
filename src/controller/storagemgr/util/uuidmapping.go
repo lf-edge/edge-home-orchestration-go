@@ -37,6 +37,8 @@ const (
 	Profile    = "Profile"
 	ProfileDir = "ProfilesDir"
 	Host       = "Host"
+	edgeDir    = "/var/edge-orchestration/samples/datastorage/"
+	resDir     = "/res/"
 )
 const logPrefix = "[storagemgr]"
 
@@ -87,14 +89,14 @@ func MapYamlFile(yamlFileName string) {
 	curr_dir, _ := os.Getwd()
 	log.Println(logPrefix, "the path before directory coming out is", curr_dir)
 
-	err := os.Chdir("../../")
-	if err != nil {
-		log.Fatalln(err)
-	}
+//	err := os.Chdir("../../")
+//	if err != nil {
+//		log.Fatalln(err)
+//	}
 
 	pwd, err := os.Getwd()
-	yamlFilePath := pwd + yamlFileName
-	log.Println(logPrefix, "the path is ", pwd)
+	yamlFilePath := edgeDir + yamlFileName
+	log.Println(logPrefix, "the path is ", yamlFilePath)
 	input, err := ioutil.ReadFile(yamlFilePath)
 	if err != nil {
 		log.Fatalln(err)
@@ -104,7 +106,7 @@ func MapYamlFile(yamlFileName string) {
 	lines[0] = "name: " + uuId
 	log.Println(lines[0])
 	output := strings.Join(lines, "\n")
-	err = ioutil.WriteFile(yamlFilePath, []byte(output), 0644)
+	err = ioutil.WriteFile(pwd+resDir+yamlFileName, []byte(output), 0644)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -120,7 +122,7 @@ func MapConfigFile(configFileName string, hostIPAddr []string) {
 
 	pwd, err := os.Getwd()
 
-	configFilePath := pwd + configFileName
+	configFilePath := edgeDir + configFileName
 
 	log.Println(logPrefix, "the path is ", configFilePath)
 
@@ -145,7 +147,7 @@ func MapConfigFile(configFileName string, hostIPAddr []string) {
 	}
 
 	output := strings.Join(lines, "\n")
-	err = ioutil.WriteFile(configFilePath, []byte(output), 0644)
+	err = ioutil.WriteFile(pwd+resDir+configFileName, []byte(output), 0644)
 	if err != nil {
 		log.Fatalln(err)
 	}

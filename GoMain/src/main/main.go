@@ -21,7 +21,7 @@ package main
 import (
 	"errors"
 	"log"
-	"os"
+//	"os"
 
 	"common/logmgr"
 	"common/sigmgr"
@@ -69,8 +69,8 @@ const (
 	containerWhiteListPath = edgeDir + "/data/cwl"
 	passPhraseJWTPath      = edgeDir + "/data/jwt"
 	binPath                = "GoMain/bin"
-	YamlFileName           = "samples/datastorage/sample-json-device.yaml"
-	ConfigFileName         = "samples/datastorage/configuration.toml"
+	YamlFileName           = "sample-json-device.yaml"
+	ConfigFileName         = "configuration.toml"
 
 	cipherKeyFilePath = edgeDir + "/user/orchestration_userID.txt"
 	deviceIDFilePath  = edgeDir + "/device/orchestration_deviceID.txt"
@@ -176,15 +176,15 @@ func orchestrationInit() error {
 	hostIPAddr, _ := discoverymgr.SetNetworkArgument()
 	storagemgr.MapConfigFile(ConfigFileName, hostIPAddr)
 	//the current directory is set to json file directory so changing it
-	err = os.Chdir(binPath)
-	if err != nil {
-		log.Fatalf("[%s] Error in directory change: %s", logPrefix, err.Error())
-	}
-	pwd, err := os.Getwd()
-	if err != nil {
-		log.Fatalf("[%s] Error in directory change: %s", logPrefix, err.Error())
-	}
-	log.Println(logPrefix, "Path set is now", pwd)
+//	err = os.Chdir(binPath)
+//	if err != nil {
+//		log.Fatalf("[%s] Error in directory change: %s", logPrefix, err.Error())
+//	}
+//	pwd, err := os.Getwd()
+//	if err != nil {
+//		log.Fatalf("[%s] Error in directory change: %s", logPrefix, err.Error())
+//	}
+//	log.Println(logPrefix, "Path set is now", pwd)
 	sd := storagedriver.StorageDriver{}
 	startup.Bootstrap(dataStorageService, device.Version, &sd)
 
