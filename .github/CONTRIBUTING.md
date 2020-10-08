@@ -89,7 +89,8 @@ $ git push -u origin 999-name-of-your-branch-goes-here
 The `-u` parameter ensures that your branch will now automatically push and pull from the github branch. That means if you type `git push` the next time it will know where to push to.
 
 #### 11. Open a pull request against upstream.
-Go to your repository on github and click "Pull Request", choose your branch on the right and enter some more details in the comment box. To link the pull request to the issue put anywhere in the pull comment `#999` where 999 is the issue number.
+Go to your repository on github and click "Pull Request", choose your branch on the right and enter some more details in the comment box. To link the pull request to the issue put anywhere in the pull comment `#999` where 999 is the issue number. <br>
+_Please check out if your PR passes through an automatic build verification test provided by our CI system (#138)._
 
 > Note that each pull-request should fix a single change.
 
