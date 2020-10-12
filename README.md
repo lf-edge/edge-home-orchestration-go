@@ -1,6 +1,7 @@
 # Edge Orchestration
 
 [![Goreport](https://goreportcard.com/badge/github.com/lf-edge/edge-home-orchestration-go)](https://goreportcard.com/report/github.com/lf-edge/edge-home-orchestration-go)
+[![Total alerts](https://img.shields.io/lgtm/alerts/g/lf-edge/edge-home-orchestration-go.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/lf-edge/edge-home-orchestration-go/alerts/)
 [![RepoSize](https://img.shields.io/github/repo-size/lf-edge/edge-home-orchestration-go.svg)](https://github.com/lf-edge/edge-home-orchestration-go)
 [![Release](https://img.shields.io/github/v/release/lf-edge/edge-home-orchestration-go.svg)](https://github.com/lf-edge/edge-home-orchestration-go/releases)
 [![LICENSE](https://img.shields.io/github/license/lf-edge/edge-home-orchestration-go.svg)](https://github.com/lf-edge/edge-home-orchestration-go/blob/master/LICENSE)
