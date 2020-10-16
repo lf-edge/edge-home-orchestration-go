@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2019 Samsung Electronics All Rights Reserved.
+ * Copyright 2020 Samsung Electronics All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import (
 	contextmgrmocks "controller/configuremgr/mocks"
 	discoverymocks "controller/discoverymgr/mocks"
 	scoringmocks "controller/scoringmgr/mocks"
+	verifiermocks "controller/securemgr/verifier/mocks"
 	executormocks "controller/servicemgr/executor/mocks"
 	servicemocks "controller/servicemgr/mocks"
 	dbsystemMocks "db/bolt/system/mocks"
@@ -50,6 +51,7 @@ var (
 	mockClient       *clientmocks.MockClienter
 	mockNetwork      *networkmocks.MockNetwork
 	mockResourceutil *resourceutilmocks.MockMonitor
+	mockVerifier     *verifiermocks.MockVerifierConf
 
 	mockSystemDBExecutor *dbsystemMocks.MockDBInterface
 )
@@ -65,6 +67,7 @@ func createMockIns(ctrl *gomock.Controller) {
 	mockNetwork = networkmocks.NewMockNetwork(ctrl)
 	mockResourceutil = resourceutilmocks.NewMockMonitor(ctrl)
 	mockSystemDBExecutor = dbsystemMocks.NewMockDBInterface(ctrl)
+	mockVerifier = verifiermocks.NewMockVerifierConf(ctrl)
 }
 
 func getOcheIns(ctrl *gomock.Controller) Orche {
@@ -76,6 +79,7 @@ func getOcheIns(ctrl *gomock.Controller) Orche {
 	builder.SetService(mockService)
 	builder.SetWatcher(mockWatcher)
 	builder.SetClient(mockClient)
+	builder.SetVerifierConf(mockVerifier)
 
 	helper = mockDBHelper
 	sysDBExecutor = mockSystemDBExecutor
@@ -95,6 +99,7 @@ func TestBuild(t *testing.T) {
 
 	t.Run("Success", func(t *testing.T) {
 		mockService.EXPECT().SetLocalServiceExecutor(mockExecutor)
+		mockDiscovery.EXPECT().SetRestResource()
 
 		var builder OrchestrationBuilder
 
@@ -104,6 +109,7 @@ func TestBuild(t *testing.T) {
 		builder.SetService(mockService)
 		builder.SetWatcher(mockWatcher)
 		builder.SetClient(mockClient)
+		builder.SetVerifierConf(mockVerifier)
 
 		if builder.Build() == nil {
 			t.Error("ochestration object is nil, expected is not nil")
@@ -204,6 +210,7 @@ func TestStart(t *testing.T) {
 
 		gomock.InOrder(
 			mockService.EXPECT().SetLocalServiceExecutor(mockExecutor),
+			mockDiscovery.EXPECT().SetRestResource(),
 			mockResourceutil.EXPECT().StartMonitoringResource(),
 			mockDiscovery.EXPECT().StartDiscovery(gomock.Eq(deviceIDPath), gomock.Eq(platform), gomock.Eq(executionType)),
 			mockWatcher.EXPECT().Watch(gomock.Any()),
@@ -221,6 +228,7 @@ func TestNotify(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		gomock.InOrder(
 			mockService.EXPECT().SetLocalServiceExecutor(mockExecutor),
+			mockDiscovery.EXPECT().SetRestResource(),
 			mockDiscovery.EXPECT().AddNewServiceName(gomock.Any()).Return(nil),
 		)
 
@@ -239,6 +247,7 @@ func TestNotify(t *testing.T) {
 		t.Run("AddNewServiceName", func(t *testing.T) {
 			gomock.InOrder(
 				mockService.EXPECT().SetLocalServiceExecutor(mockExecutor),
+				mockDiscovery.EXPECT().SetRestResource(),
 				mockDiscovery.EXPECT().AddNewServiceName(gomock.Any()).Return(errors.New("error test")),
 			)
 			getOcheIns(ctrl)

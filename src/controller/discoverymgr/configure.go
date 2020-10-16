@@ -28,7 +28,8 @@ const (
 	//Interval Second for active discovery
 	discoveryInterval = 60 * 60
 	//IP Code for Active Discovery
-	ipv4        = 0x01
-	ipv6        = 0x02
-	ipv4Andipv6 = (ipv4 | ipv6) //< Default option.
+	ipv4                     = 0x01
+	ipv6                     = 0x02
+	ipv4Andipv6              = (ipv4 | ipv6) //< Default option.
+	mnedcBroadcastServerPort = 3333
 )

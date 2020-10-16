@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2019 Samsung Electronics All Rights Reserved.
+ * Copyright 2020 Samsung Electronics All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,8 @@ import (
 	wrapper "controller/discoverymgr/wrapper"
 	wrappermocks "controller/discoverymgr/wrapper/mocks"
 	systemdb "db/bolt/system"
+	goerror "errors"
+	clientMocks "restinterface/client/mocks"
 
 	dbwrapper "db/bolt/wrapper"
 
@@ -53,6 +55,9 @@ var (
 	anotherDeviceID    = "edge-orchestration-test-device-id2"
 	anotherIPv4List    = []string{anotherIPv4}
 	anotherServiceList = []string{anotherService}
+
+	defaultVirtualIP = "10.10.10.10"
+	anotherVirtualIP = "10.10.10.11"
 
 	defaultMyDeviceEntity = wrapper.Entity{
 		DeviceID: defaultMyDeviceID,
@@ -587,6 +592,157 @@ func TestDetectNetworkChgRoutine(t *testing.T) {
 	// })
 
 	shutdownChan <- struct{}{}
+}
+
+func TestAddDeviceInfo(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	createMockIns(ctrl)
+
+	discoveryInstance := GetInstance()
+
+	t.Run("ClienterNil", func(t *testing.T) {
+		discoveryInstance.AddDeviceInfo(defaultMyDeviceID, defaultVirtualIP, defaultIPv4)
+	})
+
+	closeTest()
+
+}
+
+func TestAddDeviceInfoRequest(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	createMockIns(ctrl)
+
+	mockClient := clientMocks.NewMockClienter(ctrl)
+	discoveryInstance := GetInstance()
+
+	t.Run("CallRequestdeviceInfo", func(t *testing.T) {
+		discoveryInstance.SetClient(mockClient)
+		discoveryInstance.SetRestResource()
+		mockClient.EXPECT().DoGetOrchestrationInfo(gomock.Any()).Return(defaultPlatform, defaultExecutionType, defaultServiceList, nil).AnyTimes()
+		discoveryInstance.AddDeviceInfo(defaultMyDeviceID, defaultVirtualIP, defaultIPv4)
+		time.Sleep(2 * time.Second)
+	})
+
+	closeTest()
+
+}
+
+func TestAddDeviceInfoRestError(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	createMockIns(ctrl)
+
+	mockClient := clientMocks.NewMockClienter(ctrl)
+	discoveryInstance := GetInstance()
+
+	t.Run("RestError", func(t *testing.T) {
+		discoveryInstance.SetClient(mockClient)
+		discoveryInstance.SetRestResource()
+		mockClient.EXPECT().DoGetOrchestrationInfo(gomock.Any()).Return(defaultPlatform, defaultExecutionType, defaultServiceList, goerror.New("Dummy Error")).AnyTimes()
+
+		discoveryInstance.AddDeviceInfo(defaultMyDeviceID, defaultVirtualIP, defaultIPv4)
+		time.Sleep(7 * time.Second)
+	})
+
+	closeTest()
+
+}
+
+func TestMNEDCReconciledCallback(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	createMockIns(ctrl)
+
+	t.Run("ReestablishedTest", func(t *testing.T) {
+		discoveryInstance := GetInstance()
+		mockNetwork.EXPECT().GetVirtualIP().Return("", goerror.New("No Virtual IP"))
+		discoveryInstance.MNEDCReconciledCallback()
+	})
+	closeTest()
+}
+
+func TestGetOrchestrationInfo(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	createMockIns(ctrl)
+
+	addDevice(true)
+
+	discoveryInstance := GetInstance()
+	platform, executionType, serviceList, err := discoveryInstance.GetOrchestrationInfo()
+
+	if err != nil {
+		t.Error("Error should not be thrown")
+		return
+	}
+	if platform != defaultPlatform {
+		t.Error("Platform incorrect")
+		return
+	}
+	if executionType != defaultExecutionType {
+		t.Error("Execution Type incorrect")
+		return
+	}
+	if !reflect.DeepEqual(serviceList, defaultServiceList) {
+		t.Error("Service List incorrect")
+		return
+	}
+	closeTest()
+}
+
+func TestNotifyMNEDCBroadcastServer(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	createMockIns(ctrl)
+
+	addDevice(false)
+	discoveryInstance := GetInstance()
+	mockClient := clientMocks.NewMockClienter(ctrl)
+
+	t.Run("VirtualIPError", func(t *testing.T) {
+		mockNetwork.EXPECT().GetVirtualIP().Return("", goerror.New("No Virtual IP"))
+
+		err := discoveryInstance.NotifyMNEDCBroadcastServer()
+		if err == nil {
+			t.Error("Error should not be nil")
+			return
+		}
+
+	})
+	t.Run("OutboundIPError", func(t *testing.T) {
+		mockNetwork.EXPECT().GetVirtualIP().Return(defaultIPv4, nil)
+		mockNetwork.EXPECT().GetOutboundIP().Return("", goerror.New("No outbound IP"))
+
+		err := discoveryInstance.NotifyMNEDCBroadcastServer()
+		if err == nil {
+			t.Error("Error should not be nil")
+			return
+		}
+
+	})
+	t.Run("Success", func(t *testing.T) {
+		discoveryInstance.SetClient(mockClient)
+		discoveryInstance.SetRestResource()
+		mockNetwork.EXPECT().GetVirtualIP().Return(defaultVirtualIP, nil)
+		mockNetwork.EXPECT().GetOutboundIP().Return(defaultIPv4, nil)
+		mockClient.EXPECT().DoNotifyMNEDCBroadcastServer(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
+
+		err := discoveryInstance.NotifyMNEDCBroadcastServer()
+		if err != nil {
+			t.Error("Error should be nil")
+			return
+		}
+
+	})
+	closeTest()
 }
 
 func TestGetDeviceID(t *testing.T) {

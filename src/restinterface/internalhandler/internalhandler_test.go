@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2019 Samsung Electronics All Rights Reserved.
+ * Copyright 2020 Samsung Electronics All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -337,6 +337,136 @@ func TestAPIV1ScoringmgrScoreLibnameGet(t *testing.T) {
 
 		handler.APIV1ScoringmgrScoreLibnameGet(w, r)
 	})
+}
+
+func TestAPIV1DiscoveryFromVPNServer(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	handler := GetHandler()
+	if handler == nil {
+		t.Error("unexpected return value")
+	}
+
+	mockOrchestration := orchemock.NewMockOrcheInternalAPI(ctrl)
+	mockCipher := ciphermock.NewMockIEdgeCipherer(ctrl)
+	mockHelper := helpermock.NewMockRestHelper(ctrl)
+
+	deviceDetailsInfo := make(map[string]interface{})
+	deviceDetailsInfo["DeviceID"] = "deviceID"
+	deviceDetailsInfo["PrivateAddr"] = "privateIP"
+	deviceDetailsInfo["VirtualAddr"] = "virtualIP"
+
+	r := httptest.NewRequest("POST", "http://test.test", nil)
+	w := httptest.NewRecorder()
+
+	t.Run("IsNotSetApi", func(t *testing.T) {
+		handler.setHelper(mockHelper)
+		mockHelper.EXPECT().Response(gomock.Any(), gomock.Eq(http.StatusServiceUnavailable))
+
+		handler.isSetAPI = false
+		handler.APIV1DiscoverymgrMNEDCDeviceInfoPost(w, r)
+	})
+	t.Run("IsNotSetKey", func(t *testing.T) {
+		handler.SetOrchestrationAPI(mockOrchestration)
+		handler.setHelper(mockHelper)
+		mockHelper.EXPECT().Response(gomock.Any(), gomock.Eq(http.StatusServiceUnavailable))
+
+		handler.IsSetKey = false
+		handler.APIV1DiscoverymgrMNEDCDeviceInfoPost(w, r)
+	})
+	t.Run("DecryptionFail", func(t *testing.T) {
+		handler.SetCipher(mockCipher)
+		handler.SetOrchestrationAPI(mockOrchestration)
+		handler.setHelper(mockHelper)
+		gomock.InOrder(
+			mockCipher.EXPECT().DecryptByteToJSON(gomock.Any()).Return(nil, errors.New("")),
+			mockHelper.EXPECT().Response(gomock.Any(), gomock.Eq(http.StatusServiceUnavailable)),
+		)
+
+		handler.APIV1DiscoverymgrMNEDCDeviceInfoPost(w, r)
+	})
+	t.Run("Success", func(t *testing.T) {
+		handler.SetCipher(mockCipher)
+		handler.SetOrchestrationAPI(mockOrchestration)
+		handler.setHelper(mockHelper)
+		gomock.InOrder(
+			mockCipher.EXPECT().DecryptByteToJSON(gomock.Any()).Return(deviceDetailsInfo, nil),
+			mockOrchestration.EXPECT().HandleDeviceInfo(gomock.Any(), gomock.Any(), gomock.Any()),
+			mockHelper.EXPECT().Response(gomock.Any(), gomock.Eq(http.StatusOK)),
+		)
+
+		handler.APIV1DiscoverymgrMNEDCDeviceInfoPost(w, r)
+	})
+}
+
+func TestAPIV1DiscoverymgrOrchInfoGet(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	handler := GetHandler()
+	if handler == nil {
+		t.Error("unexpected return value")
+	}
+
+	mockOrchestration := orchemock.NewMockOrcheInternalAPI(ctrl)
+	mockCipher := ciphermock.NewMockIEdgeCipherer(ctrl)
+	mockHelper := helpermock.NewMockRestHelper(ctrl)
+
+	r := httptest.NewRequest("POST", "http://test.test", nil)
+	w := httptest.NewRecorder()
+
+	t.Run("IsNotSetApi", func(t *testing.T) {
+		handler.setHelper(mockHelper)
+		mockHelper.EXPECT().Response(gomock.Any(), gomock.Eq(http.StatusServiceUnavailable))
+
+		handler.isSetAPI = false
+		handler.APIV1DiscoverymgrOrchestrationInfoGet(w, r)
+	})
+	t.Run("IsNotSetKey", func(t *testing.T) {
+		handler.SetOrchestrationAPI(mockOrchestration)
+		handler.setHelper(mockHelper)
+		mockHelper.EXPECT().Response(gomock.Any(), gomock.Eq(http.StatusServiceUnavailable))
+
+		handler.IsSetKey = false
+		handler.APIV1DiscoverymgrOrchestrationInfoGet(w, r)
+	})
+	t.Run("GetOrchInfoError", func(t *testing.T) {
+		handler.SetCipher(mockCipher)
+		handler.SetOrchestrationAPI(mockOrchestration)
+		handler.setHelper(mockHelper)
+		gomock.InOrder(
+			mockOrchestration.EXPECT().GetOrchestrationInfo().Return("", "", []string{""}, errors.New("")),
+			mockHelper.EXPECT().Response(gomock.Any(), gomock.Eq(http.StatusServiceUnavailable)),
+		)
+
+		handler.APIV1DiscoverymgrOrchestrationInfoGet(w, r)
+	})
+	t.Run("EncryptFail", func(t *testing.T) {
+		handler.SetCipher(mockCipher)
+		handler.SetOrchestrationAPI(mockOrchestration)
+		handler.setHelper(mockHelper)
+		gomock.InOrder(
+			mockOrchestration.EXPECT().GetOrchestrationInfo().Return("", "", []string{""}, nil),
+			mockCipher.EXPECT().EncryptJSONToByte(gomock.Any()).Return(nil, errors.New("")),
+			mockHelper.EXPECT().Response(gomock.Any(), gomock.Eq(http.StatusServiceUnavailable)),
+		)
+
+		handler.APIV1DiscoverymgrOrchestrationInfoGet(w, r)
+	})
+	t.Run("Success", func(t *testing.T) {
+		handler.SetCipher(mockCipher)
+		handler.SetOrchestrationAPI(mockOrchestration)
+		handler.setHelper(mockHelper)
+		gomock.InOrder(
+			mockOrchestration.EXPECT().GetOrchestrationInfo().Return("", "", []string{""}, nil),
+			mockCipher.EXPECT().EncryptJSONToByte(gomock.Any()).Return(nil, nil),
+			mockHelper.EXPECT().ResponseJSON(gomock.Any(), gomock.Any(), gomock.Eq(http.StatusOK)),
+		)
+
+		handler.APIV1DiscoverymgrOrchestrationInfoGet(w, r)
+	})
+
 }
 
 func TestSetCertificateFilePath(t *testing.T) {

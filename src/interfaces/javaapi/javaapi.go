@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2019 Samsung Electronics All Rights Reserved.
+ * Copyright 2020 Samsung Electronics All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,12 +19,17 @@
 package javaapi
 
 import (
+	"bytes"
 	"db/bolt/wrapper"
+	"fmt"
 	"log"
+	"net/http"
 	"strings"
 	"sync"
+	"time"
 
 	"common/logmgr"
+	"common/networkhelper"
 
 	configuremgr "controller/configuremgr/native"
 	"controller/discoverymgr"
@@ -176,6 +181,7 @@ func OrchestrationInit(executeCallback ExecuteCallback, edgeDir string, isSecure
 	}
 
 	servicemgr.GetInstance().SetClient(restIns)
+	discoverymgr.GetInstance().SetClient(restIns)
 
 	builder := orchestrationapi.OrchestrationBuilder{}
 	builder.SetWatcher(configuremgr.GetInstance(configPath))
@@ -263,6 +269,95 @@ func OrchestrationRequestService(request *ReqeustService) *ResponseService {
 		},
 	}
 	return ret
+}
+
+//RegisterToBroadcastServer registers to the discovery server
+func RegisterToBroadcastServer() int {
+	log.Println(logPrefix, "Initiating Registration to Broadcast server")
+	for {
+		if discoverymgr.GetInstance() != nil {
+			err := discoverymgr.GetInstance().NotifyMNEDCBroadcastServer()
+			if err != nil {
+				log.Println(logPrefix, "Registering to Broadcast server Error", err.Error(), ", retrying")
+				time.Sleep(2 * time.Second)
+				continue
+			}
+			return 0
+		}
+		break
+	}
+	return 1
+}
+
+//EncryptToByteAndPost encryps json data to byte array
+func EncryptToByteAndPost(data string, target string) int {
+	splitted := strings.Split(data, ",")
+	jsonMap := make(map[string]interface{})
+
+	if len(splitted) < 3 {
+		log.Println(logPrefix, "Improper request data")
+		return 1
+	}
+	jsonMap["VirtualAddr"] = splitted[0]
+	jsonMap["PrivateAddr"] = splitted[1]
+	jsonMap["DeviceID"] = splitted[2]
+
+	cipher := sha256.GetCipher(cipherKeyFilePath)
+	jsonStr, err := cipher.EncryptJSONToByte(jsonMap)
+	if err != nil {
+		log.Println("Error in encrypting jsonMap", err.Error())
+		return 1
+	}
+
+	restapi := "/api/v1/discoverymgr/register"
+	url := fmt.Sprintf("http://%s%s", target+":56002", restapi)
+
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonStr))
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Println("Error in Post", err.Error())
+		return 1
+	}
+	if resp != nil && resp.Body != nil {
+		resp.Body.Close()
+	}
+
+	return 0
+}
+
+//MNEDCConnectionClosed notifies discovery manager that MNEDC connection is closed
+func MNEDCConnectionClosed() {
+	if discoverymgr.GetInstance() != nil {
+		discoverymgr.GetInstance().MNEDCClosedCallback()
+		return
+	}
+	log.Println(logPrefix, "discoverymgr instance is nil")
+}
+
+//MNEDCConnectionReEstablished notifies discovery manager that MNEDC connection is re-established
+func MNEDCConnectionReEstablished() {
+	if discoverymgr.GetInstance() != nil {
+		discoverymgr.GetInstance().MNEDCReconciledCallback()
+		return
+	}
+	log.Println(logPrefix, "discoverymgr instance is nil")
+}
+
+//GetPrivateIP returns private IP of the device
+func GetPrivateIP() string {
+	networkIns := networkhelper.GetInstance()
+	if networkIns != nil {
+		privateIP, err := networkIns.GetOutboundIP()
+		if err != nil {
+			return ""
+		}
+		return privateIP
+	}
+	return ""
+
 }
 
 type PSKHandler interface {

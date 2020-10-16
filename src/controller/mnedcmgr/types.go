@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2019 Samsung Electronics All Rights Reserved.
+ * Copyright 2020 Samsung Electronics All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,25 +15,24 @@
  *
  *******************************************************************************/
 
-package networkhelper
+package mnedcmgr
 
-import (
-	"net"
+const (
+	logPrefix            = "[mnedcmgr]"
+	mnedcServerPort      = 8000
+	broadcastServerPort  = 3333
+	mnedcServerVirtualIP = "10.0.0.1"
+	internalPort         = 56002
+	maxAttempts          = 5
 )
 
-// NetworkInformation structure
-type networkInformation struct {
-	addrInfos    []addrInformation
-	netInterface []net.Interface
-	ipChans      []chan []net.IP
-	netError     error
+type ipTypes struct {
+	virtualIP string
+	privateIP string
 }
 
-type addrInformation struct {
-	isWired   bool
-	ipv4      net.IP
-	macAddr   string
-	isVirtual bool
+type requestData struct {
+	DeviceID  string `json:"deviceID"`
+	PrivateIP string `json:"privateIP"`
+	VirtualIP string `json:"virtualIP"`
 }
-
-const logPrefix = "[networkmgr]"

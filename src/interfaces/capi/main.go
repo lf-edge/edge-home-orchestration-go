@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2019 Samsung Electronics All Rights Reserved.
+ * Copyright 2020 Samsung Electronics All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -102,6 +102,7 @@ import (
 
 	configuremgr "controller/configuremgr/native"
 	"controller/discoverymgr"
+	"controller/mnedcmgr"
 	scoringmgr "controller/scoringmgr"
 	"controller/securemgr/authenticator"
 	"controller/securemgr/verifier"
@@ -139,6 +140,7 @@ const (
 
 	cipherKeyFilePath = edgeDir + "/user/orchestration_userID.txt"
 	deviceIDFilePath  = edgeDir + "/device/orchestration_deviceID.txt"
+	mnedcServerConfig = edgeDir + "/client.config"
 )
 
 var (
@@ -164,7 +166,7 @@ func OrchestrationInit() C.int {
 	wrapper.SetBoltDBPath(dbPath)
 
 	isSecured := false
-	if buildTags == "secure" {
+	if strings.Contains(buildTags, "secure") {
 		log.Println("Orchestration init with secure option")
 		isSecured = true
 	}
@@ -183,6 +185,7 @@ func OrchestrationInit() C.int {
 	}
 
 	servicemgr.GetInstance().SetClient(restIns)
+	discoverymgr.GetInstance().SetClient(restIns)
 
 	builder := orchestrationapi.OrchestrationBuilder{}
 	builder.SetWatcher(configuremgr.GetInstance(configPath))
@@ -238,6 +241,28 @@ func OrchestrationInit() C.int {
 
 	log.Println(logPrefix, "orchestration init done")
 
+	if isSecured {
+		mnedcmgr.GetServerInstance().SetCipher(dummy.GetCipher(cipherKeyFilePath))
+		mnedcmgr.GetServerInstance().SetCertificateFilePath(certificateFilePath)
+		mnedcmgr.GetClientInstance().SetCertificateFilePath(certificateFilePath)
+	} else {
+		mnedcmgr.GetServerInstance().SetCipher(sha256.GetCipher(cipherKeyFilePath))
+	}
+	isMNEDCServer := false
+	isMNEDCClient := false
+	if strings.Contains(buildTags, "mnedcserver") {
+		isMNEDCServer = true
+	} else if strings.Contains(buildTags, "mnedcsupport") {
+		isMNEDCClient = true
+	}
+
+	go func() {
+		if isMNEDCServer {
+			mnedcmgr.GetServerInstance().StartMNEDCServer(deviceIDFilePath)
+		} else if isMNEDCClient {
+			mnedcmgr.GetClientInstance().StartMNEDCClient(deviceIDFilePath, mnedcServerConfig)
+		}
+	}()
 	return 0
 }
 
