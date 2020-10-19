@@ -8,7 +8,8 @@ device_id=`cat /var/edge-orchestration/device/orchestration_deviceID.txt`
 payload="{
 	\"exp\": $(($(date +%s)+60)),
 	\"iat\": $(date +%s),
-	\"deviceid\": \"${device_id}\"
+	\"deviceid\": \"${device_id}\",
+	\"aud\": \"$2\"
 }"
 
 header="{
@@ -52,10 +53,10 @@ case $1 in
 		;;
     *)
         echo "Usage:"
-        echo "----------------------------------------------------------"
-        echo "  $ . jwt_gen.sh HS256    : Genereate JWT based on HS256"
-        echo "  $ . jwt_gen.sh RS256    : Genereate JWT based on RS256"
-        echo "----------------------------------------------------------"
+        echo "-------------------------------------------------------------------------------------------------"
+        echo "  $ . jwt_gen.sh [Algo] [User]  : Genereate JWT based on Algo:{HS256, RS256} User:{Admin, Member}"
+        echo "  $ . jwt_gen.sh RS256 Admin    : Genereate JWT based on RS256 and User - Admin                  "
+        echo "-------------------------------------------------------------------------------------------------"
 		return 1
         ;;
 esac

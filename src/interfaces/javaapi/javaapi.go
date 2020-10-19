@@ -30,6 +30,7 @@ import (
 	"controller/discoverymgr"
 	scoringmgr "controller/scoringmgr"
 	"controller/securemgr/authenticator"
+	"controller/securemgr/authorizer"
 	"controller/securemgr/verifier"
 	"controller/servicemgr"
 	"controller/servicemgr/executor/androidexecutor"
@@ -56,6 +57,7 @@ const (
 	certificateFile        = "/data/cert"
 	containerWhiteListPath = "/data/cwl"
 	passPhraseJWTPath      = "/data/jwt"
+	rbacRulePath           = "/data/rbac"
 
 	cipherKeyFile = "/user/orchestration_userID.txt"
 	deviceIDFile  = "/device/orchestration_deviceID.txt"
@@ -166,6 +168,8 @@ func OrchestrationInit(executeCallback ExecuteCallback, edgeDir string, isSecure
 	if isSecured {
 		verifier.Init(containerWhiteListPath)
 		authenticator.Init(passPhraseJWTPath)
+		authorizer.Init(rbacRulePath)
+
 	}
 
 	restIns := restclient.GetRestClient()

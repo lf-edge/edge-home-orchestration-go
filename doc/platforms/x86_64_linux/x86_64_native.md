@@ -204,7 +204,7 @@ You need to add a JSON Web Token into request header `Authorization: {token}`. M
 
 > To add the `EDGE_ORCHESTRATION_TOKEN` variable to the environment execute the next command:
 ```
-$ . tools/jwt_gen.sh HS256
+$ . tools/jwt_gen.sh HS256 Admin
 ```
 
 ```

@@ -109,6 +109,7 @@ function install_prerequisite() {
         "golang.org/x/mobile/cmd/gomobile"
         "golang.org/x/mobile/cmd/gobind"
         "github.com/dgrijalva/jwt-go"
+        "github.com/casbin/casbin"
     )
     idx=1
     for pkg in "${pkg_list[@]}"; do
