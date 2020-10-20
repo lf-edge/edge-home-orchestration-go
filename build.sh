@@ -27,6 +27,7 @@ PKG_LIST=(
         "controller/scoringmgr"
         "controller/securemgr/verifier"
         "controller/securemgr/authenticator"
+        "controller/securemgr/authorizer"
         "controller/servicemgr"
         "controller/servicemgr/executor"
         "controller/servicemgr/executor/androidexecutor"
