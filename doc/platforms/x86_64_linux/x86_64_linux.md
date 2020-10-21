@@ -45,13 +45,14 @@ Please see the below [How to work](#how-to-work) to know how to run Edge Orchest
 `$ export GOPATH=$HOME/go`  
 `$ export PATH=$PATH:$GOPATH/bin`
 
-- glide
+- glide ([package manager for Go](https://glide.readthedocs.io/en/latest/))  
 To install `glide`, you need to add appropriate repository to apt list. To do that, execute following shell commands:
 
 ```shell
 $ sudo add-apt-repository -y ppa:masterminds/glide && sudo apt-get update
 $ sudo apt-get install -y glide
 ```
+> To add 3rd-party packages need to add them to the `glide.yaml` (format is described [here](https://glide.readthedocs.io/en/latest/glide.yaml/))
 
 - extra linux utilities
 ```
