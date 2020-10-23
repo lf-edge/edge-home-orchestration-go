@@ -33,6 +33,6 @@ Steps to run the MNEDC Client:
 1. Edit the client.config file inside /samples/mnedc/ directory and put the IP address of the device which is running the MNEDC server.
 2. Copy this client.config file to /var/edge-orchestration/mnedc folder.
 3. Run the following command:
-`./build.sh mnedcsupport`
+`./build.sh mnedcclient`
 
 

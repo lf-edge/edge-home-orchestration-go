@@ -176,7 +176,7 @@ func orchestrationInit() error {
 	isMNEDCClient := false
 	if strings.Contains(buildTags, "mnedcserver") {
 		isMNEDCServer = true
-	} else if strings.Contains(buildTags, "mnedcsupport") {
+	} else if strings.Contains(buildTags, "mnedcclient") {
 		isMNEDCClient = true
 	}
 
