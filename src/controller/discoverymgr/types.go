@@ -30,7 +30,7 @@ import (
 const (
 	logPrefix       = "[discoverymgr]"
 	edgeDirect      = "/var/edge-orchestration/"
-	configPath      = edgeDirect + "client.config"
+	configPath      = edgeDirect + "mnedc/client.config"
 	configAlternate = "/storage/emulated/0/client.config"
 )
 

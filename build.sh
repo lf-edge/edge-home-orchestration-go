@@ -440,6 +440,7 @@ function run_docker_container() {
     sudo mkdir -p /var/edge-orchestration/data/cert
     sudo mkdir -p /var/edge-orchestration/user
     sudo mkdir -p /var/edge-orchestration/device
+    sudo mkdir -p /var/edge-orchestration/mnedc
 
     echo ""
     echo "**********************************"

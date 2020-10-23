@@ -18,8 +18,7 @@ ENV APP_NAME=edge-orchestration
 
 # install required tools 
 RUN apt update
-RUN apt install -y net-tools
-RUN apt install -y iproute2
+RUN apt install -y net-tools iproute2
 
 # copy files
 COPY $APP_BIN_DIR/$APP_NAME $APP_MAIN_DIR/run.sh $TARGET_DIR/

@@ -65,7 +65,7 @@ const (
 
 	cipherKeyFilePath = edgeDir + "/user/orchestration_userID.txt"
 	deviceIDFilePath  = edgeDir + "/device/orchestration_deviceID.txt"
-	mnedcServerConfig = edgeDir + "/client.config"
+	mnedcServerConfig = edgeDir + "/mnedc/client.config"
 )
 
 var (
