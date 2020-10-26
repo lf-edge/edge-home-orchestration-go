@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2019 Samsung Electronics All Rights Reserved.
+ * Copyright 2020 Samsung Electronics All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -346,6 +346,161 @@ func TestDoGetScoreRemoteDevice(t *testing.T) {
 			t.Error("expect error is nil, but not nil")
 		} else if score != float64(1.0) {
 			t.Error("unexpected score value")
+		}
+	})
+}
+
+func TestDoGetOrchestrationInfo(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	client := restClient
+	if client == nil {
+		t.Error("unexpected return value")
+	}
+
+	mockCipher := ciphermock.NewMockIEdgeCipherer(ctrl)
+	mockHelper := helpermock.NewMockRestHelper(ctrl)
+
+	t.Run("IsNotSetKey", func(t *testing.T) {
+		client.setHelper(mockHelper)
+
+		client.IsSetKey = false
+		_, _, _, err := client.DoGetOrchestrationInfo("")
+		if err == nil {
+			t.Error("expect error is not nil, but nil")
+		}
+	})
+	t.Run("EncryptionFail", func(t *testing.T) {
+		client.SetCipher(mockCipher)
+		client.setHelper(mockHelper)
+
+		gomock.InOrder(
+			mockHelper.EXPECT().MakeTargetURL(gomock.Any(), gomock.Any(), gomock.Any()).Return(""),
+			mockCipher.EXPECT().EncryptJSONToByte(gomock.Any()).Return(nil, errors.New("")),
+		)
+		_, _, _, err := client.DoGetOrchestrationInfo("")
+		if err == nil {
+			t.Error("expect error is not nil, but nil")
+		}
+	})
+
+	t.Run("DoGetWithBody", func(t *testing.T) {
+		client.SetCipher(mockCipher)
+		client.setHelper(mockHelper)
+
+		gomock.InOrder(
+			mockHelper.EXPECT().MakeTargetURL(gomock.Any(), gomock.Any(), gomock.Any()).Return(""),
+			mockCipher.EXPECT().EncryptJSONToByte(gomock.Any()).Return(nil, nil),
+			mockHelper.EXPECT().DoGetWithBody(gomock.Any(), gomock.Any()).Return(nil, http.StatusOK, errors.New("")),
+		)
+		_, _, _, err := client.DoGetOrchestrationInfo("")
+		if err == nil {
+			t.Error("expect error is not nil, but nil")
+		}
+	})
+	t.Run("DecryptionFail", func(t *testing.T) {
+		client.SetCipher(mockCipher)
+		client.setHelper(mockHelper)
+
+		gomock.InOrder(
+			mockHelper.EXPECT().MakeTargetURL(gomock.Any(), gomock.Any(), gomock.Any()).Return(""),
+			mockCipher.EXPECT().EncryptJSONToByte(gomock.Any()).Return(nil, nil),
+			mockHelper.EXPECT().DoGetWithBody(gomock.Any(), gomock.Any()).Return(nil, http.StatusOK, nil),
+			mockCipher.EXPECT().DecryptByteToJSON(gomock.Any()).Return(nil, errors.New("")),
+		)
+		_, _, _, err := client.DoGetOrchestrationInfo("")
+		if err == nil {
+			t.Error("expected error is not nil, but nil")
+		}
+	})
+	t.Run("Success", func(t *testing.T) {
+		client.SetCipher(mockCipher)
+		client.setHelper(mockHelper)
+
+		respJSONMsg := make(map[string]interface{})
+		respJSONMsg["Platform"] = "platform"
+		respJSONMsg["ExecutionType"] = "execution"
+		respJSONMsg["ServiceList"] = []string{"service1", "service2"}
+
+		gomock.InOrder(
+			mockHelper.EXPECT().MakeTargetURL(gomock.Any(), gomock.Any(), gomock.Any()).Return(""),
+			mockCipher.EXPECT().EncryptJSONToByte(gomock.Any()).Return(nil, nil),
+			mockHelper.EXPECT().DoGetWithBody(gomock.Any(), gomock.Any()).Return(nil, http.StatusOK, nil),
+			mockCipher.EXPECT().DecryptByteToJSON(gomock.Any()).Return(respJSONMsg, nil),
+		)
+		_, _, _, err := client.DoGetOrchestrationInfo("")
+		if err != nil {
+			t.Error("expected error is nil, but not nil")
+		}
+	})
+}
+
+func TestDoNotifyMNEDCBroadcastServer(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	client := restClient
+	if client == nil {
+		t.Error("unexpected return value")
+	}
+
+	defaultServerIP := "1.1.1.1"
+	defaultPort := 3333
+	defaultDeviceID := "dummyID"
+	defaultPrivateIP := "2.2.2.2"
+	defaultVirtualIP := "10.10.10.10"
+
+	mockCipher := ciphermock.NewMockIEdgeCipherer(ctrl)
+	mockHelper := helpermock.NewMockRestHelper(ctrl)
+
+	t.Run("IsNotSetKey", func(t *testing.T) {
+		client.setHelper(mockHelper)
+
+		client.IsSetKey = false
+		err := client.DoNotifyMNEDCBroadcastServer(defaultServerIP, defaultPort, defaultDeviceID, defaultPrivateIP, defaultVirtualIP)
+		if err == nil {
+			t.Error("expect error is not nil, but nil")
+		}
+	})
+	t.Run("EncryptionFail", func(t *testing.T) {
+		client.SetCipher(mockCipher)
+		client.setHelper(mockHelper)
+
+		mockCipher.EXPECT().EncryptJSONToByte(gomock.Any()).Return(nil, errors.New(""))
+
+		err := client.DoNotifyMNEDCBroadcastServer(defaultServerIP, defaultPort, defaultDeviceID, defaultPrivateIP, defaultVirtualIP)
+		if err == nil {
+			t.Error("expect error is not nil, but nil")
+		}
+	})
+	t.Run("DoPostError", func(t *testing.T) {
+		client.SetCipher(mockCipher)
+		client.setHelper(mockHelper)
+
+		gomock.InOrder(
+			mockCipher.EXPECT().EncryptJSONToByte(gomock.Any()).Return(nil, nil),
+			mockHelper.EXPECT().MakeTargetURL(gomock.Any(), gomock.Any(), gomock.Any()).Return(""),
+			mockHelper.EXPECT().DoPost(gomock.Any(), gomock.Any()).Return(nil, http.StatusOK, errors.New("")),
+		)
+		err := client.DoNotifyMNEDCBroadcastServer(defaultServerIP, defaultPort, defaultDeviceID, defaultPrivateIP, defaultVirtualIP)
+		if err == nil {
+			t.Error("expect error is not nil, but nil")
+		}
+	})
+
+	t.Run("DoPostError", func(t *testing.T) {
+		client.SetCipher(mockCipher)
+		client.setHelper(mockHelper)
+
+		gomock.InOrder(
+			mockCipher.EXPECT().EncryptJSONToByte(gomock.Any()).Return(nil, nil),
+			mockHelper.EXPECT().MakeTargetURL(gomock.Any(), gomock.Any(), gomock.Any()).Return(""),
+			mockHelper.EXPECT().DoPost(gomock.Any(), gomock.Any()).Return(nil, http.StatusOK, nil),
+		)
+		err := client.DoNotifyMNEDCBroadcastServer(defaultServerIP, defaultPort, defaultDeviceID, defaultPrivateIP, defaultVirtualIP)
+		if err != nil {
+			t.Error("expect error is nil, but not nil")
 		}
 	})
 }

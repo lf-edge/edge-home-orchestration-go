@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2019 Samsung Electronics All Rights Reserved.
+* Copyright 2020 Samsung Electronics All Rights Reserved.
 *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,8 @@ import (
 	"restinterface/cipher"
 	"restinterface/client"
 	"restinterface/resthelper"
+
+	"github.com/gomodule/redigo/redis"
 )
 
 type restClientImpl struct {
@@ -186,6 +188,81 @@ func (c restClientImpl) DoGetResourceRemoteDevice(devID string, endpoint string)
 	}
 
 	return
+}
+
+//DoGetOrchestrationInfo requests for orchestration info from endpoint
+func (c restClientImpl) DoGetOrchestrationInfo(endpoint string) (string, string, []string, error) {
+	if c.IsSetKey == false {
+		return "", "", []string{}, errors.New("[" + logPrefix + "] does not set key")
+	}
+
+	log.Println(logPrefix, "DoGetOrchestrationInfo", "for", endpoint)
+
+	restapi := "/api/v1/discoverymgr/orchestrationinfo"
+
+	targetURL := c.helper.MakeTargetURL(endpoint, c.internalPort, restapi)
+
+	info := make(map[string]interface{})
+	info["devID"] = "DevID"
+	encryptBytes, err := c.Key.EncryptJSONToByte(info)
+	if err != nil {
+		return "", "", []string{}, errors.New("[" + logPrefix + "] can not encryption " + err.Error())
+	}
+
+	respBytes, code, err := c.helper.DoGetWithBody(targetURL, encryptBytes)
+	if err != nil || code != http.StatusOK {
+		return "", "", []string{}, errors.New("[" + logPrefix + "] get return error")
+	}
+
+	respMsg, err := c.Key.DecryptByteToJSON(respBytes)
+	if err != nil {
+		return "", "", []string{}, errors.New("[" + logPrefix + "] can not decryption " + err.Error())
+	}
+
+	log.Println("[JSON] : ", respMsg)
+	platform := respMsg["Platform"].(string)
+	log.Println(logPrefix, "GetOrchInfoResponse", "Platform:", platform)
+	executionType := respMsg["ExecutionType"].(string)
+	log.Println(logPrefix, "GetOrchInfoResponse", "ExecutionType:", executionType)
+	//serviceList := respMsg["ServiceList"].([]string)
+
+	var serviceList []string
+	var errRedis error
+	serviceList, err = redis.Strings(respMsg["ServiceList"], errRedis)
+	if err != nil {
+		log.Println(logPrefix, "GetOrchinfoResp", "ServiceList couldnt be populated")
+	}
+	log.Println(logPrefix, "GetOrchInfoResponse", "ServiceList:", serviceList)
+	return platform, executionType, serviceList, nil
+}
+
+//DoNotifyMNEDCBroadcastServer sends the device details to MNEDC server
+func (c restClientImpl) DoNotifyMNEDCBroadcastServer(endpoint string, port int, deviceID string, privateIP string, virtualIP string) error {
+	if c.IsSetKey == false {
+		return errors.New("[" + logPrefix + "] does not set key")
+	}
+
+	log.Println(logPrefix, "DoNotifyMNEDCBroadcastServer")
+	info := make(map[string]interface{})
+	info["DeviceID"] = deviceID
+	info["VirtualIP"] = virtualIP
+	info["PrivateIP"] = privateIP
+
+	encryptBytes, err := c.Key.EncryptJSONToByte(info)
+	if err != nil {
+		return errors.New("[" + logPrefix + "] can not encryption " + err.Error())
+	}
+
+	restapi := "/register"
+
+	targetURL := c.helper.MakeTargetURL(endpoint, port, restapi)
+
+	_, code, err := c.helper.DoPost(targetURL, encryptBytes)
+	if err != nil || code != http.StatusOK {
+		return err
+	}
+
+	return nil
 }
 
 func (c *restClientImpl) setHelper(helper resthelper.RestHelper) {

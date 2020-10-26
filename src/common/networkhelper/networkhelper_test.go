@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2019 Samsung Electronics All Rights Reserved.
+ * Copyright 2020 Samsung Electronics All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -255,4 +255,35 @@ func TestSuccessGetIPs(t *testing.T) {
 		netInfo.GetIPs(), []net.IP{TESTNEWWIREDIP, TESTNEWIP}) != true {
 		t.Error()
 	}
+}
+
+func TestGetVirtualIP(t *testing.T) {
+
+	t.Run("FailNetInfo", func(t *testing.T) {
+		setFailCondOfNetInfo()
+		_, err := network.GetVirtualIP()
+		if err == nil {
+			t.Error("Expected error")
+			return
+		}
+	})
+	t.Run("AddrNotFound", func(t *testing.T) {
+		setPassCondOfNetInfo()
+		_, err := network.GetVirtualIP()
+		if err == nil {
+			t.Error("Expected error")
+			return
+		}
+	})
+	t.Run("Success", func(t *testing.T) {
+		setPassCondOfNetInfo()
+		netInfo.addrInfos = make([]addrInformation, 1)
+		netInfo.addrInfos[0].isVirtual = true
+		netInfo.addrInfos[0].ipv4 = TESTNEWIP
+		_, err := network.GetVirtualIP()
+		if err != nil {
+			t.Error("error not expected")
+			return
+		}
+	})
 }

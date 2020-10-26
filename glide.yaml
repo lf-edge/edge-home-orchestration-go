@@ -33,6 +33,11 @@ ignore:
   - controller/servicemgr/executor/containerexecutor
   - controller/servicemgr/executor/nativeexecutor
   - controller/servicemgr/notification
+  - controller/mnedcmgr
+  - controller/mnedcmgr/client
+  - controller/mnedcmgr/connectionutil
+  - controller/mnedcmgr/server
+  - controller/mnedcmgr/tunmgr
   - db/helper
   - db/bolt/common
   - db/bolt/configuration
@@ -58,6 +63,10 @@ ignore:
   # https://github.com/Masterminds/glide/issues/1055
   - crypto/ed25519
 import:
+  - package: github.com/gomodule/redigo/redis
+    version: v1.7.0
+  - package: github.com/songgao/water
+    version: fd331bda3f4bbc9aad07ccd4bd2abaa1e363a852
   - package: docker.io/go-docker
     version: v1.0.0
     subpackages:

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2019 Samsung Electronics All Rights Reserved.
+ * Copyright 2020 Samsung Electronics All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,9 @@ type Clienter interface {
 	// for scoringmgr
 	DoGetScoreRemoteDevice(devID string, endpoint string) (scoreValue float64, err error)
 	DoGetResourceRemoteDevice(devID string, endpoint string) (respMsg map[string]interface{}, err error)
+	// for discoverymgr
+	DoGetOrchestrationInfo(endpoint string) (platform string, executionType string, serviceList []string, err error)
+	DoNotifyMNEDCBroadcastServer(endpoint string, port int, deviceID string, privateIP string, virtualIP string) error
 }
 
 // Setter interface

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2019 Samsung Electronics All Rights Reserved.
+ * Copyright 2020 Samsung Electronics All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,11 +18,13 @@
 package discoverymgr
 
 import (
+	"bufio"
 	"io/ioutil"
 	"log"
 	"net"
-	"time"
+	"os"
 	"reflect"
+	"time"
 
 	errors "common/errors"
 	networkhelper "common/networkhelper"
@@ -32,6 +34,8 @@ import (
 	networkdb "db/bolt/network"
 	servicedb "db/bolt/service"
 	systemdb "db/bolt/system"
+	"restinterface/cipher"
+	"restinterface/client"
 
 	uuid "github.com/satori/go.uuid"
 )
@@ -45,16 +49,30 @@ type Discovery interface {
 	AddNewServiceName(serviceName string) error
 	RemoveServiceName(serviceName string) error
 	ResetServiceName()
+	AddDeviceInfo(deviceID string, virtualAddr string, privateAddr string)
+	GetOrchestrationInfo() (platfrom string, executionType string, serviceList []string, err error)
+	SetRestResource()
+	MNEDCClosedCallback()
+	NotifyMNEDCBroadcastServer() error
+	MNEDCReconciledCallback()
+
+	client.Setter
+	cipher.Setter
 }
 
-type discoveryImpl struct{}
+//DiscoveryImpl Structure
+type DiscoveryImpl struct {
+	client.HasClient
+	cipher.HasCipher
+}
 
 var (
-	discoveryIns discoveryImpl
+	discoveryIns *DiscoveryImpl
 	networkIns   networkhelper.Network
 )
 
 func init() {
+	discoveryIns = &DiscoveryImpl{}
 	wrapperIns = wrapper.GetZeroconfImpl()
 	shutdownChan = make(chan struct{})
 
@@ -71,8 +89,13 @@ func GetInstance() Discovery {
 	return discoveryIns
 }
 
-// InitDiscovery starts server for network registration and do orchestration discovery activity
-func (discoveryImpl) StartDiscovery(UUIDpath string, platform string, executionType string) (err error) {
+// SetRestResource sets clienter
+func (d *DiscoveryImpl) SetRestResource() {
+	d.SetClient(d.Clienter)
+}
+
+// StartDiscovery starts server for network registration and do orchestration discovery activity
+func (DiscoveryImpl) StartDiscovery(UUIDpath string, platform string, executionType string) (err error) {
 	networkIns.StartNetwork()
 
 	UUIDStr, err := setDeviceID(UUIDpath)
@@ -97,7 +120,7 @@ func (discoveryImpl) StartDiscovery(UUIDpath string, platform string, executionT
 
 // StopDiscovery shutdowns server
 // Todo : Set Normal Termination Function For Each Platform / Execution Type
-func (discoveryImpl) StopDiscovery() {
+func (DiscoveryImpl) StopDiscovery() {
 	err := serverPresenceChecker()
 	if err != nil {
 		log.Println(logPrefix, "[StopDiscovery]", err)
@@ -107,13 +130,13 @@ func (discoveryImpl) StopDiscovery() {
 	wrapperIns.Shutdown()
 }
 
-// DeleteDevice deletes device info using deviceIP
-func (discoveryImpl) DeleteDeviceWithIP(targetIP string) {
+// DeleteDeviceWithIP deletes device info using deviceIP
+func (DiscoveryImpl) DeleteDeviceWithIP(targetIP string) {
 	// @TODO Delete device with ip in DB
 }
 
-// DeleteDevice delete device using deviceID
-func (discoveryImpl) DeleteDeviceWithID(ID string) {
+// DeleteDeviceWithID delete device using deviceID
+func (DiscoveryImpl) DeleteDeviceWithID(ID string) {
 	// @Note Delete device with id in DB
 	deviceID, err := getDeviceID()
 	if err != nil {
@@ -127,7 +150,7 @@ func (discoveryImpl) DeleteDeviceWithID(ID string) {
 }
 
 // AddNewServiceName sets text field of mdns message with service application name
-func (discoveryImpl) AddNewServiceName(serviceName string) error {
+func (d *DiscoveryImpl) AddNewServiceName(serviceName string) error {
 	err := serviceNameChecker(serviceName)
 	if err != nil {
 		return err
@@ -148,13 +171,13 @@ func (discoveryImpl) AddNewServiceName(serviceName string) error {
 		return err
 	}
 
-	setNewServiceList(serverTXT)
+	d.setNewServiceList(serverTXT)
 
 	return nil
 }
 
 // RemoveServiceName removes text field of mdns message with service application name
-func (discoveryImpl) RemoveServiceName(serviceName string) error {
+func (d *DiscoveryImpl) RemoveServiceName(serviceName string) error {
 	err := serviceNameChecker(serviceName)
 	if err != nil {
 		return err
@@ -172,13 +195,13 @@ func (discoveryImpl) RemoveServiceName(serviceName string) error {
 		return err
 	}
 	serverTXT = append(serverTXT[:idxToDel], serverTXT[idxToDel+1:]...)
-	setNewServiceList(serverTXT)
+	d.setNewServiceList(serverTXT)
 
 	return nil
 }
 
 // ResetServiceName resets text field of mdns message
-func (discoveryImpl) ResetServiceName() {
+func (d *DiscoveryImpl) ResetServiceName() {
 	err := serverPresenceChecker()
 	if err != nil {
 		log.Println(logPrefix, "[ResetServiceName]", err)
@@ -203,7 +226,100 @@ func (discoveryImpl) ResetServiceName() {
 	serverTXT = append(serverTXT, confItem.ExecType)
 	serverTXT = append(serverTXT, confItem.Platform)
 
-	setNewServiceList(serverTXT)
+	d.setNewServiceList(serverTXT)
+}
+
+// AddDeviceInfo takes public and private IP from relay and requests for orchestration info from this device
+func (d *DiscoveryImpl) AddDeviceInfo(deviceID string, virtualAddr string, privateAddr string) {
+
+	log.Println(logPrefix, "[AddDeviceInfo]", "private Addr", privateAddr)
+	log.Println(logPrefix, "[AddDeviceInfo]", "Virtual Addr", virtualAddr)
+
+	//Check if the private addr already exists in OrchestrationMap. If exists, dont call requestDeviceInfo()
+	isPresent, err := isIPPresent(deviceID, privateAddr)
+	if err != nil || !isPresent {
+		go d.requestDeviceInfo(deviceID, virtualAddr)
+	} else {
+		log.Println(logPrefix, "[Add New Device]", "New device Info already present")
+	}
+}
+
+//GetOrchestrationInfo returns the orchestration info of the device
+func (DiscoveryImpl) GetOrchestrationInfo() (platfrom string, executionType string, serviceList []string, err error) {
+
+	log.Println(logPrefix, "Orch info requested")
+	serviceList, err = getServiceList()
+	platfrom, err = getPlatform()
+	executionType, err = getExecType()
+	return
+}
+
+func isIPPresent(deviceID string, privateIP string) (isPresent bool, err error) {
+	networkInfo, err := netQuery.Get(deviceID)
+	if err != nil {
+		log.Println(logPrefix, "Error in getting network info of", deviceID)
+		return
+	}
+	ipList := networkInfo.IPv4
+	for _, ip := range ipList {
+		if ip == privateIP {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
+func (d *DiscoveryImpl) requestDeviceInfo(deviceID string, address string) {
+	if d.Clienter == nil {
+		log.Println(logPrefix, "Client is nil, returning")
+		return
+	}
+	limit := 1
+	for {
+		platform, executionType, serviceList, err := d.Clienter.DoGetOrchestrationInfo(address)
+		if err != nil {
+			if limit == 5 {
+				log.Println(logPrefix, "Limit reached", "error getting device info", err.Error())
+				break
+			}
+			log.Println(logPrefix, "error getting device info", err.Error())
+			limit = limit + 1
+			time.Sleep(1 * time.Second)
+			continue
+		}
+		//save the info in db
+		log.Println(logPrefix, "Got The Info")
+		log.Println(logPrefix, deviceID, platform, executionType, serviceList)
+		var ip []string
+		ip = append(ip, address)
+		data := wrapper.Entity{
+			DeviceID: deviceID,
+			TTL:      1,
+			OrchestrationInfo: wrapper.OrchestrationInformation{
+				IPv4:          ip,
+				Platform:      platform,
+				ExecutionType: executionType,
+				ServiceList:   serviceList,
+			},
+		}
+		_, confInfo, netInfo, serviceInfo := convertToDBInfo(data)
+
+		log.Println(logPrefix, "netInfoIP:", netInfo.IPv4)
+		log.Println(logPrefix, "netInfoID:", netInfo.ID)
+		log.Println(logPrefix, "confInfoID:", confInfo.ID)
+		log.Println(logPrefix, "confInfoExec:", confInfo.ExecType)
+		log.Println(logPrefix, "confInfoPlatf:", confInfo.Platform)
+		log.Println(logPrefix, "serviceInfoID:", serviceInfo.ID)
+		log.Println(logPrefix, "serviceInfoServices:", serviceInfo.Services)
+
+		if len(netInfo.IPv4) != 0 {
+			setNetworkDB(netInfo)
+		}
+		// @Note Is it need to call Update API?
+		setConfigurationDB(confInfo)
+		setServiceDB(serviceInfo)
+		break
+	}
 }
 
 func detectNetworkChgRoutine() {
@@ -285,6 +401,19 @@ func getExecType() (execType string, err error) {
 	return
 }
 
+func getServiceList() (serviceList []string, err error) {
+	id, err := getDeviceID()
+	if err != nil {
+		return
+	}
+	serviceInfo, err := serviceQuery.Get(id)
+	if err != nil {
+		return
+	}
+	serviceList = serviceInfo.Services
+	return
+}
+
 func startServer(deviceUUID string, platform string, executionType string) {
 	deviceDetectionRoutine()
 
@@ -316,6 +445,68 @@ func startServer(deviceUUID string, platform string, executionType string) {
 	setServiceDB(serviceInfo)
 
 	return
+}
+
+//NotifyMNEDCBroadcastServer registers to MNEDC
+func (d *DiscoveryImpl) NotifyMNEDCBroadcastServer() error {
+	log.Println(logPrefix, "Registering to Broadcast server")
+	isMNEDCConnected = true
+	virtualIP, err := networkIns.GetVirtualIP()
+	if err != nil {
+		log.Println(logPrefix, "Cant register to Broadcast server, virtual IP error", err.Error())
+		return err
+	}
+
+	privateIP, err := networkIns.GetOutboundIP()
+	if err != nil {
+		log.Println(logPrefix, "Cant register to Broadcast server, outbound IP error", err.Error())
+		return err
+	}
+
+	deviceID, err := getDeviceID()
+	if err != nil {
+		log.Println(logPrefix, "Error getting device ID while registering to Broadcast server", err.Error())
+		return err
+	}
+
+	file, err := os.Open(configPath)
+
+	if err != nil {
+		log.Println(logPrefix, "cant read config file from", configPath, err.Error(), "trying config alternate")
+
+		file, err = os.Open(configAlternate)
+		if err != nil {
+			log.Println(logPrefix, "cant register to server", "failed for config alternate too", err.Error())
+			return err
+		}
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	scanner.Split(bufio.ScanLines)
+
+	scanner.Scan()
+	serverIP := scanner.Text()
+
+	go func() {
+
+		if d.Clienter == nil {
+			log.Println(logPrefix, "Client is nil, returning")
+			err = errors.InvalidParam{Message: "Client Nil"}
+		}
+		err = d.Clienter.DoNotifyMNEDCBroadcastServer(serverIP, mnedcBroadcastServerPort, deviceID, privateIP, virtualIP)
+		if err != nil {
+			log.Println(logPrefix, "Cannot register to Broadcast server", err.Error())
+		}
+	}()
+
+	time.Sleep(5 * time.Second)
+	if err != nil {
+		return err
+	}
+
+	return nil
+
 }
 
 func setDeviceArgument(deviceUUID string, platform string, executionType string) (deviceID string, hostName string, Text []string) {
@@ -454,7 +645,7 @@ func getIndexToDelete(serverTXT []string, serviceName string) (idxToDel int, err
 	return
 }
 
-func setNewServiceList(serverTXT []string) {
+func (d *DiscoveryImpl) setNewServiceList(serverTXT []string) {
 	// if len(serverTXT) > 2 {
 	newServiceList := serverTXT[2:]
 
@@ -468,6 +659,30 @@ func setNewServiceList(serverTXT []string) {
 	setServiceDB(serviceInfo)
 
 	wrapperIns.SetText(serverTXT)
+
+	//Again Register to Broadcast server to let other devices know the updated service list
+
+	if isMNEDCConnected {
+		err = d.NotifyMNEDCBroadcastServer()
+		if err != nil {
+			log.Println(logPrefix, "Service updation failed through Broadcast server")
+		}
+	}
+}
+
+//MNEDCClosedCallback handles discovery behaviour when MNEDC connection is closed
+func (d *DiscoveryImpl) MNEDCClosedCallback() {
+	isMNEDCConnected = false
+	//delete devices with virtual IPs
+}
+
+//MNEDCReconciledCallback handles discovery behaviour when MNEDC connection is closed
+func (d *DiscoveryImpl) MNEDCReconciledCallback() {
+	isMNEDCConnected = true
+	err := d.NotifyMNEDCBroadcastServer()
+	if err != nil {
+		log.Println(logPrefix, "Could not reconect to Broadcast server")
+	}
 }
 
 // ClearMap makes map empty and only leaves my device info
