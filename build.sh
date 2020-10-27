@@ -574,7 +574,7 @@ case "$1" in
         echo "  $0 container secure [Arch] : build Docker container  with secure option Arch:{x86, x86_64, arm, arm64}"
         echo "  $0 object [Arch]           : build object (c-object, java-object), Arch:{x86, x86_64, arm, arm64} (default:all)"
         echo "  $0 object secure [Arch]    : build object (c-object, java-object) with secure option, Arch:{x86, x86_64, arm, arm64} (default:all)"
-	    echo "  $0 mnedcserver             : build edge-orchestration by default container with MNEDC server running option"
+	echo "  $0 mnedcserver             : build edge-orchestration by default container with MNEDC server running option"
         echo "  $0 mnedcserver secure      : build edge-orchestration by default container with MNEDC server running option in secure mode"
         echo "  $0 mnedcclient             : build edge-orchestration by default container with MNEDC client running option"
         echo "  $0 mnedcclient secure      : build edge-orchestration by default container with MNEDC client running option in secure mode"
