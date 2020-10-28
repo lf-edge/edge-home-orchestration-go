@@ -1,4 +1,9 @@
 #!/bin/bash
+DS_CONFIG=/var/edge-orchestration/datastorage/configuration.toml
+if [ -f "$DS_CONFIG" ]; then
+    cp -rf /var/edge-orchestration/datastorage/* /edge-orchestration/res/
+fi
+
 /edge-orchestration/edge-orchestration &
 
 edge_pid=$!

@@ -34,6 +34,7 @@ import (
 	"controller/securemgr/verifier"
 	"controller/servicemgr"
 	executor "controller/servicemgr/executor/containerexecutor"
+	"controller/storagemgr/storagedriver"
 
 	"orchestrationapi"
 
@@ -45,6 +46,9 @@ import (
 	"restinterface/route"
 
 	"db/bolt/wrapper"
+
+	"github.com/edgexfoundry/device-sdk-go"
+	"github.com/edgexfoundry/device-sdk-go/pkg/startup"
 )
 
 const logPrefix = "interface"
@@ -53,6 +57,8 @@ const logPrefix = "interface"
 const (
 	platform      = "docker"
 	executionType = "container"
+
+	dataStorageService = "datastorage"
 
 	edgeDir = "/var/edge-orchestration"
 
@@ -65,6 +71,7 @@ const (
 
 	cipherKeyFilePath = edgeDir + "/user/orchestration_userID.txt"
 	deviceIDFilePath  = edgeDir + "/device/orchestration_deviceID.txt"
+
 	mnedcServerConfig = edgeDir + "/mnedc/client.config"
 )
 
@@ -162,6 +169,9 @@ func orchestrationInit() error {
 	restEdgeRouter.Add(ehandle)
 
 	restEdgeRouter.Start()
+
+	sd := storagedriver.StorageDriver{}
+	startup.Bootstrap(dataStorageService, device.Version, &sd)
 
 	log.Println(logPrefix, "orchestration init done")
 
