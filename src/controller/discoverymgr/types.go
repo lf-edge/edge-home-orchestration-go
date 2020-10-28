@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2019 Samsung Electronics All Rights Reserved.
+ * Copyright 2020 Samsung Electronics All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,12 @@ import (
 	"sync"
 )
 
-const logPrefix = "[discoverymgr]"
+const (
+	logPrefix       = "[discoverymgr]"
+	edgeDirect      = "/var/edge-orchestration/"
+	configPath      = edgeDirect + "mnedc/client.config"
+	configAlternate = "/storage/emulated/0/client.config"
+)
 
 // OrchestrationInformation is the struct to handle orchestration
 type OrchestrationInformation struct {
@@ -43,10 +48,17 @@ type OrchestrationInformation struct {
 // ExportDeviceMap gives device info map for discoverymgr user
 type ExportDeviceMap map[string]OrchestrationInformation
 
+type requestData struct {
+	DeviceID  string
+	PrivateIP string
+	VirtualIP string
+}
+
 var (
-	mapMTX       sync.Mutex
-	wrapperIns   wrapper.ZeroconfInterface
-	shutdownChan chan struct{}
+	mapMTX           sync.Mutex
+	wrapperIns       wrapper.ZeroconfInterface
+	shutdownChan     chan struct{}
+	isMNEDCConnected bool
 
 	sysQuery     systemdb.DBInterface
 	confQuery    configurationdb.DBInterface

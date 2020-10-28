@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2019 Samsung Electronics All Rights Reserved.
+ * Copyright 2020 Samsung Electronics All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -87,6 +87,20 @@ func init() {
 			Pattern:     "/api/v1/scoringmgr/resource",
 			HandlerFunc: handler.APIV1ScoringmgrResourceGet,
 		},
+		restinterface.Route{
+			Name:        "APIV1DiscoverymgrMNEDCDeviceInfoPost",
+			Method:      strings.ToUpper("Post"),
+			Pattern:     "/api/v1/discoverymgr/register",
+			HandlerFunc: handler.APIV1DiscoverymgrMNEDCDeviceInfoPost,
+		},
+
+		restinterface.Route{
+			Name:        "APIV1DiscoverymgrOrchestrationInfoGet",
+			Method:      strings.ToUpper("Get"),
+			Pattern:     "/api/v1/discoverymgr/orchestrationinfo",
+			HandlerFunc: handler.APIV1DiscoverymgrOrchestrationInfoGet,
+		},
+
 	}
 }
 
@@ -292,6 +306,77 @@ func (h *Handler) APIV1ScoringmgrResourceGet(w http.ResponseWriter, r *http.Requ
 	}
 
 	respEncryptBytes, err := h.Key.EncryptJSONToByte(resourceValue)
+	if err != nil {
+		log.Printf("[%s] can not encryption %s", logPrefix, err.Error())
+		h.helper.Response(w, http.StatusServiceUnavailable)
+		return
+	}
+
+	h.helper.ResponseJSON(w, respEncryptBytes, http.StatusOK)
+}
+
+//APIV1DiscoverymgrMNEDCDeviceInfoPost handles device info from MNEDC server
+func (h *Handler) APIV1DiscoverymgrMNEDCDeviceInfoPost(w http.ResponseWriter, r *http.Request) {
+	log.Printf("[%s] APIV1DiscoveryFromMNEDCServer", logPrefix)
+	if h.isSetAPI == false {
+		log.Printf("[%s] does not set api", logPrefix)
+		h.helper.Response(w, http.StatusServiceUnavailable)
+		return
+	} else if h.IsSetKey == false {
+		log.Printf("[%s] does not set key", logPrefix)
+		h.helper.Response(w, http.StatusServiceUnavailable)
+		return
+	}
+
+	encryptBytes, _ := ioutil.ReadAll(r.Body)
+	Info, err := h.Key.DecryptByteToJSON(encryptBytes)
+
+	if err != nil {
+		log.Printf("[%s] can not decryption %s", logPrefix, err.Error())
+		h.helper.Response(w, http.StatusServiceUnavailable)
+		return
+	}
+
+	log.Println(logPrefix, "Info from MNEDC server received")
+	log.Println(logPrefix, "Device ID:", Info["DeviceID"].(string))
+	log.Println(logPrefix, "Private Add:", Info["PrivateAddr"].(string))
+	log.Println(logPrefix, "Virtual Add:", Info["VirtualAddr"].(string))
+
+	devID := Info["DeviceID"].(string)
+	privateIP := Info["PrivateAddr"].(string)
+	virtualIP := Info["VirtualAddr"].(string)
+
+	h.api.HandleDeviceInfo(devID, virtualIP, privateIP)
+	handler.helper.Response(w, http.StatusOK)
+}
+
+//APIV1DiscoverymgrOrchestrationInfoGet handles device info requests from peers
+func (h *Handler) APIV1DiscoverymgrOrchestrationInfoGet(w http.ResponseWriter, r *http.Request) {
+	log.Printf("[%s] APIV1DiscoverymgrOrchestrationInfoGet", logPrefix)
+	if h.isSetAPI == false {
+		log.Printf("[%s] does not set api", logPrefix)
+		h.helper.Response(w, http.StatusServiceUnavailable)
+		return
+	} else if h.IsSetKey == false {
+		log.Printf("[%s] does not set key", logPrefix)
+		h.helper.Response(w, http.StatusServiceUnavailable)
+		return
+	}
+
+	platform, execution, serviceList, err := h.api.GetOrchestrationInfo()
+
+	if err != nil {
+		log.Printf("[%s] can not encryption %s", logPrefix, err.Error())
+		h.helper.Response(w, http.StatusServiceUnavailable)
+		return
+	}
+
+	respJSONMsg := make(map[string]interface{})
+	respJSONMsg["Platform"] = platform
+	respJSONMsg["ExecutionType"] = execution
+	respJSONMsg["ServiceList"] = serviceList
+
+	respEncryptBytes, err := h.Key.EncryptJSONToByte(respJSONMsg)
 	if err != nil {
 		log.Printf("[%s] can not encryption %s", logPrefix, err.Error())
 		h.helper.Response(w, http.StatusServiceUnavailable)

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2019 Samsung Electronics All Rights Reserved.
+ * Copyright 2020 Samsung Electronics All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -81,6 +81,7 @@ func TestRequestService(t *testing.T) {
 
 		gomock.InOrder(
 			mockService.EXPECT().SetLocalServiceExecutor(mockExecutor),
+			mockDiscovery.EXPECT().SetRestResource(),
 			mockDBHelper.EXPECT().GetDeviceInfoWithService(gomock.Eq(appName), gomock.Any()).Return(candidateInfos, nil),
 			mockSystemDBExecutor.EXPECT().Get("id").Return(sysInfo, nil),
 			mockNetwork.EXPECT().GetIPs().Return([]string{""}, nil),
@@ -109,6 +110,7 @@ func TestRequestService(t *testing.T) {
 	t.Run("Error", func(t *testing.T) {
 		t.Run("NotReady", func(t *testing.T) {
 			mockService.EXPECT().SetLocalServiceExecutor(mockExecutor)
+			mockDiscovery.EXPECT().SetRestResource()
 			o := getOcheIns(ctrl)
 			if o == nil {
 				t.Error("ochestration object is nil, expected is not nil")
@@ -123,6 +125,7 @@ func TestRequestService(t *testing.T) {
 		t.Run("DiscoveryFail", func(t *testing.T) {
 			gomock.InOrder(
 				mockService.EXPECT().SetLocalServiceExecutor(mockExecutor),
+				mockDiscovery.EXPECT().SetRestResource(),
 				mockDBHelper.EXPECT().GetDeviceInfoWithService(gomock.Eq(appName), gomock.Any()).Return(nil, errors.New("-3")),
 			)
 			o := getOcheIns(ctrl)
