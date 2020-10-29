@@ -171,7 +171,7 @@ func orchestrationInit() error {
 	restEdgeRouter.Start()
 
 	sd := storagedriver.StorageDriver{}
-	startup.Bootstrap(dataStorageService, device.Version, &sd)
+	go startup.Bootstrap(dataStorageService, device.Version, &sd)
 
 	log.Println(logPrefix, "orchestration init done")
 
