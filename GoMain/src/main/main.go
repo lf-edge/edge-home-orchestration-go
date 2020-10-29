@@ -22,6 +22,7 @@ import (
 	"errors"
 	"log"
 	"strings"
+	"os"
 
 	"common/logmgr"
 	"common/sigmgr"
@@ -69,10 +70,10 @@ const (
 	containerWhiteListPath = edgeDir + "/data/cwl"
 	passPhraseJWTPath      = edgeDir + "/data/jwt"
 
-	cipherKeyFilePath = edgeDir + "/user/orchestration_userID.txt"
-	deviceIDFilePath  = edgeDir + "/device/orchestration_deviceID.txt"
-
-	mnedcServerConfig = edgeDir + "/mnedc/client.config"
+	cipherKeyFilePath      = edgeDir + "/user/orchestration_userID.txt"
+	deviceIDFilePath       = edgeDir + "/device/orchestration_deviceID.txt"
+	dataStorageFilePath    = edgeDir + "/datastorage/configuration.toml"
+	mnedcServerConfig      = edgeDir + "/mnedc/client.config"
 )
 
 var (
@@ -170,8 +171,10 @@ func orchestrationInit() error {
 
 	restEdgeRouter.Start()
 
-	sd := storagedriver.StorageDriver{}
-	startup.Bootstrap(dataStorageService, device.Version, &sd)
+	if _, err := os.Stat(dataStorageFilePath); err==nil {
+		sd := storagedriver.StorageDriver{}
+		startup.Bootstrap(dataStorageService, device.Version, &sd)
+	}
 
 	log.Println(logPrefix, "orchestration init done")
 
