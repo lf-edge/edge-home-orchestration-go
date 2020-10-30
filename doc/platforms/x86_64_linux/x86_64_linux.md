@@ -9,7 +9,7 @@ This section provides how to download and run pre-built Docker image without bui
   - [How to install](https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/)
 
 #### 2. Download Docker image
-Please download [edge-orchestration docker container](https://github.com/lf-edge/edge-home-orchestration-go/releases/download/Coconut/edge-orchestration.tar)
+Please download [edge-orchestration docker container](https://github.com/lf-edge/edge-home-orchestration-go/releases/download/coconut/edge-orchestration.tar)
 
 #### 3. Load Docker image from tar file
 ```shell
