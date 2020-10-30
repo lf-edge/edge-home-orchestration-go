@@ -18,6 +18,8 @@ All the devices (TVs, fridges, washing machines, etc.) connected into *Home Edge
 > A description of all terms and abbreviations (*italic*) used in the Edge Orchestratiopn project can be found in the [Home Edge Glossary](doc/home_edge_glossary.md)
 
 ---
+## Roadmap and Release Notes
+You can see our project roadmap and details about release notes since our project launch in 2019 from [our official Wiki](https://wiki.lfedge.org/display/HOME/Roadmap+and+Release+Notes).
 
 ## Platforms supported
 
@@ -53,7 +55,7 @@ Please select the target platform in the table below and follow the link.
 
 | Platform              | Maintained |
 |-----------------------|------------|
-| [x86_64 Linux]        | baobab     |
+| [x86_64 Linux]        | coconut    |
 | [Raspberry Pi3]       | baobab     |
 | [HiKey960]            | baobab     |
 

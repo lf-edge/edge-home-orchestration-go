@@ -55,7 +55,7 @@ type Discovery interface {
 	MNEDCClosedCallback()
 	NotifyMNEDCBroadcastServer() error
 	MNEDCReconciledCallback()
-
+	GetDeviceID() (id string, err error)
 	client.Setter
 	cipher.Setter
 }
@@ -64,6 +64,15 @@ type Discovery interface {
 type DiscoveryImpl struct {
 	client.HasClient
 	cipher.HasCipher
+}
+
+func (d *DiscoveryImpl) GetDeviceID() (id string, err error) {
+	id, err = getSystemDB(systemdb.ID)
+	if err != nil {
+		log.Println(err.Error())
+	}
+
+	return
 }
 
 var (
@@ -136,9 +145,9 @@ func (DiscoveryImpl) DeleteDeviceWithIP(targetIP string) {
 }
 
 // DeleteDeviceWithID delete device using deviceID
-func (DiscoveryImpl) DeleteDeviceWithID(ID string) {
+func (d DiscoveryImpl) DeleteDeviceWithID(ID string) {
 	// @Note Delete device with id in DB
-	deviceID, err := getDeviceID()
+	deviceID, err := d.GetDeviceID()
 	if err != nil {
 		log.Println(err.Error())
 		return
@@ -208,7 +217,7 @@ func (d *DiscoveryImpl) ResetServiceName() {
 		return
 	}
 
-	deviceID, err := getDeviceID()
+	deviceID, err := d.GetDeviceID()
 	if err != nil {
 		return
 	}
@@ -330,7 +339,7 @@ func detectNetworkChgRoutine() {
 		case <-shutdownChan:
 			return
 		case latestIPs := <-ips:
-			id, err := getDeviceID()
+			id, err := discoveryIns.GetDeviceID()
 			if err != nil {
 				continue
 			}
@@ -374,14 +383,6 @@ func setDeviceID(UUIDPath string) (UUIDstr string, err error) {
 	return UUIDstr, err
 }
 
-func getDeviceID() (id string, err error) {
-	id, err = getSystemDB(systemdb.ID)
-	if err != nil {
-		log.Println(err.Error())
-	}
-
-	return
-}
 
 func getPlatform() (platform string, err error) {
 	platform, err = getSystemDB(systemdb.Platform)
@@ -402,7 +403,7 @@ func getExecType() (execType string, err error) {
 }
 
 func getServiceList() (serviceList []string, err error) {
-	id, err := getDeviceID()
+	id, err := discoveryIns.GetDeviceID()
 	if err != nil {
 		return
 	}
@@ -422,7 +423,7 @@ func startServer(deviceUUID string, platform string, executionType string) {
 	// @Note store system information(id, platform and execution type) to system db
 	setSystemDB(deviceID, platform, executionType)
 
-	hostIPAddr, netIface := setNetwotkArgument()
+	hostIPAddr, netIface := SetNetwotkArgument()
 	var myDeviceEntity wrapper.Entity
 
 	for {
@@ -463,7 +464,7 @@ func (d *DiscoveryImpl) NotifyMNEDCBroadcastServer() error {
 		return err
 	}
 
-	deviceID, err := getDeviceID()
+	deviceID, err := d.GetDeviceID()
 	if err != nil {
 		log.Println(logPrefix, "Error getting device ID while registering to Broadcast server", err.Error())
 		return err
@@ -518,7 +519,7 @@ func setDeviceArgument(deviceUUID string, platform string, executionType string)
 	return
 }
 
-func setNetwotkArgument() (hostIPAddr []string, netIface []net.Interface) {
+func SetNetwotkArgument() (hostIPAddr []string, netIface []net.Interface) {
 	for {
 		hostIPAddr, _ = networkIns.GetIPs()
 		if len(hostIPAddr) != 0 {
@@ -580,7 +581,7 @@ func deviceDetectionRoutine() {
 }
 
 func serverPresenceChecker() error {
-	_, err := getDeviceID()
+	_, err := discoveryIns.GetDeviceID()
 	if err != nil {
 		return errors.SystemError{Message: "no server initiated yet"}
 	}
@@ -649,7 +650,7 @@ func (d *DiscoveryImpl) setNewServiceList(serverTXT []string) {
 	// if len(serverTXT) > 2 {
 	newServiceList := serverTXT[2:]
 
-	deviceID, err := getDeviceID()
+	deviceID, err := discoveryIns.GetDeviceID()
 	if err != nil {
 		return
 	}
@@ -695,7 +696,7 @@ func clearMap() {
 		return
 	}
 
-	deviceID, err := getDeviceID()
+	deviceID, err := discoveryIns.GetDeviceID()
 	if err != nil {
 		return
 	}
