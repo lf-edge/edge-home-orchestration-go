@@ -19,7 +19,7 @@ package mnedcmgr
 
 const (
 	logPrefix            = "[mnedcmgr]"
-	mnedcServerPort      = 8000
+	mnedcServerPort      = 3334
 	broadcastServerPort  = 3333
 	mnedcServerVirtualIP = "10.0.0.1"
 	internalPort         = 56002
