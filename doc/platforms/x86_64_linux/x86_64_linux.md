@@ -9,7 +9,7 @@ This section provides how to download and run pre-built Docker image without bui
   - [How to install](https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/)
 
 #### 2. Download Docker image
-Please download [edge-orchestration docker container](https://github.com/lf-edge/edge-home-orchestration-go/releases/download/Baobab_rc1/edge-orchestration.tar)
+Please download [edge-orchestration docker container](https://github.com/lf-edge/edge-home-orchestration-go/releases/download/Coconut/edge-orchestration.tar)
 
 #### 3. Load Docker image from tar file
 ```shell
@@ -19,7 +19,7 @@ If it succeeds, you can see the Docker image as follows:
 ```shell
 $ docker images
 REPOSITORY                 TAG                 IMAGE ID            CREATED             SIZE
-edge-orchestration         baobab              502e3c07b01f        3 minutes ago       132MB
+edge-orchestration         coconut              502e3c07b01f        3 minutes ago       132MB
 ```
 
 #### 4. Run with Docker image
@@ -38,7 +38,7 @@ Please see the below [How to work](#how-to-work) to know how to run Edge Orchest
 `$ sudo usermod -aG docker $USER`
 
 - go compiler
-    - Version: 1.10 (or above)
+    - Version: 1.15 (or above)
     - [How to install](https://golang.org/dl/)
 
 > To build Edge Orchestrator from Go sources, you need to set GOPATH environment variable:  
@@ -80,7 +80,7 @@ and the built image as follows:
 ```shell
 $ docker images
 REPOSITORY                 TAG                 IMAGE ID            CREATED             SIZE
-edge-orchestration         baobab              502e3c07b01f        3 seconds ago       132MB
+edge-orchestration         coconut              502e3c07b01f        3 seconds ago       132MB
 ```
 
 - All Build Options
@@ -141,7 +141,7 @@ Note that you can visit [Swagger Editor](https://editor.swagger.io/) to graphica
 #### 1. Run Edge Orchestration container
 
 ```shell
-$ docker run -it -d --privileged --network="host" --name edge-orchestration -v /var/edge-orchestration/:/var/edge-orchestration/:rw -v /var/run/docker.sock:/var/run/docker.sock:rw -v /proc/:/process/:ro edge-orchestration:baobab
+$ docker run -it -d --privileged --network="host" --name edge-orchestration -v /var/edge-orchestration/:/var/edge-orchestration/:rw -v /var/run/docker.sock:/var/run/docker.sock:rw -v /proc/:/process/:ro edge-orchestration:coconut
 ```
 - Result
 
