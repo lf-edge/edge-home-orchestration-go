@@ -33,6 +33,12 @@ ignore:
   - controller/servicemgr/executor/containerexecutor
   - controller/servicemgr/executor/nativeexecutor
   - controller/servicemgr/notification
+  - controller/mnedcmgr
+  - controller/mnedcmgr/client
+  - controller/mnedcmgr/connectionutil
+  - controller/mnedcmgr/server
+  - controller/mnedcmgr/tunmgr
+  - controller/storagemgr/storagedriver
   - db/helper
   - db/bolt/common
   - db/bolt/configuration
@@ -58,6 +64,10 @@ ignore:
   # https://github.com/Masterminds/glide/issues/1055
   - crypto/ed25519
 import:
+  - package: github.com/gomodule/redigo/redis
+    version: v1.7.0
+  - package: github.com/songgao/water
+    version: fd331bda3f4bbc9aad07ccd4bd2abaa1e363a852
   - package: docker.io/go-docker
     version: v1.0.0
     subpackages:
@@ -120,4 +130,12 @@ import:
     version: v1.48.0
   - package: github.com/raff/tls-ext
   - package: github.com/raff/tls-psk
+  - package: github.com/edgexfoundry/device-sdk-go
+    version: v1.1.2
+  - package: github.com/edgexfoundry/go-mod-core-contracts
+    version: v0.1.36
+  - package: github.com/spf13/cast
+    version: v1.3.0
+  - package: github.com/edgexfoundry/go-mod-registry
+    version: v0.1.0
 

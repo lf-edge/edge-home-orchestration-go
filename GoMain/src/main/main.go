@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2019 Samsung Electronics All Rights Reserved.
+ * Copyright 2020 Samsung Electronics All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,17 +21,21 @@ package main
 import (
 	"errors"
 	"log"
+	"strings"
+	"os"
 
 	"common/logmgr"
 	"common/sigmgr"
 
 	configuremgr "controller/configuremgr/container"
 	"controller/discoverymgr"
+	"controller/mnedcmgr"
 	"controller/scoringmgr"
 	"controller/securemgr/authenticator"
 	"controller/securemgr/verifier"
 	"controller/servicemgr"
 	executor "controller/servicemgr/executor/containerexecutor"
+	"controller/storagemgr/storagedriver"
 
 	"orchestrationapi"
 
@@ -43,6 +47,9 @@ import (
 	"restinterface/route"
 
 	"db/bolt/wrapper"
+
+	"github.com/edgexfoundry/device-sdk-go"
+	"github.com/edgexfoundry/device-sdk-go/pkg/startup"
 )
 
 const logPrefix = "interface"
@@ -51,6 +58,8 @@ const logPrefix = "interface"
 const (
 	platform      = "docker"
 	executionType = "container"
+
+	dataStorageService = "datastorage"
 
 	edgeDir = "/var/edge-orchestration"
 
@@ -61,8 +70,10 @@ const (
 	containerWhiteListPath = edgeDir + "/data/cwl"
 	passPhraseJWTPath      = edgeDir + "/data/jwt"
 
-	cipherKeyFilePath = edgeDir + "/user/orchestration_userID.txt"
-	deviceIDFilePath  = edgeDir + "/device/orchestration_deviceID.txt"
+	cipherKeyFilePath      = edgeDir + "/user/orchestration_userID.txt"
+	deviceIDFilePath       = edgeDir + "/device/orchestration_deviceID.txt"
+	dataStorageFilePath    = edgeDir + "/datastorage/configuration.toml"
+	mnedcServerConfig      = edgeDir + "/mnedc/client.config"
 )
 
 var (
@@ -88,7 +99,7 @@ func orchestrationInit() error {
 	wrapper.SetBoltDBPath(dbPath)
 
 	isSecured := false
-	if buildTags == "secure" {
+	if strings.Contains(buildTags, "secure") {
 		log.Println("Orchestration init with secure option")
 		isSecured = true
 	}
@@ -107,6 +118,7 @@ func orchestrationInit() error {
 	}
 
 	servicemgr.GetInstance().SetClient(restIns)
+	discoverymgr.GetInstance().SetClient(restIns)
 
 	builder := orchestrationapi.OrchestrationBuilder{}
 	builder.SetWatcher(configuremgr.GetInstance(configPath))
@@ -159,7 +171,27 @@ func orchestrationInit() error {
 
 	restEdgeRouter.Start()
 
+	if _, err := os.Stat(dataStorageFilePath); err==nil {
+		sd := storagedriver.StorageDriver{}
+		go startup.Bootstrap(dataStorageService, device.Version, &sd)
+	}
+
 	log.Println(logPrefix, "orchestration init done")
+
+	if strings.Contains(buildTags, "mnedcserver") {
+		if isSecured {
+			mnedcmgr.GetServerInstance().SetCipher(dummy.GetCipher(cipherKeyFilePath))
+			mnedcmgr.GetServerInstance().SetCertificateFilePath(certificateFilePath)
+		} else {
+			mnedcmgr.GetServerInstance().SetCipher(sha256.GetCipher(cipherKeyFilePath))
+		}
+		go mnedcmgr.GetServerInstance().StartMNEDCServer(deviceIDFilePath)
+	} else if strings.Contains(buildTags, "mnedcclient") {
+		if isSecured {
+			mnedcmgr.GetClientInstance().SetCertificateFilePath(certificateFilePath)
+		}
+		go mnedcmgr.GetClientInstance().StartMNEDCClient(deviceIDFilePath, mnedcServerConfig)
+	}
 
 	return nil
 }

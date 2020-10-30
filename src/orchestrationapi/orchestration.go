@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2019 Samsung Electronics All Rights Reserved.
+ * Copyright 2020 Samsung Electronics All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,6 +57,8 @@ type OrcheInternalAPI interface {
 	ExecuteAppOnLocal(appInfo map[string]interface{})
 	HandleNotificationOnLocal(serviceID float64, status string) error
 	GetScore(target string) (scoreValue float64, err error)
+	GetOrchestrationInfo() (platfrom string, executionType string, serviceList []string, err error)
+	HandleDeviceInfo(deviceID string, virtualAddr string, privateAddr string)
 	GetScoreWithResource(target map[string]interface{}) (scoreValue float64, err error)
 	GetResource(target string) (resourceMsg map[string]interface{}, err error)
 }
@@ -177,6 +179,8 @@ func (o OrchestrationBuilder) Build() Orche {
 	orcheIns.notificationIns = notification.GetInstance()
 	orcheIns.serviceIns.SetLocalServiceExecutor(o.executorIns)
 
+	orcheIns.discoverIns.SetRestResource()
+
 	return orcheIns
 }
 
@@ -232,4 +236,14 @@ func (o orcheImpl) GetResource(devID string) (resourceMsg map[string]interface{}
 // RequestVerifierConf setting up configuration of white list containers
 func (o orcheImpl) RequestVerifierConf(containerInfo verifier.RequestVerifierConf) verifier.ResponseVerifierConf {
 	return o.verifierIns.RequestVerifierConf(containerInfo)
+}
+
+//GetOrchestrationInfo gets orchestration info of the device
+func (o orcheImpl) GetOrchestrationInfo() (platform string, executionType string, serviceList []string, err error) {
+	return o.discoverIns.GetOrchestrationInfo()
+}
+
+//HandleDeviceInfo gets the peer's public and private Ip from relay server
+func (o orcheImpl) HandleDeviceInfo(deviceID string, virtualAddr string, privateAddr string) {
+	o.discoverIns.AddDeviceInfo(deviceID, virtualAddr, privateAddr)
 }

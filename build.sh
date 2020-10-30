@@ -33,6 +33,12 @@ PKG_LIST=(
         "controller/servicemgr/executor/containerexecutor"
         "controller/servicemgr/executor/nativeexecutor"
         "controller/servicemgr/notification"
+        "controller/mnedcmgr"
+        "controller/mnedcmgr/client"
+        "controller/mnedcmgr/connectionutil"
+        "controller/mnedcmgr/server"
+        "controller/mnedcmgr/tunmgr"
+        "controller/storagemgr/storagedriver"
         "db/bolt/common"
         "db/bolt/configuration"
         "db/bolt/network"
@@ -65,6 +71,30 @@ function set_secure_option() {
     echo " Set tags for secure build"
     echo "-----------------------------------"
     export BUILD_TAGS="secure"
+}
+
+function set_mnedc_server_option() {
+    echo ""
+    echo "-----------------------------------"
+    echo " Set tags for start mnedc server"
+    echo "-----------------------------------"
+    if [ "$1" == "secure" ]; then
+        export BUILD_TAGS="securemnedcserver"
+    else 
+        export BUILD_TAGS="mnedcserver"
+    fi
+}
+
+function set_mnedc_client_option() {
+    echo ""
+    echo "-----------------------------------"
+    echo " Set tags for start mnedc client"
+    echo "-----------------------------------"
+    if [ "$1" == "secure" ]; then
+        export BUILD_TAGS="securemnedcclient"
+    else 
+        export BUILD_TAGS="mnedcclient"
+    fi
 }
 
 function install_3rdparty_packages() {
@@ -179,8 +209,6 @@ function build_object() {
     echo "----------------------------------------"
     make build-object-c || exit 1
 }
-
-
 
 function build_test() {
     echo ""
@@ -411,6 +439,8 @@ function run_docker_container() {
     sudo mkdir -p /var/edge-orchestration/data/cert
     sudo mkdir -p /var/edge-orchestration/user
     sudo mkdir -p /var/edge-orchestration/device
+    sudo mkdir -p /var/edge-orchestration/mnedc
+    sudo mkdir -p /var/edge-orchestration/datastorage
 
     echo ""
     echo "**********************************"
@@ -459,11 +489,27 @@ case "$1" in
         fi
         ;;
     "object")
+        case "$2" in
+            "secure")
+                if [ "$3" == "mnedcserver" ]; then
+                    set_mnedc_server_option $2
+                elif [ "$3" == "mnedcclient" ]; then
+                    set_mnedc_client_option $2
+                elif [ "$3" == "" ]; then
+                    set_secure_option
+                fi
+                ;;
+            "mnedcserver")
+                set_mnedc_server_option $3
+                ;;
+            "mnedcclient")
+                set_mnedc_client_option $3
+                ;;
+        esac
         install_prerequisite
         install_3rdparty_packages
         build_clean
         if [ "$2" == "secure" ]; then
-            set_secure_option
             build_objects $3
         else
             build_objects $2
@@ -502,6 +548,22 @@ case "$1" in
         build_docker_container
         run_docker_container
         ;;
+    "mnedcserver")
+        set_mnedc_server_option $2
+        install_prerequisite
+        install_3rdparty_packages
+        build_binary
+        build_docker_container
+        run_docker_container
+        ;;
+    "mnedcclient")
+        set_mnedc_client_option $2
+        install_prerequisite
+        install_3rdparty_packages
+        build_binary
+        build_docker_container
+        run_docker_container
+        ;;
     *)
         echo "build script"
         echo "Usage:"
@@ -512,6 +574,10 @@ case "$1" in
         echo "  $0 container secure [Arch] : build Docker container  with secure option Arch:{x86, x86_64, arm, arm64}"
         echo "  $0 object [Arch]           : build object (c-object, java-object), Arch:{x86, x86_64, arm, arm64} (default:all)"
         echo "  $0 object secure [Arch]    : build object (c-object, java-object) with secure option, Arch:{x86, x86_64, arm, arm64} (default:all)"
+        echo "  $0 mnedcserver             : build edge-orchestration by default container with MNEDC server running option"
+        echo "  $0 mnedcserver secure      : build edge-orchestration by default container with MNEDC server running option in secure mode"
+        echo "  $0 mnedcclient             : build edge-orchestration by default container with MNEDC client running option"
+        echo "  $0 mnedcclient secure      : build edge-orchestration by default container with MNEDC client running option in secure mode"
         echo "  $0 clean                   : build clean"
         echo "  $0 test [PKG_NAME]         : run unittests (optional for PKG_NAME)"
         echo "-------------------------------------------------------------------------------------------------------------------------------------------"

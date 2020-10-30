@@ -1,6 +1,9 @@
 # Edge Orchestration
 
 [![Goreport](https://goreportcard.com/badge/github.com/lf-edge/edge-home-orchestration-go)](https://goreportcard.com/report/github.com/lf-edge/edge-home-orchestration-go)
+[![GitHub Action Workflow Badge: edge-home-orchestration-go](https://github.com/lf-edge/edge-home-orchestration-go/workflows/edge-home-orchestration-go/badge.svg)](https://github.com/lf-edge/edge-home-orchestration-go/actions)
+[![Total alerts](https://img.shields.io/lgtm/alerts/g/lf-edge/edge-home-orchestration-go.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/lf-edge/edge-home-orchestration-go/alerts/)
+[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/4336/badge)](https://bestpractices.coreinfrastructure.org/projects/4336)
 [![RepoSize](https://img.shields.io/github/repo-size/lf-edge/edge-home-orchestration-go.svg)](https://github.com/lf-edge/edge-home-orchestration-go)
 [![Release](https://img.shields.io/github/v/release/lf-edge/edge-home-orchestration-go.svg)](https://github.com/lf-edge/edge-home-orchestration-go/releases)
 [![LICENSE](https://img.shields.io/github/license/lf-edge/edge-home-orchestration-go.svg)](https://github.com/lf-edge/edge-home-orchestration-go/blob/master/LICENSE)
@@ -15,6 +18,8 @@ All the devices (TVs, fridges, washing machines, etc.) connected into *Home Edge
 > A description of all terms and abbreviations (*italic*) used in the Edge Orchestratiopn project can be found in the [Home Edge Glossary](doc/home_edge_glossary.md)
 
 ---
+## Roadmap and Release Notes
+You can see our project roadmap and details about release notes since our project launch in 2019 from [our official Wiki](https://wiki.lfedge.org/display/HOME/Roadmap+and+Release+Notes).
 
 ## Platforms supported
 

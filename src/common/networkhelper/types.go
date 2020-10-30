@@ -30,9 +30,10 @@ type networkInformation struct {
 }
 
 type addrInformation struct {
-	isWired bool
-	ipv4    net.IP
-	macAddr string
+	isWired   bool
+	ipv4      net.IP
+	macAddr   string
+	isVirtual bool
 }
 
 const logPrefix = "[networkmgr]"

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2019 Samsung Electronics All Rights Reserved.
+ * Copyright 2020 Samsung Electronics All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,12 @@ var (
 	getNetworkInformationFP func()
 )
 
-// Network gets the information of network interfaces of local device
+const (
+	virtualInterfaceName = "tun"
+	virtualNetworkString = "virtual"
+)
+
+// Network gets the informations of network interfaces of local device
 type Network interface {
 	StartNetwork()
 	CheckConnectivity() error
@@ -48,6 +53,7 @@ type Network interface {
 	GetMACAddress() (string, error)
 	GetNetInterface() ([]net.Interface, error)
 	AppendSubscriber() chan []net.IP
+	GetVirtualIP() (string, error)
 }
 
 func init() {
@@ -113,6 +119,25 @@ func (networkImpl) GetNetInterface() ([]net.Interface, error) {
 	return nil, netInfo.netError
 }
 
+//GetVirtualIP returns Virtual IP of the device
+func (networkImpl) GetVirtualIP() (string, error) {
+	log.Println(logPrefix, "Virtual IP asked")
+	if netInfo.netError == nil {
+		for _, addrInfo := range netInfo.addrInfos {
+			if addrInfo.isVirtual {
+				log.Println(logPrefix, "returning", addrInfo.ipv4.String())
+				return addrInfo.ipv4.String(), nil
+			}
+		}
+	} else {
+		return "", netInfo.netError
+	}
+	err := errors.NotFound{
+		Message: "Virtual Network Not Found",
+	}
+	return "", err
+}
+
 // AppendSubscriber appends subscriber
 func (networkImpl) AppendSubscriber() chan []net.IP {
 	ipChan := make(chan []net.IP, 1)
@@ -146,7 +171,7 @@ func setAddrInfo(ifaces []net.Interface) (err error) {
 	var addrInfos []addrInformation
 	for _, i := range ifaces {
 		path, _ := filepath.EvalSymlinks(netDirPathPrefix + i.Name)
-		if checkVirtualNet(path) && checkWiredNet(path) {
+		if checkVirtualNet(path) && checkWiredNet(path) && !strings.Contains(path, virtualInterfaceName) {
 			continue
 		}
 
@@ -163,6 +188,10 @@ func setAddrInfo(ifaces []net.Interface) (err error) {
 				addrInfo.ipv4 = ipnet.IP.To4()
 				addrInfo.macAddr = i.HardwareAddr.String()
 				addrInfo.isWired = checkWiredNet(netDirPathPrefix + i.Name)
+				addrInfo.isVirtual = checkTunNet(path)
+
+				log.Println(logPrefix, "addr", addr)
+				addrInfo.isWired = !addrInfo.isVirtual
 
 				addrInfos = append(addrInfos, addrInfo)
 				filterIfaces = append(filterIfaces, i)
@@ -200,7 +229,11 @@ func checkWiredNet(path string) bool {
 }
 
 func checkVirtualNet(path string) bool {
-	return strings.Contains(path, "virtual")
+	return strings.Contains(path, virtualNetworkString)
+}
+
+func checkTunNet(path string) bool {
+	return strings.Contains(path, virtualInterfaceName)
 }
 
 func (netInfo *networkInformation) Notify(ips []net.IP) {
@@ -220,6 +253,9 @@ func (netInfo *networkInformation) Notify(ips []net.IP) {
 func (netInfo *networkInformation) GetIP() (ipv4 net.IP) {
 	for _, addrInfo := range netInfo.addrInfos {
 		// @Note : ethernet network have a priority
+		if addrInfo.isVirtual {
+			continue
+		}
 		if addrInfo.isWired {
 			return addrInfo.ipv4
 		}

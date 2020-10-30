@@ -62,17 +62,20 @@ $ newgrp docker
 ```sh 
 $ sudo apt install golang
 ```
-- glide
+
+- glide ([package manager for Go](https://glide.readthedocs.io/en/latest/))  
 
 ```sh
 $ sudo apt install golang-glide
 ```
+> To add 3rd-party packages need to add them to the `glide.yaml` (format is described [here](https://glide.readthedocs.io/en/latest/glide.yaml/))
+
 - edge-orchestration source code
 
 ```sh
 $ git clone https://github.com/lf-edge/edge-home-orchestration-go.git
 
 ```
-The build is descibed [here](../x86_64_linux/x86_64_linux.md#how-to-build).
+The build is described [here](../x86_64_linux/x86_64_linux.md#how-to-build).
 
 The build is finished, how to run see [here](../x86_64_linux/x86_64_linux.md#how-to-work).
