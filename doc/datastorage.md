@@ -6,7 +6,7 @@
 4. [How to Setup](#4-how-to-setup)
 
 ## 1. Introduction
-This module to be developed would be responsible for storing the data (can be sensor data or any reading or image/video data, etc.) from different devices in the home environment. Any device registered to this module can also request for data to different device. The databases used to store the data is Redis DB. At regular intervals this data would also be synced up with the cloud to remove the data from the device and free the device space for new incoming data.
+This module to be developed would be responsible for storing the data (can be sensor data or any reading or image/video data, etc.) from different devices in the home environment. Any device registered to this module can also request for data to different device. The databases used to store the data is Redis DB/Mongo DB (as a choice from a user, with repect to its parent EdgeX recommendation). At regular intervals this data would also be synced up with the cloud to remove the data from the device and free the device space for new incoming data.
 
 ## 2. System Description
 **Centralized data storage architecture**: A centralized database is stored at a single location such as high computing power device in the home. It is maintained and modified from that location only and usually accessed using REST APIs by the devices connected by LAN/WAN. The centralized database collects the data can be used to train the model and also provide data to the different devices when needed.
@@ -27,23 +27,13 @@ The current development assumes the data storage module to have one single Data 
 The following architecture assumes that data stored at data controller would be uploaded to the cloud at some scheduled intervals to free up the space at the device level. Hence the Data Storage device will be dependent on the cloud connectivity at those intervals.
 
 ## 4. How to Setup
-### 4.1 Prerequisite
 1. Placement the `samples/datastorage/configuration.toml` file into `/var/edge-orchestration/datastorage/` in your **Home Edge** with Data Storage (**Device A**).
-2. Run the EdgeX Docker containers on your Linux machine (**Device B**) with respect to the guidance from [EdgeX Foundry Services](https://github.com/edgexfoundry/edgex-go/tree/fuji#get-started), as the _simplest way_ that you can follow using follows;
 
-```sh
-wget -O docker-compose.yml \
-https://raw.githubusercontent.com/edgexfoundry/developer-scripts/master/releases/fuji/compose-files/docker-compose-fuji.yml
-
-docker-compose up -d
-```
-
-### 4.2 Setting up the Data Storage
-1.Change the `samples/datastorage/configuration.toml` file description about the IPs of your **Device B**.
+>>> When placing the `configuration.toml` file, please change _Host_ attribute from 'localhost' to the IP configurations of your **Device B** _(the detail description of Device B is defined in the step 2 in this document)_.
 
 ```sh
 [Service]
-Host = "107.108.108.218"
+Host = 'localhost'
 Port = 49986
 ConnectRetries = 20
 Labels = []
@@ -53,7 +43,7 @@ EnableAsyncReadings = true
 AsyncBufferSize = 16
 
 [Registry]
-Host = "107.108.87.226"
+Host = 'localhost'
 Port = 8500
 Type = "consul"
 CheckInterval = "10s"
@@ -61,23 +51,31 @@ FailLimit = 3
 FailWaitTime = 10
 
 [Clients]
-[Clients.Data]
-Protocol = "http"
-Host = "107.108.87.226"
-Port = 48080
-Timeout = 5000
+  [Clients.Data]
+  Protocol = "http"
+  Host = "localhost"
+  Port = 48080
+  Timeout = 5000
 
-[Clients.Metadata]
-Protocol = "http"
-Host = "107.108.87.226"
-Port = 48081
-Timeout = 5000
+  [Clients.Metadata]
+  Protocol = "http"
+  Host = "localhost"
+  Port = 48081
+  Timeout = 5000
 
-[Clients.Logging]
-Protocol = "http"
-Host = "107.108.87.226"
+  [Clients.Logging]
+  Protocol = "http"
+  Host = "localhost"
+  Port = 48061
 ```
 
-2. Run `edge-home-orchestration-go` with DataStorage on **Device A**, using `./build.sh`.
-3. On **Device B**, run the EdgeX Service using `./edge-launch.sh` (Refer to the [link](https://github.com/edgexfoundry/edgex-go/tree/fuji#get-started))
-4. On **Device B**, run a Mongo server using `mongo --host <IP of Device B>`
+2. Run the EdgeX Docker containers on your Linux machine (**Device B**) with respect to the guidance from [EdgeX Foundry Services](https://github.com/edgexfoundry/edgex-go/tree/fuji#get-started), as the _simplest way_ that you can follow using follows;
+
+```sh
+wget -O docker-compose.yml \
+https://raw.githubusercontent.com/edgexfoundry/developer-scripts/master/releases/fuji/compose-files/docker-compose-fuji.yml
+
+docker-compose up -d
+```
+
+3. Run `edge-home-orchestration-go` with DataStorage on **Device A**, referring to "How to work" in [link](https://github.com/lf-edge/edge-home-orchestration-go/blob/DataStorage/doc/platforms/x86_64_linux/x86_64_linux.md).
