@@ -55,7 +55,7 @@ Please select the target platform in the table below and follow the link.
 
 | Platform              | Maintained |
 |-----------------------|------------|
-| [x86_64 Linux]        | baobab     |
+| [x86_64 Linux]        | coconut    |
 | [Raspberry Pi3]       | baobab     |
 | [HiKey960]            | baobab     |
 
