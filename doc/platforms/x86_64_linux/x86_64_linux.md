@@ -73,7 +73,7 @@ If it succeeds, you can see the container runs as follows:
 **********************************
 5d2efd81057fe56236602acfece0e8f11d447b54627f4f3669b18c85a95b8687
 CONTAINER ID        IMAGE                      COMMAND             CREATED                  STATUS                  PORTS               NAMES
-5d2efd81057f        edge-orchestration:baobab  "sh run.sh"         Less than a second ago   Up Less than a second                       edge-orchestration
+5d2efd81057f        edge-orchestration:coconut  "sh run.sh"         Less than a second ago   Up Less than a second                       edge-orchestration
 ```
 
 and the built image as follows:
