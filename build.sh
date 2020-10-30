@@ -62,7 +62,7 @@ PKG_LIST=(
         "restinterface/route"
 )
 
-export CONTAINER_VERSION="baobab"
+export CONTAINER_VERSION="coconut"
 export BUILD_DATE=$(date +%Y%m%d.%H%M)
 
 function set_secure_option() {
