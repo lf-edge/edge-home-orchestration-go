@@ -11,7 +11,7 @@ This module to be developed would be responsible for storing the data (can be se
 ## 2. System Description
 **Centralized data storage architecture**: A centralized database is stored at a single location such as high computing power device in the home. It is maintained and modified from that location only and usually accessed using REST APIs by the devices connected by LAN/WAN. The centralized database collects the data can be used to train the model and also provide data to the different devices when needed.
 
-![](doc/images/x86_64_linux/System description of Data Storage.png)
+![](doc/images/System-description-of-Data-Storage.png)
 
 The laptop acts as the centralized storage. All the devices are connected to each other using Wi-Fi. Camera sends the data to the database using the REST API. Similarly other devices also send their data to the central storage. Devices can also ask for data of other devices like camera ask for sensor data. For this the devices needs to call the API using the camera device id. At regular intervals the data stored are also synced with the cloud infrastructure and thereby deleted from the data controller.
 
