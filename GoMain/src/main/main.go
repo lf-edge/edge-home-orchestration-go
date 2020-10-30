@@ -173,7 +173,7 @@ func orchestrationInit() error {
 
 	if _, err := os.Stat(dataStorageFilePath); err==nil {
 		sd := storagedriver.StorageDriver{}
-		startup.Bootstrap(dataStorageService, device.Version, &sd)
+		go startup.Bootstrap(dataStorageService, device.Version, &sd)
 	}
 
 	log.Println(logPrefix, "orchestration init done")
