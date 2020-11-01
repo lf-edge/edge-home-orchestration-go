@@ -56,22 +56,22 @@ File = "./device-rest-go.log"
 
 # Pre-define Devices
 [[DeviceList]]
-Name = "Sample"
- Profile = "Sample"
+Name = "SampleA"
+ Profile = "datastorage"
   Description = "RESTful Device that sends in JSON data"
   Labels = [ "rest", "json" ]
   [DeviceList.Protocols]
     [DeviceList.Protocols.other]
 [[DeviceList]]
-Name = "Sample"
- Profile = "Sample"
+Name = "SampleB"
+ Profile = "datastorage"
   Description = "RESTful Device that sends in binary image data"
   Labels = [ "rest", "binary", "image" ]
   [DeviceList.Protocols]
     [DeviceList.Protocols.other]
 [[DeviceList]]
-Name = "Sample"
- Profile = "Sample"
+Name = "SampleC"
+ Profile = "datastorage"
   Description = "RESTful Device that sends in numeric data"
   Labels = [ "rest", "numeric", "float", "int" ]
   [DeviceList.Protocols]
