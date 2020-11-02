@@ -18,7 +18,6 @@
 package mnedcmgr
 
 import (
-	"io/ioutil"
 	"log"
 	"os"
 	"os/signal"
@@ -35,9 +34,11 @@ type ClientImpl struct {
 	tls.HasCertificate
 }
 
-var clientIns *ClientImpl
-var mnedcClientIns client.MNEDCClient
-var discoveryIns discoverymgr.Discovery
+var (
+	clientIns *ClientImpl
+	mnedcClientIns client.MNEDCClient
+	discoveryIns discoverymgr.Discovery
+)
 
 func init() {
 	clientIns = new(ClientImpl)
@@ -53,7 +54,7 @@ func GetClientInstance() *ClientImpl {
 //StartMNEDCClient starts the MNEDC client
 func (c *ClientImpl) StartMNEDCClient(deviceIDPath string, configPath string) {
 
-	deviceID, err := getDeviceID(deviceIDPath)
+	deviceID, err := discoveryIns.GetDeviceID()
 	if err != nil {
 		log.Println(logPrefix, "Couldn't start MNEDC client", err.Error())
 		return
@@ -107,19 +108,4 @@ func waitInterrupt(fatalErrChan chan error) {
 	case err := <-fatalErrChan:
 		log.Println(logPrefix, "Fatal internal error: ", err)
 	}
-}
-
-func getDeviceID(path string) (string, error) {
-
-	UUIDv4, err := ioutil.ReadFile(path)
-
-	if err != nil {
-		log.Println(logPrefix, "No saved UUID : ", err.Error())
-		return "", err
-	}
-
-	log.Println(logPrefix, "Got the UUID")
-	UUIDstr := "edge-orchestration-" + string(UUIDv4)
-
-	return UUIDstr, nil
 }
