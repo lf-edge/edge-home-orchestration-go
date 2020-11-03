@@ -62,7 +62,7 @@ func GetServerInstance() *ServerImpl {
 //StartMNEDCServer starts the MNEDC server on the machine
 func (ServerImpl) StartMNEDCServer(deviceIDPath string) {
 
-	deviceID, err := getDeviceID(deviceIDPath)
+	deviceID, err := discoveryIns.GetDeviceID()
 	if err != nil {
 		log.Println(logPrefix, "Couldn't start MNEDC server", err.Error())
 		return
