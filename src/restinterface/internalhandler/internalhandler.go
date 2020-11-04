@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2020 Samsung Electronics All Rights Reserved.
+ * Copyright 2019-2020 Samsung Electronics All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -100,7 +100,6 @@ func init() {
 			Pattern:     "/api/v1/discoverymgr/orchestrationinfo",
 			HandlerFunc: handler.APIV1DiscoverymgrOrchestrationInfoGet,
 		},
-
 	}
 }
 
