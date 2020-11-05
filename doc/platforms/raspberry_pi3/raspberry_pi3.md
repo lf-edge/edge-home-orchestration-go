@@ -57,10 +57,13 @@ $ newgrp docker
 > For [execution of docker commands with non-root privileges](https://docs.docker.com/install/linux/linux-postinstall/#manage-docker-as-a-non-root-user) you need to add `$USER` to docker group.  
 `$ sudo usermod -aG docker $USER`
 
-- go compiler
+- go compiler (install a version not lower than 1.12.5, recommended v1.14.x)
 
 ```sh 
-$ sudo apt install golang
+$ wget https://dl.google.com/go/go1.14.5.linux-armv6l.tar.gz
+$ sudo tar -C /usr/local -xvf go1.14.5.linux-armv6l.tar.gz
+$ export GOPATH=$HOME/go
+$ export PATH=$PATH:$GOPATH/bin:/usr/local/go/bin
 ```
 
 - glide ([package manager for Go](https://glide.readthedocs.io/en/latest/))  
