@@ -17,6 +17,7 @@
 package authenticator
 
 import (
+	"controller/securemgr/authorizer"
 	"crypto/rsa"
 	"errors"
 	"fmt"
@@ -113,8 +114,6 @@ var IsAuthorizedRequest = func(next http.Handler) http.Handler {
 			"/api/v1/servicemgr/services/notification/{serviceid}",
 			"/api/v1/scoringmgr/score",
 		}
-
-		// log.Println(logPrefix, r.URL.Path)
 		for _, url := range notReqAuth {
 
 			if url == r.URL.Path {
@@ -153,7 +152,12 @@ var IsAuthorizedRequest = func(next http.Handler) http.Handler {
 			}
 
 			if token.Valid {
-				next.ServeHTTP(w, r) // pass control to the next handler
+				if claims, ok := token.Claims.(jwt.MapClaims); ok {
+					name, _ := claims["aud"].(string)
+					if err = authorizer.Authorizer(name, r); err == nil {
+						next.ServeHTTP(w, r) // pass control to the next handler
+					}
+				}
 			}
 		} else {
 			log.Println(logPrefix, "Request doesn't contain an Authorization token")

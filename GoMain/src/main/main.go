@@ -32,6 +32,7 @@ import (
 	"controller/mnedcmgr"
 	"controller/scoringmgr"
 	"controller/securemgr/authenticator"
+	"controller/securemgr/authorizer"
 	"controller/securemgr/verifier"
 	"controller/servicemgr"
 	executor "controller/servicemgr/executor/containerexecutor"
@@ -69,6 +70,7 @@ const (
 	certificateFilePath    = edgeDir + "/data/cert"
 	containerWhiteListPath = edgeDir + "/data/cwl"
 	passPhraseJWTPath      = edgeDir + "/data/jwt"
+	rbacRulePath           = edgeDir + "/data/rbac"
 
 	cipherKeyFilePath      = edgeDir + "/user/orchestration_userID.txt"
 	deviceIDFilePath       = edgeDir + "/device/orchestration_deviceID.txt"
@@ -107,6 +109,7 @@ func orchestrationInit() error {
 	if isSecured {
 		verifier.Init(containerWhiteListPath)
 		authenticator.Init(passPhraseJWTPath)
+		authorizer.Init(rbacRulePath)
 	}
 
 	restIns := restclient.GetRestClient()

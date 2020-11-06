@@ -11,11 +11,17 @@
     3.2 [Workflow](#32-workflow)  
     3.3 [JWT generation](#33-jwt-generation)  
     3.4 [JWT usage](#34-jwt-usage)  
+4. [Authorizer](#4-authorizer)  
+    4.1 [Description](#41-description)  
+    4.2 [Workflow](#42-workflow)  
+    4.3 [JWT generation with user’s name for authorization](#43-jwt-generation-with-users-name-for-authorization)  
+
 
 ## 1. Introduction
 The **Secure Manager** is designed to control security components. Currently it is in an initial state of development and includes the following components:
   1. Verifier  
   2. Authenticator
+  3. Authorizer (RBAC)
  
 In order for the Secure Manager to be allowed, it is necessary to assemble the **Edge-Orchestration** with the `secure` option.
 
@@ -119,7 +125,7 @@ The `/var/edge-orchestration/data/cwl/containerwhitelist.txt` file consists of r
 Therefore, it can be edited with any editor or from the command line.
 Example: _how to add hash by command line_
 ```shell
-# echo "fc6a51919cfeb2e6763f62b6d9e8815acbf7cd2e476ea353743570610737b752" >> /var/edge-erchestration/data/cwl/containerwhitelist.txt
+# echo "fc6a51919cfeb2e6763f62b6d9e8815acbf7cd2e476ea353743570610737b752" >> /var/edge-orchestration/data/cwl/containerwhitelist.txt
 ```
 ---
 
@@ -128,7 +134,7 @@ To run **Edge Orchestration** container you need to add a digest (sha256) to the
 ```
 $ curl -X POST "IP:56001/api/v1/orchestration/services" -H "accept: application/json" -H "Content-Type: application/json" -H "Authorization: $EDGE_ORCHESTRATION_TOKEN" -d "{ \"ServiceName\": \"hello-world\", \"ServiceInfo\": [{ \"ExecutionType\": \"container\", \"ExecCmd\": [ \"docker\", \"run\", \"-v\", \"/var/run:/var/run:rw\", \"hello-world@sha256:fc6a51919cfeb2e6763f62b6d9e8815acbf7cd2e476ea353743570610737b752\"]}], \"StatusCallbackURI\": \"http://localhost:8888/api/v1/services/notification\"}"
 ```  
-If the `"fc6a51919cfeb2e6763f62b6d9e8815acbf7cd2e476ea353743570610737b752"` hash is written to the `/var/edge-erchestration/data/cwl/containerwhitelist.txt` file, the container will be launched successfully.
+If the `"fc6a51919cfeb2e6763f62b6d9e8815acbf7cd2e476ea353743570610737b752"` hash is written to the `/var/edge-orchestration/data/cwl/containerwhitelist.txt` file, the container will be launched successfully.
 
 ---
 
@@ -173,11 +179,11 @@ node "Home Edge Node #1" {
 To create a JWT, you can use the script [tools/jwt_gen.sh](../tools/jwt_gen.sh) by running it as shown below:
 For `HMAC`
 ```shell
-$ . tools/jwt_gen.sh HS256
+$ . tools/jwt_gen.sh HS256 Admin
 ```
 or for `RSA256`
 ```shell
-$ . tools/jwt_gen.sh RS256
+$ . tools/jwt_gen.sh RS256 Admin
 ```
 
 The generated token is exported to the shell environment variable: `EDGE_ORCHESTRATION_TOKEN`.
@@ -200,4 +206,70 @@ Example below:
 ```shell
 $ curl -X POST "127.0.0.1:56001/api/v1/orchestration/securemgr" -H "accept: applicationnt-Type: application/json" -H "Authorization: $EDGE_ORCHESTRATION_TOKEN" -d "{ \"SecureMgr\": \"Verifier\", \"CmdType\": \"printAllHashCWL\", \"StatusCallbackURI\": \"http://localhost:8888/api/v1/services/notification\"}"
 ```
+---
+
+## 4. Authorizer (RBAC)
+### 4.1 Description
+The **Authorizer** provides *Role Based Access Control (RBAC)*. Its an approach to restricting system access to authorized users by using a set of permissions and grants. In Edge-Orchestration project was used the open-source access control library [*casbin*](https://github.com/casbin/casbin). "In Casbin, an access control model is abstracted into a CONF file based on the PERM metamodel (Policy, Effect, Request, Matchers). So switching or upgrading the authorization mechanism for a project is just as simple as modifying a configuration" ([description from the official site](https://github.com/casbin/casbin#How-it-works?)). 
+The system is currently configured in the simplest configuration with two roles: `admin` and `member`. The table below demonstrates access to external api for these roles.
+| Resource\Role                   | admin | member |
+| ------------------------------- | ----- | ------ |
+| /api/v1/orchestration/services  | Allow | Allow  |
+| /api/v1/orchestration/securemgr | Allow | Deny   |
+
+To change the access model and policy, you need to edit the files:  
+`/var/edge-orchestration/data/rbac/auth_model.conf`
+```
+[request_definition]
+r = sub, obj, act
+
+[policy_definition]
+p = sub, obj, act
+
+[policy_effect]
+e = some(where (p.eft == allow))
+
+[matchers]
+m = r.sub == p.sub && keyMatch(r.obj, p.obj) && (r.act == p.act || p.act == "*")
+
+```
+
+and `/var/edge-orchestration/data/rbac/policy.csv`
+```
+p, admin, /*, *
+p, member, /api/v1/orchestration/services, *
+```
+---
+
+### 4.2 Workflow
+> To view the Workflow, you need to install a `plantuml` extension for your browser.
+ 
+> TBD 
+ 
+---
+
+### 4.3 JWT generation with user's name for authorization
+
+To create a JWT, you can use the script [tools/jwt_gen.sh](../tools/jwt_gen.sh) by running it as shown below:
+common rules
+```shell
+$ . tools/jwt_gen.sh [Algo] [User]
+```
+where: Algo {}; User {Admin, Member}.
+Examples:
+For `HMAC` and `Admin`
+```shell
+$ . tools/jwt_gen.sh HS256 Admin
+```
+or for `RSA256` and `Member`
+```shell
+$ . tools/jwt_gen.sh RS256 Member
+```
+> It should be noted that the user's `name` and `role` are currently hardcoded in [authorizer.go](../src/controller/securemgr/authorizer/authorizer.go),
+ but this will change when the ability to register users in the system is added.  
+```
+users = append(users, User{Name: "Admin", Role: "admin"})
+users = append(users, User{Name: "Member", Role: "member"})
+```
+
 ---
