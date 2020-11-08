@@ -100,8 +100,16 @@ func orchestrationInit() error {
 	log.Println(">>> buildTags : ", buildTags)
 	wrapper.SetBoltDBPath(dbPath)
 
+	secure := os.Getenv("SECURE")
+	mnedc := os.Getenv("MNEDC")
+
 	isSecured := false
-	if strings.Contains(buildTags, "secure") {
+	if len(secure)>0 {
+		if strings.Compare(strings.ToLower(secure), "true")==0 {
+			log.Println("Orchestration init with secure option")
+			isSecured = true
+		}
+	} else if strings.Contains(buildTags, "secure") {
 		log.Println("Orchestration init with secure option")
 		isSecured = true
 	}
@@ -181,19 +189,36 @@ func orchestrationInit() error {
 
 	log.Println(logPrefix, "orchestration init done")
 
-	if strings.Contains(buildTags, "mnedcserver") {
-		if isSecured {
-			mnedcmgr.GetServerInstance().SetCipher(dummy.GetCipher(cipherKeyFilePath))
-			mnedcmgr.GetServerInstance().SetCertificateFilePath(certificateFilePath)
-		} else {
-			mnedcmgr.GetServerInstance().SetCipher(sha256.GetCipher(cipherKeyFilePath))
+	if len(mnedc) > 0 {
+                if strings.Compare(strings.ToLower(mnedc), "server") == 0 {
+                        if isSecured {
+                                mnedcmgr.GetServerInstance().SetCipher(dummy.GetCipher(cipherKeyFilePath))
+                                mnedcmgr.GetServerInstance().SetCertificateFilePath(certificateFilePath)
+                        } else {
+                                mnedcmgr.GetServerInstance().SetCipher(sha256.GetCipher(cipherKeyFilePath))
+                        }
+                        go mnedcmgr.GetServerInstance().StartMNEDCServer(deviceIDFilePath)
+                } else if strings.Compare(strings.ToLower(mnedc), "client") == 0 {
+                        if isSecured {
+                                mnedcmgr.GetClientInstance().SetCertificateFilePath(certificateFilePath)
+                        }
+                        go mnedcmgr.GetClientInstance().StartMNEDCClient(deviceIDFilePath, mnedcServerConfig)
+                }
+	} else {
+		if strings.Contains(buildTags, "mnedcserver") {
+			if isSecured {
+				mnedcmgr.GetServerInstance().SetCipher(dummy.GetCipher(cipherKeyFilePath))
+				mnedcmgr.GetServerInstance().SetCertificateFilePath(certificateFilePath)
+			} else {
+				mnedcmgr.GetServerInstance().SetCipher(sha256.GetCipher(cipherKeyFilePath))
+			}
+			go mnedcmgr.GetServerInstance().StartMNEDCServer(deviceIDFilePath)
+		} else if strings.Contains(buildTags, "mnedcclient") {
+			if isSecured {
+				mnedcmgr.GetClientInstance().SetCertificateFilePath(certificateFilePath)
+			}
+			go mnedcmgr.GetClientInstance().StartMNEDCClient(deviceIDFilePath, mnedcServerConfig)
 		}
-		go mnedcmgr.GetServerInstance().StartMNEDCServer(deviceIDFilePath)
-	} else if strings.Contains(buildTags, "mnedcclient") {
-		if isSecured {
-			mnedcmgr.GetClientInstance().SetCertificateFilePath(certificateFilePath)
-		}
-		go mnedcmgr.GetClientInstance().StartMNEDCClient(deviceIDFilePath, mnedcServerConfig)
 	}
 
 	return nil
