@@ -143,6 +143,22 @@ Note that you can visit [Swagger Editor](https://editor.swagger.io/) to graphica
 ```shell
 $ docker run -it -d --privileged --network="host" --name edge-orchestration -v /var/edge-orchestration/:/var/edge-orchestration/:rw -v /var/run/docker.sock:/var/run/docker.sock:rw -v /proc/:/process/:ro edge-orchestration:coconut
 ```
+- Environment Variables
+
+  You can adjust the configuration of the edge-orchestration container by passing the environment variables below on the docker run command.
+  - SECURE
+
+    [Secure](../../secure_manager.md) mode can be enabled by setting SECURE to `true`.
+    ```shell
+    $ docker run -it -d --privileged --network="host" --name edge-orchestration -e SECURE=true -v /var/edge-orchestration/:/var/edge-orchestration/:rw -v /var/run/docker.sock:/var/run/docker.sock:rw -v /proc/:/process/:ro edge-orchestration:coconut
+    ```
+  - MNEDC
+
+    [MNEDC](../../mnedc.md) mode can be enabled by setting MNEDC to `server` or `client`.
+    ```shell
+    $ docker run -it -d --privileged --network="host" --name edge-orchestration -e MNEDC=server -v /var/edge-orchestration/:/var/edge-orchestration/:rw -v /var/run/docker.sock:/var/run/docker.sock:rw -v /proc/:/process/:ro edge-orchestration:coconut
+    ```
+
 - Result
 
 ```shell
