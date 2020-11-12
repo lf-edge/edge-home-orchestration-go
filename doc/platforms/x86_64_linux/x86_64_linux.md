@@ -19,7 +19,7 @@ If it succeeds, you can see the Docker image as follows:
 ```shell
 $ docker images
 REPOSITORY                 TAG                 IMAGE ID            CREATED             SIZE
-edge-orchestration         coconut             502e3c07b01f        3 minutes ago       132MB
+edge-orchestration         coconut             502e3c07b01f        3 minutes ago       185MB
 ```
 
 #### 4. Run with Docker image
@@ -80,7 +80,7 @@ and the built image as follows:
 ```shell
 $ docker images
 REPOSITORY                 TAG                 IMAGE ID            CREATED             SIZE
-edge-orchestration         coconut             502e3c07b01f        3 seconds ago       132MB
+edge-orchestration         coconut             502e3c07b01f        3 seconds ago       185MB
 ```
 
 - All Build Options
