@@ -1,4 +1,4 @@
-# Edge Orchestration on x86_64 Linux
+﻿# Edge Orchestration on x86_64 Linux
 
 ## Quick start
 This section provides how to download and run pre-built Docker image without building the project.
@@ -19,7 +19,7 @@ If it succeeds, you can see the Docker image as follows:
 ```shell
 $ docker images
 REPOSITORY                 TAG                 IMAGE ID            CREATED             SIZE
-edge-orchestration         coconut              502e3c07b01f        3 minutes ago       132MB
+edge-orchestration         coconut             502e3c07b01f        3 minutes ago       185MB
 ```
 
 #### 4. Run with Docker image
@@ -73,14 +73,14 @@ If it succeeds, you can see the container runs as follows:
 **********************************
 5d2efd81057fe56236602acfece0e8f11d447b54627f4f3669b18c85a95b8687
 CONTAINER ID        IMAGE                      COMMAND             CREATED                  STATUS                  PORTS               NAMES
-5d2efd81057f        edge-orchestration:coconut  "sh run.sh"         Less than a second ago   Up Less than a second                       edge-orchestration
+5d2efd81057f        edge-orchestration:coconut "sh run.sh"         Less than a second ago   Up Less than a second                       edge-orchestration
 ```
 
 and the built image as follows:
 ```shell
 $ docker images
 REPOSITORY                 TAG                 IMAGE ID            CREATED             SIZE
-edge-orchestration         coconut              502e3c07b01f        3 seconds ago       132MB
+edge-orchestration         coconut             502e3c07b01f        3 seconds ago       185MB
 ```
 
 - All Build Options
