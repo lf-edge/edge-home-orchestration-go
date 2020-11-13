@@ -19,11 +19,7 @@ package mnedcmgr
 
 import (
 	"errors"
-	"log"
-	"os"
-	"syscall"
 	"testing"
-	"time"
 
 	discoveryMocks "controller/discoverymgr/mocks"
 	"controller/mnedcmgr/client"
@@ -33,10 +29,9 @@ import (
 )
 
 var (
-	incorrectDeviceIDFilePath = "/etc/edge-orchestration/deviceID.txt"
-	defaultConfigPath         = "server.config"
-	defaultDeviceIDFilePath   = "deviceId.txt"
-	defaultDeviceID           = "dummyID"
+	defaultConfigPath       = "server.config"
+	defaultDeviceID         = "dummyID"
+	defaultDeviceIDFilePath = "deviceID.txt"
 
 	mockMnedcClient *clientMocks.MockMNEDCClient
 	mockDiscovery   *discoveryMocks.MockDiscovery
@@ -51,33 +46,17 @@ func TestStartMNEDCClient(t *testing.T) {
 
 	createMockIns(ctrl)
 
-	t.Run("ReadFileError", func(t *testing.T) {
-		c := GetClientInstance()
-		c.StartMNEDCClient(incorrectDeviceIDFilePath, defaultConfigPath)
-	})
 	t.Run("CreateClientError", func(t *testing.T) {
 		c := GetClientInstance()
 
-		err := createDeviceIDFile()
-		if err != nil {
-			log.Println("Could not write to the device id file", err.Error())
-			return
-		}
+		mockDiscovery.EXPECT().GetDeviceID().Return(defaultDeviceID, nil)
 		mockMnedcClient.EXPECT().CreateClient(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, errors.New(""))
 		c.StartMNEDCClient(defaultDeviceIDFilePath, defaultConfigPath)
-	})
-	t.Run("TestInterrupt", func(t *testing.T) {
-		fatalErrChan := make(chan error)
-		mockMnedcClient.EXPECT().Close().Return(nil).AnyTimes()
-		go waitInterrupt(fatalErrChan)
-		time.Sleep(2 * time.Second)
-
-		syscall.Kill(syscall.Getpid(), syscall.SIGINT)
-
 	})
 	t.Run("Success", func(t *testing.T) {
 		c := GetClientInstance()
 
+		mockDiscovery.EXPECT().GetDeviceID().Return(defaultDeviceID, nil)
 		mockMnedcClient.EXPECT().CreateClient(gomock.Any(), gomock.Any(), gomock.Any()).Return(&client.Client{}, nil)
 		mockMnedcClient.EXPECT().Run()
 		mockDiscovery.EXPECT().NotifyMNEDCBroadcastServer().Return(errors.New("")).AnyTimes()
@@ -86,32 +65,6 @@ func TestStartMNEDCClient(t *testing.T) {
 
 	})
 
-	deleteDeviceIDFile()
-}
-
-func deleteDeviceIDFile() {
-	err := os.Remove(defaultDeviceIDFilePath)
-	if err != nil {
-		log.Println("Could not delete file")
-	}
-
-}
-
-func createDeviceIDFile() error {
-	f, err := os.Create(defaultDeviceIDFilePath)
-	if err != nil {
-		return err
-	}
-
-	defer f.Close()
-
-	_, err = f.WriteString(defaultDeviceID)
-	if err != nil {
-		return err
-	}
-
-	f.Sync()
-	return nil
 }
 
 func createMockIns(ctrl *gomock.Controller) {

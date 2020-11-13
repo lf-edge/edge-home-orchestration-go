@@ -260,6 +260,11 @@ func (c *Client) ParseVirtualIP(parameters string) error {
 
 // Close shuts down the client, reversing configuration changes to the system.
 func (c *Client) Close() error {
+
+	if !c.isAlive {
+		return errors.New("Client not alive")
+	}
+
 	c.isAlive = false
 	var err error
 	if c.conn != nil {

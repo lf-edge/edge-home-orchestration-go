@@ -22,10 +22,13 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+
+	"controller/mnedcmgr/client"
+	"controller/mnedcmgr/server"
 )
 
 const (
-	logPrefix          = "[sigmgr]"
+	logPrefix = "[sigmgr]"
 )
 
 // Watch operating system signals
@@ -34,4 +37,16 @@ func Watch() {
 	signal.Notify(sig, syscall.SIGINT, syscall.SIGKILL, syscall.SIGTERM)
 	s := <-sig
 	log.Println(logPrefix, "Received Signal:", s)
+	err := server.GetInstance().Close()
+	if err != nil {
+		log.Println(logPrefix, "[MNEDC Server]", err.Error())
+	} else {
+		log.Println(logPrefix, "[MNEDC Server]", "Server Closed")
+	}
+	err = client.GetInstance().Close()
+	if err != nil {
+		log.Println(logPrefix, "[MNEDC Client]", err.Error())
+	} else {
+		log.Println(logPrefix, "[MNEDC Client]", "Client Closed")
+	}
 }

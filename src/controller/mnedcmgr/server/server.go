@@ -350,6 +350,10 @@ func (s *Server) TunWriteRoutine() {
 // Close shuts down the server, reversing configuration changes to the system.
 func (s *Server) Close() error {
 
+	if !s.isAlive {
+		return errors.New("Server not alive")
+	}
+
 	s.isAlive = false
 	err := s.listener.Close()
 	if err != nil {
