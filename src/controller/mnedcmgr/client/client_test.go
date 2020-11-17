@@ -492,8 +492,9 @@ func TestClose(t *testing.T) {
 	}
 
 	client := &Client{
-		conn: conn,
-		intf: tunIntf,
+		conn:    conn,
+		intf:    tunIntf,
+		isAlive: true,
 	}
 	mockDiscovery.EXPECT().MNEDCClosedCallback().Return()
 	err = client.Close()

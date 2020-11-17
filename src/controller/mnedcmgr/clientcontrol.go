@@ -19,10 +19,7 @@ package mnedcmgr
 
 import (
 	"log"
-	"os"
-	"os/signal"
 	"restinterface/tls"
-	"syscall"
 	"time"
 
 	"controller/discoverymgr"
@@ -35,9 +32,9 @@ type ClientImpl struct {
 }
 
 var (
-	clientIns *ClientImpl
+	clientIns      *ClientImpl
 	mnedcClientIns client.MNEDCClient
-	discoveryIns discoverymgr.Discovery
+	discoveryIns   discoverymgr.Discovery
 )
 
 func init() {
@@ -79,33 +76,10 @@ func (c *ClientImpl) StartMNEDCClient(deviceIDPath string, configPath string) {
 
 //RegisterToMNEDCServer registers with MNEDC server
 func (c *ClientImpl) RegisterToMNEDCServer(deviceID string, configPath string) error {
-	fatalErrChan := make(chan error)
 	_, err := mnedcClientIns.CreateClient(deviceID, configPath, clientIns.IsSetCert)
 	if err != nil {
 		return err
 	}
 	mnedcClientIns.Run()
-	go waitInterrupt(fatalErrChan)
 	return nil
-}
-
-func waitInterrupt(fatalErrChan chan error) {
-	sig := make(chan os.Signal, 2)
-	done := make(chan bool, 1)
-	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)
-	go func() {
-		<-sig
-		done <- true
-	}()
-
-	select {
-	case <-done:
-		log.Println(logPrefix, "Received interrupt, shutting down.")
-		err := mnedcClientIns.Close()
-		if err != nil {
-			log.Println(logPrefix, "Error closing client", err.Error())
-		}
-	case err := <-fatalErrChan:
-		log.Println(logPrefix, "Fatal internal error: ", err)
-	}
 }
