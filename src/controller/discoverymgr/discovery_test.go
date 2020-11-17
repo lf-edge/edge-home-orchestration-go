@@ -753,7 +753,3 @@ func TestGetDeviceID(t *testing.T) {
 		}
 	})
 }
-
-func getDeviceID() (string, error) {
-	return defaultMyDeviceID, nil
-}
