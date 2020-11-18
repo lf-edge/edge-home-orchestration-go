@@ -102,6 +102,21 @@ func (mr *MockDiscoveryMockRecorder) DeleteDeviceWithIP(arg0 interface{}) *gomoc
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteDeviceWithIP", reflect.TypeOf((*MockDiscovery)(nil).DeleteDeviceWithIP), arg0)
 }
 
+// GetDeviceID mocks base method.
+func (m *MockDiscovery) GetDeviceID() (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetDeviceID")
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetDeviceID indicates an expected call of GetDeviceID.
+func (mr *MockDiscoveryMockRecorder) GetDeviceID() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDeviceID", reflect.TypeOf((*MockDiscovery)(nil).GetDeviceID))
+}
+
 // GetOrchestrationInfo mocks base method.
 func (m *MockDiscovery) GetOrchestrationInfo() (string, string, []string, error) {
 	m.ctrl.T.Helper()

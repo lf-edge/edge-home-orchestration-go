@@ -248,6 +248,7 @@ func TestDeviceDetectionRoutine(t *testing.T) {
 
 	t.Run("Success", func(t *testing.T) {
 
+		discoveryInstance := GetInstance()
 		//declare mock argument
 		devicesubchan := make(chan *wrapper.Entity, 20)
 
@@ -296,7 +297,7 @@ func TestDeviceDetectionRoutine(t *testing.T) {
 
 			presence := false
 
-			deviceID, err := getDeviceID()
+			deviceID, err := discoveryInstance.GetDeviceID()
 			log.Println(deviceID)
 			if err != nil {
 				t.Fatal(err.Error())
@@ -374,7 +375,7 @@ func TestAddNewServiceName(t *testing.T) {
 			}
 			presence := false
 
-			deviceID, err := getDeviceID()
+			deviceID, err := discoveryInstance.GetDeviceID()
 			if err != nil {
 				t.Fatal(err.Error())
 			}
@@ -420,7 +421,7 @@ func TestRemoveServiceName(t *testing.T) {
 
 			isPresence := false
 
-			deviceID, err := getDeviceID()
+			deviceID, err := discoveryInstance.GetDeviceID()
 			if err != nil {
 				t.Fatal(err.Error())
 			}
@@ -459,7 +460,7 @@ func TestResetServiceName(t *testing.T) {
 			mockWrapper.EXPECT().SetText(gomock.Any()).Return()
 			discoveryInstance.ResetServiceName()
 
-			deviceID, err := getDeviceID()
+			deviceID, err := discoveryInstance.GetDeviceID()
 			if err != nil {
 				t.Fatal(err.Error())
 			}
@@ -554,6 +555,9 @@ func TestDetectNetworkChgRoutine(t *testing.T) {
 	defer ctrl.Finish()
 
 	createMockIns(ctrl)
+
+	discoveryInstance := GetInstance()
+
 	addDevice(false)
 
 	shutdownChan = make(chan struct{})
@@ -569,7 +573,7 @@ func TestDetectNetworkChgRoutine(t *testing.T) {
 		ipsub <- []net.IP{net.ParseIP("192.0.2.1")}
 
 		time.Sleep(time.Millisecond * time.Duration(10))
-		deviceID, err := getDeviceID()
+		deviceID, err := discoveryInstance.GetDeviceID()
 		if err != nil {
 			t.Error(err.Error())
 		}
