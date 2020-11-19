@@ -41,6 +41,12 @@ This section provides how to download and run pre-built Docker image without bui
 ---
 
 ## How to build Edge-Orchestration
+
+Prerequisites: install the qemu packages
+```shell
+$ sudo apt-get install qemu binfmt-support qemu-user-static
+```
+
 Run the `./build.sh` script on your PC and specify the build parameters - `container`,  architecture - `arm64`  (in the case of building in protected mode, add `secure`), see examples below:
 ```shell
 $ ./build.sh container arm64

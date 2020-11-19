@@ -392,6 +392,7 @@ function build_docker_container() {
 
     docker rm -f $DOCKER_IMAGE
     docker rmi -f $DOCKER_IMAGE:$CONTAINER_VERSION
+    mkdir -p $BASE_DIR/GoMain/bin/qemu
     case $1 in
         x86)
             CONTAINER_ARCH="i386"
@@ -401,9 +402,11 @@ function build_docker_container() {
             ;;
         arm)
             CONTAINER_ARCH="arm32v7"
+            cp /usr/bin/qemu-arm-static $BASE_DIR/GoMain/bin/qemu
             ;;
         arm64)
             CONTAINER_ARCH="arm64v8"
+            cp /usr/bin/qemu-aarch64-static $BASE_DIR/GoMain/bin/qemu
             ;;
         *)
             case "$(uname -m)" in

@@ -15,14 +15,16 @@ ENV ZEROCONF_PORT=42425
 ENV APP_MAIN_DIR=GoMain
 ENV APP_BIN_DIR=$APP_MAIN_DIR/bin
 ENV APP_NAME=edge-orchestration
-
-# install required tools 
-RUN apt update
-RUN apt install -y net-tools iproute2
+ENV APP_QEMU_DIR=$APP_BIN_DIR/qemu
 
 # copy files
 COPY $APP_BIN_DIR/$APP_NAME $APP_MAIN_DIR/run.sh $TARGET_DIR/
+COPY $APP_QEMU_DIR/ /usr/bin/
 RUN mkdir -p $TARGET_DIR/res/
+
+# install required tools
+RUN apt update
+RUN apt install -y net-tools iproute2
 
 # expose ports
 EXPOSE $HTTP_PORT $MDNS_PORT $ZEROCONF_PORT $MNEDC_PORT $MNEDC_BROADCAST_PORT
