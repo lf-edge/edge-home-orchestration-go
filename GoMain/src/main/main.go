@@ -21,15 +21,15 @@ package main
 import (
 	"errors"
 	"log"
-	"strings"
 	"os"
+	"strings"
 
 	"common/logmgr"
 	"common/sigmgr"
 
 	configuremgr "controller/configuremgr/container"
 	"controller/discoverymgr"
-	"controller/mnedcmgr"
+	mnedcmgr "controller/discoverymgr/mnedc"
 	"controller/scoringmgr"
 	"controller/securemgr/authenticator"
 	"controller/securemgr/authorizer"
@@ -72,10 +72,10 @@ const (
 	passPhraseJWTPath      = edgeDir + "/data/jwt"
 	rbacRulePath           = edgeDir + "/data/rbac"
 
-	cipherKeyFilePath      = edgeDir + "/user/orchestration_userID.txt"
-	deviceIDFilePath       = edgeDir + "/device/orchestration_deviceID.txt"
-	dataStorageFilePath    = edgeDir + "/datastorage/configuration.toml"
-	mnedcServerConfig      = edgeDir + "/mnedc/client.config"
+	cipherKeyFilePath   = edgeDir + "/user/orchestration_userID.txt"
+	deviceIDFilePath    = edgeDir + "/device/orchestration_deviceID.txt"
+	dataStorageFilePath = edgeDir + "/datastorage/configuration.toml"
+	mnedcServerConfig   = edgeDir + "/mnedc/client.config"
 )
 
 var (
@@ -104,8 +104,8 @@ func orchestrationInit() error {
 	mnedc := os.Getenv("MNEDC")
 
 	isSecured := false
-	if len(secure)>0 {
-		if strings.Compare(strings.ToLower(secure), "true")==0 {
+	if len(secure) > 0 {
+		if strings.Compare(strings.ToLower(secure), "true") == 0 {
 			log.Println("Orchestration init with secure option")
 			isSecured = true
 		}
@@ -130,6 +130,7 @@ func orchestrationInit() error {
 
 	servicemgr.GetInstance().SetClient(restIns)
 	discoverymgr.GetInstance().SetClient(restIns)
+	mnedcmgr.GetClientInstance().SetClient(restIns)
 
 	builder := orchestrationapi.OrchestrationBuilder{}
 	builder.SetWatcher(configuremgr.GetInstance(configPath))
@@ -182,7 +183,7 @@ func orchestrationInit() error {
 
 	restEdgeRouter.Start()
 
-	if _, err := os.Stat(dataStorageFilePath); err==nil {
+	if _, err := os.Stat(dataStorageFilePath); err == nil {
 		sd := storagedriver.StorageDriver{}
 		go startup.Bootstrap(dataStorageService, device.Version, &sd)
 	}
@@ -190,20 +191,20 @@ func orchestrationInit() error {
 	log.Println(logPrefix, "orchestration init done")
 
 	if len(mnedc) > 0 {
-                if strings.Compare(strings.ToLower(mnedc), "server") == 0 {
-                        if isSecured {
-                                mnedcmgr.GetServerInstance().SetCipher(dummy.GetCipher(cipherKeyFilePath))
-                                mnedcmgr.GetServerInstance().SetCertificateFilePath(certificateFilePath)
-                        } else {
-                                mnedcmgr.GetServerInstance().SetCipher(sha256.GetCipher(cipherKeyFilePath))
-                        }
-                        go mnedcmgr.GetServerInstance().StartMNEDCServer(deviceIDFilePath)
-                } else if strings.Compare(strings.ToLower(mnedc), "client") == 0 {
-                        if isSecured {
-                                mnedcmgr.GetClientInstance().SetCertificateFilePath(certificateFilePath)
-                        }
-                        go mnedcmgr.GetClientInstance().StartMNEDCClient(deviceIDFilePath, mnedcServerConfig)
-                }
+		if strings.Compare(strings.ToLower(mnedc), "server") == 0 {
+			if isSecured {
+				mnedcmgr.GetServerInstance().SetCipher(dummy.GetCipher(cipherKeyFilePath))
+				mnedcmgr.GetServerInstance().SetCertificateFilePath(certificateFilePath)
+			} else {
+				mnedcmgr.GetServerInstance().SetCipher(sha256.GetCipher(cipherKeyFilePath))
+			}
+			go discoverymgr.GetInstance().StartMNEDCServer(deviceIDFilePath)
+		} else if strings.Compare(strings.ToLower(mnedc), "client") == 0 {
+			if isSecured {
+				mnedcmgr.GetClientInstance().SetCertificateFilePath(certificateFilePath)
+			}
+			go discoverymgr.GetInstance().StartMNEDCClient(deviceIDFilePath, mnedcServerConfig)
+		}
 	} else {
 		if strings.Contains(buildTags, "mnedcserver") {
 			if isSecured {
@@ -212,12 +213,12 @@ func orchestrationInit() error {
 			} else {
 				mnedcmgr.GetServerInstance().SetCipher(sha256.GetCipher(cipherKeyFilePath))
 			}
-			go mnedcmgr.GetServerInstance().StartMNEDCServer(deviceIDFilePath)
+			go discoverymgr.GetInstance().StartMNEDCServer(deviceIDFilePath)
 		} else if strings.Contains(buildTags, "mnedcclient") {
 			if isSecured {
 				mnedcmgr.GetClientInstance().SetCertificateFilePath(certificateFilePath)
 			}
-			go mnedcmgr.GetClientInstance().StartMNEDCClient(deviceIDFilePath, mnedcServerConfig)
+			go discoverymgr.GetInstance().StartMNEDCClient(deviceIDFilePath, mnedcServerConfig)
 		}
 	}
 

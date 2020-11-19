@@ -28,8 +28,8 @@ import (
 
 	networkmocks "common/networkhelper/mocks"
 	discoverymocks "controller/discoverymgr/mocks"
-	"controller/mnedcmgr/server"
-	serverMocks "controller/mnedcmgr/server/mocks"
+	"controller/discoverymgr/mnedc/server"
+	serverMocks "controller/discoverymgr/mnedc/server/mocks"
 	ciphermock "restinterface/cipher/mocks"
 	helpermock "restinterface/resthelper/mocks"
 

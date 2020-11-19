@@ -24,8 +24,8 @@ import (
 	"strconv"
 	"sync"
 
-	"controller/mnedcmgr/connectionutil"
-	"controller/mnedcmgr/tunmgr"
+	"controller/discoverymgr/mnedc/connectionutil"
+	"controller/discoverymgr/mnedc/tunmgr"
 
 	"github.com/songgao/water"
 	"github.com/songgao/water/waterutil"

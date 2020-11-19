@@ -23,8 +23,8 @@ import (
 	"os/signal"
 	"syscall"
 
-	"controller/mnedcmgr/client"
-	"controller/mnedcmgr/server"
+	"controller/discoverymgr/mnedc/client"
+	"controller/discoverymgr/mnedc/server"
 )
 
 const (

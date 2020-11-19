@@ -21,9 +21,9 @@ import (
 	"errors"
 	"testing"
 
+	"controller/discoverymgr/mnedc/client"
+	clientMocks "controller/discoverymgr/mnedc/client/mocks"
 	discoveryMocks "controller/discoverymgr/mocks"
-	"controller/mnedcmgr/client"
-	clientMocks "controller/mnedcmgr/client/mocks"
 
 	"github.com/golang/mock/gomock"
 )

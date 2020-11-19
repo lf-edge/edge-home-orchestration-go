@@ -26,9 +26,11 @@ import (
 	"sync"
 	"time"
 
-	"controller/discoverymgr"
-	"controller/mnedcmgr/connectionutil"
-	"controller/mnedcmgr/tunmgr"
+	restclient "restinterface/client"
+	//"controller/discoverymgr"
+	networkhelper "common/networkhelper"
+	"controller/discoverymgr/mnedc/connectionutil"
+	"controller/discoverymgr/mnedc/tunmgr"
 
 	"github.com/songgao/water"
 )
@@ -61,18 +63,21 @@ type Client struct {
 	serverPort      string
 	deviceID        string
 	configPath      string
+	clientAPI       restclient.Clienter
 }
 
 var (
 	clientIns      *Client
 	tunIns         tunmgr.Tun
 	networkUtilIns connectionutil.NetworkUtil
-	discoveryIns   discoverymgr.Discovery
+	networkIns     networkhelper.Network
+	//discoveryIns   discoverymgr.Discovery
 )
 
 const (
-	waitDelay  = 150 * time.Millisecond
-	retryDelay = 5 * time.Second
+	waitDelay                = 150 * time.Millisecond
+	retryDelay               = 5 * time.Second
+	mnedcBroadcastServerPort = 3333
 )
 
 //MNEDCClient declares methods related to MNEDC client
@@ -88,13 +93,16 @@ type MNEDCClient interface {
 	ParseVirtualIP(string) error
 	TunReadRoutine()
 	TunWriteRoutine()
+	NotifyBroadcastServer(configPath string) error
+	SetClient(clientAPI restclient.Clienter)
 }
 
 func init() {
 	clientIns = &Client{}
 	tunIns = tunmgr.GetInstance()
 	networkUtilIns = connectionutil.GetInstance()
-	discoveryIns = discoverymgr.GetInstance()
+	networkIns = networkhelper.GetInstance()
+	//discoveryIns = discoverymgr.GetInstance()
 }
 
 //GetInstance returns MNEDCClient interface instance
@@ -403,14 +411,73 @@ func (c *Client) TunWriteRoutine() {
 func (c *Client) NotifyClose() {
 	logPrefix := "[NotifyClose]"
 	log.Println(logPrefix, "MNEDC connection closed")
-	discoveryIns.MNEDCClosedCallback()
+	//discoveryIns.MNEDCClosedCallback()
 }
 
 //ConnectionReconciled handles the case when MNEDC connection is re-established
 func (c *Client) ConnectionReconciled() {
 	logPrefix := "[connectionReIstablish]"
 	log.Println(logPrefix, "MNEDC connection reistablished")
-	discoveryIns.MNEDCReconciledCallback()
+	//discoveryIns.MNEDCReconciledCallback()
+	//notifyBroadcastServer()
+	c.NotifyBroadcastServer(c.configPath)
+}
+
+//NotifyBroadcastServer sends request to broadcast server
+func (c *Client) NotifyBroadcastServer(configPath string) error {
+	logPrefix := "[RegisterBroadcast]"
+	log.Println(logTag, "Registering to Broadcast server")
+	c.configPath = configPath
+	virtualIP, err := networkIns.GetVirtualIP()
+	if err != nil {
+		log.Println(logPrefix, "Cant register to Broadcast server, virtual IP error", err.Error())
+		return err
+	}
+
+	privateIP, err := networkIns.GetOutboundIP()
+	if err != nil {
+		log.Println(logPrefix, "Cant register to Broadcast server, outbound IP error", err.Error())
+		return err
+	}
+
+	file, err := os.Open(configPath)
+
+	if err != nil {
+		log.Println(logPrefix, "cant read config file from", configPath, err.Error())
+		return err
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	scanner.Split(bufio.ScanLines)
+
+	scanner.Scan()
+	serverIP := scanner.Text()
+
+	go func() {
+
+		if c.clientAPI == nil {
+			log.Println(logPrefix, "Client is nil, returning")
+			err = errors.New("Client is nil")
+			return
+		}
+		err = c.clientAPI.DoNotifyMNEDCBroadcastServer(serverIP, mnedcBroadcastServerPort, c.deviceID, privateIP, virtualIP)
+		if err != nil {
+			log.Println(logPrefix, "Cannot register to Broadcast server", err.Error())
+		}
+	}()
+
+	time.Sleep(5 * time.Second)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+//SetClient sets the rest client
+func (c *Client) SetClient(clientAPI restclient.Clienter) {
+	c.clientAPI = clientAPI
 }
 
 func getMNEDCServerAddress(path string) (string, string, error) {
