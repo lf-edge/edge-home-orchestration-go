@@ -21,8 +21,6 @@ package logmgr
 import (
 	"log"
 	"os"
-
-	"github.com/leemcloughlin/logfile"
 )
 
 var logFileName = "logmgr.log"
@@ -36,17 +34,5 @@ func Init(logFilePath string) {
 		}
 	}
 
-	logFile, err := logfile.New(
-		&logfile.LogFile{
-			FileName:    logFilePath + "/" + logFileName,
-			FileMode:    0644,
-			MaxSize:     500 * 1024, // 500K
-			OldVersions: 3,
-			Flags:       logfile.OverWriteOnStart | logfile.RotateOnStart})
-	if err != nil {
-		log.Panicf("Failed to create logFile %s: %s\n", logFileName, err)
-	}
-
 	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
-	log.SetOutput(logFile)
 }

@@ -106,7 +106,6 @@ import:
     version: v1.7.2
   - package: github.com/grandcat/zeroconf
     version: 85eadb44205c14827ae7cbb129bc7eed4488dd25
-  - package: github.com/leemcloughlin/logfile
   - package: github.com/miekg/dns
     version: v1.1.11
   - package: github.com/satori/go.uuid
