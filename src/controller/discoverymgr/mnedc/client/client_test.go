@@ -28,9 +28,9 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/songgao/water"
 
+	networkUtilMocks "controller/discoverymgr/mnedc/connectionutil/mocks"
 	discoveryMocks "controller/discoverymgr/mocks"
-	networkUtilMocks "controller/mnedcmgr/connectionutil/mocks"
-	tunMocks "controller/mnedcmgr/tunmgr/mocks"
+	tunMocks "controller/discoverymgr/mnedc/tunmgr/mocks"
 )
 
 const (

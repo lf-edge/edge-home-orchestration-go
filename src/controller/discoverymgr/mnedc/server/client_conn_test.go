@@ -27,8 +27,8 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/songgao/water"
 
-	networkUtilMocks "controller/mnedcmgr/connectionutil/mocks"
-	tunMocks "controller/mnedcmgr/tunmgr/mocks"
+	networkUtilMocks "controller/discoverymgr/mnedc/connectionutil/mocks"
+	tunMocks "controller/discoverymgr/mnedc/tunmgr/mocks"
 )
 
 var (

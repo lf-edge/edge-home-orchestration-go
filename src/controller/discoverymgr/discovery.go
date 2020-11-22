@@ -28,6 +28,7 @@ import (
 
 	errors "common/errors"
 	networkhelper "common/networkhelper"
+	mnedc "controller/discoverymgr/mnedc"
 	wrapper "controller/discoverymgr/wrapper"
 
 	configurationdb "db/bolt/configuration"
@@ -56,6 +57,8 @@ type Discovery interface {
 	NotifyMNEDCBroadcastServer() error
 	MNEDCReconciledCallback()
 	GetDeviceID() (id string, err error)
+	StartMNEDCClient(string, string)
+	StartMNEDCServer(string)
 	client.Setter
 	cipher.Setter
 }
@@ -383,7 +386,6 @@ func setDeviceID(UUIDPath string) (UUIDstr string, err error) {
 	return UUIDstr, err
 }
 
-
 func getPlatform() (platform string, err error) {
 	platform, err = getSystemDB(systemdb.Platform)
 	if err != nil {
@@ -684,6 +686,16 @@ func (d *DiscoveryImpl) MNEDCReconciledCallback() {
 	if err != nil {
 		log.Println(logPrefix, "Could not reconect to Broadcast server")
 	}
+}
+
+//StartMNEDCClient Starts MNEDC client
+func (d *DiscoveryImpl) StartMNEDCClient(deviceIDFilePath, mnedcServerConfig string) {
+	mnedc.GetClientInstance().StartMNEDCClient(deviceIDFilePath, mnedcServerConfig)
+}
+
+//StartMNEDCServer Starts MNEDC server
+func (d *DiscoveryImpl) StartMNEDCServer(deviceIDFilePath string) {
+	mnedc.GetServerInstance().StartMNEDCServer(deviceIDFilePath)
 }
 
 // ClearMap makes map empty and only leaves my device info

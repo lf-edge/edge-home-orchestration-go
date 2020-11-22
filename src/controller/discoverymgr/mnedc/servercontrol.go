@@ -24,7 +24,7 @@ import (
 	"strconv"
 
 	networkhelper "common/networkhelper"
-	"controller/mnedcmgr/server"
+	"controller/discoverymgr/mnedc/server"
 	"restinterface/cipher"
 	"restinterface/resthelper"
 	"restinterface/route/tlspskserver"
@@ -59,7 +59,8 @@ func GetServerInstance() *ServerImpl {
 //StartMNEDCServer starts the MNEDC server on the machine
 func (ServerImpl) StartMNEDCServer(deviceIDPath string) {
 
-	deviceID, err := discoveryIns.GetDeviceID()
+	//deviceID, err := discoveryIns.GetDeviceID()
+	deviceID, err := getDeviceID(deviceIDPath)
 	if err != nil {
 		log.Println(logPrefix, "Couldn't start MNEDC server", err.Error())
 		return

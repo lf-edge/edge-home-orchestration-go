@@ -86,7 +86,7 @@ import (
 
 	configuremgr "controller/configuremgr/native"
 	"controller/discoverymgr"
-	"controller/mnedcmgr"
+	mnedcmgr "controller/discoverymgr/mnedc"
 	scoringmgr "controller/scoringmgr"
 	"controller/securemgr/authenticator"
 	"controller/securemgr/authorizer"

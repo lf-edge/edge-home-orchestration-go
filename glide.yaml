@@ -33,11 +33,11 @@ ignore:
   - controller/servicemgr/executor/containerexecutor
   - controller/servicemgr/executor/nativeexecutor
   - controller/servicemgr/notification
-  - controller/mnedcmgr
-  - controller/mnedcmgr/client
-  - controller/mnedcmgr/connectionutil
-  - controller/mnedcmgr/server
-  - controller/mnedcmgr/tunmgr
+  - controller/discoverymgr/mnedc
+  - controller/discoverymgr/mnedc/client
+  - controller/discoverymgr/mnedc/connectionutil
+  - controller/discoverymgr/mnedc/server
+  - controller/discoverymgr/mnedc/tunmgr
   - controller/storagemgr/storagedriver
   - db/helper
   - db/bolt/common

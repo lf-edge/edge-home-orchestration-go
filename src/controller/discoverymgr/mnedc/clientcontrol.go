@@ -18,29 +18,32 @@
 package mnedcmgr
 
 import (
+	"io/ioutil"
 	"log"
 	"restinterface/tls"
 	"time"
 
-	"controller/discoverymgr"
-	"controller/mnedcmgr/client"
+	restclient "restinterface/client"
+	//"controller/discoverymgr"
+	"controller/discoverymgr/mnedc/client"
 )
 
 //ClientImpl structure
 type ClientImpl struct {
+	clientAPI restclient.Clienter
 	tls.HasCertificate
 }
 
 var (
 	clientIns      *ClientImpl
 	mnedcClientIns client.MNEDCClient
-	discoveryIns   discoverymgr.Discovery
+	//discoveryIns   discoverymgr.Discovery
 )
 
 func init() {
 	clientIns = new(ClientImpl)
 	mnedcClientIns = client.GetInstance()
-	discoveryIns = discoverymgr.GetInstance()
+	//discoveryIns = discoverymgr.GetInstance()
 }
 
 // GetClientInstance gives the ClientImpl singletone instance
@@ -51,11 +54,14 @@ func GetClientInstance() *ClientImpl {
 //StartMNEDCClient starts the MNEDC client
 func (c *ClientImpl) StartMNEDCClient(deviceIDPath string, configPath string) {
 
-	deviceID, err := discoveryIns.GetDeviceID()
+	//deviceID, err := discoveryIns.GetDeviceID()
+	deviceID, err := getDeviceID(configPath)
 	if err != nil {
 		log.Println(logPrefix, "Couldn't start MNEDC client", err.Error())
 		return
 	}
+
+	mnedcClientIns.SetClient(c.clientAPI)
 
 	err = c.RegisterToMNEDCServer(deviceID, configPath)
 	if err != nil {
@@ -64,7 +70,8 @@ func (c *ClientImpl) StartMNEDCClient(deviceIDPath string, configPath string) {
 	}
 
 	for attempts := 0; attempts <= maxAttempts; attempts++ {
-		err := discoveryIns.NotifyMNEDCBroadcastServer()
+		//err := discoveryIns.NotifyMNEDCBroadcastServer()
+		err := mnedcClientIns.NotifyBroadcastServer(configPath)
 		if err != nil {
 			log.Println(logPrefix, "Registering to Broadcast server Error", err.Error(), ", retrying")
 			time.Sleep(2 * time.Second)
@@ -82,4 +89,25 @@ func (c *ClientImpl) RegisterToMNEDCServer(deviceID string, configPath string) e
 	}
 	mnedcClientIns.Run()
 	return nil
+}
+
+//SetClient sets the client API
+func (c *ClientImpl) SetClient(clientAPI restclient.Clienter) {
+	c.clientAPI = clientAPI
+	//mnedcClientIns.SetClient(clientAPI)
+}
+
+func getDeviceID(path string) (string, error) {
+	logPrefix := "[GetDeviceID]"
+	UUIDv4, err := ioutil.ReadFile(path)
+
+	if err != nil {
+		log.Println(logPrefix, "No saved UUID : ", err.Error())
+		return "", err
+	}
+
+	log.Println(logPrefix, "Got the UUID")
+	UUIDstr := "edge-orchestration-" + string(UUIDv4)
+
+	return UUIDstr, nil
 }
