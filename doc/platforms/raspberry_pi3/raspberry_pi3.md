@@ -28,13 +28,19 @@ There are two options for building a edge-orchestration container:
 1. On your PC and downloading the edge-orchestration container image from the `edge-orchestration.tar` archive (recommended).
 2. Build directly on the Raspberry Pi 3 board.
 ### 1. Using your PC
-Run the `./build.sh` script and specify the build parameters - `container`,  architecture - `arm64`  (in the case of building in protected mode, add `secure`), see examples below:
+
+Prerequisites: install the qemu packages
 ```shell
-$ ./build.sh container arm64
+$ sudo apt-get install qemu binfmt-support qemu-user-static
+```
+
+Run the `./build.sh` script and specify the build parameters - `container`,  architecture - `arm`  (in the case of building in protected mode, add `secure`), see examples below:
+```shell
+$ ./build.sh container arm
 ```
 or for protected mode:
 ```shell
-$ ./build.sh container secure arm64
+$ ./build.sh container secure arm
 ```
 the build result will be `edge-orchestration.tar` archive that can be found `GoMain/bin/edge-orchestration.tar`
 
