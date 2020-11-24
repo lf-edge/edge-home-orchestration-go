@@ -19,20 +19,46 @@
 package logmgr
 
 import (
-	"log"
 	"os"
+	"io"
+	"fmt"
+	"runtime"
+	"strings"
+	"path"
 
+	"github.com/sirupsen/logrus"
 	"github.com/leemcloughlin/logfile"
 )
 
-var logFileName = "logmgr.log"
+var (
+	logFileName = "logmgr.log"
+	logIns      *logrus.Logger
+)
 
-// Init sets the environments for logging
-func Init(logFilePath string) {
+func init() {
+	logIns = logrus.New()
+	logIns.SetReportCaller(true)
+	logIns.Formatter = &logrus.TextFormatter{
+		FullTimestamp:true,
+		ForceColors:true,
+		CallerPrettyfier: func(f *runtime.Frame) (string, string) {
+			s := strings.Split(f.Function, ".")
+			function := s[len(s)-1]
+			_, filename := path.Split(f.File)
+			filenline := fmt.Sprintf("%s:%d", filename, f.Line)
+			return function, filenline
+		},
+	}
+	logIns.Level = logrus.InfoLevel
+	logIns.Out = os.Stdout
+}
+
+// Sets the environments for a log file
+func InitLogfile(logFilePath string) {
 	if _, err := os.Stat(logFilePath); err != nil {
 		err := os.MkdirAll(logFilePath, os.ModePerm)
 		if err != nil {
-			log.Panicf("Failed to create logFilePath %s: %s\n", logFilePath, err)
+			logIns.Panicf("Failed to create logFilePath %s: %s\n", logFilePath, err)
 		}
 	}
 
@@ -44,9 +70,12 @@ func Init(logFilePath string) {
 			OldVersions: 3,
 			Flags:       logfile.OverWriteOnStart | logfile.RotateOnStart})
 	if err != nil {
-		log.Panicf("Failed to create logFile %s: %s\n", logFileName, err)
+		logIns.Panicf("Failed to create logFile %s: %s\n", logFileName, err)
 	}
 
-	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
-	log.SetOutput(logFile)
+	logIns.Out = io.MultiWriter(os.Stdout, logFile)
+}
+
+func GetInstance() *logrus.Logger {
+	return logIns
 }

@@ -20,7 +20,6 @@ package main
 
 import (
 	"errors"
-	"log"
 	"os"
 	"strings"
 
@@ -81,6 +80,7 @@ const (
 var (
 	commitID, version, buildTime string
 	buildTags                    string
+	log                          = logmgr.GetInstance()
 )
 
 func main() {
@@ -92,7 +92,7 @@ func main() {
 
 // orchestrationInit runs orchestration service and discovers other orchestration services in other devices
 func orchestrationInit() error {
-	logmgr.Init(logPath)
+	logmgr.InitLogfile(logPath)
 	log.Printf("[%s] OrchestrationInit", logPrefix)
 	log.Println(">>> commitID  : ", commitID)
 	log.Println(">>> version   : ", version)
