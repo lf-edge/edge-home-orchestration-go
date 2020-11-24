@@ -20,7 +20,7 @@ package discoverymgr
 import (
 	"bufio"
 	"io/ioutil"
-	"log"
+	"common/logmgr"
 	"net"
 	"os"
 	"reflect"
@@ -81,6 +81,7 @@ func (d *DiscoveryImpl) GetDeviceID() (id string, err error) {
 var (
 	discoveryIns *DiscoveryImpl
 	networkIns   networkhelper.Network
+	log          = logmgr.GetInstance()
 )
 
 func init() {

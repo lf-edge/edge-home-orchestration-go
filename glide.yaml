@@ -122,8 +122,8 @@ import:
     subpackages:
       - ipv4
       - ipv6
-  - package: github.com/Sirupsen/logrus
-    version: v1.4.0
+  - package: github.com/sirupsen/logrus
+    version: v1.7.0
   - package: github.com/spf13/pflag
     version: v1.0.3
   - package: github.com/boltdb/bolt
@@ -140,4 +140,3 @@ import:
     version: v1.3.0
   - package: github.com/edgexfoundry/go-mod-registry
     version: v0.1.0
-
