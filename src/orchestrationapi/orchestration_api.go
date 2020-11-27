@@ -18,6 +18,7 @@
 package orchestrationapi
 
 import (
+	"controller/storagemgr/storagedriver"
 	"errors"
 	"log"
 	"sort"
@@ -44,12 +45,13 @@ import (
 type orcheImpl struct {
 	Ready bool
 
-	verifierIns     verifier.VerifierConf
-	serviceIns      servicemgr.ServiceMgr
-	scoringIns      scoringmgr.Scoring
-	discoverIns     discoverymgr.Discovery
-	watcher         configuremgr.Watcher
-	notificationIns notification.Notification
+	verifierIns      verifier.VerifierConf
+	serviceIns       servicemgr.ServiceMgr
+	scoringIns       scoringmgr.Scoring
+	discoverIns      discoverymgr.Discovery
+	watcher          configuremgr.Watcher
+	notificationIns  notification.Notification
+	storageDriverIns storagedriver.StorageDriver
 
 	networkhelper networkhelper.Network
 

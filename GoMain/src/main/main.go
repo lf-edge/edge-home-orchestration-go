@@ -141,6 +141,11 @@ func orchestrationInit() error {
 	builder.SetExecutor(executor.GetInstance())
 	builder.SetClient(restIns)
 
+	if _, err := os.Stat(dataStorageFilePath); err == nil {
+		sd := storagedriver.StorageDriver{}
+		builder.SetDataStorage(sd)
+	}
+
 	orcheEngine := builder.Build()
 	if orcheEngine == nil {
 		log.Fatalf("[%s] Orchestaration initalize fail", logPrefix)
@@ -182,11 +187,8 @@ func orchestrationInit() error {
 	restEdgeRouter.Add(ehandle)
 
 	restEdgeRouter.Start()
-
-	if _, err := os.Stat(dataStorageFilePath); err == nil {
-		sd := storagedriver.StorageDriver{}
-		go startup.Bootstrap(dataStorageService, device.Version, &sd)
-	}
+	storageIns := internalapi.GetStorageInstance()
+	go startup.Bootstrap(dataStorageService, device.Version, &storageIns)
 
 	log.Println(logPrefix, "orchestration init done")
 

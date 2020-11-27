@@ -19,6 +19,7 @@
 package orchestrationapi
 
 import (
+	"controller/storagemgr/storagedriver"
 	"errors"
 	"log"
 	"time"
@@ -38,7 +39,12 @@ import (
 	"restinterface/client"
 )
 
-const logtag = "Orchestration"
+const (
+	logtag              = "Orchestration"
+	dataStorageService  = "datastorage"
+	edgeDir             = "/var/edge-orchestration"
+	dataStorageFilePath = edgeDir + "/datastorage/configuration.toml"
+)
 
 // Orche is the interface implemented by orchestration start function
 type Orche interface {
@@ -61,6 +67,7 @@ type OrcheInternalAPI interface {
 	HandleDeviceInfo(deviceID string, virtualAddr string, privateAddr string)
 	GetScoreWithResource(target map[string]interface{}) (scoreValue float64, err error)
 	GetResource(target string) (resourceMsg map[string]interface{}, err error)
+	GetStorageInstance() (storageInstance storagedriver.StorageDriver)
 }
 
 var (
@@ -115,6 +122,9 @@ type OrchestrationBuilder struct {
 
 	isSetClient bool
 	clientAPI   client.Clienter
+
+	isSetStorageDriver bool
+	storageDriverIns   storagedriver.StorageDriver
 }
 
 // SetVerifierConf registers the interface to setting up verifier configuration
@@ -159,11 +169,17 @@ func (o *OrchestrationBuilder) SetClient(c client.Clienter) {
 	o.clientAPI = c
 }
 
+// SetDataStorage registers the interface for DataStorage
+func (o *OrchestrationBuilder) SetDataStorage(ds storagedriver.StorageDriver) {
+	o.isSetStorageDriver = true
+	o.storageDriverIns = ds
+}
+
 // Build registers every interface to run orchestration
 func (o OrchestrationBuilder) Build() Orche {
 	if !o.isSetWatcher || !o.isSetDiscovery || !o.isSetScoring ||
 		!o.isSetService || !o.isSetExecutor || !o.isSetClient ||
-		!o.isSetVerifierConf {
+		!o.isSetVerifierConf || !o.isSetStorageDriver {
 		return nil
 	}
 
@@ -180,6 +196,7 @@ func (o OrchestrationBuilder) Build() Orche {
 	orcheIns.serviceIns.SetLocalServiceExecutor(o.executorIns)
 
 	orcheIns.discoverIns.SetRestResource()
+	orcheIns.storageDriverIns = o.storageDriverIns
 
 	return orcheIns
 }
@@ -231,6 +248,11 @@ func (o orcheImpl) GetScoreWithResource(resource map[string]interface{}) (scoreV
 // GetResource gets resource values of local device for running apps
 func (o orcheImpl) GetResource(devID string) (resourceMsg map[string]interface{}, err error) {
 	return o.scoringIns.GetResource(devID)
+}
+
+// GetStorageInstance gets resource values of local device for running apps
+func (o orcheImpl) GetStorageInstance() (storageInstance storagedriver.StorageDriver) {
+	return o.storageDriverIns
 }
 
 // RequestVerifierConf setting up configuration of white list containers
