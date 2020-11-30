@@ -20,7 +20,6 @@ package logmgr
 
 import (
 	"os"
-	"io"
 	"fmt"
 	"runtime"
 	"strings"
@@ -73,7 +72,7 @@ func InitLogfile(logFilePath string) {
 		logIns.Panicf("Failed to create logFile %s: %s\n", logFileName, err)
 	}
 
-	logIns.Out = io.MultiWriter(os.Stdout, logFile)
+	logIns.Out = logFile
 }
 
 func GetInstance() *logrus.Logger {
