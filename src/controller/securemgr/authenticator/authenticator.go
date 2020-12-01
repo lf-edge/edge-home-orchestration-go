@@ -68,7 +68,7 @@ func Init(passPhraseJWTPath string) {
 	if _, err := os.Stat(passPhraseJWTPath); err != nil {
 		err := os.MkdirAll(passPhraseJWTPath, os.ModePerm)
 		if err != nil {
-			log.Panicf("Failed to create passPhraseJWTPath %s: %s\n", passPhraseJWTPath, err)
+			log.Panicf("%s Failed to create passPhraseJWTPath: %s\n", logPrefix, err)
 			return
 		}
 	}
@@ -82,7 +82,7 @@ func Init(passPhraseJWTPath string) {
 		passphrase = []byte(randString(16))
 		err = ioutil.WriteFile(passPhraseJWTFilePath, passphrase, 0666)
 		if err != nil {
-			log.Println(logPrefix, "cannot create "+passPhraseJWTFilePath+": ", err)
+			log.Println(logPrefix, "Cannot create passPhraseJWT.txt:", err)
 		}
 	}
 
