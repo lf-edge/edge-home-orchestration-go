@@ -247,14 +247,6 @@ func TestInit(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		defer os.RemoveAll(fakecwlPath)
 
-		Init("./")
-		if _, err := os.Stat(cwlFileName); err != nil {
-			t.Error("unexpected success")
-		}
-		if err := os.Remove(cwlFileName); err != nil {
-			t.Error(err.Error())
-		}
-
 		Init(fakecwlPath)
 		if _, err := os.Stat(fakecwlPath); err != nil {
 			t.Error(err.Error())
@@ -264,6 +256,19 @@ func TestInit(t *testing.T) {
 			t.Error(err.Error())
 		}
 	})
+	t.Run("Error", func(t *testing.T) {
+		defer func() {
+			if r := recover(); r == nil {
+				t.Error(r)
+			}
+			os.RemoveAll("/fakecwlPath")
+		}()
+		Init("/fakecwlPath")
+		if _, err := os.Stat("/fakecwlPath"); err != nil {
+			t.Error(err.Error())
+		}
+	})
+
 }
 
 func TestRequestVerifierConf(t *testing.T) {
