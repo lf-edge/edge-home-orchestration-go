@@ -139,7 +139,7 @@ func (o *OrchestrationBuilder) SetDiscovery(d discoverymgr.Discovery) {
 	o.discoveryIns = d
 }
 
-// SetStorage registers the interface to handle orchestration discovery
+// SetStorage registers the interface to handle orchestration Storage
 func (o *OrchestrationBuilder) SetStorage(d storagemgr.Storage) {
 	o.isSetStorage = true
 	o.storageIns = d
