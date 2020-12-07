@@ -309,7 +309,7 @@ func EncryptToByteAndPost(data string, target string) int {
 	cipher := sha256.GetCipher(cipherKeyFilePath)
 	jsonStr, err := cipher.EncryptJSONToByte(jsonMap)
 	if err != nil {
-		log.Println("Error in encrypting jsonMap", err.Error())
+		log.Println(logPrefix, "Error in encrypting jsonMap:", err.Error())
 		return 1
 	}
 
@@ -317,6 +317,11 @@ func EncryptToByteAndPost(data string, target string) int {
 	url := fmt.Sprintf("http://%s%s", target+":56002", restapi)
 
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonStr))
+	if err != nil {
+		log.Println(logPrefix, "Failed to create a new request:", err.Error())
+		return 1
+	}
+
 	req.Header.Set("Content-Type", "application/json")
 
 	client := &http.Client{}
