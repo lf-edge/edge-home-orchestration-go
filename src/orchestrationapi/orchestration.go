@@ -19,6 +19,7 @@
 package orchestrationapi
 
 import (
+	"controller/storagemgr"
 	"errors"
 	"log"
 	"time"
@@ -104,6 +105,9 @@ type OrchestrationBuilder struct {
 	isSetDiscovery bool
 	discoveryIns   discoverymgr.Discovery
 
+	isSetStorage bool
+	storageIns   storagemgr.Storage
+
 	isSetWatcher bool
 	watcherIns   configuremgr.Watcher
 
@@ -135,6 +139,12 @@ func (o *OrchestrationBuilder) SetDiscovery(d discoverymgr.Discovery) {
 	o.discoveryIns = d
 }
 
+// SetStorage registers the interface to handle orchestration discovery
+func (o *OrchestrationBuilder) SetStorage(d storagemgr.Storage) {
+	o.isSetStorage = true
+	o.storageIns = d
+}
+
 // SetWatcher registers the interface to check if service applications are installed
 func (o *OrchestrationBuilder) SetWatcher(w configuremgr.Watcher) {
 	o.isSetWatcher = true
@@ -163,13 +173,14 @@ func (o *OrchestrationBuilder) SetClient(c client.Clienter) {
 func (o OrchestrationBuilder) Build() Orche {
 	if !o.isSetWatcher || !o.isSetDiscovery || !o.isSetScoring ||
 		!o.isSetService || !o.isSetExecutor || !o.isSetClient ||
-		!o.isSetVerifierConf {
+		!o.isSetVerifierConf || !o.isSetStorage{
 		return nil
 	}
 
 	orcheIns.Ready = false
 	orcheIns.scoringIns = o.scoringIns
 	orcheIns.discoverIns = o.discoveryIns
+	orcheIns.storageIns = o.storageIns
 	orcheIns.verifierIns = o.verifierIns
 	orcheIns.watcher = o.watcherIns
 	orcheIns.serviceIns = o.serviceIns
@@ -188,6 +199,7 @@ func (o OrchestrationBuilder) Build() Orche {
 func (o *orcheImpl) Start(deviceIDPath string, platform string, executionType string) {
 	resourceMonitorImpl.StartMonitoringResource()
 	o.discoverIns.StartDiscovery(deviceIDPath, platform, executionType)
+	o.storageIns.StartStorage()
 	o.watcher.Watch(o)
 	o.Ready = true
 	time.Sleep(1000)

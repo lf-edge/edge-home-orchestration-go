@@ -39,6 +39,7 @@ PKG_LIST=(
         "controller/discoverymgr/mnedc/connectionutil"
         "controller/discoverymgr/mnedc/server"
         "controller/discoverymgr/mnedc/tunmgr"
+        "controller/storagemgr"
         "controller/storagemgr/storagedriver"
         "db/bolt/common"
         "db/bolt/configuration"
