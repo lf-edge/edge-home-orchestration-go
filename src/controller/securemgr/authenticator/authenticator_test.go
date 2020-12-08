@@ -30,13 +30,21 @@ func TestInit(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		defer os.RemoveAll(fakejwtPath)
 
-		Init("./")
-		if _, err := os.Stat(passPhraseJWTFileName); err != nil {
-			t.Error("unexpected success")
+		if _, err := os.Stat(fakejwtPath); err != nil {
+			err := os.MkdirAll(fakejwtPath, 444)
+			if err != nil {
+				t.Error(err.Error())
+				return
+			}
 		}
-		if err := os.Remove(passPhraseJWTFileName); err != nil {
+		Init(fakejwtPath)
+		if _, err := os.Stat(fakejwtPath); err != nil {
 			t.Error(err.Error())
 		}
+		if _, err := os.Stat(fakejwtFilePath); os.IsNotExist(err) {
+			t.Error(err.Error())
+		}
+		os.RemoveAll(fakejwtPath)
 
 		Init(fakejwtPath)
 		if _, err := os.Stat(fakejwtPath); err != nil {
@@ -45,6 +53,19 @@ func TestInit(t *testing.T) {
 
 		if _, err := os.Stat(fakejwtFilePath); os.IsNotExist(err) {
 			t.Error(err.Error())
+		}
+	})
+	t.Run("Error", func(t *testing.T) {
+		defer func() {
+			if r := recover(); r == nil {
+				t.Error(r)
+			}
+			os.RemoveAll("/fakejwtPath")
+		}()
+
+		Init("/fakejwtPath")
+		if _, err := os.Stat("/fakejwtPath"); os.IsExist(err) {
+			t.Error("unexpected success")
 		}
 	})
 }

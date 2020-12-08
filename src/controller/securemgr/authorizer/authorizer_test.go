@@ -30,32 +30,52 @@ const (
 
 func TestInit(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
-		defer os.RemoveAll(fakerbacPath)
-
-		Init("./")
-		if _, err := os.Stat(rbacPolicyFileName); err != nil {
-			t.Error("unexpected success")
-		}
-		if _, err := os.Stat(rbacAuthModelFileName); err != nil {
-			t.Error("unexpected success")
-		}
-
-		if err := os.Remove(rbacPolicyFileName); err != nil {
-			t.Error(err.Error())
-		}
-		if err := os.Remove(rbacAuthModelFileName); err != nil {
-			t.Error(err.Error())
-		}
+		defer func() {
+			if r := recover(); r == nil {
+				t.Error(r)
+			}
+			os.RemoveAll(fakerbacPath)
+		}()
 
 		Init(fakerbacPath)
 		if _, err := os.Stat(fakerbacPath); err != nil {
 			t.Error(err.Error())
 		}
-
 		if _, err := os.Stat(fakerbacPolicyFilePath); os.IsNotExist(err) {
 			t.Error(err.Error())
 		}
 		if _, err := os.Stat(fakerbacAuthModelFilePath); os.IsNotExist(err) {
+			t.Error(err.Error())
+		}
+		os.RemoveAll(fakerbacPath)
+
+		if _, err := os.Stat(fakerbacPath); err != nil {
+			err := os.MkdirAll(fakerbacPath, 0444)
+			if err != nil {
+				t.Error(err.Error())
+			}
+		}
+		Init(fakerbacPath)
+		if _, err := os.Stat(rbacPolicyFileName); os.IsNotExist(err) {
+			t.Error(err.Error())
+		}
+
+		if _, err := os.Stat(rbacAuthModelFileName); os.IsNotExist(err) {
+			t.Error(err.Error())
+		}
+
+	})
+
+	t.Run("Error", func(t *testing.T) {
+		defer func() {
+			if r := recover(); r == nil {
+				t.Error(r)
+			}
+			os.RemoveAll(fakerbacPath)
+		}()
+		Init("/fakerbacPath")
+
+		if _, err := os.Stat("/fakerbacPath"); os.IsNotExist(err) {
 			t.Error(err.Error())
 		}
 	})
