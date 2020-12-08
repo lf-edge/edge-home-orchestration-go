@@ -19,7 +19,6 @@ package logmgr
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"testing"
 )
@@ -27,10 +26,11 @@ import (
 func TestInit(t *testing.T) {
 
 	logFilePath, _ := os.Getwd()
+	log := GetInstance()
 	log.Printf("FilePath = %s", logFilePath)
-	logFileName = "TestlogFile.log"
+	logFileName = "logmgr.log"
 
-	Init(logFilePath)
+	InitLogfile(logFilePath)
 
 	TestFile := logFilePath + "/" + logFileName
 
@@ -44,7 +44,7 @@ func TestInit(t *testing.T) {
 	}
 }
 
-func TestInitFail(t *testing.T) {
+func TestInitFolderFail(t *testing.T) {
 	defer func() {
 		if r := recover(); r != nil {
 			fmt.Println("fail to create log :", r)
@@ -54,7 +54,35 @@ func TestInitFail(t *testing.T) {
 	}()
 
 	logFilePath := ""
-	logFileName = "TestlogFile.log"
+	InitLogfile(logFilePath)
+}
 
-	Init(logFilePath)
+func TestInitFileFail(t *testing.T) {
+	logFilePath, _ := os.Getwd()
+	logFilePath += "/test"
+
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("fail to create log :", r)
+			err := os.RemoveAll(logFilePath)
+			if err != nil {
+				t.Error(err.Error())
+			}
+		} else {
+			t.Error(r)
+		}
+	}()
+
+	if _, err := os.Stat(logFilePath); err != nil {
+		err := os.MkdirAll(logFilePath, 0444)
+		if err != nil {
+			t.Error(err.Error())
+		}
+	}
+	InitLogfile(logFilePath)
+
+	err := os.RemoveAll(logFilePath)
+	if err != nil {
+		t.Error(err.Error())
+	}
 }
