@@ -173,7 +173,7 @@ func (o *OrchestrationBuilder) SetClient(c client.Clienter) {
 func (o OrchestrationBuilder) Build() Orche {
 	if !o.isSetWatcher || !o.isSetDiscovery || !o.isSetScoring ||
 		!o.isSetService || !o.isSetExecutor || !o.isSetClient ||
-		!o.isSetVerifierConf || !o.isSetStorage{
+		!o.isSetVerifierConf || !o.isSetStorage {
 		return nil
 	}
 
