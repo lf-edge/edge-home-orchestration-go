@@ -19,13 +19,16 @@
 package wrapper
 
 import (
-	"log"
+	"common/logmgr"
 	"net"
 
 	"github.com/grandcat/zeroconf"
 )
 
 const logPrefix = "[discovery][wrapper]"
+var (
+	log = logmgr.GetInstance()
+)
 
 // ZeroconfInterface is the interface implemented by wrapped functions using zeroconf
 // ToDo : How to deal w/ data conver function?

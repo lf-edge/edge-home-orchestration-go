@@ -19,7 +19,7 @@ package server
 
 import (
 	"errors"
-	"log"
+	"common/logmgr"
 	"net"
 	"strconv"
 	"sync"
@@ -56,9 +56,12 @@ const (
 	packetSize           = 1024
 )
 
-var serverIns *Server
-var tunIns tunmgr.Tun
-var networkUtilIns connectionutil.NetworkUtil
+var (
+	serverIns      *Server
+	tunIns         tunmgr.Tun
+	networkUtilIns connectionutil.NetworkUtil
+	log            = logmgr.GetInstance()
+)
 
 //Server defines MNEDC server struct
 type Server struct {

@@ -20,7 +20,7 @@ package senderresolver
 import (
 	"errors"
 	"io/ioutil"
-	"log"
+	"common/logmgr"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -33,7 +33,10 @@ const (
 	WELLKNOWNPORT = 56001
 )
 
-var PROCESS_INFO_PATH = "/process"
+var (
+	PROCESS_INFO_PATH = "/process"
+	log = logmgr.GetInstance()
+)
 
 func GetNameByPort(port int64) (string, error) {
 	lines, err := getData()

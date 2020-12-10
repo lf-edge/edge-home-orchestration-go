@@ -19,7 +19,7 @@ package tls
 
 import (
 	"io/ioutil"
-	"log"
+	"common/logmgr"
 	"sync/atomic"
 
 	"github.com/satori/go.uuid"
@@ -33,6 +33,7 @@ const (
 var (
 	certFilePath atomic.Value
 	handler      PSKHandler
+	log          = logmgr.GetInstance()
 )
 
 func init() {

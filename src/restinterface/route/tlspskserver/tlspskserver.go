@@ -18,13 +18,17 @@
 package tlspskserver
 
 import (
-	"log"
+	"common/logmgr"
 	"net/http"
 
 	rafftls "github.com/raff/tls-ext"
 	"github.com/raff/tls-psk"
 
 	"restinterface/tls"
+)
+
+var (
+	log = logmgr.GetInstance()
 )
 
 type TLSPSKServerListener interface {

@@ -19,7 +19,7 @@
 package networkhelper
 
 import (
-	"log"
+	"common/logmgr"
 	"net"
 	"os"
 	"path/filepath"
@@ -37,6 +37,7 @@ var (
 	detectorIns             detector.Detector
 	netInfo                 networkInformation
 	getNetworkInformationFP func()
+	log                     = logmgr.GetInstance()
 )
 
 const (

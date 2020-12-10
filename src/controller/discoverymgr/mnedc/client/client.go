@@ -20,7 +20,7 @@ package client
 import (
 	"bufio"
 	"errors"
-	"log"
+	"common/logmgr"
 	"net"
 	"os"
 	"sync"
@@ -72,6 +72,7 @@ var (
 	networkUtilIns connectionutil.NetworkUtil
 	networkIns     networkhelper.Network
 	//discoveryIns   discoverymgr.Discovery
+	log            = logmgr.GetInstance()
 )
 
 const (

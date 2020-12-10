@@ -20,6 +20,7 @@ package resourceutil
 
 import (
 	"common/errors"
+	"common/logmgr"
 
 	resourceDB "db/bolt/resource"
 )
@@ -40,6 +41,7 @@ type MonitorImpl struct {
 var (
 	resourceDBExecutor resourceDB.DBInterface
 	monitoringExecutor MonitorImpl
+	log                = logmgr.GetInstance()
 )
 
 func init() {

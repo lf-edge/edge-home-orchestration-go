@@ -19,7 +19,6 @@ package orchestrationapi
 
 import (
 	"errors"
-	"log"
 	"sort"
 	"sync"
 	"sync/atomic"

@@ -22,7 +22,7 @@ import (
 	"bytes"
 	"fmt"
 	"io/ioutil"
-	"log"
+	"common/logmgr"
 	"net/http"
 
 	"restinterface/resthelper/client"
@@ -66,7 +66,10 @@ type helperImpl struct {
 	tls.HasCertificate
 }
 
-var helper *helperImpl
+var (
+	helper *helperImpl
+	log    = logmgr.GetInstance()
+)
 
 func init() {
 	helper = new(helperImpl)

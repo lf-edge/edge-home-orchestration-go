@@ -21,7 +21,7 @@ package restclient
 import (
 	"errors"
 	"fmt"
-	"log"
+	"common/logmgr"
 	"net/http"
 
 	"restinterface/cipher"
@@ -45,7 +45,10 @@ const (
 	logPrefix          = "[restclient]"
 )
 
-var restClient *restClientImpl
+var (
+	restClient *restClientImpl
+	log        = logmgr.GetInstance()
+)
 
 func init() {
 	restClient = new(restClientImpl)

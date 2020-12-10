@@ -19,7 +19,6 @@ package mnedcmgr
 
 import (
 	"io/ioutil"
-	"log"
 	"restinterface/tls"
 	"time"
 

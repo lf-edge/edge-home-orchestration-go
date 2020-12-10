@@ -20,7 +20,7 @@ package notification
 
 import (
 	"errors"
-	"log"
+	"common/logmgr"
 	"strings"
 
 	"common/networkhelper"
@@ -53,11 +53,12 @@ type NotiImpl struct {
 }
 
 var (
+	log              = logmgr.GetInstance()
 	// notificaitonImpl is instance of NotiImpl
 	notificationImpl = &NotiImpl{}
 
 	// NotificationMap is map strucutre (serviceID / Notification Channel)
-	notificationMap = ConcurrentMap{items: make(map[uint64]interface{})}
+	notificationMap  = ConcurrentMap{items: make(map[uint64]interface{})}
 )
 
 // GetInstance returns the singleton NotiImpl instance

@@ -18,7 +18,6 @@
 package resourceutil
 
 import (
-	"log"
 	"time"
 
 	resourceDB "db/bolt/resource"

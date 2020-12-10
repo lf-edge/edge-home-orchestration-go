@@ -19,7 +19,7 @@ package authorizer
 import (
 	"errors"
 	"io/ioutil"
-	"log"
+	"common/logmgr"
 	"net/http"
 	"os"
 
@@ -46,6 +46,7 @@ const (
 
 var (
 	logPrefix             = "[securemgr: RBAC]"
+	log                   = logmgr.GetInstance()
 	rbacPolicyFilePath    = ""
 	rbacAuthModelFilePath = ""
 	authorizerIns         *AuthorizerImpl

@@ -19,7 +19,7 @@
 package detector
 
 import (
-	"log"
+	"common/logmgr"
 
 	"github.com/vishvananda/netlink"
 )
@@ -32,6 +32,7 @@ var detectorIns detectorImpl
 var (
 	subChan chan netlink.AddrUpdate
 	done    chan struct{}
+	log     = logmgr.GetInstance()
 )
 
 var addrSubscribe func(ch chan<- netlink.AddrUpdate, done <-chan struct{}) error
