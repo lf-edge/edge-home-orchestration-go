@@ -18,6 +18,7 @@
 package orchestrationapi
 
 import (
+	"controller/storagemgr"
 	"errors"
 	"log"
 	"sort"
@@ -50,10 +51,9 @@ type orcheImpl struct {
 	discoverIns     discoverymgr.Discovery
 	watcher         configuremgr.Watcher
 	notificationIns notification.Notification
-
-	networkhelper networkhelper.Network
-
-	clientAPI client.Clienter
+	storageIns	storagemgr.Storage
+	networkhelper 	networkhelper.Network
+	clientAPI 	client.Clienter
 }
 
 type deviceInfo struct {
