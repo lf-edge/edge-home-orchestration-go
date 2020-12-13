@@ -348,11 +348,18 @@ func (c *Client) HandleError(err error) {
 
 		c.intf = intf
 		err = c.ParseVirtualIP(string(readBuf[0:n])) //unique TUN ip sent by server
-		if err == nil {
-			err = tunIns.SetTUNIP(c.intf.Name(), c.virtualIP, c.netMask, true)
-			err = tunIns.SetTUNStatus(c.intf.Name(), true, true)
+		if err != nil {
+			log.Println(logPrefix, "Parse Virtual IP error:", err.Error())
+			return
 		}
 
+		err = tunIns.SetTUNIP(c.intf.Name(), c.virtualIP, c.netMask, true)
+		if err != nil {
+			log.Println(logPrefix, "TUN error:", err.Error())
+			return
+		}
+
+		err = tunIns.SetTUNStatus(c.intf.Name(), true, true)
 		if err != nil {
 			log.Println(logPrefix, "TUN error:", err.Error())
 			return
