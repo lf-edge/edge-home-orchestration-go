@@ -19,8 +19,8 @@ package discoverymgr
 
 import (
 	"bufio"
-	"io/ioutil"
 	"common/logmgr"
+	"io/ioutil"
 	"net"
 	"os"
 	"reflect"
@@ -262,7 +262,13 @@ func (DiscoveryImpl) GetOrchestrationInfo() (platfrom string, executionType stri
 
 	log.Println(logPrefix, "Orch info requested")
 	serviceList, err = getServiceList()
+	if err != nil {
+		return
+	}
 	platfrom, err = getPlatform()
+	if err != nil {
+		return
+	}
 	executionType, err = getExecType()
 	return
 }
