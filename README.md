@@ -1,8 +1,9 @@
 # Edge Orchestration
 
 [![Goreport](https://goreportcard.com/badge/github.com/lf-edge/edge-home-orchestration-go)](https://goreportcard.com/report/github.com/lf-edge/edge-home-orchestration-go)
-[![GitHub Action Workflow Badge: edge-home-orchestration-go](https://github.com/lf-edge/edge-home-orchestration-go/workflows/edge-home-orchestration-go/badge.svg)](https://github.com/lf-edge/edge-home-orchestration-go/actions)
+[![Build](https://github.com/lf-edge/edge-home-orchestration-go/workflows/Build/badge.svg)](https://github.com/lf-edge/edge-home-orchestration-go/actions?query=workflow%3ABuild)
 [![Total alerts](https://img.shields.io/lgtm/alerts/g/lf-edge/edge-home-orchestration-go.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/lf-edge/edge-home-orchestration-go/alerts/)
+[![CodeQL Analysis](https://github.com/lf-edge/edge-home-orchestration-go/workflows/CodeQL%20Analysis/badge.svg)](https://github.com/lf-edge/edge-home-orchestration-go/actions?query=workflow%3A%22CodeQL+Analysis%22)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/4336/badge)](https://bestpractices.coreinfrastructure.org/projects/4336)
 [![RepoSize](https://img.shields.io/github/repo-size/lf-edge/edge-home-orchestration-go.svg)](https://github.com/lf-edge/edge-home-orchestration-go)
 [![Release](https://img.shields.io/github/v/release/lf-edge/edge-home-orchestration-go.svg)](https://github.com/lf-edge/edge-home-orchestration-go/releases)
