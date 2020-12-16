@@ -84,14 +84,14 @@ func (handler StorageHandler) processAsyncRequest(writer http.ResponseWriter, re
 	_, err := handler.service.GetDeviceByName(deviceName)
 	if err != nil {
 		handler.logger.Error(fmt.Sprintf("Incoming reading ignored. Device '%s' not found", deviceName))
-		http.Error(writer, fmt.Sprintf("Device '%s' not found", deviceName), http.StatusNotFound)
+		http.Error(writer, fmt.Sprintf("Device not found"), http.StatusNotFound)
 		return
 	}
 
 	deviceResource, ok := handler.service.DeviceResource(deviceName, resourceName, "get")
 	if !ok {
 		handler.logger.Error(fmt.Sprintf("Incoming reading ignored. Resource '%s' not found", resourceName))
-		http.Error(writer, fmt.Sprintf("Resource '%s' not found", resourceName), http.StatusNotFound)
+		http.Error(writer, fmt.Sprintf("Resource not found"), http.StatusNotFound)
 		return
 	}
 
