@@ -18,7 +18,6 @@
 package discoverymgr
 
 import (
-	"log"
 	"net"
 	"reflect"
 	"testing"
