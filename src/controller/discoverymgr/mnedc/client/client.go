@@ -114,9 +114,6 @@ func GetInstance() MNEDCClient {
 func (c *Client) CreateClient(deviceID, configPath string, isSecure bool) (*Client, error) {
 	logPrefix := logTag + "[CreateClient]"
 
-	readBuf := make([]byte, packetSize)
-	readBufSize := 0
-
 	for {
 		servAddr, servPort, err := getMNEDCServerAddress(configPath)
 		if err != nil {
@@ -140,7 +137,7 @@ func (c *Client) CreateClient(deviceID, configPath string, isSecure bool) (*Clie
 
 		log.Println("Write Successful")
 		//conn.SetReadDeadline(time.Now().Add(5 * time.Second))
-		n, readBuff, err := networkUtilIns.ReadFrom(conn)
+		readBufSize, readBuf, err := networkUtilIns.ReadFrom(conn)
 
 		if err != nil {
 			log.Println(logPrefix, "Read Error: ", err.Error(), ", retrying")
@@ -148,9 +145,6 @@ func (c *Client) CreateClient(deviceID, configPath string, isSecure bool) (*Clie
 			conn.Close()
 			continue
 		}
-
-		readBuf = readBuff
-		readBufSize = n
 
 		intf, err := tunIns.CreateTUN()
 		if err != nil {
