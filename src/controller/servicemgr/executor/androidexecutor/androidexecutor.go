@@ -20,7 +20,7 @@ package androidexecutor
 
 import (
 	"errors"
-	"log"
+	"common/logmgr"
 	"os"
 	"strings"
 	"sync"
@@ -32,6 +32,7 @@ import (
 
 var (
 	logPrefix       = "[androidexecutor]"
+	log             = logmgr.GetInstance()
 	androidexecutor = &AndroidExecutor{}
 )
 

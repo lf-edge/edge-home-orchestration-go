@@ -19,7 +19,7 @@ package verifier
 import (
 	"errors"
 	"io/ioutil"
-	"log"
+	"common/logmgr"
 	"os"
 	"strings"
 )
@@ -40,6 +40,7 @@ type VerifierImpl struct{}
 var (
 	containerWhiteList []string
 	logPrefix          = "[securemgr: verifier]"
+	log                = logmgr.GetInstance()
 	verifierIns        *VerifierImpl
 	initialized        = false
 	cwlFilePath        = ""

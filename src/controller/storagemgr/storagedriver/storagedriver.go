@@ -18,7 +18,7 @@ package storagedriver
 
 import (
 	"fmt"
-	"log"
+	"common/logmgr"
 
 	sdk "github.com/edgexfoundry/device-sdk-go"
 	dsModels "github.com/edgexfoundry/device-sdk-go/pkg/models"
@@ -32,6 +32,10 @@ type StorageDriver struct {
 	logger      logger.LoggingClient
 	asyncValues chan<- *dsModels.AsyncValues
 }
+
+var (
+	log = logmgr.GetInstance()
+)
 
 // Initialize performs protocol-specific initialization for the device
 func (driver *StorageDriver) Initialize(logger logger.LoggingClient, asyncValues chan<- *dsModels.AsyncValues) error {

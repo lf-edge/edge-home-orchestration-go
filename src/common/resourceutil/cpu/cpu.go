@@ -2,7 +2,7 @@ package cpu
 
 import (
 	"bufio"
-	"log"
+	"common/logmgr"
 	"os"
 	"strconv"
 	"strings"
@@ -33,7 +33,10 @@ type InfoStat struct {
 	core int
 }
 
-var fileOpen func(name string) (*os.File, error)
+var (
+	fileOpen func(name string) (*os.File, error)
+	log      = logmgr.GetInstance()
+)
 
 func init() {
 	fileOpen = os.Open

@@ -21,7 +21,7 @@ package native
 import (
 	"fmt"
 	"io/ioutil"
-	"log"
+	"common/logmgr"
 	"os"
 	"path/filepath"
 	"strings"
@@ -41,7 +41,10 @@ type ConfigureMgr struct {
 	confpath string
 }
 
-var configuremgrObj *ConfigureMgr
+var (
+	configuremgrObj *ConfigureMgr
+	log             = logmgr.GetInstance()
+)
 
 func init() {
 	configuremgrObj = new(ConfigureMgr)

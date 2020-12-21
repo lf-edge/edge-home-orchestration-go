@@ -20,7 +20,7 @@ package externalhandler
 
 import (
 	"io/ioutil"
-	"log"
+	"common/logmgr"
 	"net/http"
 	"strconv"
 	"strings"
@@ -50,7 +50,10 @@ type Handler struct {
 	netHelper networkhelper.Network
 }
 
-var handler *Handler
+var (
+	handler *Handler
+	log     = logmgr.GetInstance()
+)
 
 func init() {
 	handler = new(Handler)

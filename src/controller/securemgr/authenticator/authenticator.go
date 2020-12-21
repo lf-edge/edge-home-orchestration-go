@@ -22,7 +22,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"log"
+	"common/logmgr"
 	"math/rand"
 	"net/http"
 	"os"
@@ -41,6 +41,7 @@ const (
 
 var (
 	logPrefix             = "[securemgr: authenticator]"
+	log                   = logmgr.GetInstance()
 	authenticatorIns      *AuthenticatorImpl
 	passphrase            = []byte{}
 	passPhraseJWTFilePath = ""

@@ -19,7 +19,7 @@ package tunmgr
 
 import (
 	"fmt"
-	"log"
+	"common/logmgr"
 	"net"
 	"os/exec"
 	"strings"
@@ -30,7 +30,10 @@ import (
 //TunImpl is a struct for Tun related methods
 type TunImpl struct{}
 
-var tunIns TunImpl
+var (
+	tunIns TunImpl
+	log    = logmgr.GetInstance()
+)
 
 func init() {
 

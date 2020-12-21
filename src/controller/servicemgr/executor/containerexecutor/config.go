@@ -31,7 +31,6 @@ import (
 
 	githubnat "github.com/docker/go-connections/nat"
 
-	"github.com/sirupsen/logrus"
 	"github.com/docker/docker/api/types/container"
 	networktypes "github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/api/types/strslice"
@@ -350,7 +349,7 @@ func parse(flags *pflag.FlagSet, copts *containerOptions) (*containerConfig, err
 
 	mounts := copts.mounts.Value()
 	if len(mounts) > 0 && copts.volumeDriver != "" {
-		logrus.Warn("`--volume-driver` is ignored for volumes specifgithub.com/docker/go-connections/nated via `--mount`. Use `--mount type=volume,volume-driver=...` instead.")
+		log.Warn("`--volume-driver` is ignored for volumes specifgithub.com/docker/go-connections/nated via `--mount`. Use `--mount type=volume,volume-driver=...` instead.")
 	}
 	var binds []string
 	volumes := copts.volumes.GetMap()

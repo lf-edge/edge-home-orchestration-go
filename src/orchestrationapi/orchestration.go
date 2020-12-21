@@ -21,7 +21,7 @@ package orchestrationapi
 import (
 	"controller/storagemgr"
 	"errors"
-	"log"
+	"common/logmgr"
 	"time"
 
 	"common/commandvalidator"
@@ -67,6 +67,7 @@ type OrcheInternalAPI interface {
 var (
 	orcheIns            *orcheImpl
 	resourceMonitorImpl resourceutil.Monitor
+	log                 = logmgr.GetInstance()
 )
 
 func init() {

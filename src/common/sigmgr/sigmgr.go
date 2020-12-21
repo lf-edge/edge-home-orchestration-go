@@ -18,7 +18,7 @@
 package sigmgr
 
 import (
-	"log"
+	"common/logmgr"
 	"os"
 	"os/signal"
 	"syscall"
@@ -29,6 +29,10 @@ import (
 
 const (
 	logPrefix = "[sigmgr]"
+)
+
+var (
+	log = logmgr.GetInstance()
 )
 
 // Watch operating system signals

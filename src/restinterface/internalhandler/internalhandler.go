@@ -20,7 +20,7 @@ package internalhandler
 
 import (
 	"io/ioutil"
-	"log"
+	"common/logmgr"
 	"net"
 	"net/http"
 	"strings"
@@ -47,7 +47,10 @@ type Handler struct {
 	cipher.HasCipher
 }
 
-var handler *Handler
+var (
+	handler *Handler
+	log     = logmgr.GetInstance()
+)
 
 func init() {
 	handler = new(Handler)

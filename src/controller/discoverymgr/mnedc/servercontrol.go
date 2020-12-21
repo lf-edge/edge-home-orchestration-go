@@ -19,7 +19,7 @@ package mnedcmgr
 
 import (
 	"io/ioutil"
-	"log"
+	"common/logmgr"
 	"net/http"
 	"strconv"
 
@@ -42,6 +42,7 @@ var (
 	networkIns     networkhelper.Network
 	mnedcServerIns server.MNEDCServer
 	helper         resthelper.RestHelper
+	log            = logmgr.GetInstance()
 )
 
 func init() {

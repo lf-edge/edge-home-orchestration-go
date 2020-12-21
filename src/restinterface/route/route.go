@@ -19,7 +19,7 @@
 package route
 
 import (
-	"log"
+	"common/logmgr"
 	"net/http"
 	"strconv"
 	"time"
@@ -38,6 +38,10 @@ const (
 	// ConstWellknownPort is the common port for REST API
 	ConstWellknownPort = 56001
 	ConstInternalPort  = 56002
+)
+
+var (
+	log = logmgr.GetInstance()
 )
 
 // RestRouter struct {

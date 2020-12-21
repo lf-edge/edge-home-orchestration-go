@@ -21,7 +21,7 @@ package nativeexecutor
 import (
 	"bufio"
 	"errors"
-	"log"
+	"common/logmgr"
 	"os"
 	"os/exec"
 
@@ -32,6 +32,7 @@ import (
 
 var (
 	logPrefix     = "[nativeexecutor]"
+	log           = logmgr.GetInstance()
 	nativeexecutor = &NativeExecutor{}
 )
 

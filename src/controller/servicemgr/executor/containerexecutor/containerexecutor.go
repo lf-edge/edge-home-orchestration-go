@@ -19,7 +19,7 @@
 package containerexecutor
 
 import (
-	"log"
+	"common/logmgr"
 	"os"
 	"unsafe"
 
@@ -38,6 +38,7 @@ import (
 
 var (
 	logPrefix         = "[containerexecutor]"
+	log               = logmgr.GetInstance()
 	containerExecutor *ContainerExecutor
 )
 

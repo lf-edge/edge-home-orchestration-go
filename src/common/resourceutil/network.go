@@ -18,7 +18,6 @@
 package resourceutil
 
 import (
-	"log"
 	"strings"
 	"time"
 

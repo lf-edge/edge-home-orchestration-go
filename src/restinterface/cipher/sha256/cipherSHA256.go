@@ -28,7 +28,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"log"
+	"common/logmgr"
 
 	c "restinterface/cipher"
 )
@@ -37,6 +37,10 @@ import (
 type Cipher struct {
 	passphrase []byte
 }
+
+var (
+	log =  logmgr.GetInstance()
+)
 
 // GetCipher set passphrase for ciphering
 func GetCipher(cipherKeyFilePath string) c.IEdgeCipherer {

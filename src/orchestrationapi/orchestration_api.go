@@ -20,7 +20,6 @@ package orchestrationapi
 import (
 	"controller/storagemgr"
 	"errors"
-	"log"
 	"sort"
 	"sync"
 	"sync/atomic"

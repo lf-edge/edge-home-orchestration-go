@@ -19,7 +19,6 @@
 package resourceutil
 
 import (
-	"log"
 	"time"
 
 	"restinterface/resthelper"
