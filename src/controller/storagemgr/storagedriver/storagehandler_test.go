@@ -1,3 +1,4 @@
+// Copyright (c) 2020 Samsung Electronics Co., Ltd All Rights Reserved.
 //
 // Copyright (c) 2019 Intel Corporation
 //
@@ -12,9 +13,6 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//
-// Modifications copyright (C) 2020 Samsung Electronics All Rights Reserved.
-// Home Edge Adaptation for rest based device SDK
 //
 
 package storagedriver
