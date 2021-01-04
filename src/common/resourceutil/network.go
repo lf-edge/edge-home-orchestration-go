@@ -21,7 +21,7 @@ import (
 	"strings"
 	"time"
 
-	resourceDB "db/bolt/resource"
+	resourceDB "github.com/lf-edge/edge-home-orchestration-go/src/db/bolt/resource"
 
 	netutil "github.com/vishvananda/netlink"
 )

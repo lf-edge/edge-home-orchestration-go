@@ -19,7 +19,7 @@
 package container
 
 import (
-	"controller/configuremgr"
+	"github.com/lf-edge/edge-home-orchestration-go/src/controller/configuremgr"
 )
 
 // ConfigureMgr has config folder path

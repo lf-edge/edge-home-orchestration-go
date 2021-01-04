@@ -21,14 +21,14 @@ package native
 import (
 	"fmt"
 	"io/ioutil"
-	"common/logmgr"
+	"github.com/lf-edge/edge-home-orchestration-go/src/common/logmgr"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
 
-	types "common/types/configuremgrtypes"
-	"controller/configuremgr"
+	types "github.com/lf-edge/edge-home-orchestration-go/src/common/types/configuremgrtypes"
+	"github.com/lf-edge/edge-home-orchestration-go/src/controller/configuremgr"
 
 	"github.com/fsnotify/fsnotify"
 	"gopkg.in/ini.v1"

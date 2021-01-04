@@ -21,7 +21,7 @@
 package mocks
 
 import (
-	system "db/bolt/system"
+	system "github.com/lf-edge/edge-home-orchestration-go/src/db/bolt/system"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"

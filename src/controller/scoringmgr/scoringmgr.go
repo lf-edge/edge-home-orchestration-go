@@ -19,7 +19,7 @@
 package scoringmgr
 
 import (
-	"common/resourceutil"
+	"github.com/lf-edge/edge-home-orchestration-go/src/common/resourceutil"
 	"errors"
 	"math"
 )

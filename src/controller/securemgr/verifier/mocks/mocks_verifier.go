@@ -22,7 +22,7 @@
 package mocks
 
 import (
-	verifier "controller/securemgr/verifier"
+	verifier "github.com/lf-edge/edge-home-orchestration-go/src/controller/securemgr/verifier"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"

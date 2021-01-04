@@ -3,12 +3,12 @@ package helper
 import (
 	"strings"
 
-	errormsg "common/errormsg"
-	errors "common/errors"
-	"db/bolt/common"
-	configurationdb "db/bolt/configuration"
-	networkdb "db/bolt/network"
-	servicedb "db/bolt/service"
+	errormsg "github.com/lf-edge/edge-home-orchestration-go/src/common/errormsg"
+	errors "github.com/lf-edge/edge-home-orchestration-go/src/common/errors"
+	"github.com/lf-edge/edge-home-orchestration-go/src/db/bolt/common"
+	configurationdb "github.com/lf-edge/edge-home-orchestration-go/src/db/bolt/configuration"
+	networkdb "github.com/lf-edge/edge-home-orchestration-go/src/db/bolt/network"
+	servicedb "github.com/lf-edge/edge-home-orchestration-go/src/db/bolt/service"
 )
 
 var (

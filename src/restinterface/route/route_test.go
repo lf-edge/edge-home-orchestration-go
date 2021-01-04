@@ -25,10 +25,10 @@ import (
 	"net/http"
 	"net/http/httptest"
 
-	"restinterface"
-	"restinterface/cipher"
-	"restinterface/externalhandler"
-	"restinterface/internalhandler"
+	"github.com/lf-edge/edge-home-orchestration-go/src/restinterface"
+	"github.com/lf-edge/edge-home-orchestration-go/src/restinterface/cipher"
+	"github.com/lf-edge/edge-home-orchestration-go/src/restinterface/externalhandler"
+	"github.com/lf-edge/edge-home-orchestration-go/src/restinterface/internalhandler"
 )
 
 func TestNewRestRouter(t *testing.T) {

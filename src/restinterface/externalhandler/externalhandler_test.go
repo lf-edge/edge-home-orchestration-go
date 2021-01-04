@@ -24,12 +24,12 @@ import (
 	"strings"
 	"testing"
 
-	networkhelper "common/networkhelper/mocks"
-	"common/requestervalidator"
-	orchestrationapi "orchestrationapi"
-	orchemock "orchestrationapi/mocks"
-	ciphermock "restinterface/cipher/mocks"
-	helpermock "restinterface/resthelper/mocks"
+	networkhelper "github.com/lf-edge/edge-home-orchestration-go/src/common/networkhelper/mocks"
+	"github.com/lf-edge/edge-home-orchestration-go/src/common/requestervalidator"
+	orchestrationapi "github.com/lf-edge/edge-home-orchestration-go/src/orchestrationapi"
+	orchemock "github.com/lf-edge/edge-home-orchestration-go/src/orchestrationapi/mocks"
+	ciphermock "github.com/lf-edge/edge-home-orchestration-go/src/restinterface/cipher/mocks"
+	helpermock "github.com/lf-edge/edge-home-orchestration-go/src/restinterface/resthelper/mocks"
 
 	"github.com/golang/mock/gomock"
 )

@@ -26,12 +26,12 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	networkmocks "common/networkhelper/mocks"
-	discoverymocks "controller/discoverymgr/mocks"
-	"controller/discoverymgr/mnedc/server"
-	serverMocks "controller/discoverymgr/mnedc/server/mocks"
-	ciphermock "restinterface/cipher/mocks"
-	helpermock "restinterface/resthelper/mocks"
+	networkmocks "github.com/lf-edge/edge-home-orchestration-go/src/common/networkhelper/mocks"
+	discoverymocks "github.com/lf-edge/edge-home-orchestration-go/src/controller/discoverymgr/mocks"
+	"github.com/lf-edge/edge-home-orchestration-go/src/controller/discoverymgr/mnedc/server"
+	serverMocks "github.com/lf-edge/edge-home-orchestration-go/src/controller/discoverymgr/mnedc/server/mocks"
+	ciphermock "github.com/lf-edge/edge-home-orchestration-go/src/restinterface/cipher/mocks"
+	helpermock "github.com/lf-edge/edge-home-orchestration-go/src/restinterface/resthelper/mocks"
 
 	"github.com/golang/mock/gomock"
 )

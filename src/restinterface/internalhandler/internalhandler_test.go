@@ -25,12 +25,12 @@ import (
 
 	"testing"
 
-	"common/commandvalidator"
-	"common/requestervalidator"
-	"common/types/configuremgrtypes"
-	orchemock "orchestrationapi/mocks"
-	ciphermock "restinterface/cipher/mocks"
-	helpermock "restinterface/resthelper/mocks"
+	"github.com/lf-edge/edge-home-orchestration-go/src/common/commandvalidator"
+	"github.com/lf-edge/edge-home-orchestration-go/src/common/requestervalidator"
+	"github.com/lf-edge/edge-home-orchestration-go/src/common/types/configuremgrtypes"
+	orchemock "github.com/lf-edge/edge-home-orchestration-go/src/orchestrationapi/mocks"
+	ciphermock "github.com/lf-edge/edge-home-orchestration-go/src/restinterface/cipher/mocks"
+	helpermock "github.com/lf-edge/edge-home-orchestration-go/src/restinterface/resthelper/mocks"
 
 	"github.com/golang/mock/gomock"
 )

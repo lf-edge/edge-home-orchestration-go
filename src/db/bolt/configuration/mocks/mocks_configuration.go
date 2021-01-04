@@ -21,7 +21,7 @@
 package mock_configuration
 
 import (
-	configuration "db/bolt/configuration"
+	configuration "github.com/lf-edge/edge-home-orchestration-go/src/db/bolt/configuration"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"

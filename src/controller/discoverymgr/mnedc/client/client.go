@@ -20,17 +20,17 @@ package client
 import (
 	"bufio"
 	"errors"
-	"common/logmgr"
+	"github.com/lf-edge/edge-home-orchestration-go/src/common/logmgr"
 	"net"
 	"os"
 	"sync"
 	"time"
 
-	restclient "restinterface/client"
+	restclient "github.com/lf-edge/edge-home-orchestration-go/src/restinterface/client"
 	//"controller/discoverymgr"
-	networkhelper "common/networkhelper"
-	"controller/discoverymgr/mnedc/connectionutil"
-	"controller/discoverymgr/mnedc/tunmgr"
+	networkhelper "github.com/lf-edge/edge-home-orchestration-go/src/common/networkhelper"
+	"github.com/lf-edge/edge-home-orchestration-go/src/controller/discoverymgr/mnedc/connectionutil"
+	"github.com/lf-edge/edge-home-orchestration-go/src/controller/discoverymgr/mnedc/tunmgr"
 
 	"github.com/songgao/water"
 )

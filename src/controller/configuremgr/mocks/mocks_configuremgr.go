@@ -22,7 +22,7 @@
 package mocks
 
 import (
-	configuremgr "controller/configuremgr"
+	configuremgr "github.com/lf-edge/edge-home-orchestration-go/src/controller/configuremgr"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"

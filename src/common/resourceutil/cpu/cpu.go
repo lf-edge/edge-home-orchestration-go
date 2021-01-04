@@ -2,7 +2,7 @@ package cpu
 
 import (
 	"bufio"
-	"common/logmgr"
+	"github.com/lf-edge/edge-home-orchestration-go/src/common/logmgr"
 	"os"
 	"strconv"
 	"strings"

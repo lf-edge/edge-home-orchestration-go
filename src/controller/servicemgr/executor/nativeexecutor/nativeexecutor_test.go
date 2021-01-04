@@ -20,9 +20,9 @@ package nativeexecutor
 import (
 	"testing"
 
-	"controller/servicemgr/executor"
-	notificationMock "controller/servicemgr/notification/mocks"
-	clientApiMock "restinterface/client/mocks"
+	"github.com/lf-edge/edge-home-orchestration-go/src/controller/servicemgr/executor"
+	notificationMock "github.com/lf-edge/edge-home-orchestration-go/src/controller/servicemgr/notification/mocks"
+	clientApiMock "github.com/lf-edge/edge-home-orchestration-go/src/restinterface/client/mocks"
 
 	"github.com/golang/mock/gomock"
 )

@@ -20,7 +20,7 @@ package javaapi
 
 import (
 	"bytes"
-	"db/bolt/wrapper"
+	"github.com/lf-edge/edge-home-orchestration-go/src/db/bolt/wrapper"
 	"fmt"
 	"log"
 	"net/http"
@@ -28,26 +28,26 @@ import (
 	"sync"
 	"time"
 
-	"common/logmgr"
-	"common/networkhelper"
+	"github.com/lf-edge/edge-home-orchestration-go/src/common/logmgr"
+	"github.com/lf-edge/edge-home-orchestration-go/src/common/networkhelper"
 
-	configuremgr "controller/configuremgr/native"
-	"controller/discoverymgr"
-	scoringmgr "controller/scoringmgr"
-	"controller/securemgr/authenticator"
-	"controller/securemgr/authorizer"
-	"controller/securemgr/verifier"
-	"controller/servicemgr"
-	"controller/servicemgr/executor/androidexecutor"
+	configuremgr "github.com/lf-edge/edge-home-orchestration-go/src/controller/configuremgr/native"
+	"github.com/lf-edge/edge-home-orchestration-go/src/controller/discoverymgr"
+	scoringmgr "github.com/lf-edge/edge-home-orchestration-go/src/controller/scoringmgr"
+	"github.com/lf-edge/edge-home-orchestration-go/src/controller/securemgr/authenticator"
+	"github.com/lf-edge/edge-home-orchestration-go/src/controller/securemgr/authorizer"
+	"github.com/lf-edge/edge-home-orchestration-go/src/controller/securemgr/verifier"
+	"github.com/lf-edge/edge-home-orchestration-go/src/controller/servicemgr"
+	"github.com/lf-edge/edge-home-orchestration-go/src/controller/servicemgr/executor/androidexecutor"
 
-	"orchestrationapi"
+	"github.com/lf-edge/edge-home-orchestration-go/src/orchestrationapi"
 
-	"restinterface/cipher/dummy"
-	"restinterface/cipher/sha256"
-	"restinterface/client/restclient"
-	"restinterface/internalhandler"
-	"restinterface/route"
-	"restinterface/tls"
+	"github.com/lf-edge/edge-home-orchestration-go/src/restinterface/cipher/dummy"
+	"github.com/lf-edge/edge-home-orchestration-go/src/restinterface/cipher/sha256"
+	"github.com/lf-edge/edge-home-orchestration-go/src/restinterface/client/restclient"
+	"github.com/lf-edge/edge-home-orchestration-go/src/restinterface/internalhandler"
+	"github.com/lf-edge/edge-home-orchestration-go/src/restinterface/route"
+	"github.com/lf-edge/edge-home-orchestration-go/src/restinterface/tls"
 )
 
 // Handle Platform Dependencies

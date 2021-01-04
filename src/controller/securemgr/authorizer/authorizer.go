@@ -19,7 +19,7 @@ package authorizer
 import (
 	"errors"
 	"io/ioutil"
-	"common/logmgr"
+	"github.com/lf-edge/edge-home-orchestration-go/src/common/logmgr"
 	"net/http"
 	"os"
 

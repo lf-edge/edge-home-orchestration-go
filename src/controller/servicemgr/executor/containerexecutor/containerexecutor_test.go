@@ -27,20 +27,20 @@ import (
 	"testing"
 	"time"
 
-	"docker.io/go-docker/api/types/mount"
+	"github.com/docker/docker/api/types/mount"
 
-	"docker.io/go-docker/api/types/blkiodev"
+	"github.com/docker/docker/api/types/blkiodev"
 
-	"controller/servicemgr/executor"
-	"controller/servicemgr/executor/containerexecutor/mocks"
-	notificationMock "controller/servicemgr/notification/mocks"
-	clientApiMock "restinterface/client/mocks"
+	"github.com/lf-edge/edge-home-orchestration-go/src/controller/servicemgr/executor"
+	"github.com/lf-edge/edge-home-orchestration-go/src/controller/servicemgr/executor/containerexecutor/mocks"
+	notificationMock "github.com/lf-edge/edge-home-orchestration-go/src/controller/servicemgr/notification/mocks"
+	clientApiMock "github.com/lf-edge/edge-home-orchestration-go/src/restinterface/client/mocks"
 
 	"github.com/docker/go-units"
 	gomock "github.com/golang/mock/gomock"
 
-	"docker.io/go-docker/api/types"
-	"docker.io/go-docker/api/types/container"
+	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/container"
 )
 
 var (

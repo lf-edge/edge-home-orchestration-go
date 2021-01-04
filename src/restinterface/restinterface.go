@@ -21,7 +21,7 @@ package restinterface
 import (
 	"net/http"
 
-	"restinterface/cipher"
+	"github.com/lf-edge/edge-home-orchestration-go/src/restinterface/cipher"
 )
 
 // Route type

@@ -23,16 +23,16 @@ import (
 	"testing"
 	"time"
 
-	errormsg "common/errormsg"
-	errors "common/errors"
-	networkmocks "common/networkhelper/mocks"
-	wrapper "controller/discoverymgr/wrapper"
-	wrappermocks "controller/discoverymgr/wrapper/mocks"
-	systemdb "db/bolt/system"
+	errormsg "github.com/lf-edge/edge-home-orchestration-go/src/common/errormsg"
+	errors "github.com/lf-edge/edge-home-orchestration-go/src/common/errors"
+	networkmocks "github.com/lf-edge/edge-home-orchestration-go/src/common/networkhelper/mocks"
+	wrapper "github.com/lf-edge/edge-home-orchestration-go/src/controller/discoverymgr/wrapper"
+	wrappermocks "github.com/lf-edge/edge-home-orchestration-go/src/controller/discoverymgr/wrapper/mocks"
+	systemdb "github.com/lf-edge/edge-home-orchestration-go/src/db/bolt/system"
 	goerror "errors"
-	clientMocks "restinterface/client/mocks"
+	clientMocks "github.com/lf-edge/edge-home-orchestration-go/src/restinterface/client/mocks"
 
-	dbwrapper "db/bolt/wrapper"
+	dbwrapper "github.com/lf-edge/edge-home-orchestration-go/src/db/bolt/wrapper"
 
 	"github.com/golang/mock/gomock"
 )

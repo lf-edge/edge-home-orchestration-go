@@ -23,12 +23,12 @@ import (
 
 	"errors"
 
-	configuration "db/bolt/configuration"
-	dbConfigurationMocks "db/bolt/configuration/mocks"
-	network "db/bolt/network"
-	dbNetworkMocks "db/bolt/network/mocks"
-	service "db/bolt/service"
-	dbServiceMocks "db/bolt/service/mocks"
+	configuration "github.com/lf-edge/edge-home-orchestration-go/src/db/bolt/configuration"
+	dbConfigurationMocks "github.com/lf-edge/edge-home-orchestration-go/src/db/bolt/configuration/mocks"
+	network "github.com/lf-edge/edge-home-orchestration-go/src/db/bolt/network"
+	dbNetworkMocks "github.com/lf-edge/edge-home-orchestration-go/src/db/bolt/network/mocks"
+	service "github.com/lf-edge/edge-home-orchestration-go/src/db/bolt/service"
+	dbServiceMocks "github.com/lf-edge/edge-home-orchestration-go/src/db/bolt/service/mocks"
 )
 
 var (

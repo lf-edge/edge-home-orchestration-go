@@ -19,24 +19,24 @@ package discoverymgr
 
 import (
 	"bufio"
-	"common/logmgr"
+	"github.com/lf-edge/edge-home-orchestration-go/src/common/logmgr"
 	"io/ioutil"
 	"net"
 	"os"
 	"reflect"
 	"time"
 
-	errors "common/errors"
-	networkhelper "common/networkhelper"
-	mnedc "controller/discoverymgr/mnedc"
-	wrapper "controller/discoverymgr/wrapper"
+	errors "github.com/lf-edge/edge-home-orchestration-go/src/common/errors"
+	networkhelper "github.com/lf-edge/edge-home-orchestration-go/src/common/networkhelper"
+	mnedc "github.com/lf-edge/edge-home-orchestration-go/src/controller/discoverymgr/mnedc"
+	wrapper "github.com/lf-edge/edge-home-orchestration-go/src/controller/discoverymgr/wrapper"
 
-	configurationdb "db/bolt/configuration"
-	networkdb "db/bolt/network"
-	servicedb "db/bolt/service"
-	systemdb "db/bolt/system"
-	"restinterface/cipher"
-	"restinterface/client"
+	configurationdb "github.com/lf-edge/edge-home-orchestration-go/src/db/bolt/configuration"
+	networkdb "github.com/lf-edge/edge-home-orchestration-go/src/db/bolt/network"
+	servicedb "github.com/lf-edge/edge-home-orchestration-go/src/db/bolt/service"
+	systemdb "github.com/lf-edge/edge-home-orchestration-go/src/db/bolt/system"
+	"github.com/lf-edge/edge-home-orchestration-go/src/restinterface/cipher"
+	"github.com/lf-edge/edge-home-orchestration-go/src/restinterface/client"
 
 	uuid "github.com/satori/go.uuid"
 )

@@ -20,8 +20,8 @@ package resource
 import (
 	"encoding/json"
 
-	"common/errors"
-	bolt "db/bolt/wrapper"
+	"github.com/lf-edge/edge-home-orchestration-go/src/common/errors"
+	bolt "github.com/lf-edge/edge-home-orchestration-go/src/db/bolt/wrapper"
 )
 
 const bucketName = "resource"

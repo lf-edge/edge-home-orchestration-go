@@ -19,11 +19,11 @@
 package discoverymgr
 
 import (
-	wrapper "controller/discoverymgr/wrapper"
-	configurationdb "db/bolt/configuration"
-	networkdb "db/bolt/network"
-	servicedb "db/bolt/service"
-	systemdb "db/bolt/system"
+	wrapper "github.com/lf-edge/edge-home-orchestration-go/src/controller/discoverymgr/wrapper"
+	configurationdb "github.com/lf-edge/edge-home-orchestration-go/src/db/bolt/configuration"
+	networkdb "github.com/lf-edge/edge-home-orchestration-go/src/db/bolt/network"
+	servicedb "github.com/lf-edge/edge-home-orchestration-go/src/db/bolt/service"
+	systemdb "github.com/lf-edge/edge-home-orchestration-go/src/db/bolt/system"
 	"sync"
 )
 

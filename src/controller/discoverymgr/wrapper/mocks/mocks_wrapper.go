@@ -5,7 +5,7 @@
 package mocks
 
 import (
-	wrapper "controller/discoverymgr/wrapper"
+	wrapper "github.com/lf-edge/edge-home-orchestration-go/src/controller/discoverymgr/wrapper"
 	gomock "github.com/golang/mock/gomock"
 	net "net"
 	reflect "reflect"

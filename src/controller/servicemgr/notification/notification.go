@@ -20,11 +20,11 @@ package notification
 
 import (
 	"errors"
-	"common/logmgr"
+	"github.com/lf-edge/edge-home-orchestration-go/src/common/logmgr"
 	"strings"
 
-	"common/networkhelper"
-	"restinterface/client"
+	"github.com/lf-edge/edge-home-orchestration-go/src/common/networkhelper"
+	"github.com/lf-edge/edge-home-orchestration-go/src/restinterface/client"
 )
 
 // Notification is the interface for notification

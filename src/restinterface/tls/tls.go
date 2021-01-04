@@ -19,10 +19,10 @@ package tls
 
 import (
 	"io/ioutil"
-	"common/logmgr"
 	"sync/atomic"
 
 	"github.com/satori/go.uuid"
+	"github.com/lf-edge/edge-home-orchestration-go/src/common/logmgr"
 )
 
 const (

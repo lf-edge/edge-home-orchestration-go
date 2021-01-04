@@ -19,7 +19,7 @@ package wrapper
 import (
 	"os"
 
-	"common/errors"
+	"github.com/lf-edge/edge-home-orchestration-go/src/common/errors"
 
 	"github.com/boltdb/bolt"
 )

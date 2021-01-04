@@ -23,18 +23,18 @@ import (
 
 	"github.com/golang/mock/gomock"
 
-	networkmocks "common/networkhelper/mocks"
-	resourceutilmocks "common/resourceutil/mocks"
-	"common/types/configuremgrtypes"
-	contextmgrmocks "controller/configuremgr/mocks"
-	discoverymocks "controller/discoverymgr/mocks"
-	scoringmocks "controller/scoringmgr/mocks"
-	verifiermocks "controller/securemgr/verifier/mocks"
-	executormocks "controller/servicemgr/executor/mocks"
-	servicemocks "controller/servicemgr/mocks"
-	dbsystemMocks "db/bolt/system/mocks"
-	dbhelpermocks "db/helper/mocks"
-	clientmocks "restinterface/client/mocks"
+	networkmocks "github.com/lf-edge/edge-home-orchestration-go/src/common/networkhelper/mocks"
+	resourceutilmocks "github.com/lf-edge/edge-home-orchestration-go/src/common/resourceutil/mocks"
+	"github.com/lf-edge/edge-home-orchestration-go/src/common/types/configuremgrtypes"
+	contextmgrmocks "github.com/lf-edge/edge-home-orchestration-go/src/controller/configuremgr/mocks"
+	discoverymocks "github.com/lf-edge/edge-home-orchestration-go/src/controller/discoverymgr/mocks"
+	scoringmocks "github.com/lf-edge/edge-home-orchestration-go/src/controller/scoringmgr/mocks"
+	verifiermocks "github.com/lf-edge/edge-home-orchestration-go/src/controller/securemgr/verifier/mocks"
+	executormocks "github.com/lf-edge/edge-home-orchestration-go/src/controller/servicemgr/executor/mocks"
+	servicemocks "github.com/lf-edge/edge-home-orchestration-go/src/controller/servicemgr/mocks"
+	dbsystemMocks "github.com/lf-edge/edge-home-orchestration-go/src/db/bolt/system/mocks"
+	dbhelpermocks "github.com/lf-edge/edge-home-orchestration-go/src/db/helper/mocks"
+	clientmocks "github.com/lf-edge/edge-home-orchestration-go/src/restinterface/client/mocks"
 )
 
 const (

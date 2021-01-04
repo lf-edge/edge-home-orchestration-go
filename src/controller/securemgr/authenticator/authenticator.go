@@ -17,12 +17,12 @@
 package authenticator
 
 import (
-	"controller/securemgr/authorizer"
+	"github.com/lf-edge/edge-home-orchestration-go/src/controller/securemgr/authorizer"
 	"crypto/rsa"
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"common/logmgr"
+	"github.com/lf-edge/edge-home-orchestration-go/src/common/logmgr"
 	"math/rand"
 	"net/http"
 	"os"

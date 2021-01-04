@@ -22,7 +22,7 @@
 package mocks
 
 import (
-	client "controller/discoverymgr/mnedc/client"
+	client "github.com/lf-edge/edge-home-orchestration-go/src/controller/discoverymgr/mnedc/client"
 	gomock "github.com/golang/mock/gomock"
 	reflect "reflect"
 )

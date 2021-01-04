@@ -19,21 +19,19 @@
 package containerexecutor
 
 import (
-	"common/logmgr"
+	"github.com/lf-edge/edge-home-orchestration-go/src/common/logmgr"
 	"os"
-	"unsafe"
+	"runtime"
 
-	"docker.io/go-docker/api/types/container"
-	"docker.io/go-docker/api/types/network"
-	githubcontainer "github.com/docker/docker/api/types/container"
-	githubnetwork "github.com/docker/docker/api/types/network"
+	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/pkg/stdcopy"
 	"github.com/spf13/pflag"
 
-	verifier "controller/securemgr/verifier"
-	servicemgr "controller/servicemgr"
-	"controller/servicemgr/executor"
-	"controller/servicemgr/notification"
+	verifier "github.com/lf-edge/edge-home-orchestration-go/src/controller/securemgr/verifier"
+	servicemgr "github.com/lf-edge/edge-home-orchestration-go/src/controller/servicemgr"
+	"github.com/lf-edge/edge-home-orchestration-go/src/controller/servicemgr/executor"
+	"github.com/lf-edge/edge-home-orchestration-go/src/controller/servicemgr/notification"
 )
 
 var (
@@ -149,43 +147,8 @@ func convertConfig(paramStr []string) (
 	param := paramStr[2 : paramLen-1]
 	flags.Parse(param)
 
-	conf, _ := parse(flags, copts)
+	conf, _ := parse(flags, copts, runtime.GOOS)
+	conf.Config.Image = paramStr[paramLen-1]
 
-	// @Note : Convert API is called with protect API (for panic handling)
-	protect(func() {
-		containerConf = convertContainerConfig(conf.Config)
-	})
-	containerConf.Image = paramStr[paramLen-1]
-
-	protect(func() {
-		hostConf = convertHostConfig(conf.HostConfig)
-	})
-
-	protect(func() {
-		networkConf = convertNetworkConfig(conf.NetworkingConfig)
-	})
-
-	return
-}
-
-func convertContainerConfig(conf *githubcontainer.Config) *container.Config {
-	return (*container.Config)(unsafe.Pointer(conf))
-}
-
-func convertHostConfig(conf *githubcontainer.HostConfig) *container.HostConfig {
-	return (*container.HostConfig)(unsafe.Pointer(conf))
-}
-
-func convertNetworkConfig(conf *githubnetwork.NetworkingConfig) *network.NetworkingConfig {
-	return (*network.NetworkingConfig)(unsafe.Pointer(conf))
-}
-
-// @Note : protect API for handle panic error
-func protect(convertFunc func()) {
-	defer func() {
-		if err := recover(); err != nil {
-			log.Println(logPrefix, "configuration parsing error :", err)
-		}
-	}()
-	convertFunc()
+	return conf.Config, conf.HostConfig, conf.NetworkingConfig
 }

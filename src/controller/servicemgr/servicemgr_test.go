@@ -23,9 +23,9 @@ import (
 	"testing"
 	"time"
 
-	"common/networkhelper"
-	executorMock "controller/servicemgr/executor/mocks"
-	clientApiMock "restinterface/client/mocks"
+	"github.com/lf-edge/edge-home-orchestration-go/src/common/networkhelper"
+	executorMock "github.com/lf-edge/edge-home-orchestration-go/src/controller/servicemgr/executor/mocks"
+	clientApiMock "github.com/lf-edge/edge-home-orchestration-go/src/restinterface/client/mocks"
 
 	"github.com/golang/mock/gomock"
 	//	"bytes"

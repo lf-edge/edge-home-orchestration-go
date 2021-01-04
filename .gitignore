@@ -6,10 +6,9 @@
 *.o
 bin/*
 pkg/*
-vendor/src
 doc/generate-api/*
 vendor/
-glide.lock
+go.sum
 
 # Sample binary
 libedge-orchestration/lib/*

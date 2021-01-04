@@ -19,7 +19,7 @@
 package client
 
 import (
-	"restinterface/cipher"
+	"github.com/lf-edge/edge-home-orchestration-go/src/restinterface/cipher"
 )
 
 // Clienter interface

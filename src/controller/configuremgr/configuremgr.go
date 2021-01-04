@@ -18,7 +18,7 @@
 // Package configuremgr provides interfaces between orchestrationapi and configuremgr
 package configuremgr
 
-import "common/types/configuremgrtypes"
+import "github.com/lf-edge/edge-home-orchestration-go/src/common/types/configuremgrtypes"
 
 // Notifier is the interface to get scoring information for each service application
 type Notifier interface {

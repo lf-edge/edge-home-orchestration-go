@@ -29,9 +29,9 @@ import (
 
 	"testing"
 
-	"common/requestervalidator"
-	sysDB "db/bolt/system"
-	dbhelper "db/helper"
+	"github.com/lf-edge/edge-home-orchestration-go/src/common/requestervalidator"
+	sysDB "github.com/lf-edge/edge-home-orchestration-go/src/db/bolt/system"
+	dbhelper "github.com/lf-edge/edge-home-orchestration-go/src/db/helper"
 )
 
 func TestRequestService(t *testing.T) {

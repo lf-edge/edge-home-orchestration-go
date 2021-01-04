@@ -22,10 +22,11 @@
 package mocks
 
 import (
-	gomock "github.com/golang/mock/gomock"
 	reflect "reflect"
-	restinterface "restinterface"
-	cipher "restinterface/cipher"
+
+	gomock "github.com/golang/mock/gomock"
+	restinterface "github.com/lf-edge/edge-home-orchestration-go/src/restinterface"
+	cipher "github.com/lf-edge/edge-home-orchestration-go/src/restinterface/cipher"
 )
 
 // MockIRestRoutes is a mock of IRestRoutes interface

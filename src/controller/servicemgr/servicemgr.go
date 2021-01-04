@@ -21,10 +21,10 @@ package servicemgr
 import (
 	"strings"
 
-	"common/networkhelper"
-	"controller/servicemgr/executor"
-	"controller/servicemgr/notification"
-	"restinterface/client"
+	"github.com/lf-edge/edge-home-orchestration-go/src/common/networkhelper"
+	"github.com/lf-edge/edge-home-orchestration-go/src/controller/servicemgr/executor"
+	"github.com/lf-edge/edge-home-orchestration-go/src/controller/servicemgr/notification"
+	"github.com/lf-edge/edge-home-orchestration-go/src/restinterface/client"
 )
 
 // ServiceMgr is the interface to execute service application

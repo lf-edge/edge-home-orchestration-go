@@ -26,10 +26,10 @@ import (
 	"strings"
 	"testing"
 
-	"common/networkhelper"
+	"github.com/lf-edge/edge-home-orchestration-go/src/common/networkhelper"
 
 	"github.com/golang/mock/gomock"
-	clientMocks "restinterface/client/mocks"
+	clientMocks "github.com/lf-edge/edge-home-orchestration-go/src/restinterface/client/mocks"
 )
 
 var (
