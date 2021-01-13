@@ -58,8 +58,8 @@ _**addHashCWL**_
 JSON:
 ```json
     {
-        "SecCompName": "Verifier",
-        "TypeCmd": "addHashCWL",
+        "SecureMgr": "Verifier",
+        "CmdType": "addHashCWL",
         "Desc": [
         {
             "ContainerHash": "fc6a51919cfeb2e6763f62b6d9e8815acbf7cd2e476ea353743570610737b752"
@@ -79,8 +79,8 @@ _**delHashCWL**_
 JSON:
 ```json
     {
-        "SecCompName": "Verifier",
-        "TypeCmd": "delHashCWL",
+        "SecureMgr": "Verifier",
+        "CmdType": "delHashCWL",
         "Desc": [
         {
             "ContainerHash": "fc6a51919cfeb2e6763f62b6d9e8815acbf7cd2e476ea353743570610737b752"
@@ -96,8 +96,8 @@ _**delAllHashCWL**_
 JSON:
 ```json
     {
-        "SecCompName": "Verifier",
-        "TypeCmd": "delAllHashCWL",
+        "SecureMgr": "Verifier",
+        "CmdType": "delAllHashCWL",
         "StatusCallbackURI": "http://localhost:8888/api/v1/services/notification"
     }
 ```
@@ -109,8 +109,8 @@ _**printAllHashCWL**_
 JSON:
 ```json
     {
-        "SecCompName": "Verifier",
-        "TypeCmd": "printAllHashCWL",
+        "SecureMgr": "Verifier",
+        "CmdType": "printAllHashCWL",
         "StatusCallbackURI": "http://localhost:8888/api/v1/services/notification"
     }
 ```
