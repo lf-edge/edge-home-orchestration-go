@@ -76,7 +76,6 @@ import "C"
 import (
 	"errors"
 	"flag"
-	"log"
 	"math"
 	"strings"
 	"sync"
@@ -133,6 +132,7 @@ var (
 	flagVersion                  bool
 	commitID, version, buildTime string
 	buildTags                    string
+	log                          = logmgr.GetInstance()
 
 	orcheEngine orchestrationapi.Orche
 )
@@ -143,7 +143,7 @@ func OrchestrationInit() C.int {
 	flag.BoolVar(&flagVersion, "version", false, "if true, print version and exit")
 	flag.Parse()
 
-	logmgr.Init(logPath)
+	logmgr.InitLogfile(logPath)
 	log.Printf("[%s] OrchestrationInit", logPrefix)
 	log.Println(">>> commitID  : ", commitID)
 	log.Println(">>> version   : ", version)

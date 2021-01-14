@@ -20,7 +20,6 @@ package containerexecutor
 import (
 	"errors"
 	"io/ioutil"
-	"log"
 	"reflect"
 	"strings"
 	"sync"

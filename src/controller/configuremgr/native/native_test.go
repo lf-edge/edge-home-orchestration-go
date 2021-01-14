@@ -19,7 +19,6 @@ package native
 
 import (
 	"fmt"
-	"log"
 	"os/exec"
 	"strings"
 	"testing"

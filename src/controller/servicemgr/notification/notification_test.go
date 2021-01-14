@@ -19,7 +19,6 @@ package notification
 
 import (
 	"fmt"
-	"log"
 	"net"
 	"net/http"
 	"net/http/httptest"
@@ -27,9 +26,9 @@ import (
 	"testing"
 
 	"github.com/lf-edge/edge-home-orchestration-go/src/common/networkhelper"
+	clientMocks "github.com/lf-edge/edge-home-orchestration-go/src/restinterface/client/mocks"
 
 	"github.com/golang/mock/gomock"
-	clientMocks "github.com/lf-edge/edge-home-orchestration-go/src/restinterface/client/mocks"
 )
 
 var (

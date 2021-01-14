@@ -22,7 +22,6 @@ import (
 	"bytes"
 	"github.com/lf-edge/edge-home-orchestration-go/src/db/bolt/wrapper"
 	"fmt"
-	"log"
 	"net/http"
 	"strings"
 	"sync"
@@ -77,6 +76,7 @@ var (
 	certificateFilePath string
 	cipherKeyFilePath   string
 	deviceIDFilePath    string
+	log                 = logmgr.GetInstance()
 )
 
 func initPlatformPath(edgeDir string) {
@@ -165,7 +165,7 @@ type ExecuteCallback interface {
 func OrchestrationInit(executeCallback ExecuteCallback, edgeDir string, isSecured bool) (errCode int) {
 	initPlatformPath(edgeDir)
 
-	logmgr.Init(logPath)
+	logmgr.InitLogfile(logPath)
 	log.Printf("[%s] OrchestrationInit", logPrefix)
 
 	wrapper.SetBoltDBPath(dbPath)
