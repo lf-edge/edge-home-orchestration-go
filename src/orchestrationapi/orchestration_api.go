@@ -18,27 +18,27 @@
 package orchestrationapi
 
 import (
-	"controller/storagemgr"
+	"github.com/lf-edge/edge-home-orchestration-go/src/controller/storagemgr"
 	"errors"
 	"sort"
 	"sync"
 	"sync/atomic"
 	"time"
 
-	"common/commandvalidator"
-	"common/networkhelper"
-	"common/requestervalidator"
-	"controller/configuremgr"
-	"controller/discoverymgr"
-	"controller/scoringmgr"
-	"controller/securemgr/verifier"
-	"controller/servicemgr"
-	"controller/servicemgr/notification"
-	"restinterface/client"
+	"github.com/lf-edge/edge-home-orchestration-go/src/common/commandvalidator"
+	"github.com/lf-edge/edge-home-orchestration-go/src/common/networkhelper"
+	"github.com/lf-edge/edge-home-orchestration-go/src/common/requestervalidator"
+	"github.com/lf-edge/edge-home-orchestration-go/src/controller/configuremgr"
+	"github.com/lf-edge/edge-home-orchestration-go/src/controller/discoverymgr"
+	"github.com/lf-edge/edge-home-orchestration-go/src/controller/scoringmgr"
+	"github.com/lf-edge/edge-home-orchestration-go/src/controller/securemgr/verifier"
+	"github.com/lf-edge/edge-home-orchestration-go/src/controller/servicemgr"
+	"github.com/lf-edge/edge-home-orchestration-go/src/controller/servicemgr/notification"
+	"github.com/lf-edge/edge-home-orchestration-go/src/restinterface/client"
 
-	"db/bolt/common"
-	sysDB "db/bolt/system"
-	dbhelper "db/helper"
+	"github.com/lf-edge/edge-home-orchestration-go/src/db/bolt/common"
+	sysDB "github.com/lf-edge/edge-home-orchestration-go/src/db/bolt/system"
+	dbhelper "github.com/lf-edge/edge-home-orchestration-go/src/db/helper"
 )
 
 type orcheImpl struct {

@@ -23,8 +23,9 @@ package mocks
 
 import (
 	reflect "reflect"
-	cipher "restinterface/cipher"
-	client "restinterface/client"
+
+	cipher "github.com/lf-edge/edge-home-orchestration-go/src/restinterface/cipher"
+	client "github.com/lf-edge/edge-home-orchestration-go/src/restinterface/client"
 
 	gomock "github.com/golang/mock/gomock"
 )

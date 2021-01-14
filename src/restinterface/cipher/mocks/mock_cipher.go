@@ -22,9 +22,10 @@
 package mocks
 
 import (
-	gomock "github.com/golang/mock/gomock"
 	reflect "reflect"
-	cipher "restinterface/cipher"
+
+	gomock "github.com/golang/mock/gomock"
+	cipher "github.com/lf-edge/edge-home-orchestration-go/src/restinterface/cipher"
 )
 
 // MockIEdgeCipherer is a mock of IEdgeCipherer interface

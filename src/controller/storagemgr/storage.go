@@ -17,7 +17,7 @@
 package storagemgr
 
 import (
-	"controller/storagemgr/storagedriver"
+	"github.com/lf-edge/edge-home-orchestration-go/src/controller/storagemgr/storagedriver"
 	"errors"
 	"github.com/edgexfoundry/device-sdk-go"
 	"github.com/edgexfoundry/device-sdk-go/pkg/startup"

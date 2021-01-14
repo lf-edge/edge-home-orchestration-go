@@ -20,8 +20,8 @@ package resourceutil
 import (
 	"time"
 
-	commoncpu "common/resourceutil/cpu"
-	resourceDB "db/bolt/resource"
+	commoncpu "github.com/lf-edge/edge-home-orchestration-go/src/common/resourceutil/cpu"
+	resourceDB "github.com/lf-edge/edge-home-orchestration-go/src/db/bolt/resource"
 )
 
 type cpuUtil struct {

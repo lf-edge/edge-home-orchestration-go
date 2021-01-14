@@ -20,18 +20,18 @@ package internalhandler
 
 import (
 	"io/ioutil"
-	"common/logmgr"
+	"github.com/lf-edge/edge-home-orchestration-go/src/common/logmgr"
 	"net"
 	"net/http"
 	"strings"
 
-	"common/commandvalidator"
-	"common/requestervalidator"
-	"common/types/servicemgrtypes"
-	"orchestrationapi"
-	"restinterface"
-	"restinterface/cipher"
-	"restinterface/resthelper"
+	"github.com/lf-edge/edge-home-orchestration-go/src/common/commandvalidator"
+	"github.com/lf-edge/edge-home-orchestration-go/src/common/requestervalidator"
+	"github.com/lf-edge/edge-home-orchestration-go/src/common/types/servicemgrtypes"
+	"github.com/lf-edge/edge-home-orchestration-go/src/orchestrationapi"
+	"github.com/lf-edge/edge-home-orchestration-go/src/restinterface"
+	"github.com/lf-edge/edge-home-orchestration-go/src/restinterface/cipher"
+	"github.com/lf-edge/edge-home-orchestration-go/src/restinterface/resthelper"
 )
 
 const logPrefix = "RestInternalInterface"

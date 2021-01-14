@@ -21,7 +21,7 @@
 package mock_service
 
 import (
-	service "db/bolt/service"
+	service "github.com/lf-edge/edge-home-orchestration-go/src/db/bolt/service"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"

@@ -20,8 +20,8 @@ package scoringmgr
 import (
 	"testing"
 
-	"common/resourceutil"
-	resourceUtilMock "common/resourceutil/mocks"
+	"github.com/lf-edge/edge-home-orchestration-go/src/common/resourceutil"
+	resourceUtilMock "github.com/lf-edge/edge-home-orchestration-go/src/common/resourceutil/mocks"
 
 	"github.com/golang/mock/gomock"
 )

@@ -18,7 +18,7 @@
 package blacklist
 
 import (
-	"db/bolt/common"
+	"github.com/lf-edge/edge-home-orchestration-go/src/db/bolt/common"
 )
 
 var blackList = []string{

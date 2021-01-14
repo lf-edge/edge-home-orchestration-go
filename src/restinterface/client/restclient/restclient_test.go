@@ -22,8 +22,8 @@ import (
 	"net/http"
 	"testing"
 
-	ciphermock "restinterface/cipher/mocks"
-	helpermock "restinterface/resthelper/mocks"
+	ciphermock "github.com/lf-edge/edge-home-orchestration-go/src/restinterface/cipher/mocks"
+	helpermock "github.com/lf-edge/edge-home-orchestration-go/src/restinterface/resthelper/mocks"
 
 	"github.com/golang/mock/gomock"
 )

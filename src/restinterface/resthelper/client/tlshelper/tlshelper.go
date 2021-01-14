@@ -28,7 +28,7 @@ import (
 	"github.com/raff/tls-ext"
 	"github.com/raff/tls-psk"
 
-	tlscipher "restinterface/tls"
+	tlscipher "github.com/lf-edge/edge-home-orchestration-go/src/restinterface/tls"
 )
 
 var (

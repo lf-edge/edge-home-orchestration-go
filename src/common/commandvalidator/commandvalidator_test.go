@@ -22,7 +22,7 @@ import (
 	"strconv"
 	"sync"
 
-	"common/types/configuremgrtypes"
+	"github.com/lf-edge/edge-home-orchestration-go/src/common/types/configuremgrtypes"
 )
 
 func TestCheckCommand(t *testing.T) {

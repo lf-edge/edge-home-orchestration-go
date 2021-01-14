@@ -25,9 +25,8 @@ import (
 	"strings"
 	"testing"
 
-	"common/networkhelper"
-
-	clientMocks "restinterface/client/mocks"
+	"github.com/lf-edge/edge-home-orchestration-go/src/common/networkhelper"
+	clientMocks "github.com/lf-edge/edge-home-orchestration-go/src/restinterface/client/mocks"
 
 	"github.com/golang/mock/gomock"
 )

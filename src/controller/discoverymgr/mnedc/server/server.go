@@ -19,13 +19,13 @@ package server
 
 import (
 	"errors"
-	"common/logmgr"
+	"github.com/lf-edge/edge-home-orchestration-go/src/common/logmgr"
 	"net"
 	"strconv"
 	"sync"
 
-	"controller/discoverymgr/mnedc/connectionutil"
-	"controller/discoverymgr/mnedc/tunmgr"
+	"github.com/lf-edge/edge-home-orchestration-go/src/controller/discoverymgr/mnedc/connectionutil"
+	"github.com/lf-edge/edge-home-orchestration-go/src/controller/discoverymgr/mnedc/tunmgr"
 
 	"github.com/songgao/water"
 	"github.com/songgao/water/waterutil"

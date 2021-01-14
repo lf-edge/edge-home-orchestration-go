@@ -19,7 +19,7 @@ package tunmgr
 
 import (
 	"fmt"
-	"common/logmgr"
+	"github.com/lf-edge/edge-home-orchestration-go/src/common/logmgr"
 	"net"
 	"os/exec"
 	"strings"

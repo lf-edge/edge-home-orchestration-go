@@ -18,13 +18,14 @@
 package tlspskserver
 
 import (
-	"common/logmgr"
 	"net/http"
+
+	"github.com/lf-edge/edge-home-orchestration-go/src/common/logmgr"
 
 	rafftls "github.com/raff/tls-ext"
 	"github.com/raff/tls-psk"
 
-	"restinterface/tls"
+	"github.com/lf-edge/edge-home-orchestration-go/src/restinterface/tls"
 )
 
 var (

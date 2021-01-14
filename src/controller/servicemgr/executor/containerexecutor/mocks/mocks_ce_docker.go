@@ -5,8 +5,8 @@
 package mocks
 
 import (
-	container "docker.io/go-docker/api/types/container"
-	network "docker.io/go-docker/api/types/network"
+	container "github.com/docker/docker/api/types/container"
+	network "github.com/docker/docker/api/types/network"
 	gomock "github.com/golang/mock/gomock"
 	io "io"
 	reflect "reflect"

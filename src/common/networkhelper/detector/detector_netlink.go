@@ -19,7 +19,7 @@
 package detector
 
 import (
-	"common/logmgr"
+	"github.com/lf-edge/edge-home-orchestration-go/src/common/logmgr"
 
 	"github.com/vishvananda/netlink"
 )

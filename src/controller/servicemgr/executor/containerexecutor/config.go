@@ -17,32 +17,34 @@
 
 package containerexecutor
 
-// @Note : Reference - github.com/docker/docker/cli/command/container/opts.go
+// @Note : Reference - github.com/docker/cli/cli/command/container/opts.go @v19.03.14
 import (
 	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"path"
+	"reflect"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
 
-	githubnat "github.com/docker/go-connections/nat"
-
+	"github.com/docker/cli/cli/compose/loader"
+	"github.com/docker/cli/opts"
 	"github.com/docker/docker/api/types/container"
 	networktypes "github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/api/types/strslice"
-	"github.com/docker/docker/opts"
+	"github.com/docker/docker/api/types/versions"
+	"github.com/docker/docker/errdefs"
 	"github.com/docker/docker/pkg/signal"
-	runconfigopts "github.com/docker/docker/runconfig/opts"
+	"github.com/docker/go-connections/nat"
 	"github.com/pkg/errors"
 	"github.com/spf13/pflag"
 )
 
 var (
-	deviceCgroupRuleRegexp = regexp.MustCompile("^[acb] ([0-9]+|\\*):([0-9]+|\\*) [rwm]{1,3}$")
+	deviceCgroupRuleRegexp = regexp.MustCompile(`^[acb] ([0-9]+|\*):([0-9]+|\*) [rwm]{1,3}$`)
 )
 
 // containerOptions is a data object with all the options for creating a container
@@ -63,6 +65,7 @@ type containerOptions struct {
 	labels             opts.ListOpts
 	deviceCgroupRules  opts.ListOpts
 	devices            opts.ListOpts
+	gpus               opts.GpuOpts
 	ulimits            *opts.UlimitOpt
 	sysctls            *opts.MapOpts
 	publish            opts.ListOpts
@@ -92,6 +95,7 @@ type containerOptions struct {
 	containerIDFile    string
 	entrypoint         string
 	hostname           string
+	domainname         string
 	memory             opts.MemBytes
 	memoryReservation  opts.MemBytes
 	memorySwap         opts.MemSwapBytes
@@ -112,7 +116,7 @@ type containerOptions struct {
 	ioMaxBandwidth     opts.MemBytes
 	ioMaxIOps          uint64
 	swappiness         int64
-	netMode            string
+	netMode            opts.NetworkOpt
 	macAddress         string
 	ipv4Address        string
 	ipv6Address        string
@@ -157,13 +161,13 @@ func addFlags(flags *pflag.FlagSet) *containerOptions {
 		deviceReadIOps:    opts.NewThrottledeviceOpt(opts.ValidateThrottleIOpsDevice),
 		deviceWriteBps:    opts.NewThrottledeviceOpt(opts.ValidateThrottleBpsDevice),
 		deviceWriteIOps:   opts.NewThrottledeviceOpt(opts.ValidateThrottleIOpsDevice),
-		devices:           opts.NewListOpts(validateDevice),
+		devices:           opts.NewListOpts(nil), // devices can only be validated after we know the server OS
 		env:               opts.NewListOpts(opts.ValidateEnv),
 		envFile:           opts.NewListOpts(nil),
 		expose:            opts.NewListOpts(nil),
 		extraHosts:        opts.NewListOpts(opts.ValidateExtraHost),
 		groupAdd:          opts.NewListOpts(nil),
-		labels:            opts.NewListOpts(opts.ValidateEnv),
+		labels:            opts.NewListOpts(opts.ValidateLabel),
 		labelsFile:        opts.NewListOpts(nil),
 		linkLocalIPs:      opts.NewListOpts(nil),
 		links:             opts.NewListOpts(opts.ValidateLink),
@@ -182,11 +186,14 @@ func addFlags(flags *pflag.FlagSet) *containerOptions {
 	flags.VarP(&copts.attach, "attach", "a", "Attach to STDIN, STDOUT or STDERR")
 	flags.Var(&copts.deviceCgroupRules, "device-cgroup-rule", "Add a rule to the cgroup allowed devices list")
 	flags.Var(&copts.devices, "device", "Add a host device to the container")
+	flags.Var(&copts.gpus, "gpus", "GPU devices to add to the container ('all' to pass all GPUs)")
+	flags.SetAnnotation("gpus", "version", []string{"1.40"})
 	flags.VarP(&copts.env, "env", "e", "Set environment variables")
 	flags.Var(&copts.envFile, "env-file", "Read in a file of environment variables")
 	flags.StringVar(&copts.entrypoint, "entrypoint", "", "Overwrite the default ENTRYPOINT of the image")
 	flags.Var(&copts.groupAdd, "group-add", "Add additional groups to join")
 	flags.StringVarP(&copts.hostname, "hostname", "h", "", "Container host name")
+	flags.StringVar(&copts.domainname, "domainname", "", "Container NIS domain name")
 	flags.BoolVarP(&copts.stdin, "interactive", "i", false, "Keep STDIN open even if not attached")
 	flags.VarP(&copts.labels, "label", "l", "Set meta data on a container")
 	flags.Var(&copts.labelsFile, "label-file", "Read in a line delimited file of labels")
@@ -227,8 +234,8 @@ func addFlags(flags *pflag.FlagSet) *containerOptions {
 	flags.VarP(&copts.publish, "publish", "p", "Publish a container's port(s) to the host")
 	flags.BoolVarP(&copts.publishAll, "publish-all", "P", false, "Publish all exposed ports to random ports")
 	// We allow for both "--net" and "--network", although the latter is the recommended way.
-	flags.StringVar(&copts.netMode, "net", "default", "Connect a container to a network")
-	flags.StringVar(&copts.netMode, "network", "default", "Connect a container to a network")
+	flags.Var(&copts.netMode, "net", "Connect a container to a network")
+	flags.Var(&copts.netMode, "network", "Connect a container to a network")
 	flags.MarkHidden("net")
 	// We allow for both "--net-alias" and "--network-alias", although the latter is the recommended way.
 	flags.Var(&copts.aliases, "net-alias", "Add network-scoped alias for the container")
@@ -247,10 +254,10 @@ func addFlags(flags *pflag.FlagSet) *containerOptions {
 
 	// Health-checking
 	flags.StringVar(&copts.healthCmd, "health-cmd", "", "Command to run to check health")
-	flags.DurationVar(&copts.healthInterval, "health-interval", 0, "Time between running the check (ns|us|ms|s|m|h) (default 0s)")
+	flags.DurationVar(&copts.healthInterval, "health-interval", 0, "Time between running the check (ms|s|m|h) (default 0s)")
 	flags.IntVar(&copts.healthRetries, "health-retries", 0, "Consecutive failures needed to report unhealthy")
-	flags.DurationVar(&copts.healthTimeout, "health-timeout", 0, "Maximum time to allow one check to run (ns|us|ms|s|m|h) (default 0s)")
-	flags.DurationVar(&copts.healthStartPeriod, "health-start-period", 0, "Start period for the container to initialize before starting health-retries countdown (ns|us|ms|s|m|h) (default 0s)")
+	flags.DurationVar(&copts.healthTimeout, "health-timeout", 0, "Maximum time to allow one check to run (ms|s|m|h) (default 0s)")
+	flags.DurationVar(&copts.healthStartPeriod, "health-start-period", 0, "Start period for the container to initialize before starting health-retries countdown (ms|s|m|h) (default 0s)")
 	flags.SetAnnotation("health-start-period", "version", []string{"1.29"})
 	flags.BoolVar(&copts.noHealthcheck, "no-healthcheck", false, "Disable any container-specified HEALTHCHECK")
 
@@ -292,7 +299,7 @@ func addFlags(flags *pflag.FlagSet) *containerOptions {
 
 	// Low-level execution (cgroups, namespaces, ...)
 	flags.StringVar(&copts.cgroupParent, "cgroup-parent", "", "Optional parent cgroup for the container")
-	flags.StringVar(&copts.ipcMode, "ipc", "", "IPC namespace to use")
+	flags.StringVar(&copts.ipcMode, "ipc", "", "IPC mode to use")
 	flags.StringVar(&copts.isolation, "isolation", "", "Container isolation technology")
 	flags.StringVar(&copts.pidMode, "pid", "", "PID namespace to use")
 	flags.Var(&copts.shmSize, "shm-size", "Size of /dev/shm")
@@ -313,7 +320,8 @@ type containerConfig struct {
 // parse parses the args for the specified command and generates a Config,
 // a HostConfig and returns them with the specified command.
 // If the specified args are not valid, it will return an error.
-func parse(flags *pflag.FlagSet, copts *containerOptions) (*containerConfig, error) {
+// nolint: gocyclo
+func parse(flags *pflag.FlagSet, copts *containerOptions, serverOS string) (*containerConfig, error) {
 	var (
 		attachStdin  = copts.attach.Get("stdin")
 		attachStdout = copts.attach.Get("stdout")
@@ -339,23 +347,19 @@ func parse(flags *pflag.FlagSet, copts *containerOptions) (*containerConfig, err
 
 	swappiness := copts.swappiness
 	if swappiness != -1 && (swappiness < 0 || swappiness > 100) {
-		return nil, errors.Errorf("invalid value: %d. Valid memory sgithub.com/docker/go-connections/natappiness range is 0-100", swappiness)
-	}
-
-	blkioWeight := copts.blkioWeight
-	if blkioWeight != 0 && (blkioWeight < 10 || blkioWeight > 1000) {
-		return nil, errors.Errorf("invalid value : %d. Range of blkio weight is from 10 to 1000.", blkioWeight)
+		return nil, errors.Errorf("invalid value: %d. Valid memory swappiness range is 0-100", swappiness)
 	}
 
 	mounts := copts.mounts.Value()
 	if len(mounts) > 0 && copts.volumeDriver != "" {
-		log.Warn("`--volume-driver` is ignored for volumes specifgithub.com/docker/go-connections/nated via `--mount`. Use `--mount type=volume,volume-driver=...` instead.")
+		log.Warn("`--volume-driver` is ignored for volumes specified via `--mount`. Use `--mount type=volume,volume-driver=...` instead.")
 	}
 	var binds []string
 	volumes := copts.volumes.GetMap()
 	// add any bind targets to the list of container volumes
 	for bind := range copts.volumes.GetMap() {
-		if arr := volumeSplitN(bind, 2); len(arr) > 1 {
+		parsed, _ := loader.ParseVolume(bind)
+		if parsed.Source != "" {
 			// after creating the bind mount we want to delete it from the copts.volumes values because
 			// we do not want bind mounts being committed to image configs
 			binds = append(binds, bind)
@@ -390,9 +394,25 @@ func parse(flags *pflag.FlagSet, copts *containerOptions) (*containerConfig, err
 		// if `--entrypoint=` is parsed then Entrypoint is reset
 		entrypoint = []string{""}
 	}
-	ports, portBindings, err := githubnat.ParsePortSpecs(copts.publish.GetAll())
+
+	publishOpts := copts.publish.GetAll()
+	var ports map[nat.Port]struct{}
+	var portBindings map[nat.Port][]nat.PortBinding
+
+	ports, portBindings, err = nat.ParsePortSpecs(publishOpts)
+
+	// If simple port parsing fails try to parse as long format
 	if err != nil {
-		return nil, err
+		publishOpts, err = parsePortOpts(publishOpts)
+		if err != nil {
+			return nil, err
+		}
+
+		ports, portBindings, err = nat.ParsePortSpecs(publishOpts)
+
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	// Merge in exposed ports to the map of published ports
@@ -401,15 +421,15 @@ func parse(flags *pflag.FlagSet, copts *containerOptions) (*containerConfig, err
 			return nil, errors.Errorf("invalid port format for --expose: %s", e)
 		}
 		//support two formats for expose, original format <portnum>/[<proto>] or <startport-endport>/[<proto>]
-		proto, port := githubnat.SplitProtoPort(e)
+		proto, port := nat.SplitProtoPort(e)
 		//parse the start and end port and create a sequence of ports to expose
 		//if expose a port, the start and end port are the same
-		start, end, err := githubnat.ParsePortRange(port)
+		start, end, err := nat.ParsePortRange(port)
 		if err != nil {
 			return nil, errors.Errorf("invalid range format for --expose: %s, error: %s", e, err)
 		}
 		for i := start; i <= end; i++ {
-			p, err := githubnat.NewPort(proto, strconv.FormatUint(i, 10))
+			p, err := nat.NewPort(proto, strconv.FormatUint(i, 10))
 			if err != nil {
 				return nil, err
 			}
@@ -419,10 +439,22 @@ func parse(flags *pflag.FlagSet, copts *containerOptions) (*containerConfig, err
 		}
 	}
 
-	// parse device mappings
+	// validate and parse device mappings. Note we do late validation of the
+	// device path (as opposed to during flag parsing), as at the time we are
+	// parsing flags, we haven't yet sent a _ping to the daemon to determine
+	// what operating system it is.
 	deviceMappings := []container.DeviceMapping{}
 	for _, device := range copts.devices.GetAll() {
-		deviceMapping, err := parseDevice(device)
+		var (
+			validated     string
+			deviceMapping container.DeviceMapping
+			err           error
+		)
+		validated, err = validateDevice(device, serverOS)
+		if err != nil {
+			return nil, err
+		}
+		deviceMapping, err = parseDevice(validated, serverOS)
 		if err != nil {
 			return nil, err
 		}
@@ -430,20 +462,15 @@ func parse(flags *pflag.FlagSet, copts *containerOptions) (*containerConfig, err
 	}
 
 	// collect all the environment variables for the container
-	envVariables, err := runconfigopts.ReadKVStrings(copts.envFile.GetAll(), copts.env.GetAll())
+	envVariables, err := opts.ReadKVEnvStrings(copts.envFile.GetAll(), copts.env.GetAll())
 	if err != nil {
 		return nil, err
 	}
 
 	// collect all the labels for the container
-	labels, err := runconfigopts.ReadKVStrings(copts.labelsFile.GetAll(), copts.labels.GetAll())
+	labels, err := opts.ReadKVStrings(copts.labelsFile.GetAll(), copts.labels.GetAll())
 	if err != nil {
 		return nil, err
-	}
-
-	ipcMode := container.IpcMode(copts.ipcMode)
-	if !ipcMode.Valid() {
-		return nil, errors.Errorf("--ipc: invalid IPC mode")
 	}
 
 	pidMode := container.PidMode(copts.pidMode)
@@ -461,7 +488,7 @@ func parse(flags *pflag.FlagSet, copts *containerOptions) (*containerConfig, err
 		return nil, errors.Errorf("--userns: invalid USER mode")
 	}
 
-	restartPolicy, err := runconfigopts.ParseRestartPolicy(copts.restartPolicy)
+	restartPolicy, err := opts.ParseRestartPolicy(copts.restartPolicy)
 	if err != nil {
 		return nil, err
 	}
@@ -475,6 +502,8 @@ func parse(flags *pflag.FlagSet, copts *containerOptions) (*containerConfig, err
 	if err != nil {
 		return nil, err
 	}
+
+	securityOpts, maskedPaths, readonlyPaths := parseSystemPaths(securityOpts)
 
 	storageOpts, err := parseStorageOpts(copts.storageOpt.GetAll())
 	if err != nil {
@@ -540,7 +569,7 @@ func parse(flags *pflag.FlagSet, copts *containerOptions) (*containerConfig, err
 		CPUQuota:             copts.cpuQuota,
 		CPURealtimePeriod:    copts.cpuRealtimePeriod,
 		CPURealtimeRuntime:   copts.cpuRealtimeRuntime,
-		PidsLimit:            copts.pidsLimit,
+		PidsLimit:            &copts.pidsLimit,
 		BlkioWeight:          copts.blkioWeight,
 		BlkioWeightDevice:    copts.blkioWeightDevice.GetList(),
 		BlkioDeviceReadBps:   copts.deviceReadBps.GetList(),
@@ -552,10 +581,12 @@ func parse(flags *pflag.FlagSet, copts *containerOptions) (*containerConfig, err
 		Ulimits:              copts.ulimits.GetList(),
 		DeviceCgroupRules:    copts.deviceCgroupRules.GetAll(),
 		Devices:              deviceMappings,
+		DeviceRequests:       copts.gpus.Value(),
 	}
 
 	config := &container.Config{
 		Hostname:     copts.hostname,
+		Domainname:   copts.domainname,
 		ExposedPorts: ports,
 		User:         copts.user,
 		Tty:          copts.tty,
@@ -574,7 +605,7 @@ func parse(flags *pflag.FlagSet, copts *containerOptions) (*containerConfig, err
 		MacAddress:      copts.macAddress,
 		Entrypoint:      entrypoint,
 		WorkingDir:      copts.workingDir,
-		Labels:          runconfigopts.ConvertKVStringsToMap(labels),
+		Labels:          opts.ConvertKVStringsToMap(labels),
 		Healthcheck:     healthConfig,
 	}
 	if flags.Changed("stop-signal") {
@@ -603,8 +634,8 @@ func parse(flags *pflag.FlagSet, copts *containerOptions) (*containerConfig, err
 		DNSOptions:     copts.dnsOptions.GetAllOrEmpty(),
 		ExtraHosts:     copts.extraHosts.GetAll(),
 		VolumesFrom:    copts.volumesFrom.GetAll(),
-		NetworkMode:    container.NetworkMode(copts.netMode),
-		IpcMode:        ipcMode,
+		IpcMode:        container.IpcMode(copts.ipcMode),
+		NetworkMode:    container.NetworkMode(copts.netMode.NetworkMode()),
 		PidMode:        pidMode,
 		UTSMode:        utsMode,
 		UsernsMode:     usernsMode,
@@ -624,6 +655,8 @@ func parse(flags *pflag.FlagSet, copts *containerOptions) (*containerConfig, err
 		Sysctls:        copts.sysctls.GetAll(),
 		Runtime:        copts.runtime,
 		Mounts:         mounts,
+		MaskedPaths:    maskedPaths,
+		ReadonlyPaths:  readonlyPaths,
 	}
 
 	if copts.autoRemove && !hostConfig.RestartPolicy.IsNone() {
@@ -644,39 +677,9 @@ func parse(flags *pflag.FlagSet, copts *containerOptions) (*containerConfig, err
 		EndpointsConfig: make(map[string]*networktypes.EndpointSettings),
 	}
 
-	if copts.ipv4Address != "" || copts.ipv6Address != "" || copts.linkLocalIPs.Len() > 0 {
-		epConfig := &networktypes.EndpointSettings{}
-		networkingConfig.EndpointsConfig[string(hostConfig.NetworkMode)] = epConfig
-
-		epConfig.IPAMConfig = &networktypes.EndpointIPAMConfig{
-			IPv4Address: copts.ipv4Address,
-			IPv6Address: copts.ipv6Address,
-		}
-
-		if copts.linkLocalIPs.Len() > 0 {
-			epConfig.IPAMConfig.LinkLocalIPs = make([]string, copts.linkLocalIPs.Len())
-			copy(epConfig.IPAMConfig.LinkLocalIPs, copts.linkLocalIPs.GetAll())
-		}
-	}
-
-	if hostConfig.NetworkMode.IsUserDefined() && len(hostConfig.Links) > 0 {
-		epConfig := networkingConfig.EndpointsConfig[string(hostConfig.NetworkMode)]
-		if epConfig == nil {
-			epConfig = &networktypes.EndpointSettings{}
-		}
-		epConfig.Links = make([]string, len(hostConfig.Links))
-		copy(epConfig.Links, hostConfig.Links)
-		networkingConfig.EndpointsConfig[string(hostConfig.NetworkMode)] = epConfig
-	}
-
-	if copts.aliases.Len() > 0 {
-		epConfig := networkingConfig.EndpointsConfig[string(hostConfig.NetworkMode)]
-		if epConfig == nil {
-			epConfig = &networktypes.EndpointSettings{}
-		}
-		epConfig.Aliases = make([]string, copts.aliases.Len())
-		copy(epConfig.Aliases, copts.aliases.GetAll())
-		networkingConfig.EndpointsConfig[string(hostConfig.NetworkMode)] = epConfig
+	networkingConfig.EndpointsConfig, err = parseNetworkOpts(copts)
+	if err != nil {
+		return nil, err
 	}
 
 	return &containerConfig{
@@ -686,8 +689,140 @@ func parse(flags *pflag.FlagSet, copts *containerOptions) (*containerConfig, err
 	}, nil
 }
 
+// parseNetworkOpts converts --network advanced options to endpoint-specs, and combines
+// them with the old --network-alias and --links. If returns an error if conflicting options
+// are found.
+//
+// this function may return _multiple_ endpoints, which is not currently supported
+// by the daemon, but may be in future; it's up to the daemon to produce an error
+// in case that is not supported.
+func parseNetworkOpts(copts *containerOptions) (map[string]*networktypes.EndpointSettings, error) {
+	var (
+		endpoints                         = make(map[string]*networktypes.EndpointSettings, len(copts.netMode.Value()))
+		hasUserDefined, hasNonUserDefined bool
+	)
+
+	for i, n := range copts.netMode.Value() {
+		if container.NetworkMode(n.Target).IsUserDefined() {
+			hasUserDefined = true
+		} else {
+			hasNonUserDefined = true
+		}
+		if i == 0 {
+			// The first network corresponds with what was previously the "only"
+			// network, and what would be used when using the non-advanced syntax
+			// `--network-alias`, `--link`, `--ip`, `--ip6`, and `--link-local-ip`
+			// are set on this network, to preserve backward compatibility with
+			// the non-advanced notation
+			if err := applyContainerOptions(&n, copts); err != nil {
+				return nil, err
+			}
+		}
+		ep, err := parseNetworkAttachmentOpt(n)
+		if err != nil {
+			return nil, err
+		}
+		if _, ok := endpoints[n.Target]; ok {
+			return nil, errdefs.InvalidParameter(errors.Errorf("network %q is specified multiple times", n.Target))
+		}
+
+		// For backward compatibility: if no custom options are provided for the network,
+		// and only a single network is specified, omit the endpoint-configuration
+		// on the client (the daemon will still create it when creating the container)
+		if i == 0 && len(copts.netMode.Value()) == 1 {
+			if ep == nil || reflect.DeepEqual(*ep, networktypes.EndpointSettings{}) {
+				continue
+			}
+		}
+		endpoints[n.Target] = ep
+	}
+	if hasUserDefined && hasNonUserDefined {
+		return nil, errdefs.InvalidParameter(errors.New("conflicting options: cannot attach both user-defined and non-user-defined network-modes"))
+	}
+	return endpoints, nil
+}
+
+func applyContainerOptions(n *opts.NetworkAttachmentOpts, copts *containerOptions) error {
+	// TODO should copts.MacAddress actually be set on the first network? (currently it's not)
+	// TODO should we error if _any_ advanced option is used? (i.e. forbid to combine advanced notation with the "old" flags (`--network-alias`, `--link`, `--ip`, `--ip6`)?
+	if len(n.Aliases) > 0 && copts.aliases.Len() > 0 {
+		return errdefs.InvalidParameter(errors.New("conflicting options: cannot specify both --network-alias and per-network alias"))
+	}
+	if len(n.Links) > 0 && copts.links.Len() > 0 {
+		return errdefs.InvalidParameter(errors.New("conflicting options: cannot specify both --link and per-network links"))
+	}
+	if copts.aliases.Len() > 0 {
+		n.Aliases = make([]string, copts.aliases.Len())
+		copy(n.Aliases, copts.aliases.GetAll())
+	}
+	if copts.links.Len() > 0 {
+		n.Links = make([]string, copts.links.Len())
+		copy(n.Links, copts.links.GetAll())
+	}
+
+	// TODO add IPv4/IPv6 options to the csv notation for --network, and error-out in case of conflicting options
+	n.IPv4Address = copts.ipv4Address
+	n.IPv6Address = copts.ipv6Address
+
+	// TODO should linkLocalIPs be added to the _first_ network only, or to _all_ networks? (should this be a per-network option as well?)
+	if copts.linkLocalIPs.Len() > 0 {
+		n.LinkLocalIPs = make([]string, copts.linkLocalIPs.Len())
+		copy(n.LinkLocalIPs, copts.linkLocalIPs.GetAll())
+	}
+	return nil
+}
+
+func parseNetworkAttachmentOpt(ep opts.NetworkAttachmentOpts) (*networktypes.EndpointSettings, error) {
+	if strings.TrimSpace(ep.Target) == "" {
+		return nil, errors.New("no name set for network")
+	}
+	if !container.NetworkMode(ep.Target).IsUserDefined() {
+		if len(ep.Aliases) > 0 {
+			return nil, errors.New("network-scoped aliases are only supported for user-defined networks")
+		}
+		if len(ep.Links) > 0 {
+			return nil, errors.New("links are only supported for user-defined networks")
+		}
+	}
+
+	epConfig := &networktypes.EndpointSettings{}
+	epConfig.Aliases = append(epConfig.Aliases, ep.Aliases...)
+	if len(ep.DriverOpts) > 0 {
+		epConfig.DriverOpts = make(map[string]string)
+		epConfig.DriverOpts = ep.DriverOpts
+	}
+	if len(ep.Links) > 0 {
+		epConfig.Links = ep.Links
+	}
+	if ep.IPv4Address != "" || ep.IPv6Address != "" || len(ep.LinkLocalIPs) > 0 {
+		epConfig.IPAMConfig = &networktypes.EndpointIPAMConfig{
+			IPv4Address:  ep.IPv4Address,
+			IPv6Address:  ep.IPv6Address,
+			LinkLocalIPs: ep.LinkLocalIPs,
+		}
+	}
+	return epConfig, nil
+}
+
+func parsePortOpts(publishOpts []string) ([]string, error) {
+	optsList := []string{}
+	for _, publish := range publishOpts {
+		params := map[string]string{"protocol": "tcp"}
+		for _, param := range strings.Split(publish, ",") {
+			opt := strings.Split(param, "=")
+			if len(opt) < 2 {
+				return optsList, errors.Errorf("invalid publish opts format (should be name=value but got '%s')", param)
+			}
+
+			params[opt[0]] = opt[1]
+		}
+		optsList = append(optsList, fmt.Sprintf("%s:%s/%s", params["published"], params["target"], params["protocol"]))
+	}
+	return optsList, nil
+}
+
 func parseLoggingOpts(loggingDriver string, loggingOpts []string) (map[string]string, error) {
-	loggingOptsMap := runconfigopts.ConvertKVStringsToMap(loggingOpts)
+	loggingOptsMap := opts.ConvertKVStringsToMap(loggingOpts)
 	if loggingDriver == "none" && len(loggingOpts) > 0 {
 		return map[string]string{}, errors.Errorf("invalid logging opts for driver %s", loggingDriver)
 	}
@@ -721,6 +856,25 @@ func parseSecurityOpts(securityOpts []string) ([]string, error) {
 	return securityOpts, nil
 }
 
+// parseSystemPaths checks if `systempaths=unconfined` security option is set,
+// and returns the `MaskedPaths` and `ReadonlyPaths` accordingly. An updated
+// list of security options is returned with this option removed, because the
+// `unconfined` option is handled client-side, and should not be sent to the
+// daemon.
+func parseSystemPaths(securityOpts []string) (filtered, maskedPaths, readonlyPaths []string) {
+	filtered = securityOpts[:0]
+	for _, opt := range securityOpts {
+		if opt == "systempaths=unconfined" {
+			maskedPaths = []string{}
+			readonlyPaths = []string{}
+		} else {
+			filtered = append(filtered, opt)
+		}
+	}
+
+	return filtered, maskedPaths, readonlyPaths
+}
+
 // parses storage options per container into a map
 func parseStorageOpts(storageOpts []string) (map[string]string, error) {
 	m := make(map[string]string)
@@ -736,7 +890,19 @@ func parseStorageOpts(storageOpts []string) (map[string]string, error) {
 }
 
 // parseDevice parses a device mapping string to a container.DeviceMapping struct
-func parseDevice(device string) (container.DeviceMapping, error) {
+func parseDevice(device, serverOS string) (container.DeviceMapping, error) {
+	switch serverOS {
+	case "linux":
+		return parseLinuxDevice(device)
+	case "windows":
+		return parseWindowsDevice(device)
+	}
+	return container.DeviceMapping{}, errors.Errorf("unknown server OS: %s", serverOS)
+}
+
+// parseLinuxDevice parses a device mapping string to a container.DeviceMapping struct
+// knowing that the target is a Linux daemon
+func parseLinuxDevice(device string) (container.DeviceMapping, error) {
 	src := ""
 	dst := ""
 	permissions := "rwm"
@@ -768,6 +934,12 @@ func parseDevice(device string) (container.DeviceMapping, error) {
 		CgroupPermissions: permissions,
 	}
 	return deviceMapping, nil
+}
+
+// parseWindowsDevice parses a device mapping string to a container.DeviceMapping struct
+// knowing that the target is a Windows daemon
+func parseWindowsDevice(device string) (container.DeviceMapping, error) {
+	return container.DeviceMapping{PathOnHost: device}, nil
 }
 
 // validateDeviceCgroupRule validates a device cgroup rule string format
@@ -802,14 +974,23 @@ func validDeviceMode(mode string) bool {
 }
 
 // validateDevice validates a path for devices
+func validateDevice(val string, serverOS string) (string, error) {
+	switch serverOS {
+	case "linux":
+		return validateLinuxPath(val, validDeviceMode)
+	case "windows":
+		// Windows does validation entirely server-side
+		return val, nil
+	}
+	return "", errors.Errorf("unknown server OS: %s", serverOS)
+}
+
+// validateLinuxPath is the implementation of validateDevice knowing that the
+// target server operating system is a Linux daemon.
 // It will make sure 'val' is in the form:
 //    [host-dir:]container-path[:mode]
 // It also validates the device mode.
-func validateDevice(val string) (string, error) {
-	return validatePath(val, validDeviceMode)
-}
-
-func validatePath(val string, validator func(string) bool) (string, error) {
+func validateLinuxPath(val string, validator func(string) bool) (string, error) {
 	var containerPath string
 	var mode string
 
@@ -849,67 +1030,6 @@ func validatePath(val string, validator func(string) bool) (string, error) {
 	return val, nil
 }
 
-// volumeSplitN splits raw into a maximum of n parts, separated by a separator colon.
-// A separator colon is the last `:` character in the regex `[:\\]?[a-zA-Z]:` (note `\\` is `\` escaped).
-// In Windows driver letter appears in two situations:
-// a. `^[a-zA-Z]:` (A colon followed  by `^[a-zA-Z]:` is OK as colon is the separator in volume option)
-// b. A string in the format like `\\?\C:\Windows\...` (UNC).
-// Therefore, a driver letter can only follow either a `:` or `\\`
-// This allows to correctly split strings such as `C:\foo:D:\:rw` or `/tmp/q:/foo`.
-func volumeSplitN(raw string, n int) []string {
-	var array []string
-	if len(raw) == 0 || raw[0] == ':' {
-		// invalid
-		return nil
-	}
-	// numberOfParts counts the number of parts separated by a separator colon
-	numberOfParts := 0
-	// left represents the left-most cursor in raw, updated at every `:` character considered as a separator.
-	left := 0
-	// right represents the right-most cursor in raw incremented with the loop. Note this
-	// starts at index 1 as index 0 is already handle above as a special case.
-	for right := 1; right < len(raw); right++ {
-		// stop parsing if reached maximum number of parts
-		if n >= 0 && numberOfParts >= n {
-			break
-		}
-		if raw[right] != ':' {
-			continue
-		}
-		potentialDriveLetter := raw[right-1]
-		if (potentialDriveLetter >= 'A' && potentialDriveLetter <= 'Z') || (potentialDriveLetter >= 'a' && potentialDriveLetter <= 'z') {
-			if right > 1 {
-				beforePotentialDriveLetter := raw[right-2]
-				// Only `:` or `\\` are checked (`/` could fall into the case of `/tmp/q:/foo`)
-				if beforePotentialDriveLetter != ':' && beforePotentialDriveLetter != '\\' {
-					// e.g. `C:` is not preceded by any delimiter, therefore it was not a drive letter but a path ending with `C:`.
-					array = append(array, raw[left:right])
-					left = right + 1
-					numberOfParts++
-				}
-				// else, `C:` is considered as a drive letter and not as a delimiter, so we continue parsing.
-			}
-			// if right == 1, then `C:` is the beginning of the raw string, therefore `:` is again not considered a delimiter and we continue parsing.
-		} else {
-			// if `:` is not preceded by a potential drive letter, then consider it as a delimiter.
-			array = append(array, raw[left:right])
-			left = right + 1
-			numberOfParts++
-		}
-	}
-	// need to take care of the last part
-	if left < len(raw) {
-		if n >= 0 && numberOfParts >= n {
-			// if the maximum number of parts is reached, just append the rest to the last part
-			// left-1 is at the last `:` that needs to be included since not considered a separator.
-			array[n-1] += raw[left-1:]
-		} else {
-			array = append(array, raw[left:])
-		}
-	}
-	return array
-}
-
 // validateAttach validates that the specified string is a valid attach option.
 func validateAttach(val string) (string, error) {
 	s := strings.ToLower(val)
@@ -919,4 +1039,13 @@ func validateAttach(val string) (string, error) {
 		}
 	}
 	return val, errors.Errorf("valid streams are STDIN, STDOUT and STDERR")
+}
+
+func validateAPIVersion(c *containerConfig, serverAPIVersion string) error {
+	for _, m := range c.HostConfig.Mounts {
+		if m.BindOptions != nil && m.BindOptions.NonRecursive && versions.LessThan(serverAPIVersion, "1.40") {
+			return errors.Errorf("bind-nonrecursive requires API v1.40 or later")
+		}
+	}
+	return nil
 }

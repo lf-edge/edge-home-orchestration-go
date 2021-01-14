@@ -21,9 +21,9 @@ import (
 	"errors"
 	"testing"
 
-	"controller/discoverymgr/mnedc/client"
-	clientMocks "controller/discoverymgr/mnedc/client/mocks"
-	discoveryMocks "controller/discoverymgr/mocks"
+	"github.com/lf-edge/edge-home-orchestration-go/src/controller/discoverymgr/mnedc/client"
+	clientMocks "github.com/lf-edge/edge-home-orchestration-go/src/controller/discoverymgr/mnedc/client/mocks"
+	discoveryMocks "github.com/lf-edge/edge-home-orchestration-go/src/controller/discoverymgr/mocks"
 
 	"github.com/golang/mock/gomock"
 )

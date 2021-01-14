@@ -20,8 +20,8 @@ package requestervalidator
 import (
 	"errors"
 
-	"common/requestervalidator/requesterstore"
-	"db/bolt/common"
+	"github.com/lf-edge/edge-home-orchestration-go/src/common/requestervalidator/requesterstore"
+	"github.com/lf-edge/edge-home-orchestration-go/src/db/bolt/common"
 )
 
 type IRequesterValidator interface {

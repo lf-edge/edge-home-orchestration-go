@@ -18,13 +18,13 @@
 package sigmgr
 
 import (
-	"common/logmgr"
+	"github.com/lf-edge/edge-home-orchestration-go/src/common/logmgr"
 	"os"
 	"os/signal"
 	"syscall"
 
-	"controller/discoverymgr/mnedc/client"
-	"controller/discoverymgr/mnedc/server"
+	"github.com/lf-edge/edge-home-orchestration-go/src/controller/discoverymgr/mnedc/client"
+	"github.com/lf-edge/edge-home-orchestration-go/src/controller/discoverymgr/mnedc/server"
 )
 
 const (

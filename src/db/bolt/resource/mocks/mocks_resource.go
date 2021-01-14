@@ -21,7 +21,7 @@
 package mock_resource
 
 import (
-	resource "db/bolt/resource"
+	resource "github.com/lf-edge/edge-home-orchestration-go/src/db/bolt/resource"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"

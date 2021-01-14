@@ -19,9 +19,9 @@ package network
 import (
 	"encoding/json"
 
-	"common/errors"
-	"db/bolt/common"
-	bolt "db/bolt/wrapper"
+	"github.com/lf-edge/edge-home-orchestration-go/src/common/errors"
+	"github.com/lf-edge/edge-home-orchestration-go/src/db/bolt/common"
+	bolt "github.com/lf-edge/edge-home-orchestration-go/src/db/bolt/wrapper"
 )
 
 const bucketName = "network"

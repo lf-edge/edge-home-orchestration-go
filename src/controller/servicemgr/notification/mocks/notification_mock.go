@@ -24,7 +24,7 @@ package mocks
 import (
 	gomock "github.com/golang/mock/gomock"
 	reflect "reflect"
-	client "restinterface/client"
+	client "github.com/lf-edge/edge-home-orchestration-go/src/restinterface/client"
 )
 
 // MockNotification is a mock of Notification interface

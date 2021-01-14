@@ -19,10 +19,10 @@
 package resourceutil
 
 import (
-	"common/errors"
-	"common/logmgr"
+	"github.com/lf-edge/edge-home-orchestration-go/src/common/errors"
+	"github.com/lf-edge/edge-home-orchestration-go/src/common/logmgr"
 
-	resourceDB "db/bolt/resource"
+	resourceDB "github.com/lf-edge/edge-home-orchestration-go/src/db/bolt/resource"
 )
 
 // ResourceImpl is implementation for resourceutil interface

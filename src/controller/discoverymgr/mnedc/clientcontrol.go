@@ -19,12 +19,12 @@ package mnedcmgr
 
 import (
 	"io/ioutil"
-	"restinterface/tls"
+	"github.com/lf-edge/edge-home-orchestration-go/src/restinterface/tls"
 	"time"
 
-	restclient "restinterface/client"
+	restclient "github.com/lf-edge/edge-home-orchestration-go/src/restinterface/client"
 	//"controller/discoverymgr"
-	"controller/discoverymgr/mnedc/client"
+	"github.com/lf-edge/edge-home-orchestration-go/src/controller/discoverymgr/mnedc/client"
 )
 
 //ClientImpl structure

@@ -22,14 +22,14 @@ import (
 	"testing"
 	"time"
 
-	commoncpu "common/resourceutil/cpu"
+	commoncpu "github.com/lf-edge/edge-home-orchestration-go/src/common/resourceutil/cpu"
 
 	"github.com/golang/mock/gomock"
 	memutil "github.com/shirou/gopsutil/mem"
 	netutil "github.com/vishvananda/netlink"
 
-	resourceDB "db/bolt/resource"
-	resourceDBMock "db/bolt/resource/mocks"
+	resourceDB "github.com/lf-edge/edge-home-orchestration-go/src/db/bolt/resource"
+	resourceDBMock "github.com/lf-edge/edge-home-orchestration-go/src/db/bolt/resource/mocks"
 )
 
 type dummpyLink struct {

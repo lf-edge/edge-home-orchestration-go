@@ -20,11 +20,11 @@ import (
 	"errors"
 	"strings"
 
-	"common/types/configuremgrtypes"
+	"github.com/lf-edge/edge-home-orchestration-go/src/common/types/configuremgrtypes"
 
-	"common/commandvalidator/blacklist"
-	"common/commandvalidator/commands"
-	"common/commandvalidator/injectionchecker"
+	"github.com/lf-edge/edge-home-orchestration-go/src/common/commandvalidator/blacklist"
+	"github.com/lf-edge/edge-home-orchestration-go/src/common/commandvalidator/commands"
+	"github.com/lf-edge/edge-home-orchestration-go/src/common/commandvalidator/injectionchecker"
 )
 
 const (

@@ -20,7 +20,7 @@ package mockconfiguremgr
 import (
 	"log"
 
-	confdescription "controller/configuremgr/native/description"
+	confdescription "github.com/lf-edge/edge-home-orchestration-go/src/controller/configuremgr/native/description"
 )
 
 // PushConfPathDiscoveryDeviceMock is a mocking function

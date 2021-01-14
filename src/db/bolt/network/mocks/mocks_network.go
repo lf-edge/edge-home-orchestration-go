@@ -21,7 +21,7 @@
 package mocks
 
 import (
-	network "db/bolt/network"
+	network "github.com/lf-edge/edge-home-orchestration-go/src/db/bolt/network"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"

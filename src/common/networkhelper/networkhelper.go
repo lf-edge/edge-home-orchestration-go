@@ -19,15 +19,15 @@
 package networkhelper
 
 import (
-	"common/logmgr"
+	"github.com/lf-edge/edge-home-orchestration-go/src/common/logmgr"
 	"net"
 	"os"
 	"path/filepath"
 	"strings"
 
-	"common/errormsg"
-	"common/errors"
-	"common/networkhelper/detector"
+	"github.com/lf-edge/edge-home-orchestration-go/src/common/errormsg"
+	"github.com/lf-edge/edge-home-orchestration-go/src/common/errors"
+	"github.com/lf-edge/edge-home-orchestration-go/src/common/networkhelper/detector"
 )
 
 type networkImpl struct{}

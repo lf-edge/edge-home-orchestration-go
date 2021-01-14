@@ -18,13 +18,13 @@
 package system
 
 import (
-	"common/errors"
+	"github.com/lf-edge/edge-home-orchestration-go/src/common/errors"
 	"encoding/json"
 	"fmt"
 	"reflect"
 	"testing"
 
-	wrapperMock "db/bolt/wrapper/mocks"
+	wrapperMock "github.com/lf-edge/edge-home-orchestration-go/src/db/bolt/wrapper/mocks"
 
 	"github.com/golang/mock/gomock"
 )

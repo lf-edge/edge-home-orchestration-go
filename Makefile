@@ -1,10 +1,10 @@
 # Go parameters
-GOCMD       := go
-GOBUILD     := $(GOCMD) build
-GOCLEAN     := $(GOCMD) clean
+GOCMD		:= GO111MODULE=on go
+GOBUILD 	:= $(GOCMD) build
+GOCLEAN 	:= $(GOCMD) clean
 GOLINT		:= golint
 GOVET		:= $(GOCMD) vet
-GOCOVER     := gocov
+GOCOVER     	:= gocov
 GOMOBILE	:= gomobile
 DOCKER		:= docker
 GO_COMMIT_ID	:= $(shell git rev-parse --short HEAD)
@@ -16,18 +16,18 @@ PKG_NAME		:= edge-orchestration
 OBJ_SRC_DIR		:= interfaces/capi
 
 # GoMain target
-GOMAIN_DIR		:= $(BASE_DIR)/GoMain
-GOMAIN_BIN_DIR	:= $(GOMAIN_DIR)/bin
-GOMAIN_SRC_DIR	:= $(GOMAIN_DIR)/src
-EXEC_SRC_DIR    := main
+GOMAIN_DIR      := $(BASE_DIR)/GoMain
+GOMAIN_BIN_DIR  := $(GOMAIN_DIR)/bin
+GOMAIN_SRC_DIR  := $(GOMAIN_DIR)/src
+EXEC_SRC        := $(GOMAIN_DIR)/src/main/main.go
 GOMAIN_BIN_FILE	:= $(PKG_NAME)
 
 # Go Library for C-archive
 LIBRARY_NAME		:= liborchestration
-HEADER_FILE			:= orchestration.h
+HEADER_FILE		:= orchestration.h
 LIBRARY_FILE		:= liborchestration.a
-CUR_HEADER_FILE		:= $(LIBRARY_NAME).h
-CUR_LIBRARY_FILE	:= $(LIBRARY_NAME).a
+CUR_HEADER_FILE 	:= $(LIBRARY_NAME).h
+CUR_LIBRARY_FILE 	:= $(LIBRARY_NAME).a
 INTERFACE_OUT_DIR	:= $(BASE_DIR)/src/interfaces/capi/output
 ifeq ($(ARCH), arm)
 	INTERFACE_OUT_INC_DIR		:= $(INTERFACE_OUT_DIR)/inc/linux_arm
@@ -49,7 +49,6 @@ endif
 
 # Go 3rdParty packages
 BUILD_VENDOR_DIR	:= $(BASE_DIR)/vendor
-GLIDE_LOCK_FILE		:= $(BASE_DIR)/glide.lock
 
 # Go Library for android
 ANDROID_LIBRARY_NAME          := liborchestration
@@ -60,9 +59,12 @@ ANDROID_LIBRARY_OUT_DIR       := $(BASE_DIR)/src/interfaces/javaapi/output
 
 .DEFAULT_GOAL := help
 
+go-vendor:
+	$(GOCMD) mod vendor
+
 ## edge-orchestration binary build
 build-binary:
-	$(GOBUILD) -a $(GO_LDFLAGS) -o $(GOMAIN_BIN_DIR)/$(GOMAIN_BIN_FILE) $(EXEC_SRC_DIR) || exit 1
+	$(GOBUILD) -a $(GO_LDFLAGS) -o $(GOMAIN_BIN_DIR)/$(GOMAIN_BIN_FILE) $(EXEC_SRC) || exit 1
 	ls -al $(GOMAIN_BIN_DIR)
 
 ## edge-orchestration static archive build
@@ -76,11 +78,6 @@ build-object-c:
 build-result:
 	tree $(INTERFACE_OUT_DIR)
 	tree $(ANDROID_LIBRARY_OUT_DIR)
-
-## clean 3rdParty packages
-clean-tmp-packages:
-	-rm -rf $(BUILD_VENDOR_DIR)
-	-rm -rf $(GLIDE_LOCK_FILE)
 
 ## edge-orchestration android library build
 build-object-java:

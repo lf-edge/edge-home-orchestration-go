@@ -22,9 +22,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"common/logmgr"
 
-	c "restinterface/cipher"
+	"github.com/lf-edge/edge-home-orchestration-go/src/common/logmgr"
+
+	c "github.com/lf-edge/edge-home-orchestration-go/src/restinterface/cipher"
 )
 
 // Cipher has passphrase for ciphering

@@ -31,7 +31,7 @@ import (
 
 	"github.com/docker/docker/api/types/container"
 	networktypes "github.com/docker/docker/api/types/network"
-	"github.com/docker/docker/pkg/testutil/assert"
+	"github.com/stretchr/testify/assert"
 
 	//	"github.com/docker/docker/runconfig"
 	"github.com/docker/go-connections/nat"

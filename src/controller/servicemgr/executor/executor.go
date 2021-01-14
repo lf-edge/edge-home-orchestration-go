@@ -19,8 +19,8 @@
 package executor
 
 import (
-	"controller/servicemgr/notification"
-	"restinterface/client"
+	"github.com/lf-edge/edge-home-orchestration-go/src/controller/servicemgr/notification"
+	"github.com/lf-edge/edge-home-orchestration-go/src/restinterface/client"
 )
 
 // ServiceExecutor interface

@@ -22,9 +22,9 @@
 package mocks
 
 import (
-	configuremgrtypes "common/types/configuremgrtypes"
-	verifier "controller/securemgr/verifier"
-	orchestrationapi "orchestrationapi"
+	configuremgrtypes "github.com/lf-edge/edge-home-orchestration-go/src/common/types/configuremgrtypes"
+	verifier "github.com/lf-edge/edge-home-orchestration-go/src/controller/securemgr/verifier"
+	orchestrationapi "github.com/lf-edge/edge-home-orchestration-go/src/orchestrationapi"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"

@@ -22,7 +22,7 @@
 package mocks
 
 import (
-	helper "db/helper"
+	helper "github.com/lf-edge/edge-home-orchestration-go/src/db/helper"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"

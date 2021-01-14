@@ -20,19 +20,20 @@ package externalhandler
 
 import (
 	"io/ioutil"
-	"common/logmgr"
 	"net/http"
 	"strconv"
 	"strings"
 
-	"common/networkhelper"
-	"controller/securemgr/verifier"
-	"db/bolt/common"
-	"orchestrationapi"
-	"restinterface"
-	"restinterface/cipher"
-	"restinterface/externalhandler/senderresolver"
-	"restinterface/resthelper"
+	"github.com/lf-edge/edge-home-orchestration-go/src/common/logmgr"
+
+	"github.com/lf-edge/edge-home-orchestration-go/src/common/networkhelper"
+	"github.com/lf-edge/edge-home-orchestration-go/src/controller/securemgr/verifier"
+	"github.com/lf-edge/edge-home-orchestration-go/src/db/bolt/common"
+	"github.com/lf-edge/edge-home-orchestration-go/src/orchestrationapi"
+	"github.com/lf-edge/edge-home-orchestration-go/src/restinterface"
+	"github.com/lf-edge/edge-home-orchestration-go/src/restinterface/cipher"
+	"github.com/lf-edge/edge-home-orchestration-go/src/restinterface/externalhandler/senderresolver"
+	"github.com/lf-edge/edge-home-orchestration-go/src/restinterface/resthelper"
 )
 
 const logPrefix = "RestExternalInterface"

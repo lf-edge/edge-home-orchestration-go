@@ -19,16 +19,16 @@ package mnedcmgr
 
 import (
 	"io/ioutil"
-	"common/logmgr"
+	"github.com/lf-edge/edge-home-orchestration-go/src/common/logmgr"
 	"net/http"
 	"strconv"
 
-	networkhelper "common/networkhelper"
-	"controller/discoverymgr/mnedc/server"
-	"restinterface/cipher"
-	"restinterface/resthelper"
-	"restinterface/route/tlspskserver"
-	"restinterface/tls"
+	networkhelper "github.com/lf-edge/edge-home-orchestration-go/src/common/networkhelper"
+	"github.com/lf-edge/edge-home-orchestration-go/src/controller/discoverymgr/mnedc/server"
+	"github.com/lf-edge/edge-home-orchestration-go/src/restinterface/cipher"
+	"github.com/lf-edge/edge-home-orchestration-go/src/restinterface/resthelper"
+	"github.com/lf-edge/edge-home-orchestration-go/src/restinterface/route/tlspskserver"
+	"github.com/lf-edge/edge-home-orchestration-go/src/restinterface/tls"
 )
 
 //ServerImpl structure
