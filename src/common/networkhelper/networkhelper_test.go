@@ -20,7 +20,6 @@ package networkhelper
 import (
 	"common/networkhelper/detector/mocks"
 	"errors"
-	"log"
 	"net"
 	"reflect"
 	"sync"

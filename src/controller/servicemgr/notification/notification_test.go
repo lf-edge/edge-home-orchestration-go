@@ -19,7 +19,6 @@ package notification
 
 import (
 	"fmt"
-	"log"
 	"net"
 	"net/http"
 	"net/http/httptest"
@@ -28,8 +27,9 @@ import (
 
 	"common/networkhelper"
 
-	"github.com/golang/mock/gomock"
 	clientMocks "restinterface/client/mocks"
+
+	"github.com/golang/mock/gomock"
 )
 
 var (

@@ -17,7 +17,6 @@
 package verifier
 
 import (
-	"log"
 	"os"
 	"testing"
 )

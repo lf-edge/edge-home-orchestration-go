@@ -18,7 +18,6 @@ package sha256
 
 import (
 	"encoding/json"
-	"log"
 	"strings"
 	"testing"
 )

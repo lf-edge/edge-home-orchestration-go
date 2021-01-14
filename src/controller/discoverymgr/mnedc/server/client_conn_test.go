@@ -19,7 +19,6 @@ package server
 
 import (
 	"errors"
-	"log"
 	"net"
 	"testing"
 	"time"

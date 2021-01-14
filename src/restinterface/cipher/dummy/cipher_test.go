@@ -19,7 +19,6 @@ package dummy
 
 import (
 	"encoding/json"
-	"log"
 	"strings"
 	"testing"
 )
