@@ -22,10 +22,10 @@
 package mocks
 
 import (
+	gomock "github.com/golang/mock/gomock"
+	configuremgrtypes "github.com/lf-edge/edge-home-orchestration-go/src/common/types/configuremgrtypes"
 	configuremgr "github.com/lf-edge/edge-home-orchestration-go/src/controller/configuremgr"
 	reflect "reflect"
-
-	gomock "github.com/golang/mock/gomock"
 )
 
 // MockNotifier is a mock of Notifier interface
@@ -52,15 +52,15 @@ func (m *MockNotifier) EXPECT() *MockNotifierMockRecorder {
 }
 
 // Notify mocks base method
-func (m *MockNotifier) Notify(serviceName string) {
+func (m *MockNotifier) Notify(serviceinfo configuremgrtypes.ServiceInfo) {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "Notify", serviceName)
+	m.ctrl.Call(m, "Notify", serviceinfo)
 }
 
 // Notify indicates an expected call of Notify
-func (mr *MockNotifierMockRecorder) Notify(serviceName interface{}) *gomock.Call {
+func (mr *MockNotifierMockRecorder) Notify(serviceinfo interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Notify", reflect.TypeOf((*MockNotifier)(nil).Notify), serviceName)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Notify", reflect.TypeOf((*MockNotifier)(nil).Notify), serviceinfo)
 }
 
 // MockWatcher is a mock of Watcher interface
