@@ -21,8 +21,8 @@ import (
 	"fmt"
 	"github.com/lf-edge/edge-home-orchestration-go/src/common/logmgr"
 
-	sdk "github.com/edgexfoundry/device-sdk-go"
 	dsModels "github.com/edgexfoundry/device-sdk-go/pkg/models"
+	sdk "github.com/edgexfoundry/device-sdk-go/pkg/service"
 	"github.com/edgexfoundry/go-mod-core-contracts/clients/logger"
 	contract "github.com/edgexfoundry/go-mod-core-contracts/models"
 )
@@ -39,7 +39,7 @@ var (
 )
 
 // Initialize performs protocol-specific initialization for the device
-func (driver *StorageDriver) Initialize(logger logger.LoggingClient, asyncValues chan<- *dsModels.AsyncValues) error {
+func (driver *StorageDriver) Initialize(logger logger.LoggingClient, asyncValues chan<- *dsModels.AsyncValues, deviceCh chan<- []dsModels.DiscoveredDevice) error {
 	log.Println(logPrefix, "Device service intialize started")
 	driver.logger = logger
 	handler := NewStorageHandler(sdk.RunningService(), logger, asyncValues)

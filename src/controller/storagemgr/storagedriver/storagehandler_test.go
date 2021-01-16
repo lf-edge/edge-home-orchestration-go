@@ -26,15 +26,15 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	sdk "github.com/edgexfoundry/device-sdk-go"
 	"github.com/edgexfoundry/device-sdk-go/pkg/models"
+	sdk "github.com/edgexfoundry/device-sdk-go/pkg/service"
 	"github.com/edgexfoundry/go-mod-core-contracts/clients/logger"
 )
 
 var handler *StorageHandler
 
 func TestMain(m *testing.M) {
-	service := &sdk.Service{}
+	service := &sdk.DeviceService{}
 	logger := logger.NewClient("test", false, "./tests.log", "DEBUG")
 	asyncValues := make(chan<- *models.AsyncValues)
 
@@ -65,6 +65,12 @@ func TestNewCommandValue(t *testing.T) {
 		{"Test A Bool true", "true", models.Bool, false},
 		{"Test A Bool false", "false", models.Bool, false},
 		{"Test A Bool error", "bad", models.Bool, true},
+		{"Test A Float32+", "123.456", models.Float32, false},
+		{"Test A Float32-", "-123.456", models.Float32, false},
+		{"Test A Float32 error", "-123.junk", models.Float32, true},
+		{"Test A Float64+", "456.123", models.Float64, false},
+		{"Test A Float64-", "-456.123", models.Float64, false},
+		{"Test A Float64 error", "Random", models.Float64, true},
 		{"Test A Uint8", "255", models.Uint8, false},
 		{"Test A Uint8 error", "FF", models.Uint8, true},
 		{"Test A Uint16", "65535", models.Uint16, false},
@@ -120,6 +126,18 @@ func TestNewCommandValue(t *testing.T) {
 					t.Fatal()
 				}
 				actual = strconv.FormatBool(value)
+			case models.Float32:
+				value, err := cmdVal.Float32Value()
+				if !assert.NoError(t, err) {
+					t.Fatal()
+				}
+				actual = strconv.FormatFloat(float64(value), 'f', 3, 32)
+			case models.Float64:
+				value, err := cmdVal.Float64Value()
+				if !assert.NoError(t, err) {
+					t.Fatal()
+				}
+				actual = strconv.FormatFloat(value, 'f', 3, 64)
 			case models.Uint8:
 				value, err := cmdVal.Uint8Value()
 				if !assert.NoError(t, err) {

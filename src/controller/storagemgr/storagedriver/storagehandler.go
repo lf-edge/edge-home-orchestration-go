@@ -28,8 +28,8 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/spf13/cast"
 
-	sdk "github.com/edgexfoundry/device-sdk-go"
 	"github.com/edgexfoundry/device-sdk-go/pkg/models"
+	sdk "github.com/edgexfoundry/device-sdk-go/pkg/service"
 	"github.com/edgexfoundry/go-mod-core-contracts/clients"
 	"github.com/edgexfoundry/go-mod-core-contracts/clients/logger"
 )
@@ -38,16 +38,16 @@ const (
 	deviceNameKey     = "deviceName"
 	resourceNameKey   = "resourceName"
 	apiResourceRoute  = clients.ApiBase + "/resource/{" + deviceNameKey + "}/{" + resourceNameKey + "}"
-	handlerContextKey = "RestHandler"
+	handlerContextKey = "StorageHandler"
 )
 
 type StorageHandler struct {
-	service     *sdk.Service
+	service     *sdk.DeviceService
 	logger      logger.LoggingClient
 	asyncValues chan<- *models.AsyncValues
 }
 
-func NewStorageHandler(service *sdk.Service, logger logger.LoggingClient, asyncValues chan<- *models.AsyncValues) *StorageHandler {
+func NewStorageHandler(service *sdk.DeviceService, logger logger.LoggingClient, asyncValues chan<- *models.AsyncValues) *StorageHandler {
 	handler := StorageHandler{
 		service:     service,
 		logger:      logger,
@@ -120,7 +120,6 @@ func (handler StorageHandler) processAsyncRequest(writer http.ResponseWriter, re
 
 	if readingType == models.Binary {
 		reading, err = handler.readBodyAsBinary(writer, request)
-
 	} else {
 		reading, err = handler.readBodyAsString(writer, request)
 	}
@@ -154,6 +153,7 @@ func (handler StorageHandler) readBodyAsString(writer http.ResponseWriter, reque
 	if request.Body == nil {
 		return "", fmt.Errorf("no request body provided")
 	}
+
 	defer request.Body.Close()
 	body, err := ioutil.ReadAll(request.Body)
 	if err != nil {
@@ -171,6 +171,7 @@ func (handler StorageHandler) readBodyAsBinary(writer http.ResponseWriter, reque
 	if request.Body == nil {
 		return nil, fmt.Errorf("no request body provided")
 	}
+
 	defer request.Body.Close()
 	body, err := ioutil.ReadAll(request.Body)
 	if err != nil {
@@ -284,6 +285,21 @@ func (handler StorageHandler) newCommandValue(resourceName string, reading inter
 			return nil, fmt.Errorf(castError, resourceName, err)
 		}
 		result, errn = models.NewCommandValue(resourceName, timestamp, val, valueType)
+
+	case models.Float32:
+		val, err := cast.ToFloat32E(reading)
+		if err != nil {
+			return nil, fmt.Errorf(castError, resourceName, err)
+		}
+		result, errn = models.NewCommandValue(resourceName, timestamp, val, valueType)
+
+	case models.Float64:
+		val, err := cast.ToFloat64E(reading)
+		if err != nil {
+			return nil, fmt.Errorf(castError, resourceName, err)
+		}
+		result, errn = models.NewCommandValue(resourceName, timestamp, val, valueType)
+
 	default:
 		errn = fmt.Errorf("return result fail, none supported value type: %v", valueType)
 	}
@@ -296,15 +312,25 @@ func checkValueInRange(valueType models.ValueType, reading interface{}) bool {
 
 	if valueType == models.String || valueType == models.Bool || valueType == models.Binary {
 		return true
-	} else if valueType == models.Int8 || valueType == models.Int16 ||
+	}
+
+	if valueType == models.Int8 || valueType == models.Int16 ||
 		valueType == models.Int32 || valueType == models.Int64 {
 		val := cast.ToInt64(reading)
 		isValid = checkIntValueRange(valueType, val)
-	} else if valueType == models.Uint8 || valueType == models.Uint16 ||
+	}
+
+	if valueType == models.Uint8 || valueType == models.Uint16 ||
 		valueType == models.Uint32 || valueType == models.Uint64 {
 		val := cast.ToUint64(reading)
 		isValid = checkUintValueRange(valueType, val)
 	}
+
+	if valueType == models.Float32 || valueType == models.Float64 {
+		val := cast.ToFloat64(reading)
+		isValid = checkFloatValueRange(valueType, val)
+	}
+
 	return isValid
 }
 
@@ -349,6 +375,21 @@ func checkIntValueRange(valueType models.ValueType, val int64) bool {
 		}
 	case models.Int64:
 		if val >= math.MinInt64 && val <= math.MaxInt64 {
+			isValid = true
+		}
+	}
+	return isValid
+}
+
+func checkFloatValueRange(valueType models.ValueType, val float64) bool {
+	var isValid = false
+	switch valueType {
+	case models.Float32:
+		if math.Abs(val) >= math.SmallestNonzeroFloat32 && math.Abs(val) <= math.MaxFloat32 {
+			isValid = true
+		}
+	case models.Float64:
+		if math.Abs(val) >= math.SmallestNonzeroFloat64 && math.Abs(val) <= math.MaxFloat64 {
 			isValid = true
 		}
 	}
