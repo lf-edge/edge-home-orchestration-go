@@ -16,3 +16,9 @@ jobs:
 
       - name: Build the project
         run: ./build.sh
+
+      - name: Run the Test Suite
+        run: |
+          export GOPATH=$HOME/go
+          export PATH=$PATH:$GOPATH/bin
+          gocov test -v $(go list ./src/... | grep -v src/controller/discoverymgr/mnedc | grep -v src/controller/servicemgr/executor/containerexecutor | grep -v src/orchestrationapi) -coverprofile=/dev/null
