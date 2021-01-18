@@ -54,7 +54,7 @@ func GetClientInstance() *ClientImpl {
 func (c *ClientImpl) StartMNEDCClient(deviceIDPath string, configPath string) {
 
 	//deviceID, err := discoveryIns.GetDeviceID()
-	deviceID, err := getDeviceID(configPath)
+	deviceID, err := getDeviceID(deviceIDPath)
 	if err != nil {
 		log.Println(logPrefix, "Couldn't start MNEDC client", err.Error())
 		return
