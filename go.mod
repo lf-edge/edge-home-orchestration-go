@@ -19,13 +19,13 @@ require (
 	github.com/docker/go-connections v0.4.0
 	github.com/docker/go-events v0.0.0-20190806004212-e31b211e4f1c // indirect
 	github.com/docker/go-units v0.4.0
-	github.com/edgexfoundry/device-sdk-go v1.1.2
-	github.com/edgexfoundry/go-mod-core-contracts v0.1.36
+	github.com/edgexfoundry/device-sdk-go v1.4.0
+	github.com/edgexfoundry/go-mod-core-contracts v0.1.115
 	github.com/fsnotify/fsnotify v1.4.9
 	github.com/go-ole/go-ole v1.2.5 // indirect
 	github.com/golang/mock v1.4.4
 	github.com/gomodule/redigo v1.8.3
-	github.com/gorilla/mux v1.7.2
+	github.com/gorilla/mux v1.8.0
 	github.com/grandcat/zeroconf v1.0.0
 	github.com/imdario/mergo v0.3.11 // indirect
 	github.com/leemcloughlin/logfile v0.0.0-20201123203928-cff1c8a30a10

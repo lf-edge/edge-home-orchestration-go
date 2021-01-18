@@ -32,6 +32,8 @@ samples/native/test/edge-orchestration
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 *.html
+src/controller/discoverymgr/testDB/*
+src/controller/storagemgr/storagedriver/tests.log
 
 # VS Code
 .vscode/
