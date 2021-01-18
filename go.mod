@@ -51,5 +51,5 @@ require (
 	google.golang.org/grpc v1.34.0 // indirect
 	gopkg.in/ini.v1 v1.62.0
 	gotest.tools v2.2.0+incompatible // indirect
-	gotest.tools/v3 v3.0.3 // indirect
+	gotest.tools/v3 v3.0.3
 )
