@@ -72,13 +72,6 @@ $ export GOPATH=$HOME/go
 $ export PATH=$PATH:$GOPATH/bin:/usr/local/go/bin
 ```
 
-- glide ([package manager for Go](https://glide.readthedocs.io/en/latest/))  
-
-```sh
-$ sudo apt install golang-glide
-```
-> To add 3rd-party packages need to add them to the `glide.yaml` (format is described [here](https://glide.readthedocs.io/en/latest/glide.yaml/))
-
 - edge-orchestration source code
 
 ```sh
