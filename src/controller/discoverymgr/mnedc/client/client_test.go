@@ -19,7 +19,6 @@ package client
 
 import (
 	"errors"
-	"log"
 	"net"
 	"os"
 	"testing"
@@ -91,12 +90,10 @@ func TestMNEDCClosedAndReestablished(t *testing.T) {
 	createMockIns(ctrl)
 	t.Run("NotifyClose", func(t *testing.T) {
 		client := GetInstance()
-		mockDiscovery.EXPECT().MNEDCClosedCallback().Return()
 		client.NotifyClose()
 	})
 	t.Run("ConnectionEstablished", func(t *testing.T) {
 		client := GetInstance()
-		mockDiscovery.EXPECT().MNEDCReconciledCallback().Return()
 		client.ConnectionReconciled()
 	})
 }
@@ -190,7 +187,6 @@ func TestStartRecvRoutineError(t *testing.T) {
 		deleteDeviceIDFile()
 		gomock.InOrder(
 			mockNetworkUtil.EXPECT().ReadFrom(gomock.Any()).Return(5, []byte(defaultMessage), errors.New("")),
-			mockDiscovery.EXPECT().MNEDCClosedCallback().Return(),
 		)
 
 		go client.StartRecvRoutine()
@@ -216,7 +212,6 @@ func TestStartRecvRoutineError(t *testing.T) {
 
 		gomock.InOrder(
 			mockNetworkUtil.EXPECT().WriteTo(gomock.Any(), gomock.Any()).Return(errors.New(defaultMessage)),
-			mockDiscovery.EXPECT().MNEDCClosedCallback().Return(),
 		)
 
 		go client.StartSendRoutine()
@@ -331,7 +326,6 @@ func TestHandleErrorNegativeRead(t *testing.T) {
 
 	t.Run("ReadFromError", func(t *testing.T) {
 		gomock.InOrder(
-			mockDiscovery.EXPECT().MNEDCClosedCallback(),
 			mockNetworkUtil.EXPECT().ConnectToHost(gomock.Any(), gomock.Any(), gomock.Any()).Return(conn, nil).AnyTimes(),
 			mockNetworkUtil.EXPECT().WriteTo(gomock.Any(), gomock.Any()).Return(nil).AnyTimes(),
 			mockNetworkUtil.EXPECT().ReadFrom(gomock.Any()).Return(1, []byte(""), errors.New("")).Return(8, []byte(defaultVirtualIP), nil),
@@ -386,14 +380,12 @@ func TestHadError(t *testing.T) {
 		configPath:  defaultConfigPath,
 	}
 	gomock.InOrder(
-		mockDiscovery.EXPECT().MNEDCClosedCallback(),
 		mockNetworkUtil.EXPECT().ConnectToHost(gomock.Any(), gomock.Any(), gomock.Any()).Return(conn, nil),
 		mockNetworkUtil.EXPECT().WriteTo(gomock.Any(), gomock.Any()).Return(nil),
 		mockNetworkUtil.EXPECT().ReadFrom(gomock.Any()).Return(8, []byte(defaultVirtualIP), nil),
 		mockTun.EXPECT().CreateTUN().Return(tunIntf, nil),
 		mockTun.EXPECT().SetTUNIP(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil),
 		mockTun.EXPECT().SetTUNStatus(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil),
-		mockDiscovery.EXPECT().MNEDCReconciledCallback().Return().AnyTimes(),
 	)
 
 	c.HandleError(errors.New("Read Error"))
@@ -496,7 +488,6 @@ func TestClose(t *testing.T) {
 		intf:    tunIntf,
 		isAlive: true,
 	}
-	mockDiscovery.EXPECT().MNEDCClosedCallback().Return()
 	err = client.Close()
 
 	if err != nil {
@@ -512,7 +503,6 @@ func createMockIns(ctrl *gomock.Controller) {
 	tunIns = mockTun
 	networkUtilIns = mockNetworkUtil
 	mockDiscovery = discoveryMocks.NewMockDiscovery(ctrl)
-	discoveryIns = mockDiscovery
 }
 
 func startConnection() {
