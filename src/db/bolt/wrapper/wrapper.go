@@ -21,7 +21,7 @@ import (
 
 	"github.com/lf-edge/edge-home-orchestration-go/src/common/errors"
 
-	"github.com/boltdb/bolt"
+	bolt "go.etcd.io/bbolt"
 )
 
 const (
