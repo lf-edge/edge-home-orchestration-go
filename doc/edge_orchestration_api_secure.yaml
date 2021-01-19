@@ -117,14 +117,14 @@ definitions:
 
   verifier:
     required:
-      - SecCompName
-      - TypeCmd
+      - SecureMgr
+      - CmdType
       - Desc
     properties:
-      SecCompName:
+      SecureMgr:
         type: string
         example: Verifier
-      TypeCmd:
+      CmdType:
         type: string
         example: 
           - addHashCWL
