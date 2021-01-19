@@ -39,8 +39,6 @@ func TestToString(t *testing.T) {
 
 func TestToInt(t *testing.T) {
 	err := ToError(ErrorNoNetworkInterface)
-	t.Log(ToString(err))
-
 	num := ToInt(err)
 	if num != ErrorNoNetworkInterface {
 		t.Errorf("%d != %d", num, ErrorNoNetworkInterface)
