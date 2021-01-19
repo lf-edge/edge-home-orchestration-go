@@ -19,9 +19,10 @@
 package containerexecutor
 
 import (
-	"github.com/lf-edge/edge-home-orchestration-go/src/common/logmgr"
 	"os"
 	"runtime"
+
+	"github.com/lf-edge/edge-home-orchestration-go/src/common/logmgr"
 
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/network"
@@ -63,7 +64,7 @@ func GetInstance() *ContainerExecutor {
 }
 
 // Execute executes container service application
-func (c ContainerExecutor) Execute(s executor.ServiceExecutionInfo) error {
+func (c *ContainerExecutor) Execute(s executor.ServiceExecutionInfo) error {
 	c.ServiceExecutionInfo = s
 
 	log.Println(logPrefix, c.ServiceName, c.ParamStr)
