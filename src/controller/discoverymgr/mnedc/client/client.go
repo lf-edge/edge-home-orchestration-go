@@ -18,14 +18,13 @@
 package client
 
 import (
-	"bufio"
 	"errors"
 	"github.com/lf-edge/edge-home-orchestration-go/src/common/logmgr"
+	"io/ioutil"
 	"net"
-	"os"
 	"sync"
 	"time"
-
+	"gopkg.in/yaml.v2"
 	restclient "github.com/lf-edge/edge-home-orchestration-go/src/restinterface/client"
 	//"controller/discoverymgr"
 	networkhelper "github.com/lf-edge/edge-home-orchestration-go/src/common/networkhelper"
@@ -96,6 +95,11 @@ type MNEDCClient interface {
 	TunWriteRoutine()
 	NotifyBroadcastServer(configPath string) error
 	SetClient(clientAPI restclient.Clienter)
+}
+
+type conf struct {
+	ServerIp string `yaml:"server-ip"`
+	Port string `yaml:"port"`
 }
 
 func init() {
@@ -442,19 +446,12 @@ func (c *Client) NotifyBroadcastServer(configPath string) error {
 		return err
 	}
 
-	file, err := os.Open(configPath)
+	serverIP, _, err := getMNEDCServerAddress(configPath)
 
 	if err != nil {
-		log.Println(logPrefix, "cant read config file from", configPath, err.Error())
+		log.Println(errors.New("Cannot read config file," + err.Error()))
 		return err
 	}
-	defer file.Close()
-
-	scanner := bufio.NewScanner(file)
-	scanner.Split(bufio.ScanLines)
-
-	scanner.Scan()
-	serverIP := scanner.Text()
 
 	go func() {
 
@@ -485,19 +482,18 @@ func (c *Client) SetClient(clientAPI restclient.Clienter) {
 func getMNEDCServerAddress(path string) (string, string, error) {
 
 	var serverIP, serverPort string
-
-	file, err := os.Open(path)
+	c := conf{}
+	yamlFile, err := ioutil.ReadFile(path)
 	if err != nil {
 		return "", "", err
 	}
-	defer file.Close()
-	scanner := bufio.NewScanner(file)
-	scanner.Split(bufio.ScanLines)
+	err = yaml.Unmarshal(yamlFile,&c)
+	if err != nil {
+		return "", "", err
+	}
 
-	scanner.Scan()
-	serverIP = scanner.Text()
-	scanner.Scan()
-	serverPort = scanner.Text()
+	serverIP = c.ServerIp
+	serverPort = c.Port
 
 	return serverIP, serverPort, nil
 }
