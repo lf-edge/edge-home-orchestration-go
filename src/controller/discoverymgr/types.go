@@ -30,8 +30,8 @@ import (
 const (
 	logPrefix       = "[discoverymgr]"
 	edgeDirect      = "/var/edge-orchestration/"
-	configPath      = edgeDirect + "mnedc/client.config"
-	configAlternate = "/storage/emulated/0/client.config"
+	configPath      = edgeDirect + "mnedc/client-config.yaml"
+	configAlternate = "/storage/emulated/0/client-config.yaml"
 )
 
 // OrchestrationInformation is the struct to handle orchestration
@@ -52,6 +52,11 @@ type requestData struct {
 	DeviceID  string
 	PrivateIP string
 	VirtualIP string
+}
+
+type conf struct {
+	ServerIp string `yaml:"server-ip"`
+	Port string `yaml:"port"`
 }
 
 var (
