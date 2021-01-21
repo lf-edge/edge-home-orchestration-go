@@ -29,6 +29,7 @@ import (
 	contextmgrmocks "github.com/lf-edge/edge-home-orchestration-go/src/controller/configuremgr/mocks"
 	discoverymocks "github.com/lf-edge/edge-home-orchestration-go/src/controller/discoverymgr/mocks"
 	scoringmocks "github.com/lf-edge/edge-home-orchestration-go/src/controller/scoringmgr/mocks"
+	storagemocks "github.com/lf-edge/edge-home-orchestration-go/src/controller/storagemgr/mocks"
 	verifiermocks "github.com/lf-edge/edge-home-orchestration-go/src/controller/securemgr/verifier/mocks"
 	executormocks "github.com/lf-edge/edge-home-orchestration-go/src/controller/servicemgr/executor/mocks"
 	servicemocks "github.com/lf-edge/edge-home-orchestration-go/src/controller/servicemgr/mocks"
@@ -45,6 +46,7 @@ var (
 	mockWatcher      *contextmgrmocks.MockWatcher
 	mockDiscovery    *discoverymocks.MockDiscovery
 	mockScoring      *scoringmocks.MockScoring
+	mockStorage      *storagemocks.MockStorage
 	mockService      *servicemocks.MockServiceMgr
 	mockExecutor     *executormocks.MockServiceExecutor
 	mockDBHelper     *dbhelpermocks.MockMultipleBucketQuery
@@ -60,6 +62,7 @@ func createMockIns(ctrl *gomock.Controller) {
 	mockWatcher = contextmgrmocks.NewMockWatcher(ctrl)
 	mockDiscovery = discoverymocks.NewMockDiscovery(ctrl)
 	mockScoring = scoringmocks.NewMockScoring(ctrl)
+	mockStorage = storagemocks.NewMockStorage(ctrl)
 	mockService = servicemocks.NewMockServiceMgr(ctrl)
 	mockExecutor = executormocks.NewMockServiceExecutor(ctrl)
 	mockDBHelper = dbhelpermocks.NewMockMultipleBucketQuery(ctrl)
@@ -76,6 +79,7 @@ func getOcheIns(ctrl *gomock.Controller) Orche {
 	builder.SetDiscovery(mockDiscovery)
 	builder.SetExecutor(mockExecutor)
 	builder.SetScoring(mockScoring)
+	builder.SetStorage(mockStorage)
 	builder.SetService(mockService)
 	builder.SetWatcher(mockWatcher)
 	builder.SetClient(mockClient)
@@ -106,6 +110,7 @@ func TestBuild(t *testing.T) {
 		builder.SetDiscovery(mockDiscovery)
 		builder.SetExecutor(mockExecutor)
 		builder.SetScoring(mockScoring)
+		builder.SetStorage(mockStorage)
 		builder.SetService(mockService)
 		builder.SetWatcher(mockWatcher)
 		builder.SetClient(mockClient)
@@ -213,6 +218,7 @@ func TestStart(t *testing.T) {
 			mockDiscovery.EXPECT().SetRestResource(),
 			mockResourceutil.EXPECT().StartMonitoringResource(),
 			mockDiscovery.EXPECT().StartDiscovery(gomock.Eq(deviceIDPath), gomock.Eq(platform), gomock.Eq(executionType)),
+			mockStorage.EXPECT().StartStorage(),
 			mockWatcher.EXPECT().Watch(gomock.Any()),
 		)
 
