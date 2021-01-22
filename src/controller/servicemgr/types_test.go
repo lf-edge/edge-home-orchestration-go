@@ -59,8 +59,6 @@ func TestMapIter(t *testing.T) {
 	for {
 		msg := <-mapItem
 
-		t.Log(msg.Key, msg.Value)
-
 		if msg.Value == nil && msg.Key == 0 {
 			break
 		} else {
