@@ -50,7 +50,7 @@ $ git checkout -b 999-name-of-your-branch-goes-here
 Above, <NAMED_RELEASE> can be 'Alpha', 'Baobab', 'Coconut', etc. - see list of releases.
 
 #### 6. Do your magic, write your code
-Make sure it works :)
+Make sure it works and your contribution corresponds to [testing policy](../doc/testing_policy.md) :)
 
 #### 7. Update the ReleaseNotes
 Edit the ReleaseNotes file to include your change, you should insert this at the top of the file under the "Work in progress" heading, the line in the change log should look like one of the following:
