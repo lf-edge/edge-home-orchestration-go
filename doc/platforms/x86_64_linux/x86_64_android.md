@@ -102,7 +102,6 @@ tree /home/virtual-pc/projects/edge-home-orchestration-go/src/interfaces/javaapi
  Clean up 3rdParty directory
 -------------------------------------
 rm -rf /home/virtual-pc/projects/edge-home-orchestration-go/vendor
-rm -rf /home/virtual-pc/projects/edge-home-orchestration-go/glide.lock
 virtual-pc@virtualpc-VirtualBox:~/projects/edge-home-orchestration-go$ ls /home/virtual-pc/projects/edge-home-orchestration-go/src/interfaces/javaapi/output
 liborchestration.aar  liborchestration-sources.jar
 ```

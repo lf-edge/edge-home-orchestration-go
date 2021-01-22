@@ -46,7 +46,6 @@ RUN	cd /usr/src/gtest && cmake . && make && mv *.a /usr/lib && \
 
 
 # Install go tools and packages
-RUN add-apt-repository ppa:masterminds/glide && apt-get update && apt-get install -y glide
 RUN curl -s https://dl.google.com/go/go1.11.5.linux-amd64.tar.gz | tar -v -C /usr/local -xz
 # Environment
 ENV HOME /home
@@ -71,7 +70,7 @@ RUN wget https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip &&
 	unzip sdk-tools-linux-4333796.zip -d $ANDROID_HOME && \
 	rm -rf sdk-tools-linux-4333796.zip
 ENV PATH $PATH:$ANDROID_HOME/tools/bin
-RUN apt-get -y install openjdk-8-jdk
+RUN apt-get update && apt-get -y install openjdk-8-jdk
 RUN yes | sdkmanager "platform-tools" "platforms;android-28"
 # Install gradle
 RUN wget https://services.gradle.org/distributions/gradle-5.4.1-bin.zip && \
