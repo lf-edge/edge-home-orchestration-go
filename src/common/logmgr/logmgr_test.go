@@ -68,8 +68,6 @@ func TestInitFileFail(t *testing.T) {
 			if err != nil {
 				t.Error(err.Error())
 			}
-		} else {
-			t.Error(r)
 		}
 	}()
 
