@@ -48,6 +48,7 @@ var (
 	defaultMyDeviceID    = "edge-orchestration-test-device-id1"
 	defaultIPv4List      = []string{defaultIPv4}
 	defaultServiceList   = []string{defaultService}
+	defaultConfAlternate = "testdata/client.config"
 
 	anotherService     = "docker"
 	anotherIPv4        = "2.2.2.2"
@@ -732,6 +733,7 @@ func TestNotifyMNEDCBroadcastServer(t *testing.T) {
 
 	})
 	t.Run("Success", func(t *testing.T) {
+		configAlternate = defaultConfAlternate
 		discoveryInstance.SetClient(mockClient)
 		discoveryInstance.SetRestResource()
 		mockNetwork.EXPECT().GetVirtualIP().Return(defaultVirtualIP, nil)

@@ -31,7 +31,6 @@ const (
 	logPrefix       = "[discoverymgr]"
 	edgeDirect      = "/var/edge-orchestration/"
 	configPath      = edgeDirect + "mnedc/client.config"
-	configAlternate = "/storage/emulated/0/client.config"
 )
 
 // OrchestrationInformation is the struct to handle orchestration
@@ -39,10 +38,10 @@ type OrchestrationInformation struct {
 	Platform      string `json:"Platform"`
 	ExecutionType string `json:"ExecutionType"`
 
-	//interface-ip 형태의 구조체 리스트로.
-	IPv4 []string `json:"IPv4"`
-	// IPv6     []string   `json:"IPv6"`
-	ServiceList []string `json:"ServiceList"`
+	// List of IP and Services
+	IPv4          []string `json:"IPv4"`
+	// IPv6       []string   `json:"IPv6"`
+	ServiceList   []string `json:"ServiceList"`
 }
 
 // ExportDeviceMap gives device info map for discoverymgr user
@@ -64,4 +63,6 @@ var (
 	confQuery    configurationdb.DBInterface
 	netQuery     networkdb.DBInterface
 	serviceQuery servicedb.DBInterface
+
+	configAlternate = "/storage/emulated/0/client.config"
 )
