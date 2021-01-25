@@ -21,9 +21,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/lf-edge/edge-home-orchestration-go/src/controller/discoverymgr/mnedc/client"
 	clientMocks "github.com/lf-edge/edge-home-orchestration-go/src/controller/discoverymgr/mnedc/client/mocks"
-	discoveryMocks "github.com/lf-edge/edge-home-orchestration-go/src/controller/discoverymgr/mocks"
 
 	"github.com/golang/mock/gomock"
 )
@@ -31,10 +29,9 @@ import (
 var (
 	defaultConfigPath       = "server.config"
 	defaultDeviceID         = "dummyID"
-	defaultDeviceIDFilePath = "deviceID.txt"
+	defaultDeviceIDFilePath = "testdata/deviceID.txt"
 
 	mockMnedcClient *clientMocks.MockMNEDCClient
-	mockDiscovery   *discoveryMocks.MockDiscovery
 )
 
 func init() {
@@ -48,28 +45,22 @@ func TestStartMNEDCClient(t *testing.T) {
 
 	t.Run("CreateClientError", func(t *testing.T) {
 		c := GetClientInstance()
-
-		mockDiscovery.EXPECT().GetDeviceID().Return(defaultDeviceID, nil)
+		mockMnedcClient.EXPECT().SetClient(gomock.Any())
 		mockMnedcClient.EXPECT().CreateClient(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, errors.New(""))
 		c.StartMNEDCClient(defaultDeviceIDFilePath, defaultConfigPath)
 	})
 	t.Run("Success", func(t *testing.T) {
 		c := GetClientInstance()
-
-		mockDiscovery.EXPECT().GetDeviceID().Return(defaultDeviceID, nil)
-		mockMnedcClient.EXPECT().CreateClient(gomock.Any(), gomock.Any(), gomock.Any()).Return(&client.Client{}, nil)
+		mockMnedcClient.EXPECT().SetClient(gomock.Any())
+		mockMnedcClient.EXPECT().CreateClient(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, nil)
 		mockMnedcClient.EXPECT().Run()
-		mockDiscovery.EXPECT().NotifyMNEDCBroadcastServer().Return(errors.New("")).AnyTimes()
+		mockMnedcClient.EXPECT().NotifyBroadcastServer(gomock.Any()).Return(nil).AnyTimes()
 
 		c.StartMNEDCClient(defaultDeviceIDFilePath, defaultConfigPath)
-
 	})
-
 }
 
 func createMockIns(ctrl *gomock.Controller) {
 	mockMnedcClient = clientMocks.NewMockMNEDCClient(ctrl)
 	mnedcClientIns = mockMnedcClient
-	mockDiscovery = discoveryMocks.NewMockDiscovery(ctrl)
-	discoveryIns = mockDiscovery
 }

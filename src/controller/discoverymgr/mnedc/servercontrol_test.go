@@ -21,13 +21,11 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	networkmocks "github.com/lf-edge/edge-home-orchestration-go/src/common/networkhelper/mocks"
-	discoverymocks "github.com/lf-edge/edge-home-orchestration-go/src/controller/discoverymgr/mocks"
 	"github.com/lf-edge/edge-home-orchestration-go/src/controller/discoverymgr/mnedc/server"
 	serverMocks "github.com/lf-edge/edge-home-orchestration-go/src/controller/discoverymgr/mnedc/server/mocks"
 	ciphermock "github.com/lf-edge/edge-home-orchestration-go/src/restinterface/cipher/mocks"
@@ -61,13 +59,11 @@ func TestStartMNEDCServer(t *testing.T) {
 
 	t.Run("ServerError", func(t *testing.T) {
 		s := GetServerInstance()
-		mockDiscovery.EXPECT().GetDeviceID().Return(defaultDeviceID, nil)
 		mockMnedcServer.EXPECT().CreateServer(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, errors.New(""))
 		s.StartMNEDCServer(defaultDeviceIDFilePath)
 	})
 	t.Run("GetOutboundIPError", func(t *testing.T) {
 		s := GetServerInstance()
-		mockDiscovery.EXPECT().GetDeviceID().Return(defaultDeviceID, nil)
 		mockMnedcServer.EXPECT().CreateServer(gomock.Any(), gomock.Any(), gomock.Any()).Return(&server.Server{}, nil)
 		mockMnedcServer.EXPECT().Run()
 		mockNetwork.EXPECT().GetOutboundIP().Return("", errors.New(""))
@@ -75,7 +71,6 @@ func TestStartMNEDCServer(t *testing.T) {
 	})
 	t.Run("Success", func(t *testing.T) {
 		s := GetServerInstance()
-		mockDiscovery.EXPECT().GetDeviceID().Return(defaultDeviceID, nil)
 		mockMnedcServer.EXPECT().CreateServer(gomock.Any(), gomock.Any(), gomock.Any()).Return(&server.Server{}, nil)
 		mockMnedcServer.EXPECT().Run()
 		mockNetwork.EXPECT().GetOutboundIP().Return(defaultOutboundIP, nil)
@@ -141,8 +136,6 @@ func TestRequestHandler(t *testing.T) {
 func createServerMockIns(ctrl *gomock.Controller) {
 	mockNetwork = networkmocks.NewMockNetwork(ctrl)
 	mockMnedcServer = serverMocks.NewMockMNEDCServer(ctrl)
-	mockDiscovery = discoverymocks.NewMockDiscovery(ctrl)
 	mnedcServerIns = mockMnedcServer
 	networkIns = mockNetwork
-	discoveryIns = mockDiscovery
 }
