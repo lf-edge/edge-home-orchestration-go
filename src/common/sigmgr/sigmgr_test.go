@@ -18,8 +18,6 @@
 package sigmgr
 
 import (
-	"io/ioutil"
-	"os"
 	"syscall"
 	"testing"
 	"time"
@@ -28,44 +26,8 @@ import (
 	"github.com/lf-edge/edge-home-orchestration-go/src/controller/discoverymgr/mnedc/server"
 )
 
-const (
-	deviceID   = "edge-orchestration-fake"
-	configFile = "client.config"
-	saddr      = "localhost"
-	sport      = "3334"
-)
-
 func TestWatch(t *testing.T) {
-	t.Run("Watch with MNEDC", func(t *testing.T) {
-		defer func() {
-			err := os.Remove(configFile)
-			if err != nil {
-				log.Println("Could not delete file")
-			}
-		}()
-		_, err := server.GetInstance().CreateServer(saddr, sport, false)
-		if err != nil {
-			t.Error(err.Error())
-		} else {
-			server.GetInstance().Run()
-			if _, err := os.Stat(configFile); err != nil {
-				err = ioutil.WriteFile(configFile, []byte(saddr+"\n"+sport), 0644)
-				if err != nil {
-					log.Panicf("Failed to create a mnedc config file %s: %s\n", configFile, err)
-				}
-			}
-			_, err = client.GetInstance().CreateClient(deviceID, configFile, false)
-			if err != nil {
-				t.Error(err.Error())
-			}
-			go func() {
-				time.Sleep(1 * time.Second)
-					syscall.Kill(syscall.Getpid(), syscall.SIGINT)
-			}()
-			Watch()
-		}
-	})
-
+	// TC without MNEDC running
 	t.Run("Watch without MNEDC", func(t *testing.T) {
 		go func() {
 			time.Sleep(1 * time.Second)
@@ -75,4 +37,5 @@ func TestWatch(t *testing.T) {
 		}()
 		Watch()
 	})
+	// TODO: TC needs to be implemented when MNEDC server and client are running.
 }
