@@ -76,8 +76,9 @@ The Edge Orchestration source code is distributed under the [Apache License, Ver
 ## Contributing
 If you want to contribute to the Edge Orchestration project and make it better, your help is
 very welcome. Contributing is also a great way to learn more about social
-coding on Github, new technologies and and their ecosystems. [How to contribute
-you can find here](.github/CONTRIBUTING.md).
+coding on Github, new technologies and and their ecosystems.  
+[How to contribute code](.github/CONTRIBUTING.md)  
+[How to report a security vulnerability](.github/SECURITY.md)
 
 ---
 
