@@ -18,8 +18,9 @@
 package native
 
 import (
-	"fmt"
-	"os/exec"
+	"io/ioutil"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 	"time"
@@ -31,7 +32,9 @@ import (
 var name string
 
 const (
-	expectedName = "HelloWorldService"
+	expectedName    = "HelloWorldService"
+	defaultConfPath = "testdata/apps"
+	fakeConfPath    = "fake"
 )
 
 type dummyNoti struct{}
@@ -42,60 +45,69 @@ func (d dummyNoti) Notify(serviceinfo configuremgrtypes.ServiceInfo) {
 }
 
 func TestSetConfigPath(t *testing.T) {
-	testConfigObj := new(ConfigureMgr)
+	os.Mkdir(defaultConfPath, 0775)
+	defer os.RemoveAll(defaultConfPath)
 
-	configFilePath := "/etc/edge-orchestration"
-	err := testConfigObj.SetConfigPath(configFilePath)
-	if err == nil {
-		if strings.Compare(configFilePath, configuremgrObj.confpath) != 0 {
-			t.Errorf("%s != %s", configFilePath, configuremgrObj.confpath)
+	t.Run("Success", func(t *testing.T) {
+		testConfigObj := new(ConfigureMgr)
+
+		err := testConfigObj.SetConfigPath(defaultConfPath)
+		if err == nil {
+			if strings.Compare(defaultConfPath, configuremgrObj.confpath) != 0 {
+				t.Errorf("%s != %s", defaultConfPath, configuremgrObj.confpath)
+			}
+		} else {
+			t.Errorf(err.Error())
 		}
-	}
+	})
+	t.Run("No File", func(t *testing.T) {
+                testConfigObj := new(ConfigureMgr)
+
+                err := testConfigObj.SetConfigPath(fakeConfPath)
+                if err == nil {
+                        if strings.Compare(fakeConfPath, configuremgrObj.confpath) != 0 {
+                                t.Errorf("%s != %s", fakeConfPath, configuremgrObj.confpath)
+                        }
+                }
+        })
 }
 
 func TestBasicMockConfigureMgr(t *testing.T) {
+	os.Mkdir(defaultConfPath, 0775)
+	defer os.RemoveAll(defaultConfPath)
 
 	var contextNoti contextmgr.Notifier
 	contextNoti = new(dummyNoti)
+	src := "testdata/mysum"
 
-	//copy event environment
-	watchDir := "/tmp/foo"
-	src := "./mock/mysum"
-	dst := watchDir
+	t.Run("Success", func(t *testing.T) {
+		testConfigObj := GetInstance(defaultConfPath)
 
-	// testConfigObj := &ConfigureMgr{confpath: watchDir}
-	testConfigObj := new(ConfigureMgr)
-	testConfigObj.confpath = watchDir
+		go testConfigObj.Watch(contextNoti)
+		time.Sleep(time.Duration(1) * time.Second)
 
-	execCommand("mkdir -p /tmp/foo/")
+		dir := defaultConfPath+"/mysum"
+		os.RemoveAll(dir)
+		err := os.Mkdir(dir, 0775)
+		if err != nil {
+			t.Errorf(err.Error())
+		} else {
+			files, err := ioutil.ReadDir(src)
+			if err != nil {
+				t.Error(err.Error())
+			}
+			for _, file := range files {
+				fileContent, _ := ioutil.ReadFile(filepath.Join(src, file.Name()))
+				err = ioutil.WriteFile(filepath.Join(dir, file.Name()), []byte(fileContent), 0664)
+				if err != nil {
+					t.Errorf(err.Error())
+				}
+			}
+		}
+		time.Sleep(time.Duration(5) * time.Second)
 
-	go testConfigObj.Watch(contextNoti)
-
-	//TODO : push /tmp/foo/simple directory using Cmd package
-	time.Sleep(time.Duration(1 * time.Second))
-
-	//init scenario
-	execCommand("rm -rf /tmp/foo/mysum")
-	time.Sleep(time.Duration(1) * time.Second)
-
-	//user scenario
-	execCommand(fmt.Sprintf("cp -ar %s %s", src, dst))
-
-	time.Sleep(time.Duration(5) * time.Second)
-
-	if name != expectedName {
-		t.Errorf("Not matched notified serviceName")
-	}
-
-	// testConfigObj.Done <- true
-}
-
-func execCommand(command string) {
-	log.Println(command)
-	cmd := exec.Command("sh", "-c", command)
-	stdoutStderr, err := cmd.CombinedOutput()
-	log.Printf("%s", stdoutStderr)
-	if err != nil {
-		log.Fatal(err)
-	}
+		if name != expectedName {
+			t.Errorf("Not matched notified serviceName %s != %s", name, expectedName)
+		}
+	})
 }
