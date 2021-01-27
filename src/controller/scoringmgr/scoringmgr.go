@@ -19,9 +19,10 @@
 package scoringmgr
 
 import (
-	"github.com/lf-edge/edge-home-orchestration-go/src/common/resourceutil"
 	"errors"
 	"math"
+
+	"github.com/lf-edge/edge-home-orchestration-go/src/common/resourceutil"
 )
 
 const (
@@ -72,42 +73,37 @@ func (ScoringImpl) GetResource(ID string) (resource map[string]interface{}, err 
 	if err != nil {
 		resource["error"] = INVALID_SCORE
 		return
-	} else {
-		resource["cpuUsage"] = cpuUsage
 	}
+	resource["cpuUsage"] = cpuUsage
 
 	cpuCount, err := resourceIns.GetResource(resourceutil.CPUCount)
 	if err != nil {
 		resource["error"] = INVALID_SCORE
 		return
-	} else {
-		resource["cpuCount"] = cpuCount
 	}
+	resource["cpuCount"] = cpuCount
 
 	cpuFreq, err := resourceIns.GetResource(resourceutil.CPUFreq)
 	if err != nil {
 		resource["error"] = INVALID_SCORE
 		return
-	} else {
-		resource["cpuFreq"] = cpuFreq
 	}
+	resource["cpuFreq"] = cpuFreq
 
 	netBandwidth, err := resourceIns.GetResource(resourceutil.NetBandwidth)
 	if err != nil {
 		resource["error"] = INVALID_SCORE
 		return
-	} else {
-		resource["netBandwidth"] = netBandwidth
 	}
+	resource["netBandwidth"] = netBandwidth
 
 	resourceIns.SetDeviceID(ID)
 	rtt, err := resourceIns.GetResource(resourceutil.NetRTT)
 	if err != nil {
 		resource["error"] = INVALID_SCORE
 		return
-	} else {
-		resource["rtt"] = rtt
 	}
+	resource["rtt"] = rtt
 
 	return
 }

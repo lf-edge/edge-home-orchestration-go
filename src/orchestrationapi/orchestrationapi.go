@@ -18,7 +18,6 @@
 package orchestrationapi
 
 import (
-	"github.com/lf-edge/edge-home-orchestration-go/src/controller/storagemgr"
 	"errors"
 	"sort"
 	"sync"
@@ -34,11 +33,11 @@ import (
 	"github.com/lf-edge/edge-home-orchestration-go/src/controller/securemgr/verifier"
 	"github.com/lf-edge/edge-home-orchestration-go/src/controller/servicemgr"
 	"github.com/lf-edge/edge-home-orchestration-go/src/controller/servicemgr/notification"
-	"github.com/lf-edge/edge-home-orchestration-go/src/restinterface/client"
-
+	"github.com/lf-edge/edge-home-orchestration-go/src/controller/storagemgr"
 	"github.com/lf-edge/edge-home-orchestration-go/src/db/bolt/common"
 	sysDB "github.com/lf-edge/edge-home-orchestration-go/src/db/bolt/system"
 	dbhelper "github.com/lf-edge/edge-home-orchestration-go/src/db/helper"
+	"github.com/lf-edge/edge-home-orchestration-go/src/restinterface/client"
 )
 
 type orcheImpl struct {
@@ -50,9 +49,9 @@ type orcheImpl struct {
 	discoverIns     discoverymgr.Discovery
 	watcher         configuremgr.Watcher
 	notificationIns notification.Notification
-	storageIns	storagemgr.Storage
-	networkhelper 	networkhelper.Network
-	clientAPI 	client.Clienter
+	storageIns      storagemgr.Storage
+	networkhelper   networkhelper.Network
+	clientAPI       client.Clienter
 }
 
 type deviceInfo struct {
@@ -265,7 +264,7 @@ func (orcheEngine orcheImpl) getCandidate(appName string, execType []string) (de
 func (orcheEngine orcheImpl) gatherDevicesScore(candidates []dbhelper.ExecutionCandidate, selfSelection bool) (deviceScores []deviceInfo) {
 	count := len(candidates)
 	if !selfSelection {
-		count -= 1
+		count--
 	}
 	scores := make(chan deviceInfo, count)
 
@@ -348,7 +347,7 @@ func (orcheEngine orcheImpl) gatherDevicesScore(candidates []dbhelper.ExecutionC
 func (orcheEngine orcheImpl) gatherDevicesResource(candidates []dbhelper.ExecutionCandidate, selfSelection bool) (deviceResources []deviceInfo) {
 	count := len(candidates)
 	if !selfSelection {
-		count -= 1
+		count--
 	}
 	resources := make(chan deviceInfo, count)
 

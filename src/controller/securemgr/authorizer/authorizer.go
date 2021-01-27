@@ -14,14 +14,17 @@
 * limitations under the License.
 *
 *******************************************************************************/
+
+// Package authorizer provides Role Based Access Control (RBAC)
 package authorizer
 
 import (
 	"errors"
 	"io/ioutil"
-	"github.com/lf-edge/edge-home-orchestration-go/src/common/logmgr"
 	"net/http"
 	"os"
+
+	"github.com/lf-edge/edge-home-orchestration-go/src/common/logmgr"
 
 	"github.com/casbin/casbin"
 )
@@ -31,10 +34,10 @@ type AuthorizerImpl struct{}
 
 const (
 	rbacPolicyFileName = "policy.csv"
-	policy_template    = "p, admin, /*, *\n" +
+	policyTemplate     = "p, admin, /*, *\n" +
 		"p, member, /api/v1/orchestration/services, *\n"
 	rbacAuthModelFileName = "auth_model.conf"
-	auth_model_template   = "[request_definition]\n" +
+	authModelTemplate     = "[request_definition]\n" +
 		"r = sub, obj, act\n\n" +
 		"[policy_definition]\n" +
 		"p = sub, obj, act\n\n" +
@@ -88,7 +91,7 @@ func Init(rbacRulePath string) {
 	}
 	rbacPolicyFilePath = rbacRulePath + "/" + rbacPolicyFileName
 	if _, err := os.Stat(rbacPolicyFilePath); err != nil {
-		err = ioutil.WriteFile(rbacPolicyFilePath, []byte(policy_template), 0666)
+		err = ioutil.WriteFile(rbacPolicyFilePath, []byte(policyTemplate), 0664)
 		if err != nil {
 			log.Panicf("%s Cannot create %s: %s\n", logPrefix, rbacPolicyFilePath, err)
 		}
@@ -96,7 +99,7 @@ func Init(rbacRulePath string) {
 
 	rbacAuthModelFilePath = rbacRulePath + "/" + rbacAuthModelFileName
 	if _, err := os.Stat(rbacAuthModelFilePath); err != nil {
-		err = ioutil.WriteFile(rbacAuthModelFilePath, []byte(auth_model_template), 0666)
+		err = ioutil.WriteFile(rbacAuthModelFilePath, []byte(authModelTemplate), 0664)
 		if err != nil {
 			log.Panicf("%s Cannot create %s: %s\n", logPrefix, rbacAuthModelFilePath, err)
 		}
@@ -135,8 +138,7 @@ func Authorizer(name string, r *http.Request) error {
 	}
 	if res {
 		return nil
-	} else {
-		log.Println(logPrefix, "Unauthorized request")
-		return errors.New("Unauthorized request")
 	}
+	log.Println(logPrefix, "Unauthorized request")
+	return errors.New("Unauthorized request")
 }
