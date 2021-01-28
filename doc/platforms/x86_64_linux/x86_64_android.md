@@ -14,10 +14,15 @@ $ export PATH=$PATH:$ANDROID_SDK/cmdline-tools/tools:$ANDROID_SDK/platform-tools
 - Android NDK
 1. Go to `cmdline-tools/tools/bin` folder and execute following commands:
 ```
-$ ./sdkmanager --install ndk-bundle
+$ ./sdkmanager --list
+```
+Select NDK version from the list (recommended `ndk;21.3.6528147`)
+```
+$ ./sdkmanager --install "ndk;21.3.6528147"
 $ export ANDROID_NDK_HOME=<path to Android NDK directory> 
 $ export PATH=$PATH:$ANDROID_NDK_HOME
 ```
+> `ndk;22.x` is temporarily not supported.
 
 ## How to build
 The general preparation steps are described [here](x86_64_linux.md).
