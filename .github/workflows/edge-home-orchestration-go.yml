@@ -21,11 +21,12 @@ jobs:
         run: |
           go get github.com/axw/gocov/gocov
           echo "$HOME/go/bin" >> $GITHUB_PATH
-  
+          sudo mkdir -p /var/edge-orchestration/mnedc
+          echo -e '192.168.0.125\n3334' | sudo tee /var/edge-orchestration/mnedc/client.config
       - name: Build the project
         run: ./build.sh
 
       - name: Run the Test Suite
         run: |
           docker stop edge-orchestration || true
-          gocov test $(go list ./src/... | grep -v src/controller/discoverymgr | grep -v src/controller/servicemgr/executor/containerexecutor | grep -v src/orchestrationapi | grep -v src/common/sigmgr) -coverprofile=/dev/null
+          gocov test $(go list ./src/... | grep -v mnedc/client | grep -v mock) -coverprofile=/dev/null
