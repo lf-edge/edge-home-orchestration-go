@@ -473,9 +473,9 @@ func TestSetCertificateFilePath(t *testing.T) {
 	testHandler := new(Handler)
 	testHandler.SetCertificateFilePath("test")
 
-	testUrl := testHandler.helper.MakeTargetURL("", 1, "")
+	testURL := testHandler.helper.MakeTargetURL("", 1, "")
 
-	if strings.Contains(testUrl, "https") != true {
-		t.Error("expected key is set, but not set on helper: ", testUrl)
+	if strings.Contains(testURL, "https") != true {
+		t.Error("expected key is set, but not set on helper: ", testURL)
 	}
 }

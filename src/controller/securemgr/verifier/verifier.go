@@ -14,14 +14,17 @@
 * limitations under the License.
 *
 *******************************************************************************/
+
+// Package verifier ensures that only allowed containers (images) are launched
 package verifier
 
 import (
 	"errors"
 	"io/ioutil"
-	"github.com/lf-edge/edge-home-orchestration-go/src/common/logmgr"
 	"os"
 	"strings"
+
+	"github.com/lf-edge/edge-home-orchestration-go/src/common/logmgr"
 )
 
 // cwl - Container White List
@@ -141,10 +144,9 @@ func (VerifierImpl) ContainerIsInWhiteList(containerName string) error {
 	if containerHashIsInWhiteList(containerName[index:]) {
 		log.Printf("%s container's hash: %s is in container white list\n", logPrefix, containerName[index:])
 		return nil
-	} else {
-		log.Printf("%s container's hash: %s is not in container white list\n", logPrefix, containerName[index:])
-		return errors.New("container's hash is not in container white list")
 	}
+	log.Printf("%s container's hash: %s is not in container white list\n", logPrefix, containerName[index:])
+	return errors.New("container's hash is not in container white list")
 }
 
 // addHashToContainerWhiteList add the hash to containerWhiteList

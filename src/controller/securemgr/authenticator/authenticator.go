@@ -14,19 +14,22 @@
 * limitations under the License.
 *
 *******************************************************************************/
+
+// Package authenticator package provides access to resources only to authenticated users
 package authenticator
 
 import (
-	"github.com/lf-edge/edge-home-orchestration-go/src/controller/securemgr/authorizer"
 	"crypto/rsa"
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"github.com/lf-edge/edge-home-orchestration-go/src/common/logmgr"
 	"math/rand"
 	"net/http"
 	"os"
 	"time"
+
+	"github.com/lf-edge/edge-home-orchestration-go/src/common/logmgr"
+	"github.com/lf-edge/edge-home-orchestration-go/src/controller/securemgr/authorizer"
 
 	jwt "github.com/dgrijalva/jwt-go"
 )
@@ -141,9 +144,8 @@ var IsAuthorizedRequest = func(next http.Handler) http.Handler {
 							return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 						}
 						return verifyKey, nil
-					} else {
-						return nil, errors.New("RSA keys are not initialized")
 					}
+					return nil, errors.New("RSA keys are not initialized")
 				}
 				return nil, errors.New("Unsupported algo")
 			})
