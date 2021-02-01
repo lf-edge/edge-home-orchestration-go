@@ -27,18 +27,7 @@ wrap_add(void *f, int a, int b){
 import "C"
 import (
 	"log"
-	"unsafe"
 )
-
-// LoadScoringInterfaceAdd is a mock function
-func LoadScoringInterfaceAdd(symbol uintptr) float64 {
-
-	ret := C.wrap_add(unsafe.Pointer(symbol), 2, 3)
-	log.Println(ret)
-
-	return float64(ret)
-
-}
 
 // StartResourceServiceAdd is a mock function
 func StartResourceServiceAdd() {

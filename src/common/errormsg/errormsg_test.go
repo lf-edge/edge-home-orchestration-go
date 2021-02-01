@@ -18,16 +18,9 @@
 package errormsg
 
 import (
-	"fmt"
 	"strings"
 	"testing"
 )
-
-func ExampleErrorMsg() {
-	err := ToError(ErrorNotReadyOrchestrationInit)
-	fmt.Println(ToString(err))
-	// Output: Please wait until Orchestration init function has been completed
-}
 
 func TestToString(t *testing.T) {
 	errString := ToString(ErrorNoNetworkInterface)

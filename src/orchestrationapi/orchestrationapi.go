@@ -296,7 +296,6 @@ func (orcheEngine orcheImpl) gatherDevicesScore(candidates []dbhelper.ExecutionC
 				return
 			}
 		}
-		return
 	}()
 
 	localhosts, err := orcheEngine.networkhelper.GetIPs()
@@ -379,7 +378,6 @@ func (orcheEngine orcheImpl) gatherDevicesResource(candidates []dbhelper.Executi
 				return
 			}
 		}
-		return
 	}()
 
 	localhosts, err := orcheEngine.networkhelper.GetIPs()
