@@ -1,0 +1,32 @@
+---
+name: Build
+on: [push, pull_request]
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [x86, x86_64, arm, arm64]
+        os: [ubuntu-16.04, ubuntu-18.04, ubuntu-20.04]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Golang
+        uses: actions/setup-go@v1
+        with:
+          go-version: '1.15.6'
+
+      - name: Install Qemu
+        if:  ${{ matrix.arch != 'x86_64' }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu binfmt-support qemu-user-static
+  
+      - name: Build the project
+        if:  ${{ matrix.arch == 'x86_64' }}
+        run: ./build.sh 
+
+      - name: Build the container
+        run: ./build.sh container ${{ matrix.arch }}
