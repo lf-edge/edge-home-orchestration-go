@@ -13,7 +13,7 @@ GO_MOBILE_LDFLAGS	:= -ldflags '-X main.version=$(VERSION) -X main.commitID=$(GO_
 
 # Target parameters
 PKG_NAME		:= edge-orchestration
-OBJ_SRC_DIR		:= interfaces/capi
+OBJ_SRC_DIR		:= $(BASE_DIR)/src/interfaces/capi
 
 # GoMain target
 GOMAIN_DIR      := $(BASE_DIR)/GoMain
@@ -54,7 +54,7 @@ BUILD_VENDOR_DIR	:= $(BASE_DIR)/vendor
 ANDROID_LIBRARY_NAME          := liborchestration
 ANDROID_LIBRARY_FILE          := liborchestration.aar
 ANDROID_JAR_FILE              := liborchestration-sources.jar
-ANDROID_SRC_DIR               := interfaces/javaapi
+ANDROID_SRC_DIR               := $(BASE_DIR)/src/interfaces/javaapi
 ANDROID_LIBRARY_OUT_DIR       := $(BASE_DIR)/src/interfaces/javaapi/output
 
 .DEFAULT_GOAL := help
@@ -82,7 +82,7 @@ build-result:
 ## edge-orchestration android library build
 build-object-java:
 	mkdir -p $(ANDROID_LIBRARY_OUT_DIR)
-	$(GOMOBILE) init
+	rm -rf $(BUILD_VENDOR_DIR)
 	$(GOMOBILE) bind $(GO_MOBILE_LDFLAGS) -o $(ANDROID_LIBRARY_OUT_DIR)/$(ANDROID_LIBRARY_FILE) -target=$(ANDROID_TARGET) -androidapi=23 $(ANDROID_SRC_DIR) || exit 1
 	ls -al $(ANDROID_LIBRARY_OUT_DIR)
 
@@ -101,6 +101,7 @@ test-go:
 ## build clean
 clean:
 	$(GOCLEAN)
+	-rm -rf $(BUILD_VENDOR_DIR)
 	-rm -rf $(INTERFACE_OUT_DIR)
 	-rm -rf $(ANDROID_LIBRARY_OUT_DIR)
 

@@ -325,6 +325,7 @@ function build_android() {
     echo "-------------------------------------------"
     echo " Create Android archive from Java interface"
     echo "-------------------------------------------"
+
     make build-object-java || exit 1
 }
 
@@ -455,8 +456,8 @@ case "$1" in
                 set_mnedc_client_option $3
                 ;;
         esac
-        go_mod_vendor
         build_clean
+        go_mod_vendor
         if [ "$2" == "secure" ]; then
             build_objects $3
         else
