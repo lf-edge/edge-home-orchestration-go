@@ -105,11 +105,7 @@ function go_mod_vendor() {
     echo " Go Mod Vendor"
     echo "-----------------------------------"
 
-    VENDOR_DIR='vendor'
     make go-vendor
-    ###apply patch of zeroconf
-    git apply --directory=$VENDOR_DIR/github.com/grandcat/zeroconf $BASE_DIR/src/controller/discoverymgr/wrapper/zeroconfEdgeOrchestration.patch
-
 }
 
 function build_clean() {

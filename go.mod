@@ -53,3 +53,5 @@ require (
 	gotest.tools v2.2.0+incompatible // indirect
 	gotest.tools/v3 v3.0.3
 )
+
+replace github.com/grandcat/zeroconf v1.0.0 => ./third_party/zeroconf
