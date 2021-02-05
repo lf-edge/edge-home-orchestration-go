@@ -31,10 +31,10 @@ import (
 const (
 	cwlFileName = "containerwhitelist.txt"
 
-	ERROR_NONE          = "ERROR_NONE"
-	INVALID_PARAMETER   = "INVALID_PARAMETER"
-	SECUREMGR_ERROR     = "INTERNAL_SECUREMGR_ERROR"
-	NOT_ALLOWED_COMMAND = "NOT_ALLOWED_COMMAND"
+	ErrorNone         = "ERROR_NONE"
+	InvalidParameter  = "INVALID_PARAMETER"
+	SecureMgrError    = "INTERNAL_SECUREMGR_ERROR"
+	NotAllowedCommand = "NOT_ALLOWED_COMMAND"
 )
 
 // VerifierImpl structure
@@ -49,17 +49,20 @@ var (
 	cwlFilePath        = ""
 )
 
+// RequestDescInfo describes the requested container
 type RequestDescInfo struct {
 	//ContainerName string
 	ContainerHash string
 }
 
+// RequestVerifierConf describes the request configuration
 type RequestVerifierConf struct {
 	SecureInsName string
 	CmdType       string
 	Desc          []RequestDescInfo
 }
 
+// ResponseVerifierConf describes the verifier configuration response
 type ResponseVerifierConf struct {
 	Message       string
 	SecureCmpName string
@@ -240,6 +243,7 @@ func printAllHashFromContainerWhiteList() {
 	}
 }
 
+// RequestVerifierConf is Verifier configuration request handler
 func (verifier *VerifierImpl) RequestVerifierConf(containerInfo RequestVerifierConf) ResponseVerifierConf {
 	log.Printf("%s command type: %s\n", logPrefix, containerInfo.CmdType)
 	switch containerInfo.CmdType {
@@ -248,7 +252,7 @@ func (verifier *VerifierImpl) RequestVerifierConf(containerInfo RequestVerifierC
 			err := addHashToContainerWhiteList(containerDesc.ContainerHash)
 			if err != nil {
 				return ResponseVerifierConf{
-					Message:       SECUREMGR_ERROR,
+					Message:       SecureMgrError,
 					SecureCmpName: "verifier",
 				}
 			}
@@ -258,7 +262,7 @@ func (verifier *VerifierImpl) RequestVerifierConf(containerInfo RequestVerifierC
 			err := delHashFromContainerWhiteList(containerDesc.ContainerHash)
 			if err != nil {
 				return ResponseVerifierConf{
-					Message:       SECUREMGR_ERROR,
+					Message:       SecureMgrError,
 					SecureCmpName: "verifier",
 				}
 			}
@@ -267,7 +271,7 @@ func (verifier *VerifierImpl) RequestVerifierConf(containerInfo RequestVerifierC
 		err := delAllHashFromContainerWhiteList()
 		if err != nil {
 			return ResponseVerifierConf{
-				Message:       SECUREMGR_ERROR,
+				Message:       SecureMgrError,
 				SecureCmpName: "verifier",
 			}
 		}
@@ -276,12 +280,12 @@ func (verifier *VerifierImpl) RequestVerifierConf(containerInfo RequestVerifierC
 	default:
 		log.Println(logPrefix, "command does not supported: ", containerInfo.CmdType)
 		return ResponseVerifierConf{
-			Message:       NOT_ALLOWED_COMMAND,
+			Message:       NotAllowedCommand,
 			SecureCmpName: "verifier",
 		}
 	}
 	return ResponseVerifierConf{
-		Message:       ERROR_NONE,
+		Message:       ErrorNone,
 		SecureCmpName: "verifier",
 	}
 }

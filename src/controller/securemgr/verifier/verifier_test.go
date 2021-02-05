@@ -292,31 +292,31 @@ func TestRequestVerifierConf(t *testing.T) {
 		m := GetInstance()
 
 		resp := m.RequestVerifierConf(containerInfo)
-		if resp.Message != ERROR_NONE {
+		if resp.Message != ErrorNone {
 			t.Error("unexpected fail")
 		}
 
 		containerInfo.CmdType = "delHashCWL"
 		resp = m.RequestVerifierConf(containerInfo)
-		if resp.Message != ERROR_NONE {
+		if resp.Message != ErrorNone {
 			t.Error("unexpected fail")
 		}
 
 		containerInfo.CmdType = "printAllHashCWL"
 		resp = m.RequestVerifierConf(containerInfo)
-		if resp.Message != ERROR_NONE {
+		if resp.Message != ErrorNone {
 			t.Error("unexpected fail")
 		}
 
 		containerInfo.CmdType = "delAllHashCWL"
 		resp = m.RequestVerifierConf(containerInfo)
-		if resp.Message != ERROR_NONE {
+		if resp.Message != ErrorNone {
 			t.Error("unexpected fail")
 		}
 
 		containerInfo.CmdType = "CWL"
 		resp = m.RequestVerifierConf(containerInfo)
-		if resp.Message == ERROR_NONE {
+		if resp.Message == ErrorNone {
 			t.Error("unexpected success")
 		}
 	})

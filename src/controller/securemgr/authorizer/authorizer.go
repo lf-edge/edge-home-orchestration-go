@@ -62,6 +62,7 @@ func init() {
 	authorizerIns = new(AuthorizerImpl)
 }
 
+// User structure describes user properties
 type User struct {
 	Name string
 	Role string
@@ -113,6 +114,7 @@ func Init(rbacRulePath string) {
 	initialized = true
 }
 
+// Authorizer checks if the user has access to the resource
 func Authorizer(name string, r *http.Request) error {
 	user, err := users.findByName(name)
 	if err != nil {

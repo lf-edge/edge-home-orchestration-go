@@ -309,7 +309,7 @@ func (h *Handler) APIV1RequestSecuremgrPost(w http.ResponseWriter, r *http.Reque
 		containerDescs, ok = appCommand["Desc"].([]interface{})
 		if !ok {
 			log.Println("Error")
-			responseMsg = verifier.INVALID_PARAMETER
+			responseMsg = verifier.InvalidParameter
 			responseName = "verifier"
 			goto SEND_RESP
 		}
@@ -319,7 +319,7 @@ func (h *Handler) APIV1RequestSecuremgrPost(w http.ResponseWriter, r *http.Reque
 			tmp := containerDesc.(map[string]interface{})
 			//name, ok := tmp["ContainerName"].(string)
 			//if !ok {
-			//	responseMsg = verifier.INVALID_PARAMETER
+			//	responseMsg = verifier.InvalidParameter
 			//	responseName = "verifier"
 			//	goto SEND_RESP
 			//}
@@ -327,7 +327,7 @@ func (h *Handler) APIV1RequestSecuremgrPost(w http.ResponseWriter, r *http.Reque
 
 			hash, ok := tmp["ContainerHash"].(string)
 			if !ok {
-				responseMsg = verifier.INVALID_PARAMETER
+				responseMsg = verifier.InvalidParameter
 				responseName = "verifier"
 				goto SEND_RESP
 			}
