@@ -48,6 +48,7 @@ require (
 	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect
 	github.com/xeipuuv/gojsonschema v0.0.0-20160323030313-93e72a773fad // indirect
 	go.etcd.io/bbolt v1.3.5
+	golang.org/x/mobile v0.0.0-20201217150744-e6ae53a27f4f // indirect
 	google.golang.org/grpc v1.34.0 // indirect
 	gopkg.in/ini.v1 v1.62.0
 	gotest.tools v2.2.0+incompatible // indirect
