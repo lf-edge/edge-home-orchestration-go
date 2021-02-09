@@ -432,11 +432,11 @@ func TestSuccessConvertConfigWithEntryPoint(t *testing.T) {
 
 func TestSuccessConvertConfigEnvOption(t *testing.T) {
 	t.Run("Env", func(t *testing.T) {
-		validStr := []string{"docker", "run", "--env", "MYSQL_ROOT_PASSWORD=password", imageName}
+		validStr := []string{"docker", "run", "--env", "ENV_TEST=env", imageName}
 		container, _, _ := convertConfig(validStr)
 		envs := container.Env
 		for _, env := range envs {
-			if strings.Contains(env, "MYSQL_ROOT_PASSWORD") != true {
+			if strings.Contains(env, "ENV_TEST") != true {
 				t.Fail()
 			}
 		}
