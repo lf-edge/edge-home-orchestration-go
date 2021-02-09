@@ -12,15 +12,13 @@ GO_LDFLAGS		:= -ldflags '-extldflags "-static" -X main.version=$(VERSION) -X mai
 GO_MOBILE_LDFLAGS	:= -ldflags '-X main.version=$(VERSION) -X main.commitID=$(GO_COMMIT_ID) -X main.buildTime=$(BUILD_DATE) -X main.buildTags=$(BUILD_TAGS)'
 
 # Target parameters
-PKG_NAME		:= edge-orchestration
-OBJ_SRC_DIR		:= $(BASE_DIR)/src/interfaces/capi
+PKG_NAME	:= edge-orchestration
 
-# GoMain target
-GOMAIN_DIR      := $(BASE_DIR)/GoMain
-GOMAIN_BIN_DIR  := $(GOMAIN_DIR)/bin
-GOMAIN_SRC_DIR  := $(GOMAIN_DIR)/src
-EXEC_SRC        := $(GOMAIN_DIR)/src/main/main.go
-GOMAIN_BIN_FILE	:= $(PKG_NAME)
+# Go Application target
+CMD_DIR 	:= $(BASE_DIR)/cmd
+CMD_SRC 	:= $(CMD_DIR)/edge-orchestration/main.go
+BIN_DIR 	:= $(BASE_DIR)/bin
+BIN_FILE	:= $(PKG_NAME)
 
 # Go Library for C-archive
 LIBRARY_NAME		:= liborchestration
@@ -28,7 +26,8 @@ HEADER_FILE		:= orchestration.h
 LIBRARY_FILE		:= liborchestration.a
 CUR_HEADER_FILE 	:= $(LIBRARY_NAME).h
 CUR_LIBRARY_FILE 	:= $(LIBRARY_NAME).a
-INTERFACE_OUT_DIR	:= $(BASE_DIR)/src/interfaces/capi/output
+OBJ_SRC_DIR		:= $(CMD_DIR)/edge-orchestration/capi
+INTERFACE_OUT_DIR	:= $(BIN_DIR)/capi/output
 ifeq ($(ARCH), arm)
 	INTERFACE_OUT_INC_DIR		:= $(INTERFACE_OUT_DIR)/inc/linux_arm
 	INTERFACE_OUT_BIN_DIR		:= $(INTERFACE_OUT_DIR)/bin/linux_arm
@@ -54,8 +53,8 @@ BUILD_VENDOR_DIR	:= $(BASE_DIR)/vendor
 ANDROID_LIBRARY_NAME          := liborchestration
 ANDROID_LIBRARY_FILE          := liborchestration.aar
 ANDROID_JAR_FILE              := liborchestration-sources.jar
-ANDROID_SRC_DIR               := $(BASE_DIR)/src/interfaces/javaapi
-ANDROID_LIBRARY_OUT_DIR       := $(BASE_DIR)/src/interfaces/javaapi/output
+ANDROID_SRC_DIR               := $(CMD_DIR)/edge-orchestration/javaapi
+ANDROID_LIBRARY_OUT_DIR       := $(BIN_DIR)/javaapi/output
 
 .DEFAULT_GOAL := help
 
@@ -64,8 +63,8 @@ go-vendor:
 
 ## edge-orchestration binary build
 build-binary:
-	$(GOBUILD) -a $(GO_LDFLAGS) -o $(GOMAIN_BIN_DIR)/$(GOMAIN_BIN_FILE) $(EXEC_SRC) || exit 1
-	ls -al $(GOMAIN_BIN_DIR)
+	$(GOBUILD) -a $(GO_LDFLAGS) -o $(BIN_DIR)/$(BIN_FILE) $(CMD_SRC) || exit 1
+	ls -al $(BIN_DIR)
 
 ## edge-orchestration static archive build
 build-object-c:
@@ -88,7 +87,7 @@ build-object-java:
 
 ## edge-orchestration container build
 build-container:
-	$(DOCKER) build --tag $(PKG_NAME):$(CONTAINER_VERSION) --file $(GOMAIN_DIR)/Dockerfile --build-arg PLATFORM=$(CONTAINER_ARCH) .
+	$(DOCKER) build --tag $(PKG_NAME):$(CONTAINER_VERSION) --file $(BASE_DIR)/Dockerfile --build-arg PLATFORM=$(CONTAINER_ARCH) .
 
 ## go test and coverage
 test-go:

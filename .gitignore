@@ -22,7 +22,7 @@ src/controller/scoringmgr/mock_internal/myscoring2/libmyscoring2.so*
 
 # Output of build
 *.o
-GoMain/bin/*
+bin/*
 src/interfaces/capi/output
 src/interfaces/javaapi/output
 
