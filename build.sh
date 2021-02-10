@@ -150,10 +150,10 @@ function build_binaries() {
 function build_binary() {
     echo ""
     echo "----------------------------------------"
-    echo " Create Executable binary from GoMain"
+    echo " Create Executable binary"
     echo "----------------------------------------"
 
-    export GOPATH=$BASE_DIR/GoMain:$GOPATH
+    export GOPATH=$BASE_DIR/bin:$GOPATH
     make build-binary || exit 1
 }
 
@@ -224,8 +224,8 @@ function draw_callvis() {
     echo " ex) #build_clean_vendor "
     echo "**********************************"
 
-    export GOPATH=$BASE_DIR/GoMain:$GOPATH
-    go-callvis -http localhost:7010 -group pkg,type -nostd ./GoMain/src/main/main.go &
+    export GOPATH=$BASE_DIR/bin:$GOPATH
+    go-callvis -http localhost:7010 -group pkg,type -nostd ./cmd/edge-orchestration/main.go &
 }
 
 function build_objects() {
@@ -338,7 +338,7 @@ function build_docker_container() {
 
     docker rm -f $DOCKER_IMAGE
     docker rmi -f $DOCKER_IMAGE:$CONTAINER_VERSION
-    mkdir -p $BASE_DIR/GoMain/bin/qemu
+    mkdir -p $BASE_DIR/bin/qemu
     case $1 in
         x86)
             CONTAINER_ARCH="i386"
@@ -348,11 +348,11 @@ function build_docker_container() {
             ;;
         arm)
             CONTAINER_ARCH="arm32v7"
-            cp /usr/bin/qemu-arm-static $BASE_DIR/GoMain/bin/qemu
+            cp /usr/bin/qemu-arm-static $BASE_DIR/bin/qemu
             ;;
         arm64)
             CONTAINER_ARCH="arm64v8"
-            cp /usr/bin/qemu-aarch64-static $BASE_DIR/GoMain/bin/qemu
+            cp /usr/bin/qemu-aarch64-static $BASE_DIR/bin/qemu
             ;;
         *)
             case "$(uname -m)" in
@@ -425,14 +425,14 @@ case "$1" in
             set_secure_option
             build_binaries $3
             build_docker_container $3
-            docker save -o $BASE_DIR/GoMain/bin/edge-orchestration.tar edge-orchestration
+            docker save -o $BASE_DIR/bin/edge-orchestration.tar edge-orchestration
             if [ "$3" == "x86_64" ]; then
                 run_docker_container
             fi
         else
             build_binaries $2
             build_docker_container $2
-            docker save -o $BASE_DIR/GoMain/bin/edge-orchestration.tar edge-orchestration
+            docker save -o $BASE_DIR/bin/edge-orchestration.tar edge-orchestration
             if [ "$2" == "x86_64" ]; then
                 run_docker_container
             fi
