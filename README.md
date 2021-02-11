@@ -24,9 +24,9 @@ You can see our project roadmap and details about release notes since our projec
 
 ## Platforms supported
 
-| **x86-64 Linux** | **Raspberry Pi 3** | **HiKey960** |
-|------------------|--------------------|--------------| 
-|[![](doc/platforms/x86_64_linux/x86_64_linux.png)](doc/platforms/x86_64_linux/x86_64_linux.md)|[![](doc/platforms/raspberry_pi3/raspberry_pi3.jpg)](doc/platforms/raspberry_pi3/raspberry_pi3.md)|[![](doc/platforms/hikey960/hikey960.png)](doc/platforms/hikey960/hikey960.md)
+| **x86-64 Linux** | **Raspberry Pi3** | **HiKey960** | **Raspberry Pi3 Cluster** |
+|------------------|-------------------|--------------|---------------------------|
+|[![](doc/platforms/x86_64_linux/x86_64_linux.png)](doc/platforms/x86_64_linux/x86_64_linux.md)|[![](doc/platforms/raspberry_pi3/raspberry_pi3.jpg)](doc/platforms/raspberry_pi3/raspberry_pi3.md)|[![](doc/platforms/hikey960/hikey960.png)](doc/platforms/hikey960/hikey960.md)|[![](doc/platforms/raspberry_pi3_cluster/raspberry_pi3_cluster.jpg)](doc/platforms/raspberry_pi3_cluster/raspberry_pi3_cluster.md)|
 
 ---
 
@@ -54,11 +54,12 @@ You can see our project roadmap and details about release notes since our projec
 
 Please select the target platform in the table below and follow the link.
 
-| Platform              | Maintained |
-|-----------------------|------------|
-| [x86_64 Linux]        | coconut    |
-| [Raspberry Pi3]       | coconut    |
-| [HiKey960]            | coconut    |
+| Platform                | Maintained |
+|-------------------------|------------|
+| [x86_64 Linux]          | coconut    |
+| [Raspberry Pi3]         | coconut    |
+| [HiKey960]              | coconut    |
+| [Raspberry Pi3 Cluster] | coconut    |
 
 ---
 
@@ -86,4 +87,5 @@ coding on Github, new technologies and and their ecosystems.
 [x86_64 Linux]: doc/platforms/x86_64_linux/x86_64_linux.md
 [Raspberry Pi3]: doc/platforms/raspberry_pi3/raspberry_pi3.md
 [HiKey960]: doc/platforms/hikey960/hikey960.md
+[Raspberry Pi3 Cluster]: doc/platforms/raspberry_pi3_cluster/raspberry_pi3_cluster.md
 

@@ -50,7 +50,7 @@ $ docker load -i edge-orchestration.tar
 ```
 The build is finished, how to run see [here](../x86_64_linux/x86_64_linux.md#how-to-work).
 
-### 2. Build directly on the Raspberry Pi 3 board.
+### 2. Build directly on the Raspberry Pi 3 board
 #### Build Prerequisites
 - docker
 
