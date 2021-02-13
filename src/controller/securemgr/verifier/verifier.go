@@ -104,13 +104,13 @@ func GetInstance() *VerifierImpl {
 	return verifierIns
 }
 
-func containerHashIsInWhiteList(hash string) bool {
+func containerHashIsInWhiteList(hash string) error {
 	for _, whitelistItem := range containerWhiteList {
 		if hash == whitelistItem {
-			return true
+			return nil
 		}
 	}
-	return false
+	return errors.New("container's hash: " + hash + " is not in container white list")
 }
 
 func getIndexHashInContainerName(containerName string) (int, error) {
@@ -144,12 +144,7 @@ func (VerifierImpl) ContainerIsInWhiteList(containerName string) error {
 	if err != nil {
 		return err
 	}
-	if containerHashIsInWhiteList(containerName[index:]) {
-		log.Printf("%s container's hash: %s is in container white list\n", logPrefix, containerName[index:])
-		return nil
-	}
-	log.Printf("%s container's hash: %s is not in container white list\n", logPrefix, containerName[index:])
-	return errors.New("container's hash is not in container white list")
+	return containerHashIsInWhiteList(containerName[index:])
 }
 
 // addHashToContainerWhiteList add the hash to containerWhiteList

@@ -27,6 +27,8 @@ const (
 	hashHelloWorld         = "fc6a51919cfeb2e6763f62b6d9e8815acbf7cd2e476ea353743570610737b752"
 	fakehashHelloWorld     = "1834bdb494c6150a9861cf32432df7c5d93fe2bc99e008da83a57a318dc207d7"
 	fakehashExtraContainer = "99a55eca2c0afefdb019787b0e8d980e0efdf5c29db0d9004fbfe20612b73b96"
+	unexpectedSuccess      = "unexpected success"
+	unexpectedFail         = "unexpected fail"
 )
 
 func TestGetIndexHashInContainerName(t *testing.T) {
@@ -39,7 +41,7 @@ func TestGetIndexHashInContainerName(t *testing.T) {
 	t.Run("Error", func(t *testing.T) {
 		index, err := getIndexHashInContainerName("hello-world@sha56:" + hashHelloWorld)
 		if err == nil && index != -1 {
-			t.Error("unexpected success")
+			t.Error(unexpectedSuccess)
 		}
 	})
 }
@@ -49,12 +51,12 @@ func TestContainerHashIsInWhiteList(t *testing.T) {
 
 		containerWhiteList = append(containerWhiteList, hashHelloWorld) // hello-world container image
 
-		if !containerHashIsInWhiteList(hashHelloWorld) {
-			t.Error("unexpected fail")
+		if err := containerHashIsInWhiteList(hashHelloWorld); err != nil {
+			t.Error(unexpectedFail)
 		}
 
-		if containerHashIsInWhiteList("121212") {
-			t.Error("unexpected success")
+		if err := containerHashIsInWhiteList("121212"); err == nil {
+			t.Error(unexpectedSuccess)
 		}
 	})
 }
@@ -77,20 +79,20 @@ func TestContainerIsInWhiteList(t *testing.T) {
 
 		m := GetInstance()
 		if err := m.ContainerIsInWhiteList("hello-world@sha256:" + hashHelloWorld); err != nil {
-			t.Error("unexpected fail")
+			t.Error(unexpectedFail)
 		}
 
 		initialized = true
 		if err := m.ContainerIsInWhiteList("hello-world@sha256:" + hashHelloWorld); err != nil {
-			t.Error("unexpected fail")
+			t.Error(unexpectedFail)
 		}
 
 		if err := m.ContainerIsInWhiteList("hello-world@ha256:" + hashHelloWorld); err == nil {
-			t.Error("unexpected success")
+			t.Error(unexpectedSuccess)
 		}
 
 		if err := m.ContainerIsInWhiteList("hello-world@sha256:" + fakehashHelloWorld); err == nil {
-			t.Error("unexpected success")
+			t.Error(unexpectedSuccess)
 		}
 	})
 }
@@ -101,18 +103,17 @@ func TestInitContainerWhiteList(t *testing.T) {
 
 		os.RemoveAll(fakecwlPath)
 		Init(fakecwlPath)
-		if containerHashIsInWhiteList(hashHelloWorld) {
-			t.Error("unexpected success")
+		if err := containerHashIsInWhiteList(hashHelloWorld); err == nil {
+			t.Error(unexpectedSuccess)
 		}
 
 		if err := initContainerWhiteList(); err != nil {
-			t.Error("unexpected fail")
+			t.Error(unexpectedFail)
 		}
 	})
 	t.Run("Error", func(t *testing.T) {
-		err := initContainerWhiteList()
-		if err == nil {
-			t.Error("unexpected success")
+		if err := initContainerWhiteList(); err == nil {
+			t.Error(unexpectedSuccess)
 		}
 	})
 }
@@ -123,29 +124,28 @@ func TestAddHashToContainerWhiteList(t *testing.T) {
 
 		Init(fakecwlPath)
 		if err := addHashToContainerWhiteList(fakehashExtraContainer); err != nil {
-			t.Error("unexpected fail")
+			t.Error(unexpectedFail)
 		}
-		if !containerHashIsInWhiteList(fakehashExtraContainer) {
-			t.Error("unexpected fail")
+		if err := containerHashIsInWhiteList(fakehashExtraContainer); err != nil {
+			t.Error(unexpectedFail)
 		}
 		os.RemoveAll(fakecwlPath + "/" + cwlFileName)
 		if err := addHashToContainerWhiteList(fakehashExtraContainer); err != nil {
-			t.Error("unexpected fail")
+			t.Error(unexpectedFail)
 		}
-		if !containerHashIsInWhiteList(fakehashExtraContainer) {
-			t.Error("unexpected fail")
+		if err := containerHashIsInWhiteList(fakehashExtraContainer); err != nil {
+			t.Error(unexpectedFail)
 		}
 		if err := addHashToContainerWhiteList(fakehashExtraContainer); err != nil {
-			t.Error("unexpected fail")
+			t.Error(unexpectedFail)
 		}
 	})
 	t.Run("Error", func(t *testing.T) {
-		err := initContainerWhiteList()
-		if err == nil {
-			t.Error("unexpected success")
+		if err := initContainerWhiteList(); err == nil {
+			t.Error(unexpectedSuccess)
 		}
-		if err = addHashToContainerWhiteList(fakehashExtraContainer); err == nil {
-			t.Error("unexpected success")
+		if err := addHashToContainerWhiteList(fakehashExtraContainer); err == nil {
+			t.Error(unexpectedSuccess)
 		}
 	})
 }
@@ -156,29 +156,29 @@ func TestDelHashFromContainerWhiteList(t *testing.T) {
 
 		Init(fakecwlPath)
 		if err := addHashToContainerWhiteList(fakehashExtraContainer); err != nil {
-			t.Error("unexpected fail")
+			t.Error(unexpectedFail)
 		}
-		if !containerHashIsInWhiteList(fakehashExtraContainer) {
-			t.Error("unexpected fail")
+		if err := containerHashIsInWhiteList(fakehashExtraContainer); err != nil {
+			t.Error(unexpectedFail)
 		}
 
 		if err := delHashFromContainerWhiteList(fakehashExtraContainer); err != nil {
 			log.Println(logPrefix, "Can't create "+cwlFileName+": ", err)
 		}
 
-		if containerHashIsInWhiteList(fakehashExtraContainer) {
-			t.Error("unexpected success")
+		if err := containerHashIsInWhiteList(fakehashExtraContainer); err == nil {
+			t.Error(unexpectedSuccess)
 		}
 
 		if err := delHashFromContainerWhiteList(fakehashExtraContainer); err != nil {
-			t.Error("unexpected fail")
+			t.Error(unexpectedFail)
 		}
 
 	})
 	t.Run("Error", func(t *testing.T) {
 		os.RemoveAll(fakecwlPath + "/" + cwlFileName)
 		if err := delHashFromContainerWhiteList(fakehashExtraContainer); err == nil {
-			t.Error("unexpected success")
+			t.Error(unexpectedSuccess)
 		}
 
 	})
@@ -190,24 +190,24 @@ func TestDelAllHashFromContainerWhiteList(t *testing.T) {
 
 		Init(fakecwlPath)
 		if err := addHashToContainerWhiteList(fakehashExtraContainer); err != nil {
-			t.Error("unexpected fail")
+			t.Error(unexpectedFail)
 		}
 		if err := delAllHashFromContainerWhiteList(); err != nil {
-			t.Error("unexpected fail")
+			t.Error(unexpectedFail)
 		}
 
-		if containerHashIsInWhiteList(fakehashExtraContainer) {
-			t.Error("unexpected success")
+		if err := containerHashIsInWhiteList(fakehashExtraContainer); err == nil {
+			t.Error(unexpectedSuccess)
 		}
 
 		if containerWhiteList != nil {
-			t.Error("unexpected success")
+			t.Error(unexpectedSuccess)
 		}
 	})
 	t.Run("Error", func(t *testing.T) {
 		os.RemoveAll(fakecwlPath + "/" + cwlFileName)
 		if err := delAllHashFromContainerWhiteList(); err == nil {
-			t.Error("unexpected success")
+			t.Error(unexpectedSuccess)
 		}
 	})
 }
@@ -218,25 +218,25 @@ func RequestUpdateCWL(t *testing.T) {
 
 		Init(fakecwlPath)
 		if err := addHashToContainerWhiteList(fakehashExtraContainer); err != nil {
-			t.Error("unexpected fail")
+			t.Error(unexpectedFail)
 		}
-		if !containerHashIsInWhiteList(fakehashExtraContainer) {
-			t.Error("unexpected fail")
+		if err := containerHashIsInWhiteList(fakehashExtraContainer); err != nil {
+			t.Error(unexpectedFail)
 		}
 
 		if err := delHashFromContainerWhiteList(fakehashExtraContainer); err != nil {
-			t.Error("unexpected success")
+			t.Error(unexpectedSuccess)
 		}
 
-		if containerHashIsInWhiteList(fakehashExtraContainer) {
-			t.Error("unexpected success")
+		if err := containerHashIsInWhiteList(fakehashExtraContainer); err == nil {
+			t.Error(unexpectedSuccess)
 		}
 	})
 	t.Run("Error", func(t *testing.T) {
 		os.RemoveAll(fakecwlPath + "/" + cwlFileName)
 
 		if err := delHashFromContainerWhiteList(fakehashExtraContainer); err != nil {
-			t.Error("unexpected success")
+			t.Error(unexpectedSuccess)
 		}
 
 	})
@@ -293,31 +293,31 @@ func TestRequestVerifierConf(t *testing.T) {
 
 		resp := m.RequestVerifierConf(containerInfo)
 		if resp.Message != ErrorNone {
-			t.Error("unexpected fail")
+			t.Error(unexpectedFail)
 		}
 
 		containerInfo.CmdType = "delHashCWL"
 		resp = m.RequestVerifierConf(containerInfo)
 		if resp.Message != ErrorNone {
-			t.Error("unexpected fail")
+			t.Error(unexpectedFail)
 		}
 
 		containerInfo.CmdType = "printAllHashCWL"
 		resp = m.RequestVerifierConf(containerInfo)
 		if resp.Message != ErrorNone {
-			t.Error("unexpected fail")
+			t.Error(unexpectedFail)
 		}
 
 		containerInfo.CmdType = "delAllHashCWL"
 		resp = m.RequestVerifierConf(containerInfo)
 		if resp.Message != ErrorNone {
-			t.Error("unexpected fail")
+			t.Error(unexpectedFail)
 		}
 
 		containerInfo.CmdType = "CWL"
 		resp = m.RequestVerifierConf(containerInfo)
 		if resp.Message == ErrorNone {
-			t.Error("unexpected success")
+			t.Error(unexpectedSuccess)
 		}
 	})
 }
