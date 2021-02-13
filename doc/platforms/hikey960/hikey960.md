@@ -55,7 +55,7 @@ or for protected mode:
 ```shell
 $ ./build.sh container secure arm64
 ```
-the build result will be `edge-orchestration.tar` archive that can be found `GoMain/bin/edge-orchestration.tar`
+the build result will be `edge-orchestration.tar` archive that can be found `bin/edge-orchestration.tar`
 
 Next, need to copy `edge-orchestration.tar` archive to the HiKey960 board and load the image using the command:
 ```shell
