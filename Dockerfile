@@ -23,8 +23,8 @@ COPY $APP_QEMU_DIR/ /usr/bin/
 RUN mkdir -p $TARGET_DIR/res/
 
 # install required tools
-RUN apt update
-RUN apt install -y net-tools iproute2
+RUN apt-get update
+RUN apt-get install -y net-tools iproute2
 
 # expose ports
 EXPOSE $HTTP_PORT $MDNS_PORT $ZEROCONF_PORT $MNEDC_PORT $MNEDC_BROADCAST_PORT
