@@ -30,13 +30,13 @@ import (
 )
 
 const (
-	PROC_TCP      = "/proc/net/tcp"
-	WELLKNOWNPORT = 56001
+	procNetTCP    = "/proc/net/tcp"
+	wellKnownPort = 56001
 )
 
 var (
-	PROCESS_INFO_PATH = "/process"
-	log               = logmgr.GetInstance()
+	processInfoPath = "/process"
+	log             = logmgr.GetInstance()
 )
 
 func GetNameByPort(port int64) (string, error) {
@@ -45,23 +45,23 @@ func GetNameByPort(port int64) (string, error) {
 		return "", err
 	}
 	for _, str := range lines {
-		line_array := removeEmpty(strings.Split(strings.TrimSpace(str), " "))
+		lineArray := removeEmpty(strings.Split(strings.TrimSpace(str), " "))
 
-		src, err := strconv.ParseInt(strings.Split(line_array[1], ":")[1], 16, 32)
+		src, err := strconv.ParseInt(strings.Split(lineArray[1], ":")[1], 16, 32)
 		if err != nil {
 			return "", err
 		}
 
-		dst, err := strconv.ParseInt(strings.Split(line_array[2], ":")[1], 16, 32)
+		dst, err := strconv.ParseInt(strings.Split(lineArray[2], ":")[1], 16, 32)
 		if err != nil {
 			return "", err
 		}
 
-		if dst != WELLKNOWNPORT || src != port {
+		if dst != wellKnownPort || src != port {
 			continue
 		}
 
-		pid, err := getPid(line_array[9])
+		pid, err := getPid(lineArray[9])
 		if err != nil {
 			return "", err
 		}
@@ -80,7 +80,7 @@ func GetNameByPort(port int64) (string, error) {
 }
 
 func getData() ([]string, error) {
-	data, err := ioutil.ReadFile(PROC_TCP)
+	data, err := ioutil.ReadFile(procNetTCP)
 	if err != nil {
 		return nil, err
 	}
@@ -90,17 +90,17 @@ func getData() ([]string, error) {
 }
 
 func removeEmpty(array []string) []string {
-	new_array := make([]string, 0)
+	newArray := make([]string, 0)
 	for _, str := range array {
 		if str != "" {
-			new_array = append(new_array, str)
+			newArray = append(newArray, str)
 		}
 	}
-	return new_array
+	return newArray
 }
 
 func getProcess(pid string) (string, error) {
-	fp := PROCESS_INFO_PATH + "/" + pid + "/comm"
+	fp := processInfoPath + "/" + pid + "/comm"
 
 	data, err := ioutil.ReadFile(fp)
 	if err != nil {
@@ -116,7 +116,7 @@ func getProcess(pid string) (string, error) {
 func getPid(inode string) (string, error) {
 	pid := "-"
 
-	d, err := filepath.Glob(PROCESS_INFO_PATH + "/[0-9]*/fd/[0-9]*")
+	d, err := filepath.Glob(processInfoPath + "/[0-9]*/fd/[0-9]*")
 	if err != nil {
 		return "", err
 	}

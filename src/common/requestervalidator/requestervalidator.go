@@ -30,7 +30,7 @@ type IRequesterValidator interface {
 	CheckRequester(serviceName, requester string) error
 }
 
-const NOT_ALLOWED_SERVICE_EXECUTION = "not allowed service execution"
+const notAllowedServiceExecution = "not allowed service execution"
 
 type RequesterValidator struct{}
 
@@ -43,7 +43,7 @@ func (r RequesterValidator) CheckRequester(serviceName, requester string) error 
 	if allowed := common.HasElem(stored, requester); allowed {
 		return nil
 	}
-	return errors.New(NOT_ALLOWED_SERVICE_EXECUTION)
+	return errors.New(notAllowedServiceExecution)
 }
 
 func (RequesterValidator) GetRequester(serviceName string) ([]string, error) {

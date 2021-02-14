@@ -26,8 +26,8 @@ import (
 )
 
 const (
-	logPrefix     = "scoringmgr"
-	INVALID_SCORE = 0.0
+	logPrefix    = "scoringmgr"
+	InvalidScore = 0.0
 )
 
 // Scoring is the interface to apply application specific scoring functions
@@ -71,28 +71,28 @@ func (ScoringImpl) GetResource(ID string) (resource map[string]interface{}, err 
 	resource = make(map[string]interface{})
 	cpuUsage, err := resourceIns.GetResource(resourceutil.CPUUsage)
 	if err != nil {
-		resource["error"] = INVALID_SCORE
+		resource["error"] = InvalidScore
 		return
 	}
 	resource["cpuUsage"] = cpuUsage
 
 	cpuCount, err := resourceIns.GetResource(resourceutil.CPUCount)
 	if err != nil {
-		resource["error"] = INVALID_SCORE
+		resource["error"] = InvalidScore
 		return
 	}
 	resource["cpuCount"] = cpuCount
 
 	cpuFreq, err := resourceIns.GetResource(resourceutil.CPUFreq)
 	if err != nil {
-		resource["error"] = INVALID_SCORE
+		resource["error"] = InvalidScore
 		return
 	}
 	resource["cpuFreq"] = cpuFreq
 
 	netBandwidth, err := resourceIns.GetResource(resourceutil.NetBandwidth)
 	if err != nil {
-		resource["error"] = INVALID_SCORE
+		resource["error"] = InvalidScore
 		return
 	}
 	resource["netBandwidth"] = netBandwidth
@@ -100,7 +100,7 @@ func (ScoringImpl) GetResource(ID string) (resource map[string]interface{}, err 
 	resourceIns.SetDeviceID(ID)
 	rtt, err := resourceIns.GetResource(resourceutil.NetRTT)
 	if err != nil {
-		resource["error"] = INVALID_SCORE
+		resource["error"] = InvalidScore
 		return
 	}
 	resource["rtt"] = rtt
@@ -111,7 +111,7 @@ func (ScoringImpl) GetResource(ID string) (resource map[string]interface{}, err 
 // GetScoreWithResource provides score value of an edge device
 func (ScoringImpl) GetScoreWithResource(resource map[string]interface{}) (scoreValue float64, err error) {
 	if _, found := resource["error"]; found {
-		return INVALID_SCORE, errors.New("Resource Not Found")
+		return InvalidScore, errors.New("Resource Not Found")
 	}
 
 	cpuScore := cpuScore(resource["cpuUsage"].(float64), resource["cpuCount"].(float64), resource["cpuFreq"].(float64))
@@ -123,28 +123,28 @@ func (ScoringImpl) GetScoreWithResource(resource map[string]interface{}) (scoreV
 func calculateScore(ID string) float64 {
 	cpuUsage, err := resourceIns.GetResource(resourceutil.CPUUsage)
 	if err != nil {
-		return INVALID_SCORE
+		return InvalidScore
 	}
 	cpuCount, err := resourceIns.GetResource(resourceutil.CPUCount)
 	if err != nil {
-		return INVALID_SCORE
+		return InvalidScore
 	}
 	cpuFreq, err := resourceIns.GetResource(resourceutil.CPUFreq)
 	if err != nil {
-		return INVALID_SCORE
+		return InvalidScore
 	}
 	cpuScore := cpuScore(cpuUsage, cpuCount, cpuFreq)
 
 	netBandwidth, err := resourceIns.GetResource(resourceutil.NetBandwidth)
 	if err != nil {
-		return INVALID_SCORE
+		return InvalidScore
 	}
 	netScore := netScore(netBandwidth)
 
 	resourceIns.SetDeviceID(ID)
 	rtt, err := resourceIns.GetResource(resourceutil.NetRTT)
 	if err != nil {
-		return INVALID_SCORE
+		return InvalidScore
 	}
 	renderingScore := renderingScore(rtt)
 

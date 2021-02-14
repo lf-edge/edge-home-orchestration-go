@@ -24,7 +24,7 @@ import (
 	"github.com/lf-edge/edge-home-orchestration-go/src/restinterface/tls"
 
 	rafftls "github.com/raff/tls-ext"
-	"github.com/raff/tls-psk"
+	psk "github.com/raff/tls-psk"
 )
 
 type networkUtilImpl struct{}
@@ -32,7 +32,7 @@ type networkUtilImpl struct{}
 var networkUtilIns networkUtilImpl
 
 func init() {
-
+	// Do nothing because there is no need to initialize anything
 }
 
 //NetworkUtil interface declares the network methods

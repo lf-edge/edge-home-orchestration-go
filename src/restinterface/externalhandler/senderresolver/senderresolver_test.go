@@ -39,10 +39,10 @@ func init() {
 type handler struct{}
 
 func TestGetNameByPort(t *testing.T) {
-	originProc := PROCESS_INFO_PATH
-	PROCESS_INFO_PATH = "/proc"
+	originProc := processInfoPath
+	processInfoPath = "/proc"
 	defer func() {
-		PROCESS_INFO_PATH = originProc
+		processInfoPath = originProc
 	}()
 
 	go func() {

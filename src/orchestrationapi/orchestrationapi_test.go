@@ -103,7 +103,7 @@ func TestRequestService(t *testing.T) {
 		oche.Ready = true
 
 		res := oche.RequestService(requestServiceInfo)
-		if res.Message != ERROR_NONE {
+		if res.Message != ErrorNone {
 			t.Error("unexpected handle")
 		}
 	})
@@ -119,7 +119,7 @@ func TestRequestService(t *testing.T) {
 
 			oche := getOrcheImple()
 			res := oche.RequestService(requestServiceInfo)
-			if res.Message != INTERNAL_SERVER_ERROR {
+			if res.Message != InternalServerError {
 				t.Error("unexpected Error")
 			}
 		})
@@ -139,7 +139,7 @@ func TestRequestService(t *testing.T) {
 			oche.Ready = true
 
 			res := oche.RequestService(requestServiceInfo)
-			if res.Message == ERROR_NONE {
+			if res.Message == ErrorNone {
 				t.Error("unexpected Error")
 			}
 		})
