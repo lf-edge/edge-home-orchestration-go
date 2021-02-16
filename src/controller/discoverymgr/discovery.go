@@ -24,6 +24,7 @@ import (
 	"net"
 	"os"
 	"reflect"
+	"sync"
 	"time"
 
 	errors "github.com/lf-edge/edge-home-orchestration-go/src/common/errors"
@@ -81,6 +82,7 @@ func (d *DiscoveryImpl) GetDeviceID() (id string, err error) {
 var (
 	discoveryIns *DiscoveryImpl
 	networkIns   networkhelper.Network
+	mutexLock    sync.Mutex
 	log          = logmgr.GetInstance()
 )
 
@@ -109,6 +111,9 @@ func (d *DiscoveryImpl) SetRestResource() {
 
 // StartDiscovery starts server for network registration and do orchestration discovery activity
 func (DiscoveryImpl) StartDiscovery(UUIDpath string, platform string, executionType string) (err error) {
+	mutexLock.Lock()
+	clearAllDeviceInfo()
+	mutexLock.Unlock()
 	networkIns.StartNetwork()
 
 	UUIDStr, err := setDeviceID(UUIDpath)
@@ -726,6 +731,21 @@ func clearMap() {
 			deleteDevice(id)
 		}
 	}
+}
+
+// clearAllDeviceInfo deletes all information from DB
+func clearAllDeviceInfo() {
+	log.Println(logPrefix, "Delete All Device Info")
+
+        confItems, err := confQuery.GetList()
+        if err != nil {
+                log.Println(logPrefix, err.Error())
+                return
+        }
+
+        for _, confItem := range confItems {
+                deleteDevice(confItem.ID)
+        }
 }
 
 func convertToDBInfo(entity wrapper.Entity) (string, configurationdb.Configuration, networkdb.NetworkInfo, servicedb.ServiceInfo) {
