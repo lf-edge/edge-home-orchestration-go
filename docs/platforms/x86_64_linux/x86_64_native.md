@@ -35,39 +35,41 @@ The example uses the `ls` command instead of a service.
 > It should be noted that you must ensure the visibility of your service from any point (for example, by copying it to the `/bin` folder or add to `PATH`)
 Source code structure below:
 ```
- samples
+examples
 └── native
-    ├── create_fs.sh 
-    ├── services
-    │   ├── copy_srvs.sh
-    │   └── ls_srv
-    │       └── ls_srv.conf
-    └── test
-        ├── main.c
-        └── Makefile
+    ├── main.c
+    └── Makefile
+test
+└── native
+    ├── copy_srvs.sh
+    └── ls_srv
+        └── ls_srv.conf
+tools
+└── create_fs.sh 
 
 ```
 
 1. To start for the first time, need to create a file system (only once need to execute the command)
 ```
-$ cd samples/native
+$ cd tools
 $ sudo ./create_fs.sh
 ```
 
 2. Copy the folder with the service configuration file from `services` to `/var/edge-orchestration/apps` or use `copy_srvs.sh` to copy all service folders to `/var/edge-orchestration/apps`.
  ```
- $ cd services
+ $ cd test/native
  $ sudo ./copy_srvs.sh
 ```
-> The structure of the [configuration file](../../../src/controller/configuremgr/native/description/doc.go) and example can be found [ls_srv.conf](../../../samples/native/services/ls_srv/ls_srv.conf).
+> The structure of the [configuration file](../../../src/controller/configuremgr/native/description/doc.go) and example can be found [ls_srv.conf](../../../test/native/ls_srv/ls_srv.conf).
 
 3. To build the native edge-orchestration, run the following commands:
 ```
-$ cd samples/native/test
+$ cd examples/native
 $ make
 CC: main.c
-gcc -c -I../../../bin/capi/output/inc/linux_x86-64 main.c -o main.o
-gcc   main.o -L../../../bin/capi/output/lib/linux_x86-64 -pthread -lorchestration -o edge-orchestration
+gcc -c -I../../bin/capi/output/inc/linux_x86-64 main.c -o main.o
+gcc   main.o -L../../bin/capi/output/lib/linux_x86-64 -pthread -lorchestration -o edge-orchestration
+
 ```
 4. Run native edge-orchestration
 ```

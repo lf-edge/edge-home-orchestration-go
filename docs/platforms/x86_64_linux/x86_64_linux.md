@@ -111,7 +111,7 @@ The result can be seen here `http://localhost:7010/`
 ---
 
 ## API Document
-Edge Orchestration provides REST APIs for its operation. Description of APIs is stored in [/doc](../../) folder.
+Edge Orchestration provides REST APIs for its operation. Description of APIs is stored in [/docs](../../) folder.
 - **[edge_orchestration_api.yaml](../../edge_orchestration_api.yaml)** or 
 - **[edge_orchestration_api_secure.yaml](../../edge_orchestration_api_secure.yaml)** for secure mode.
 
