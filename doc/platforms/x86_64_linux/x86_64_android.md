@@ -37,16 +37,19 @@ To build an java-object (`liborchestration.aar/liborchestration-sources.jar`), y
 for example:
 ```
 $ ./build.sh object x86_64
-...
-
-[INFO]	Replacing existing vendor dependencies
 
 -----------------------------------
  Build clean
 -----------------------------------
-go clean
-rm -rf /home/virtual-pc/projects/edge-home-orchestration-go/src/interfaces/capi/output
-rm -rf /home/virtual-pc/projects/edge-home-orchestration-go/src/interfaces/javaapi/output
+GO111MODULE=on go clean
+rm -rf /home/virtual-pc/projects/edge-home-orchestration-go/vendor
+rm -rf /home/virtual-pc/projects/edge-home-orchestration-go/bin/capi/output
+rm -rf /home/virtual-pc/projects/edge-home-orchestration-go/bin/javaapi/output
+
+-----------------------------------
+ Go Mod Vendor
+-----------------------------------
+GO111MODULE=on go mod vendor
 
 
 **********************************
@@ -56,14 +59,14 @@ rm -rf /home/virtual-pc/projects/edge-home-orchestration-go/src/interfaces/javaa
 ----------------------------------------
  Create Static object of Orchestration
 ----------------------------------------
-mkdir -p /home/virtual-pc/projects/edge-home-orchestration-go/src/interfaces/capi/output/inc/linux_x86-64 /home/virtual-pc/projects/edge-home-orchestration-go/src/interfaces/capi/output/lib/linux_x86-64
-CGO_ENABLED=1 go build -ldflags '-extldflags "-static" -X main.version= -X main.commitID=70d67d1 -X main.buildTime=20200722.0008 -X main.buildTags=' -o /home/virtual-pc/projects/edge-home-orchestration-go/src/interfaces/capi/output/lib/linux_x86-64/liborchestration.a -buildmode=c-archive interfaces/capi || exit 1
-mv /home/virtual-pc/projects/edge-home-orchestration-go/src/interfaces/capi/output/lib/linux_x86-64/liborchestration.h /home/virtual-pc/projects/edge-home-orchestration-go/src/interfaces/capi/output/inc/linux_x86-64/orchestration.h
-ls -al /home/virtual-pc/projects/edge-home-orchestration-go/src/interfaces/capi/output/lib/linux_x86-64
-total 26764
-drwxrwxr-x 2 virtual-pc virtual-pc     4096 лип 22 00:09 .
-drwxrwxr-x 3 virtual-pc virtual-pc     4096 лип 22 00:08 ..
--rw-rw-r-- 1 virtual-pc virtual-pc 27397614 лип 22 00:09 liborchestration.a
+mkdir -p /home/virtual-pc/projects/edge-home-orchestration-go/bin/capi/output/inc/linux_x86-64 /home/virtual-pc/projects/edge-home-orchestration-go/bin/capi/output/lib/linux_x86-64
+CGO_ENABLED=1 GO111MODULE=on go build -ldflags '-extldflags "-static" -X main.version= -X main.commitID=687e09c -X main.buildTime=20210213.0915 -X main.buildTags=' -o /home/virtual-pc/projects/edge-home-orchestration-go/bin/capi/output/lib/linux_x86-64/liborchestration.a -buildmode=c-archive /home/virtual-pc/projects/edge-home-orchestration-go/cmd/edge-orchestration/capi || exit 1
+mv /home/virtual-pc/projects/edge-home-orchestration-go/bin/capi/output/lib/linux_x86-64/liborchestration.h /home/virtual-pc/projects/edge-home-orchestration-go/bin/capi/output/inc/linux_x86-64/orchestration.h
+ls -al /home/virtual-pc/projects/edge-home-orchestration-go/bin/capi/output/lib/linux_x86-64
+total 37100
+drwxrwxr-x 2 virtual-pc virtual-pc     4096 Feb 13 09:15 .
+drwxrwxr-x 3 virtual-pc virtual-pc     4096 Feb 13 09:15 ..
+-rw-rw-r-- 1 virtual-pc virtual-pc 37980926 Feb 13 09:15 liborchestration.a
 
 **********************************
  Target Binary is for Android 
@@ -72,45 +75,38 @@ drwxrwxr-x 3 virtual-pc virtual-pc     4096 лип 22 00:08 ..
 -------------------------------------------
  Create Android archive from Java interface
 -------------------------------------------
-mkdir -p /home/virtual-pc/projects/edge-home-orchestration-go/src/interfaces/javaapi/output
-gomobile init
-gomobile bind -ldflags '-X main.version= -X main.commitID=70d67d1 -X main.buildTime=20200722.0008 -X main.buildTags=' -o /home/virtual-pc/projects/edge-home-orchestration-go/src/interfaces/javaapi/output/liborchestration.aar -target=android/amd64 -androidapi=23 interfaces/javaapi || exit 1
-ls -al /home/virtual-pc/projects/edge-home-orchestration-go/src/interfaces/javaapi/output
-total 6316
-drwxrwxr-x 2 virtual-pc virtual-pc    4096 лип 22 00:09 .
-drwxrwxr-x 3 virtual-pc virtual-pc    4096 лип 22 00:09 ..
--rw-rw-r-- 1 virtual-pc virtual-pc 6444465 лип 22 00:09 liborchestration.aar
--rw-rw-r-- 1 virtual-pc virtual-pc    9996 лип 22 00:09 liborchestration-sources.jar
+mkdir -p /home/virtual-pc/projects/edge-home-orchestration-go/bin/javaapi/output
+rm -rf /home/virtual-pc/projects/edge-home-orchestration-go/vendor
+gomobile bind -ldflags '-X main.version= -X main.commitID=687e09c -X main.buildTime=20210213.0915 -X main.buildTags=' -o /home/virtual-pc/projects/edge-home-orchestration-go/bin/javaapi/output/liborchestration.aar -target=android/amd64 -androidapi=23 /home/virtual-pc/projects/edge-home-orchestration-go/cmd/edge-orchestration/javaapi || exit 1
+ls -al /home/virtual-pc/projects/edge-home-orchestration-go/bin/javaapi/output
+total 8368
+drwxrwxr-x 2 virtual-pc virtual-pc    4096 Feb 13 09:16 .
+drwxrwxr-x 3 virtual-pc virtual-pc    4096 Feb 13 09:15 ..
+-rw-rw-r-- 1 virtual-pc virtual-pc 8544402 Feb 13 09:16 liborchestration.aar
+-rw-rw-r-- 1 virtual-pc virtual-pc   10421 Feb 13 09:16 liborchestration-sources.jar
 
 
 **********************************
  Edge-orchestration Archive 
 **********************************
-tree /home/virtual-pc/projects/edge-home-orchestration-go/src/interfaces/capi/output
-/home/virtual-pc/projects/edge-home-orchestration-go/src/interfaces/capi/output
+tree /home/virtual-pc/projects/edge-home-orchestration-go/bin/capi/output
+/home/virtual-pc/projects/edge-home-orchestration-go/bin/capi/output
 ├── inc
-│   └── linux_x86-64
-│       └── orchestration.h
+│   └── linux_x86-64
+│       └── orchestration.h
 └── lib
     └── linux_x86-64
         └── liborchestration.a
 
 4 directories, 2 files
-tree /home/virtual-pc/projects/edge-home-orchestration-go/src/interfaces/javaapi/output
-/home/virtual-pc/projects/edge-home-orchestration-go/src/interfaces/javaapi/output
+tree /home/virtual-pc/projects/edge-home-orchestration-go/bin/javaapi/output
+/home/virtual-pc/projects/edge-home-orchestration-go/bin/javaapi/output
 ├── liborchestration.aar
 └── liborchestration-sources.jar
 
 0 directories, 2 files
-
--------------------------------------
- Clean up 3rdParty directory
--------------------------------------
-rm -rf /home/virtual-pc/projects/edge-home-orchestration-go/vendor
-virtual-pc@virtualpc-VirtualBox:~/projects/edge-home-orchestration-go$ ls /home/virtual-pc/projects/edge-home-orchestration-go/src/interfaces/javaapi/output
-liborchestration.aar  liborchestration-sources.jar
 ```
 
 ## Example of using java-object (liborchestration.aar/liborchestration-sources.jar)
 
-TBD
+> TBD

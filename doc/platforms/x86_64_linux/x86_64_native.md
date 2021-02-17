@@ -21,15 +21,14 @@ $ ./build.sh object x86_64
 ----------------------------------------
  Create Static object of Orchestration
 ----------------------------------------
-mkdir -p edge-home-orchestration-go/src/interfaces/capi/output/inc/linux_x86-64 edge-home-orchestration-go/src/interfaces/capi/output/lib/linux_x86-64
-CGO_ENABLED=1 go build -ldflags '-extldflags "-static" -X main.version= -X main.commitID=094ca91 -X main.buildTime=20200720.0832 -X main.buildTags=' -o edge-home-orchestration-go/src/interfaces/capi/output/lib/linux_x86-64/liborchestration.a -buildmode=c-archive interfaces/capi || exit 1
-mv edge-home-orchestration-go/src/interfaces/capi/output/lib/linux_x86-64/liborchestration.h edge-home-orchestration-go/src/interfaces/capi/output/inc/linux_x86-64/orchestration.h
-ls -al edge-home-orchestration-go/src/interfaces/capi/output/lib/linux_x86-64
-total 26764
-drwxrwxr-x 2 virtual-pc virtual-pc     4096 лип 20 08:33 .
-drwxrwxr-x 3 virtual-pc virtual-pc     4096 лип 20 08:33 ..
--rw-rw-r-- 1 virtual-pc virtual-pc 27397614 лип 20 08:33 liborchestration.a
-
+mkdir -p /home/virtual-pc/projects/edge-home-orchestration-go/bin/capi/output/inc/linux_x86-64 /home/virtual-pc/projects/edge-home-orchestration-go/bin/capi/output/lib/linux_x86-64
+CGO_ENABLED=1 GO111MODULE=on go build -ldflags '-extldflags "-static" -X main.version= -X main.commitID=687e09c -X main.buildTime=20210213.0901 -X main.buildTags=' -o /home/virtual-pc/projects/edge-home-orchestration-go/bin/capi/output/lib/linux_x86-64/liborchestration.a -buildmode=c-archive /home/virtual-pc/projects/edge-home-orchestration-go/cmd/edge-orchestration/capi || exit 1
+mv /home/virtual-pc/projects/edge-home-orchestration-go/bin/capi/output/lib/linux_x86-64/liborchestration.h /home/virtual-pc/projects/edge-home-orchestration-go/bin/capi/output/inc/linux_x86-64/orchestration.h
+ls -al /home/virtual-pc/projects/edge-home-orchestration-go/bin/capi/output/lib/linux_x86-64
+total 37100
+drwxrwxr-x 2 virtual-pc virtual-pc     4096 Feb 13 09:01 .
+drwxrwxr-x 3 virtual-pc virtual-pc     4096 Feb 13 09:01 ..
+-rw-rw-r-- 1 virtual-pc virtual-pc 37980926 Feb 13 09:01 liborchestration.a
 ```
 ## Example of using c-object (liborchestration.c)
 The example uses the `ls` command instead of a service.
@@ -67,8 +66,8 @@ $ sudo ./create_fs.sh
 $ cd samples/native/test
 $ make
 CC: main.c
-gcc -c -I../../../src/interfaces/capi/output/inc/linux_x86-64 main.c -o main.o
-gcc   main.o -L../../../src/interfaces/capi/output/lib/linux_x86-64 -pthread -lorchestration -o edge-orchestration
+gcc -c -I../../../bin/capi/output/inc/linux_x86-64 main.c -o main.o
+gcc   main.o -L../../../bin/capi/output/lib/linux_x86-64 -pthread -lorchestration -o edge-orchestration
 ```
 4. Run native edge-orchestration
 ```
