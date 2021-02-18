@@ -21,9 +21,9 @@ BIN = $(NAME)
 
 CC = gcc
 
-CFLAGS += -I../../../bin/capi/output/inc/linux_x86-64
+CFLAGS += -I../../bin/capi/output/inc/linux_x86-64
 
-LIBPATHS = -L../../../bin/capi/output/lib/linux_x86-64
+LIBPATHS = -L../../bin/capi/output/lib/linux_x86-64
 
 LIBS =  -pthread -lorchestration
 

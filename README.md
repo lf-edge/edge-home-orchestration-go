@@ -12,11 +12,11 @@
 ## Introduction
 The main purpose of **Edge Orchestration project** is to implement distributed computing between Docker Container enabled devices. 
 
-<img src="doc/images/lf-edge-intro_400.png" alt="image" align="left"/>
+<img src="docs/images/lf-edge-intro_400.png" alt="image" align="left"/>
 
 All the devices (TVs, fridges, washing machines, etc.) connected into *Home Edge Network* are considered *Home Edge Devices*. Some of the devices, possessing significant H/W resources and capable of running containerized applications, are called *Home Edge Nodes*. Tasks performed on devices of *Home Edge Network* are managed by *Home Edge Orchestrator* software. These tasks are called *Home Edge Applications*. They are assigned to specific *Home Edge Nodes*. As of now, *Home Edge Orchestrator* incessantly scans the *Home Edge Network*, forming lists of attached devices, and forms ratings of performance for them. Performance ratings are basis for deciding on which devices *Home Edge Applications* are to be run. If *Home Edge Orchestrator* cannot find device with rating higher than its own device rating, it will start the *Home Edge Application* locally. *Home Edge Networks* support distributed applications consisting of interacting Docker container instances. Docker containers offer quick deployment, easy management, safety and hardware independence. Applications that can run on *Home Edge Network* are deployed from cloud-based centralized storage as needed. Assortment of applications is determined by tasks that must be solved by *Home Edge Network*.
 
-> A description of all terms and abbreviations (*italic*) used in the Edge Orchestratiopn project can be found in the [Home Edge Glossary](doc/home_edge_glossary.md)
+> A description of all terms and abbreviations (*italic*) used in the Edge Orchestratiopn project can be found in the [Home Edge Glossary](docs/home_edge_glossary.md)
 
 ---
 ## Roadmap and Release Notes
@@ -26,7 +26,7 @@ You can see our project roadmap and details about release notes since our projec
 
 | **x86-64 Linux** | **Raspberry Pi3** | **HiKey960** | **Raspberry Pi3 Cluster** |
 |------------------|-------------------|--------------|---------------------------|
-|[![](doc/platforms/x86_64_linux/x86_64_linux.png)](doc/platforms/x86_64_linux/x86_64_linux.md)|[![](doc/platforms/raspberry_pi3/raspberry_pi3.jpg)](doc/platforms/raspberry_pi3/raspberry_pi3.md)|[![](doc/platforms/hikey960/hikey960.png)](doc/platforms/hikey960/hikey960.md)|[![](doc/platforms/raspberry_pi3_cluster/raspberry_pi3_cluster.jpg)](doc/platforms/raspberry_pi3_cluster/raspberry_pi3_cluster.md)|
+|[![](docs/platforms/x86_64_linux/x86_64_linux.png)](docs/platforms/x86_64_linux/x86_64_linux.md)|[![](docs/platforms/raspberry_pi3/raspberry_pi3.jpg)](docs/platforms/raspberry_pi3/raspberry_pi3.md)|[![](docs/platforms/hikey960/hikey960.png)](docs/platforms/hikey960/hikey960.md)|[![](docs/platforms/raspberry_pi3_cluster/raspberry_pi3_cluster.jpg)](docs/platforms/raspberry_pi3_cluster/raspberry_pi3_cluster.md)|
 
 ---
 
@@ -64,7 +64,7 @@ Please select the target platform in the table below and follow the link.
 ---
 
 ## Documentation
-The Edge Orchestration documentation for the project is located in the [doc] folder.
+The Edge Orchestration documentation for the project is located in the [docs] folder.
 You can also familiarize yourself with other materials and plans by visiting the [wiki](https://wiki.lfedge.org/display/HOME/Home+Edge+Project). 
 
 ---
@@ -83,9 +83,9 @@ coding on Github, new technologies and and their ecosystems.
 
 ---
 
-[doc]: ./doc
-[x86_64 Linux]: doc/platforms/x86_64_linux/x86_64_linux.md
-[Raspberry Pi3]: doc/platforms/raspberry_pi3/raspberry_pi3.md
-[HiKey960]: doc/platforms/hikey960/hikey960.md
-[Raspberry Pi3 Cluster]: doc/platforms/raspberry_pi3_cluster/raspberry_pi3_cluster.md
+[docs]: ./docs
+[x86_64 Linux]: docs/platforms/x86_64_linux/x86_64_linux.md
+[Raspberry Pi3]: docs/platforms/raspberry_pi3/raspberry_pi3.md
+[HiKey960]: docs/platforms/hikey960/hikey960.md
+[Raspberry Pi3 Cluster]: docs/platforms/raspberry_pi3_cluster/raspberry_pi3_cluster.md
 

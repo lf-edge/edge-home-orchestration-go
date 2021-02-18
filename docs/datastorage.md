@@ -27,7 +27,7 @@ The current development assumes the data storage module to have one single Data 
 The following architecture assumes that data stored at data controller would be uploaded to the cloud at some scheduled intervals to free up the space at the device level. Hence the Data Storage device will be dependent on the cloud connectivity at those intervals.
 
 ## 4. How to Setup
-1. Placement the [`samples/datastorage/configuration.toml`](../samples/datastorage/configuration.toml) and [`samples/datastorage/sample-json-device.yaml`](../samples/datastorage/sample-json-device.yaml) files into `/var/edge-orchestration/datastorage/` in your **Home Edge** with Data Storage (**Device A**).
+1. Placement the [`configs/datastorage/configuration.toml`](../configs/datastorage/configuration.toml) and [`configs/datastorage/sample-json-device.yaml`](../configs/datastorage/sample-json-device.yaml) files into `/var/edge-orchestration/datastorage/` in your **Home Edge** with Data Storage (**Device A**).
 
 >>> When placing the `configuration.toml` file, please change _Host_ attribute from 'localhost' to the IP configurations of your **Device B** _(the detail description of Device B is defined in the step 2 in this document)_.
 

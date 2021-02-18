@@ -22,12 +22,9 @@ src/controller/scoringmgr/mock_internal/myscoring2/libmyscoring2.so*
 
 # Output of build
 *.o
-bin/*
-src/interfaces/capi/output
-src/interfaces/javaapi/output
 
-# samples for native
-samples/native/test/edge-orchestration
+# examples for native
+examples/native/edge-orchestration
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
