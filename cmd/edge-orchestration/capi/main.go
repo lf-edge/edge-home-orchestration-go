@@ -348,5 +348,5 @@ func PrintLog(cMsg *C.char) (count C.int) {
 }
 
 func main() {
-
+	// Do nothing because it is only to build static lWatcher interface
 }

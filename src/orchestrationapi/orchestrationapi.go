@@ -95,11 +95,11 @@ type ResponseService struct {
 }
 
 const (
-	ERROR_NONE            = "ERROR_NONE"
-	INVALID_PARAMETER     = "INVALID_PARAMETER"
-	SERVICE_NOT_FOUND     = "SERVICE_NOT_FOUND"
-	INTERNAL_SERVER_ERROR = "INTERNAL_SERVER_ERROR"
-	NOT_ALLOWED_COMMAND   = "NOT_ALLOWED_COMMAND"
+	ErrorNone           = "ERROR_NONE"
+	InvalidParameter    = "INVALID_PARAMETER"
+	ServiceNotFound     = "SERVICE_NOT_FOUND"
+	InternalServerError = "INTERNAL_SERVER_ERROR"
+	NotAllowedCommand   = "NOT_ALLOWED_COMMAND"
 )
 
 var (
@@ -123,7 +123,7 @@ func (orcheEngine *orcheImpl) RequestService(serviceInfo ReqeustService) Respons
 
 	if orcheEngine.Ready == false {
 		return ResponseService{
-			Message:          INTERNAL_SERVER_ERROR,
+			Message:          InternalServerError,
 			ServiceName:      serviceInfo.ServiceName,
 			RemoteTargetInfo: TargetInfo{},
 		}
@@ -162,7 +162,7 @@ func (orcheEngine *orcheImpl) RequestService(serviceInfo ReqeustService) Respons
 	}
 
 	errorResp := ResponseService{
-		Message:          SERVICE_NOT_FOUND,
+		Message:          ServiceNotFound,
 		ServiceName:      serviceInfo.ServiceName,
 		RemoteTargetInfo: TargetInfo{},
 	}
@@ -184,7 +184,7 @@ func (orcheEngine *orcheImpl) RequestService(serviceInfo ReqeustService) Respons
 
 	if len(deviceScores) <= 0 {
 		return errorResp
-	} else if deviceScores[0].score == scoringmgr.INVALID_SCORE {
+	} else if deviceScores[0].score == scoringmgr.InvalidScore {
 		return errorResp
 	}
 
@@ -238,7 +238,7 @@ func (orcheEngine *orcheImpl) RequestService(serviceInfo ReqeustService) Respons
 	log.Println("[orchestrationapi] ", deviceScores)
 
 	return ResponseService{
-		Message:     ERROR_NONE,
+		Message:     ErrorNone,
 		ServiceName: serviceInfo.ServiceName,
 		RemoteTargetInfo: TargetInfo{
 			ExecutionType: deviceScores[0].execType,

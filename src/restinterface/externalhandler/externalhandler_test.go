@@ -200,7 +200,7 @@ func TestAPIV1RequestServicePost(t *testing.T) {
 					mockNetHelper.EXPECT().GetIPs().Return([]string{addr}, nil),
 					mockCipher.EXPECT().DecryptByteToJSON(gomock.Any()).Return(appCommand, nil),
 					mockCipher.EXPECT().EncryptJSONToByte(gomock.Any()).Do(func(resp map[string]interface{}) {
-						if resp["Message"] != orchestrationapi.INVALID_PARAMETER {
+						if resp["Message"] != orchestrationapi.InvalidParameter {
 							t.Error("unexpected response")
 						}
 					}).Return(nil, nil),
@@ -222,7 +222,7 @@ func TestAPIV1RequestServicePost(t *testing.T) {
 					mockNetHelper.EXPECT().GetIPs().Return([]string{addr}, nil),
 					mockCipher.EXPECT().DecryptByteToJSON(gomock.Any()).Return(appCommand, nil),
 					mockCipher.EXPECT().EncryptJSONToByte(gomock.Any()).Do(func(resp map[string]interface{}) {
-						if resp["Message"] != orchestrationapi.INVALID_PARAMETER {
+						if resp["Message"] != orchestrationapi.InvalidParameter {
 							t.Error("unexpected response")
 						}
 					}).Return(nil, nil),
@@ -246,7 +246,7 @@ func TestAPIV1RequestServicePost(t *testing.T) {
 					mockNetHelper.EXPECT().GetIPs().Return([]string{addr}, nil),
 					mockCipher.EXPECT().DecryptByteToJSON(gomock.Any()).Return(appCommand, nil),
 					mockCipher.EXPECT().EncryptJSONToByte(gomock.Any()).Do(func(resp map[string]interface{}) {
-						if resp["Message"] != orchestrationapi.INVALID_PARAMETER {
+						if resp["Message"] != orchestrationapi.InvalidParameter {
 							t.Error("unexpected response")
 						}
 					}).Return(nil, nil),
@@ -270,7 +270,7 @@ func TestAPIV1RequestServicePost(t *testing.T) {
 					mockNetHelper.EXPECT().GetIPs().Return([]string{addr}, nil),
 					mockCipher.EXPECT().DecryptByteToJSON(gomock.Any()).Return(appCommand, nil),
 					mockCipher.EXPECT().EncryptJSONToByte(gomock.Any()).Do(func(resp map[string]interface{}) {
-						if resp["Message"] != orchestrationapi.INVALID_PARAMETER {
+						if resp["Message"] != orchestrationapi.InvalidParameter {
 							t.Error("unexpected response")
 						}
 					}).Return(nil, nil),

@@ -28,11 +28,11 @@ import (
 )
 
 const (
-	NOT_MATCHED_SERVICE_WITH_EXECUTABLE = "not matched service with executable"
-	NOT_ALLOWED_EXECUTABLE_SERVICE      = "not allowed executable service"
-	NOT_FOUND_EXECUTABLE_FILE           = "not found executable file"
-	FOUND_INJECTION_COMMAND             = "found injection command"
-	ALREADY_REGISTERED                  = "already registered service name"
+	notMatchedServiceWithExecutable = "not matched service with executable"
+	notAllowedExecutableService     = "not allowed executable service"
+	notFoundExecutableFile          = "not found executable file"
+	foundInjectionCommand           = "found injection command"
+	alreadyRegisteredServiceName    = "already registered service name"
 )
 
 type ICommandValidator interface {
@@ -54,12 +54,12 @@ func (CommandValidator) AddWhiteCommand(serviceInfo configuremgrtypes.ServiceInf
 	}
 
 	if blacklist.IsBlack(command) {
-		return errors.New(NOT_ALLOWED_EXECUTABLE_SERVICE)
+		return errors.New(notAllowedExecutableService)
 	}
 
 	_, err = commands.GetInstance().GetServiceFileName(serviceInfo.ServiceName)
 	if err == nil {
-		return errors.New(ALREADY_REGISTERED)
+		return errors.New(alreadyRegisteredServiceName)
 	}
 
 	commands.GetInstance().StoreServiceInfo(serviceInfo.ServiceName, command)
@@ -69,7 +69,7 @@ func (CommandValidator) AddWhiteCommand(serviceInfo configuremgrtypes.ServiceInf
 func (CommandValidator) CheckCommand(serviceName string, command []string) error {
 	fullCommand := strings.Join(command, " ")
 	if injectionchecker.HasInjectionOperator(fullCommand) {
-		return errors.New(FOUND_INJECTION_COMMAND)
+		return errors.New(foundInjectionCommand)
 	}
 
 	expected, err := commands.GetInstance().GetServiceFileName(serviceName)
@@ -83,7 +83,7 @@ func (CommandValidator) CheckCommand(serviceName string, command []string) error
 	}
 
 	if expected != realCommand {
-		return errors.New(NOT_MATCHED_SERVICE_WITH_EXECUTABLE)
+		return errors.New(notMatchedServiceWithExecutable)
 	}
 
 	return nil
@@ -94,7 +94,7 @@ func getExecutableName(str string) (string, error) {
 	commandList := strings.Split(str, "/")
 	switch {
 	case str == "":
-		return "", errors.New(NOT_FOUND_EXECUTABLE_FILE)
+		return "", errors.New(notFoundExecutableFile)
 	case len(commandList) == 1:
 		command = commandList[0]
 	default:

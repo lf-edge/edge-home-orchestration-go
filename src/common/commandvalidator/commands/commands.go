@@ -32,7 +32,7 @@ type commands struct {
 	mutex        *sync.Mutex
 }
 
-const NOT_FOUND_REGISTERED_SERVICE = "not found registered service"
+const notFoundRegisteredService = "not found registered service"
 
 var commandList commands
 
@@ -51,7 +51,7 @@ func (c *commands) GetServiceFileName(serviceName string) (string, error) {
 
 	val, ok := c.serviceInfos[serviceName]
 	if !ok {
-		return "", errors.New(NOT_FOUND_REGISTERED_SERVICE)
+		return "", errors.New(notFoundRegisteredService)
 	}
 
 	return val, nil

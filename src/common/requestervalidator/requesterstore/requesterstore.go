@@ -32,7 +32,7 @@ type requesters struct {
 	mutex          *sync.Mutex
 }
 
-const NOT_FOUND_REGISTERED_SERVICE = "not found registered service"
+const notFoundRegisteredService = "not found registered service"
 
 var requesterList requesters
 
@@ -48,7 +48,7 @@ func init() {
 func (r requesters) GetRequester(serviceName string) ([]string, error) {
 	val, ok := r.requesterInfos[serviceName]
 	if !ok {
-		return nil, errors.New(NOT_FOUND_REGISTERED_SERVICE)
+		return nil, errors.New(notFoundRegisteredService)
 	}
 
 	return val, nil

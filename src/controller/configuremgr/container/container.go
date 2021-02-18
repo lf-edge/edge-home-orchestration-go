@@ -41,4 +41,5 @@ func GetInstance(configPath string) *ConfigureMgr {
 
 // Watch implements Watcher interface with ConfigureMgr struct
 func (cfgMgr ConfigureMgr) Watch(notifier configuremgr.Notifier) {
+	// Do nothing because it is Watcher interface
 }

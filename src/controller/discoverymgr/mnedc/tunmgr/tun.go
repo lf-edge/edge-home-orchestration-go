@@ -19,11 +19,11 @@ package tunmgr
 
 import (
 	"fmt"
-	"github.com/lf-edge/edge-home-orchestration-go/src/common/logmgr"
 	"net"
 	"os/exec"
 	"strings"
 
+	"github.com/lf-edge/edge-home-orchestration-go/src/common/logmgr"
 	"github.com/songgao/water"
 )
 
@@ -36,7 +36,7 @@ var (
 )
 
 func init() {
-
+	// Do nothing because there is no need to initialize anything
 }
 
 //Tun interface declares methods related to setting tun network interface

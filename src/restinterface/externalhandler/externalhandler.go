@@ -170,7 +170,7 @@ func (h *Handler) APIV1RequestServicePost(w http.ResponseWriter, r *http.Request
 	if isParseRequesterFromPort != true {
 		serviceRequester, ok := appCommand["ServiceRequester"].(string)
 		if !ok {
-			responseMsg = orchestrationapi.INVALID_PARAMETER
+			responseMsg = orchestrationapi.InvalidParameter
 			responseName = ""
 			goto SEND_RESP
 		}
@@ -179,7 +179,7 @@ func (h *Handler) APIV1RequestServicePost(w http.ResponseWriter, r *http.Request
 
 	name, ok = appCommand["ServiceName"].(string)
 	if !ok {
-		responseMsg = orchestrationapi.INVALID_PARAMETER
+		responseMsg = orchestrationapi.InvalidParameter
 		responseName = ""
 		goto SEND_RESP
 	}
@@ -187,7 +187,7 @@ func (h *Handler) APIV1RequestServicePost(w http.ResponseWriter, r *http.Request
 
 	executeEnvs, ok = appCommand["ServiceInfo"].([]interface{})
 	if !ok {
-		responseMsg = orchestrationapi.INVALID_PARAMETER
+		responseMsg = orchestrationapi.InvalidParameter
 		responseName = name
 		goto SEND_RESP
 	}
@@ -197,7 +197,7 @@ func (h *Handler) APIV1RequestServicePost(w http.ResponseWriter, r *http.Request
 		tmp := executeEnv.(map[string]interface{})
 		exeType, ok := tmp["ExecutionType"].(string)
 		if !ok {
-			responseMsg = orchestrationapi.INVALID_PARAMETER
+			responseMsg = orchestrationapi.InvalidParameter
 			responseName = name
 			goto SEND_RESP
 		}
@@ -205,7 +205,7 @@ func (h *Handler) APIV1RequestServicePost(w http.ResponseWriter, r *http.Request
 
 		exeCmd, ok := tmp["ExecCmd"].([]interface{})
 		if !ok {
-			responseMsg = orchestrationapi.INVALID_PARAMETER
+			responseMsg = orchestrationapi.InvalidParameter
 			responseName = name
 			goto SEND_RESP
 		}
