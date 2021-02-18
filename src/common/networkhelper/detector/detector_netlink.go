@@ -84,5 +84,5 @@ func detectionHandler(detect netlink.AddrUpdate) bool {
 	}
 
 	log.Println(logPrefix, "[DetectionHandler]", "Disconnected : ", updatedAddr.LinkAddress.IP)
-	return false
+	return true
 }

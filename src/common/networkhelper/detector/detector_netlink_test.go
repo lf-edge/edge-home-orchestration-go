@@ -37,23 +37,23 @@ func TestAddrSubscribe(t *testing.T) {
 	retTrue := make(chan bool, 1)
 
 	t.Run("Success", func(t *testing.T) {
-		lambdaAddrSubscribe = func(ch chan<- netlink.AddrUpdate) error {
-			ch <- netlink.AddrUpdate{
-				NewAddr: true,
-				LinkAddress: net.IPNet{
-					IP: []byte{'1', '2', '3', '4'},
-				},
+		t.Run("Connected", func(t *testing.T) {
+			lambdaAddrSubscribe = func(ch chan<- netlink.AddrUpdate) error {
+				ch <- netlink.AddrUpdate{
+					NewAddr: true,
+					LinkAddress: net.IPNet{
+						IP: []byte{'1', '2', '3', '4'},
+					},
+				}
+				return nil
 			}
-			return nil
-		}
-		go GetInstance().AddrSubscribe(retTrue)
+			go GetInstance().AddrSubscribe(retTrue)
 
-		ret := <-retTrue
-		if !ret {
-			t.Error("unexpected result")
-		}
-	})
-	t.Run("Error", func(t *testing.T) {
+			ret := <-retTrue
+			if !ret {
+				t.Error("unexpected result")
+			}
+		})
 		t.Run("Disconnected", func(t *testing.T) {
 			lambdaAddrSubscribe = func(ch chan<- netlink.AddrUpdate) error {
 				ch <- netlink.AddrUpdate{
@@ -67,10 +67,12 @@ func TestAddrSubscribe(t *testing.T) {
 			go GetInstance().AddrSubscribe(retTrue)
 
 			ret := <-retTrue
-			if ret {
+			if !ret {
 				t.Error("unexpected result")
 			}
 		})
+	})
+	t.Run("Error", func(t *testing.T) {
 		t.Run("IPisEmpty", func(t *testing.T) {
 			lambdaAddrSubscribe = func(ch chan<- netlink.AddrUpdate) error {
 				ch <- netlink.AddrUpdate{

@@ -212,10 +212,11 @@ func subAddrChange(isNewConnection chan bool) {
 	for {
 		select {
 		// @Note : If network status is changed, need to update network information
-		case ConnectionDetected := <-isNewConnection:
-			log.Println(logPrefix, ConnectionDetected)
-			getNetworkInformationFP()
-			netInfo.Notify(netInfo.GetIPs())
+		case connectionDetected := <-isNewConnection:
+			if connectionDetected == true {
+				getNetworkInformationFP()
+				netInfo.Notify(netInfo.GetIPs())
+			}
 		}
 	}
 	//apply detectorIns.Done when normal termination
