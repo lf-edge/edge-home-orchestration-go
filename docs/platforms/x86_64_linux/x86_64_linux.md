@@ -112,8 +112,8 @@ The result can be seen here `http://localhost:7010/`
 
 ## API Document
 Edge Orchestration provides REST APIs for its operation. Description of APIs is stored in [/docs](../../) folder.
-- **[edge_orchestration_api.yaml](../../edge_orchestration_api.yaml)** or 
-- **[edge_orchestration_api_secure.yaml](../../edge_orchestration_api_secure.yaml)** for secure mode.
+- **[edge_orchestration_api.yaml](../../../api/edge_orchestration_api.yaml)** or
+- **[edge_orchestration_api_secure.yaml](../../../api/edge_orchestration_api_secure.yaml)** for secure mode.
 
 Note that you can visit [Swagger Editor](https://editor.swagger.io/) to graphically investigate the REST API in YAML.
 
