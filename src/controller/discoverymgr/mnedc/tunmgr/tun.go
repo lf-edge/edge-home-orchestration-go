@@ -24,6 +24,7 @@ import (
 	"strings"
 
 	"github.com/lf-edge/edge-home-orchestration-go/src/common/logmgr"
+	"github.com/vishvananda/netlink"
 	"github.com/songgao/water"
 )
 
@@ -53,15 +54,29 @@ func GetInstance() Tun {
 
 //CreateTUN creates a virtual tun interface
 func (TunImpl) CreateTUN() (*water.Interface, error) {
-	intf, err := water.NewTUN("")
+	intf, err := water.New(water.Config{
+		DeviceType: water.TUN,
+	})
+
 	return intf, err
 }
 
 //SetTUNIP sets an IP to the interface
 func (TunImpl) SetTUNIP(iName string, localAddr net.IP, addr *net.IPNet, debug bool) error {
-	sargs := fmt.Sprintf("%s %s netmask %s", iName, localAddr.String(), net.IP(addr.Mask).String())
-	args := strings.Split(sargs, " ")
-	return commandExec("ifconfig", args, debug)
+	link, err := netlink.LinkByName(iName)
+	if err != nil {
+		return err
+	}
+	maskLen, _ := addr.Mask.Size()
+	laddr, err := netlink.ParseAddr(fmt.Sprintf("%s/%d",localAddr.String(),maskLen))
+	if err != nil {
+		return err
+	}
+	err = netlink.AddrAdd(link, laddr)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 //SetTUNStatus starts/stops an interface
