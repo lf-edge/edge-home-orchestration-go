@@ -13,8 +13,8 @@ go.sum
 # Sample binary
 libedge-orchestration/lib/*
 libedge-orchestration/sample/output/*
-src/controller/scoringmgr/mock_internal/myscoring/libmyscoring.so*
-src/controller/scoringmgr/mock_internal/myscoring2/libmyscoring2.so*
+internal/controller/scoringmgr/mock_internal/myscoring/libmyscoring.so*
+internal/controller/scoringmgr/mock_internal/myscoring2/libmyscoring2.so*
 
 
 # Test binary, build with `go test -c`
@@ -29,8 +29,8 @@ examples/native/edge-orchestration
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 *.html
-src/controller/discoverymgr/testDB/*
-src/controller/storagemgr/storagedriver/tests.log
+internal/controller/discoverymgr/testDB/*
+internal/controller/storagemgr/storagedriver/tests.log
 
 # VS Code
 .vscode/

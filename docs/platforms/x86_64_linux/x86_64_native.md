@@ -60,7 +60,7 @@ $ sudo ./create_fs.sh
  $ cd test/native
  $ sudo ./copy_srvs.sh
 ```
-> The structure of the [configuration file](../../../src/controller/configuremgr/native/description/doc.go) and example can be found [ls_srv.conf](../../../test/native/ls_srv/ls_srv.conf).
+> The structure of the [configuration file](../../../internal/controller/configuremgr/native/description/doc.go) and example can be found [ls_srv.conf](../../../test/native/ls_srv/ls_srv.conf).
 
 3. To build the native edge-orchestration, run the following commands:
 ```

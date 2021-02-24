@@ -265,7 +265,7 @@ or for `RSA256` and `Member`
 ```shell
 $ . tools/jwt_gen.sh RS256 Member
 ```
-> It should be noted that the user's `name` and `role` are currently hardcoded in [authorizer.go](../src/controller/securemgr/authorizer/authorizer.go),
+> It should be noted that the user's `name` and `role` are currently hardcoded in [authorizer.go](../internal/controller/securemgr/authorizer/authorizer.go),
  but this will change when the ability to register users in the system is added.  
 ```
 users = append(users, User{Name: "Admin", Role: "admin"})

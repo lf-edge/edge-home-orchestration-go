@@ -27,4 +27,4 @@ jobs:
       - name: Run the Test Suite
         run: |
           make go-vendor
-          gocov test $(go list ./src/... | grep -v mnedc/client | grep -v mock) -coverprofile=/dev/null
+          gocov test $(go list ./internal/... | grep -v mnedc/client | grep -v mock) -coverprofile=/dev/null
