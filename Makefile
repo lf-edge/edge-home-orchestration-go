@@ -94,7 +94,7 @@ test-go:
 	$(GOCOVER) test -v $(TEST_PKG_DIRS) > coverage.out
 	$(GOCOVER) report coverage.out
 	$(GOCOVER)-html coverage.out > coverage.html
-	-rm -rf $(BASE_DIR)/src/controller/discoverymgr/testDB
+	-rm -rf $(BASE_DIR)/internal/controller/discoverymgr/testDB
 	firefox coverage.html &
 
 ## build clean
@@ -106,8 +106,8 @@ clean:
 
 ## check go style and static analysis
 lint:
-	$(GOLINT) ./src/...
-	$(GOVET) -v ./src/...
+	$(GOLINT) ./internal/...
+	$(GOVET) -v ./internal/...
 
 ## show help
 help:

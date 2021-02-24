@@ -184,7 +184,7 @@ function build_test() {
         echo "---------------------------"
         echo " build test for ALL pkgs"
         echo "---------------------------"
-        make test-go TEST_PKG_DIRS=./src/...
+        make test-go TEST_PKG_DIRS=./internal/...
     else
         idx=0
         for pkg in "${PKG_LIST[@]}"; do
@@ -200,7 +200,7 @@ function build_test() {
             echo "---------------------------------------"
             echo " build test for ${PKG_LIST[$idx]}"
             echo "---------------------------------------"
-            make test-go TEST_PKG_DIRS=./src/${PKG_LIST[$idx]}
+            make test-go TEST_PKG_DIRS=./internal/${PKG_LIST[$idx]}
         fi
     fi
 }

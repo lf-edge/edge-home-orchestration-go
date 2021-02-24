@@ -37,14 +37,14 @@ $ ./buils.sh test [PKG_NAME]
 ### 2.2 Using standard Go language facilities
 To start testing all packages:
 ```
-$ gocov test $(go list ./src/... | grep -v mnedc/client | grep -v mock) -coverprofile=/dev/null
+$ gocov test $(go list ./internal/... | grep -v mnedc/client | grep -v mock) -coverprofile=/dev/null
 ```
 To start testing a specific package:
 ```
 $ go test -v [PKG_NAME]
 ```
 
-> It should be noted that testing of the `src/controller/discoverymgr/mnedc/client` package is temporarily not performed due to errors.
+> It should be noted that testing of the `internal/controller/discoverymgr/mnedc/client` package is temporarily not performed due to errors.
     
 ---
 
