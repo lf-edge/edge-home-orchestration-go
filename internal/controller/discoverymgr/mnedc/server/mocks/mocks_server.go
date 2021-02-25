@@ -227,3 +227,17 @@ func (mr *MockMNEDCServerMockRecorder) TunWriteRoutine() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TunWriteRoutine", reflect.TypeOf((*MockMNEDCServer)(nil).TunWriteRoutine))
 }
+
+// GetVirtualIP mocks base method
+func (m *MockMNEDCServer) GetVirtualIP() string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetVirtualIP")
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// GetVirtualIP indicates an expected call of GetVirtualIP
+func (mr *MockMNEDCServerMockRecorder) GetVirtualIP() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetVirtualIP", reflect.TypeOf((*MockMNEDCServer)(nil).GetVirtualIP))
+}
