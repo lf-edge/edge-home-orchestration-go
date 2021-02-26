@@ -23,6 +23,7 @@ import (
 	"os"
 	"testing"
 	"time"
+	"sync"
 
 	"github.com/golang/mock/gomock"
 	"github.com/songgao/water"
@@ -52,6 +53,7 @@ var (
 	listener        net.Listener
 	serverListener  net.Listener
 	connection      net.Conn
+	wait		sync.WaitGroup
 )
 
 func init() {
@@ -117,11 +119,16 @@ func TestStartSendRoutine(t *testing.T) {
 		client.incomingChannel = make(chan *NetPacket, 200)
 
 		mockNetworkUtil.EXPECT().WriteTo(gomock.Any(), gomock.Any()).Return(nil).AnyTimes()
-		go client.StartSendRoutine()
+		wait.Add(1)
+		go func() {
+			defer wait.Done()
+			client.StartSendRoutine()
+		}()
 		time.Sleep(2 * time.Second)
-
-		client.incomingChannel <- p
 		client.isAlive = false
+		client.isConnected = false
+		client.incomingChannel <- p
+		wait.Wait()
 	})
 }
 
@@ -181,7 +188,6 @@ func TestStartRecvRoutineError(t *testing.T) {
 		client.serverPort = defaultConnectionPort
 		client.incomingChannel = make(chan *NetPacket, 200)
 		client.outgoingChannel = make(chan *NetPacket, 200)
-		client.intf = tunIntf
 		client.conn = conn
 
 		deleteDeviceIDFile()
@@ -191,7 +197,6 @@ func TestStartRecvRoutineError(t *testing.T) {
 
 		go client.StartRecvRoutine()
 		time.Sleep(1 * time.Second)
-
 		client.isAlive = false
 	})
 	t.Run("SendRoutineErr", func(t *testing.T) {
