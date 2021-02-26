@@ -78,7 +78,7 @@ edge-orchestration         coconut             502e3c07b01f        3 seconds ago
 ```shell
 build script
 Usage:
--------------------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------------------------
   ./build.sh                         : build edge-orchestration by default Docker container
   ./build.sh secure                  : build edge-orchestration by default Docker container with secure option
   ./build.sh container [Arch]        : build Docker container Arch:{x86, x86_64, arm, arm64}
@@ -86,8 +86,8 @@ Usage:
   ./build.sh object [Arch]           : build object (c-object, java-object), Arch:{x86, x86_64, arm, arm64} (default:all)
   ./build.sh object secure [Arch]    : build object (c-object, java-object) with secure option, Arch:{x86, x86_64, arm, arm64} (default:all)
   ./build.sh clean                   : build clean
-  ./build.sh test [PKG_NAME]         : run unittests (optional for PKG_NAME)
--------------------------------------------------------------------------------------------------------------------------------------------
+  ./build.sh test [PKG_PATH]         : run unittests (optional for PKG_PATH which is a relative path such as './internal/common/commandvalidator')
+---------------------------------------------------------------------------------------------------------------------------------------------------
 ```
 > If you build the edge-orchestration as c-object, then a more detailed description can be found [x86_64_native.md](x86_64_native.md)
 
