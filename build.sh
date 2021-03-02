@@ -6,64 +6,6 @@ export BUILD_TAGS=""
 DOCKER_IMAGE="edge-orchestration"
 BINARY_FILE="edge-orchestration"
 
-PKG_LIST=(
-        "common/errormsg"
-        "common/errors"
-        "common/logmgr"
-        "common/networkhelper"
-        "common/networkhelper/detector"
-        "common/resourceutil"
-        "common/resourceutil/cpu"
-        "common/resourceutil/native"
-        "common/resourceutil/types/servicemgrtypes"
-        "common/sigmgr"
-        "common/types/configuremgrtypes"
-        "common/types/servicemgrtypes"
-        "controller/configuremgr"
-        "controller/configuremgr/container"
-        "controller/configuremgr/native"
-        "controller/discoverymgr"
-        "controller/discoverymgr/wrapper"
-        "controller/scoringmgr"
-        "controller/securemgr/verifier"
-        "controller/securemgr/authenticator"
-        "controller/securemgr/authorizer"
-        "controller/servicemgr"
-        "controller/servicemgr/executor"
-        "controller/servicemgr/executor/androidexecutor"
-        "controller/servicemgr/executor/containerexecutor"
-        "controller/servicemgr/executor/nativeexecutor"
-        "controller/servicemgr/notification"
-        "controller/discoverymgr/mnedc"
-        "controller/discoverymgr/mnedc/client"
-        "controller/discoverymgr/mnedc/connectionutil"
-        "controller/discoverymgr/mnedc/server"
-        "controller/discoverymgr/mnedc/tunmgr"
-        "controller/storagemgr"
-        "controller/storagemgr/storagedriver"
-        "db/bolt/common"
-        "db/bolt/configuration"
-        "db/bolt/network"
-        "db/bolt/resource"
-        "db/bolt/service"
-        "db/bolt/system"
-        "db/bolt/wrapper"
-        "db/helper"
-        "interfaces/capi"
-        "interfaces/javaapi"
-        "orchestrationapi"
-        "restinterface"
-        "restinterface/cipher"
-        "restinterface/cipher/dummy"
-        "restinterface/cipher/sha256"
-        "restinterface/client"
-        "restinterface/client/restclient"
-        "restinterface/externalhandler"
-        "restinterface/internalhandler"
-        "restinterface/resthelper"
-        "restinterface/route"
-)
-
 export CONTAINER_VERSION="coconut"
 export BUILD_DATE=$(date +%Y%m%d.%H%M)
 
@@ -180,29 +122,14 @@ function build_test() {
     stop_docker_container
 
     if [[ $1 == "" ]]; then
-        echo ""
-        echo "---------------------------"
-        echo " build test for ALL pkgs"
-        echo "---------------------------"
-        make test-go TEST_PKG_DIRS=./internal/...
+	DIRS=./internal/...
     else
-        idx=0
-        for pkg in "${PKG_LIST[@]}"; do
-            if [[ "$pkg" == *"$1"* ]]; then
-                break
-            fi
-            idx=$((idx+1))
-        done
-        if [ $idx -ge ${#PKG_LIST[@]} ]; then
-            echo ""
-            echo " ERROR!!! There is no package for $1"
-        else
-            echo "---------------------------------------"
-            echo " build test for ${PKG_LIST[$idx]}"
-            echo "---------------------------------------"
-            make test-go TEST_PKG_DIRS=./internal/${PKG_LIST[$idx]}
-        fi
+	DIRS=$1
     fi
+    echo "---------------------------------------"
+    echo " build test for $DIRS"
+    echo "---------------------------------------"
+    make test-go TEST_PKG_DIRS=$DIRS
 }
 
 function lint_src_code() {
@@ -510,7 +437,7 @@ case "$1" in
     *)
         echo "build script"
         echo "Usage:"
-        echo "-------------------------------------------------------------------------------------------------------------------------------------------"
+        echo "---------------------------------------------------------------------------------------------------------------------------------------------------"
         echo "  $0                         : build edge-orchestration by default Docker container"
         echo "  $0 secure                  : build edge-orchestration by default Docker container with secure option"
         echo "  $0 container [Arch]        : build Docker container Arch:{x86, x86_64, arm, arm64}"
@@ -522,8 +449,8 @@ case "$1" in
         echo "  $0 mnedcclient             : build edge-orchestration by default container with MNEDC client running option"
         echo "  $0 mnedcclient secure      : build edge-orchestration by default container with MNEDC client running option in secure mode"
         echo "  $0 clean                   : build clean"
-        echo "  $0 test [PKG_NAME]         : run unittests (optional for PKG_NAME)"
-        echo "-------------------------------------------------------------------------------------------------------------------------------------------"
+        echo "  $0 test [PKG_PATH]         : run unittests (optional for PKG_PATH which is a relative path such as './internal/common/commandvalidator')"
+        echo "---------------------------------------------------------------------------------------------------------------------------------------------------"
         exit 0
         ;;
 esac
