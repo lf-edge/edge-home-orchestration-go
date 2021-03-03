@@ -1,44 +1,61 @@
 #! /bin/bash
 
 export BASE_DIR=$( cd "$(dirname "$0")" ; pwd )
+export BUILD_DATE=$(date +%Y%m%d.%H%M)
 export BUILD_TAGS=""
+export CONTAINER_VERSION="coconut"
 
 DOCKER_IMAGE="edge-orchestration"
-BINARY_FILE="edge-orchestration"
+PARAMS=$@
 
-export CONTAINER_VERSION="coconut"
-export BUILD_DATE=$(date +%Y%m%d.%H%M)
-
-function set_secure_option() {
+function set_options() {
     echo ""
     echo "-----------------------------------"
-    echo " Set tags for secure build"
+    echo " Set build tag and options"
     echo "-----------------------------------"
-    export BUILD_TAGS="secure"
-}
 
-function set_mnedc_server_option() {
-    echo ""
-    echo "-----------------------------------"
-    echo " Set tags for start mnedc server"
-    echo "-----------------------------------"
-    if [ "$1" == "secure" ]; then
-        export BUILD_TAGS="securemnedcserver"
-    else 
-        export BUILD_TAGS="mnedcserver"
-    fi
-}
-
-function set_mnedc_client_option() {
-    echo ""
-    echo "-----------------------------------"
-    echo " Set tags for start mnedc client"
-    echo "-----------------------------------"
-    if [ "$1" == "secure" ]; then
-        export BUILD_TAGS="securemnedcclient"
-    else 
-        export BUILD_TAGS="mnedcclient"
-    fi
+    ANDROID_TARGET="android"
+    for i in $@; do
+        if [ $i == "secure" ]; then
+            BUILD_TAGS="secure"$BUILD_TAGS
+        fi
+        if [ $i == "mnedcserver" ]; then
+            BUILD_TAGS="mnedcserver"
+        fi
+        if [ $i == "mnedcclient" ]; then
+            BUILD_TAGS="mnedcclient"
+        fi
+        if [ $i == "x86" ]; then
+            ARCH="x86"
+            CC="gcc"
+            GOARCH="386"
+            ANDROID_TARGET="android/386"
+            CONTAINER_ARCH="i386"
+        fi
+        if [ $i == "x86_64" ]; then
+            ARCH="x86-64"
+	    CC="gcc"
+            GOARCH="amd64"
+            ANDROID_TARGET="android/amd64"
+            CONTAINER_ARCH="amd64"
+        fi
+        if [ $i == "arm" ]; then
+            ARCH="arm"
+            CC="arm-linux-gnueabi-gcc"
+            GOARM="7"
+            GOARCH="arm"
+            ANDROID_TARGET="android/arm"
+            CONTAINER_ARCH="arm32v7"
+        fi
+        if [ $i == "arm64" ]; then
+            ARCH="aarch64"
+            CC="aarch64-linux-gnu-gcc"
+            GOARCH="arm64"
+            ANDROID_TARGET="android/arm64"
+            CONTAINER_ARCH="arm64v8"
+        fi
+    done
+    export BUILD_TAGS=$BUILD_TAGS
 }
 
 function go_mod_vendor() {
@@ -46,7 +63,6 @@ function go_mod_vendor() {
     echo "-----------------------------------"
     echo " Go Mod Vendor"
     echo "-----------------------------------"
-
     make go-vendor
 }
 
@@ -58,43 +74,18 @@ function build_clean() {
     make clean
 }
 
-function build_binaries() {
-    echo ""
-    echo ""
-    echo "**********************************"
-    echo " Target Binary arch is "$1
-    echo "**********************************"
-    case $1 in
-        x86)
-            export GOARCH=386
-            export ARCH=x86
-            ;;
-        x86_64)
-            export GOARCH=amd64
-            export ARCH=x86-64
-            ;;
-        arm)
-            export GOARCH=arm GOARM=7
-            export ARCH=arm
-            ;;
-        arm64)
-            export GOARCH=arm64
-            export ARCH=aarch64
-            ;;
-        *)
-            echo "Target arch isn't supported" && exit 1
-            ;;
-    esac
-
-    build_binary
-}
-
 function build_binary() {
     echo ""
     echo "----------------------------------------"
     echo " Create Executable binary"
     echo "----------------------------------------"
 
+    case $GOARCH in
+        386 | amd64 | arm64)
+            export GOARCH=$GOARCH CC=$CC ARCH=$ARCH;;
+        arm)
+            export GOARCH=arm GOARM=7 CC="arm-linux-gnueabi-gcc" ARCH=arm;;
+    esac
     export GOPATH=$BASE_DIR/bin:$GOPATH
     make build-binary || exit 1
 }
@@ -102,7 +93,7 @@ function build_binary() {
 function build_object() {
     echo ""
     echo "----------------------------------------"
-    echo " Create Static object of Orchestration"
+    echo " Create Static object of Orchestration for $ARCH"
     echo "----------------------------------------"
     make build-object-c || exit 1
 }
@@ -122,9 +113,9 @@ function build_test() {
     stop_docker_container
 
     if [[ $1 == "" ]]; then
-	DIRS=./internal/...
+        DIRS=./internal/...
     else
-	DIRS=$1
+        DIRS=$1
     fi
     echo "---------------------------------------"
     echo " build test for $DIRS"
@@ -156,85 +147,29 @@ function draw_callvis() {
 }
 
 function build_objects() {
-    case $1 in
-        x86)
-            build_object_x86
-            export ANDROID_TARGET="android/386";;
-        x86_64)
-            build_object_x86-64
-            export ANDROID_TARGET="android/amd64";;
+    case $GOARCH in
+        386 | amd64 | arm64)
+            export GOARCH=$GOARCH CC=$CC ARCH=$ARCH
+            build_object;;
         arm)
-            build_object_arm
-            export ANDROID_TARGET="android/arm";;
-        arm64)
-            build_object_aarch64
-            export ANDROID_TARGET="android/arm64";;
+            export GOARCH=arm GOARM=7 CC="arm-linux-gnueabi-gcc" ARCH=arm
+            build_object;;
         *)
-            build_object_x86
-            build_object_x86-64
-            build_object_arm
-            build_object_aarch64
-            export ANDROID_TARGET="android";;
+            export GOARCH=386 CC="gcc" ARCH=x86
+            build_object
+            export GOARCH=amd64 CC="gcc" ARCH=x86-64
+            build_object
+            export GOARCH=arm GOARM=7 CC="arm-linux-gnueabi-gcc" ARCH=arm
+            build_object
+            export GOARCH=arm64 CC="aarch64-linux-gnu-gcc" ARCH=aarch64
+            build_object
+            ;;
     esac
-
+    export ANDROID_TARGET=$ANDROID_TARGET
     build_android
 }
 
-
-function build_object_x86() {
-    echo ""
-    echo ""
-    echo "**********************************"
-    echo " Target Binary arch is i386 "
-    echo "**********************************"
-    export GOARCH=386
-    export CC="gcc"
-    export ARCH=x86
-
-    build_object
-}
-
-function build_object_x86-64() {
-    echo ""
-    echo ""
-    echo "**********************************"
-    echo " Target Binary arch is amd64 "
-    echo "**********************************"
-    export GOARCH=amd64
-    export CC="gcc"
-    export ARCH=x86-64
-
-    build_object
-}
-
-function build_object_arm() {
-    echo ""
-    echo ""
-    echo "**********************************"
-    echo " Target Binary arch is armv7 "
-    echo "**********************************"
-    export GOARCH=arm GOARM=7
-    export CC="arm-linux-gnueabi-gcc"
-    export ARCH=arm
-
-    build_object
-}
-
-function build_object_aarch64() {
-    echo ""
-    echo ""
-    echo "**********************************"
-    echo " Target Binary arch is arm64 "
-    echo "**********************************"
-    export GOARCH=arm64
-    export CC="aarch64-linux-gnu-gcc"
-    export ARCH=aarch64
-
-    build_object
-}
-
 function build_object_result() {
-    echo ""
     echo ""
     echo "**********************************"
     echo " Edge-orchestration Archive "
@@ -258,27 +193,20 @@ function build_android() {
 
 function build_docker_container() {
     echo ""
-    echo ""
     echo "**********************************"
-    echo " Create Docker container "
+    echo " Create Docker container $ARCH"
     echo "**********************************"
 
     docker rm -f $DOCKER_IMAGE
     docker rmi -f $DOCKER_IMAGE:$CONTAINER_VERSION
     mkdir -p $BASE_DIR/bin/qemu
-    case $1 in
-        x86)
-            CONTAINER_ARCH="i386"
-            ;;
-        x86_64)
-            CONTAINER_ARCH="amd64"
+    case $GOARCH in
+        386 | amd64)
             ;;
         arm)
-            CONTAINER_ARCH="arm32v7"
             cp /usr/bin/qemu-arm-static $BASE_DIR/bin/qemu
             ;;
         arm64)
-            CONTAINER_ARCH="arm64v8"
             cp /usr/bin/qemu-aarch64-static $BASE_DIR/bin/qemu
             ;;
         *)
@@ -344,52 +272,19 @@ function stop_docker_container() {
     docker ps -a
 }
 
+set_options $PARAMS
 
 case "$1" in
     "container")
         go_mod_vendor
-        if [ "$2" == "secure" ]; then
-            set_secure_option
-            build_binaries $3
-            build_docker_container $3
-            docker save -o $BASE_DIR/bin/edge-orchestration.tar edge-orchestration
-            if [ "$3" == "x86_64" ]; then
-                run_docker_container
-            fi
-        else
-            build_binaries $2
-            build_docker_container $2
-            docker save -o $BASE_DIR/bin/edge-orchestration.tar edge-orchestration
-            if [ "$2" == "x86_64" ]; then
-                run_docker_container
-            fi
-        fi
+        build_binary
+        build_docker_container
+        docker save -o $BASE_DIR/bin/edge-orchestration.tar edge-orchestration
         ;;
     "object")
-        case "$2" in
-            "secure")
-                if [ "$3" == "mnedcserver" ]; then
-                    set_mnedc_server_option $2
-                elif [ "$3" == "mnedcclient" ]; then
-                    set_mnedc_client_option $2
-                elif [ "$3" == "" ]; then
-                    set_secure_option
-                fi
-                ;;
-            "mnedcserver")
-                set_mnedc_server_option $3
-                ;;
-            "mnedcclient")
-                set_mnedc_client_option $3
-                ;;
-        esac
         build_clean
         go_mod_vendor
-        if [ "$2" == "secure" ]; then
-            build_objects $3
-        else
-            build_objects $2
-        fi
+        build_objects
         build_object_result
         ;;
     "test")
@@ -407,28 +302,7 @@ case "$1" in
     "clean")
         build_clean
         ;;
-    "")
-        go_mod_vendor
-        build_binary
-        build_docker_container
-        run_docker_container
-        ;;
-    "secure")
-        set_secure_option
-        go_mod_vendor
-        build_binary
-        build_docker_container
-        run_docker_container
-        ;;
-    "mnedcserver")
-        set_mnedc_server_option $2
-        go_mod_vendor
-        build_binary
-        build_docker_container
-        run_docker_container
-        ;;
-    "mnedcclient")
-        set_mnedc_client_option $2
+    "" | "secure" | "mnedcserver" | "mnedcclient")
         go_mod_vendor
         build_binary
         build_docker_container
@@ -437,7 +311,7 @@ case "$1" in
     *)
         echo "build script"
         echo "Usage:"
-        echo "---------------------------------------------------------------------------------------------------------------------------------------------------"
+        echo "-------------------------------------------------------------------------------------------------------------------------------------------"
         echo "  $0                         : build edge-orchestration by default Docker container"
         echo "  $0 secure                  : build edge-orchestration by default Docker container with secure option"
         echo "  $0 container [Arch]        : build Docker container Arch:{x86, x86_64, arm, arm64}"
@@ -450,7 +324,7 @@ case "$1" in
         echo "  $0 mnedcclient secure      : build edge-orchestration by default container with MNEDC client running option in secure mode"
         echo "  $0 clean                   : build clean"
         echo "  $0 test [PKG_PATH]         : run unittests (optional for PKG_PATH which is a relative path such as './internal/common/commandvalidator')"
-        echo "---------------------------------------------------------------------------------------------------------------------------------------------------"
+        echo "-------------------------------------------------------------------------------------------------------------------------------------------"
         exit 0
         ;;
 esac
