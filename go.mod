@@ -51,6 +51,7 @@ require (
 	golang.org/x/mobile v0.0.0-20201217150744-e6ae53a27f4f // indirect
 	google.golang.org/grpc v1.34.0 // indirect
 	gopkg.in/ini.v1 v1.62.0
+	gopkg.in/yaml.v2 v2.4.0
 	gotest.tools v2.2.0+incompatible // indirect
 	gotest.tools/v3 v3.0.3
 )

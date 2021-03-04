@@ -30,7 +30,7 @@ import (
 const (
 	logPrefix       = "[discoverymgr]"
 	edgeDirect      = "/var/edge-orchestration/"
-	configPath      = edgeDirect + "mnedc/client.config"
+	configPath      = edgeDirect + "mnedc/client-config.yaml"
 )
 
 // OrchestrationInformation is the struct to handle orchestration
@@ -53,6 +53,12 @@ type requestData struct {
 	VirtualIP string
 }
 
+// serverConf is the Server Config Structure
+type serverConf struct {
+	ServerIP string `yaml:"server-ip"`
+	Port string `yaml:"port"`
+}
+
 var (
 	mapMTX           sync.Mutex
 	wrapperIns       wrapper.ZeroconfInterface
@@ -64,5 +70,5 @@ var (
 	netQuery     networkdb.DBInterface
 	serviceQuery servicedb.DBInterface
 
-	configAlternate = "/storage/emulated/0/client.config"
+	configAlternate = "/storage/emulated/0/client-config.yaml"
 )

@@ -18,11 +18,10 @@
 package discoverymgr
 
 import (
-	"bufio"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
+	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"net"
-	"os"
 	"reflect"
 	"sync"
 	"time"
@@ -484,24 +483,17 @@ func (d *DiscoveryImpl) NotifyMNEDCBroadcastServer() error {
 		return err
 	}
 
-	file, err := os.Open(configPath)
+	serverIP, _, err := getMNEDCServerAddress(configPath)
 
 	if err != nil {
 		log.Println(logPrefix, "cant read config file from", configPath, err.Error(), "trying config alternate")
 
-		file, err = os.Open(configAlternate)
+		serverIP, _, err = getMNEDCServerAddress(configAlternate)
 		if err != nil {
 			log.Println(logPrefix, "cant register to server", "failed for config alternate too", err.Error())
 			return err
 		}
 	}
-	defer file.Close()
-
-	scanner := bufio.NewScanner(file)
-	scanner.Split(bufio.ScanLines)
-
-	scanner.Scan()
-	serverIP := scanner.Text()
 
 	go func() {
 
@@ -858,4 +850,20 @@ func activeDiscovery() {
 // It Clears Map
 func resetServer(ips []net.IP) {
 	wrapperIns.ResetServer(ips)
+}
+
+// getMNEDCServerAddress fetches the IP and Port of the server
+func getMNEDCServerAddress(path string) (string, string, error) {
+	c := serverConf{}
+	yamlFile, err := ioutil.ReadFile(path)
+	if err != nil {
+		return "", "", err
+	}
+
+	err = yaml.Unmarshal(yamlFile,&c)
+	if err != nil {
+		return "", "", err
+	}
+
+	return c.ServerIP, c.Port, nil
 }

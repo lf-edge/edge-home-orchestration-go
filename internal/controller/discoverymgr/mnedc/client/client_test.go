@@ -41,7 +41,7 @@ const (
 	defaultConnectionPort = "9999"
 	defaultServerPort     = "9930"
 	defaultServerIP       = "1.1.1.1"
-	defaultConfigPath     = "client.Config"
+	defaultConfigPath     = "client-config.yaml"
 	defaultMessage        = "dummy"
 )
 
@@ -572,7 +572,7 @@ func createDeviceIDFile() error {
 
 	defer f.Close()
 
-	_, err = f.WriteString(defaultServerIP + "\n" + defaultConnectionPort + "\n")
+	_, err = f.WriteString("server-ip: "+defaultServerIP + "\n" + "port: "+defaultConnectionPort + "\n")
 	if err != nil {
 		return err
 	}

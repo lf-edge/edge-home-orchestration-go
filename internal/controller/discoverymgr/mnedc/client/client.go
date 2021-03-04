@@ -18,11 +18,11 @@
 package client
 
 import (
-	"bufio"
 	"errors"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
+	"gopkg.in/yaml.v2"
+	"io/ioutil"
 	"net"
-	"os"
 	"sync"
 	"time"
 
@@ -104,6 +104,12 @@ func init() {
 	networkUtilIns = connectionutil.GetInstance()
 	networkIns = networkhelper.GetInstance()
 	//discoveryIns = discoverymgr.GetInstance()
+}
+
+// serverConf is the Server Config Structure
+type serverConf struct {
+	ServerIP string `yaml:"server-ip"`
+	Port string `yaml:"port"`
 }
 
 //GetInstance returns MNEDCClient interface instance
@@ -442,19 +448,12 @@ func (c *Client) NotifyBroadcastServer(configPath string) error {
 		return err
 	}
 
-	file, err := os.Open(configPath)
+	serverIP, _, err := getMNEDCServerAddress(configPath)
 
 	if err != nil {
 		log.Println(logPrefix, "cant read config file from", configPath, err.Error())
 		return err
 	}
-	defer file.Close()
-
-	scanner := bufio.NewScanner(file)
-	scanner.Split(bufio.ScanLines)
-
-	scanner.Scan()
-	serverIP := scanner.Text()
 
 	go func() {
 
@@ -482,22 +481,18 @@ func (c *Client) SetClient(clientAPI restclient.Clienter) {
 	c.clientAPI = clientAPI
 }
 
+// getMNEDCServerAddress fetches the IP and Port of the server
 func getMNEDCServerAddress(path string) (string, string, error) {
-
-	var serverIP, serverPort string
-
-	file, err := os.Open(path)
+	c := serverConf{}
+	yamlFile, err := ioutil.ReadFile(path)
 	if err != nil {
 		return "", "", err
 	}
-	defer file.Close()
-	scanner := bufio.NewScanner(file)
-	scanner.Split(bufio.ScanLines)
 
-	scanner.Scan()
-	serverIP = scanner.Text()
-	scanner.Scan()
-	serverPort = scanner.Text()
+	err = yaml.Unmarshal(yamlFile,&c)
+	if err != nil {
+		return "", "", err
+	}
 
-	return serverIP, serverPort, nil
+	return c.ServerIP, c.Port, nil
 }
