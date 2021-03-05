@@ -82,7 +82,7 @@ func (ServerImpl) StartMNEDCServer(deviceIDPath string) {
 	}
 
 	startMNEDCBroadcastServer()
-	mnedcServerIns.SetClientIP(deviceID, privateIP, mnedcServerVirtualIP)
+	mnedcServerIns.SetClientIP(deviceID, privateIP, mnedcServerIns.GetVirtualIP())
 
 	return
 }

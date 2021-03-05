@@ -31,6 +31,7 @@ import (
 	ciphermock "github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/cipher/mocks"
 	helpermock "github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/resthelper/mocks"
 
+
 	"github.com/golang/mock/gomock"
 )
 
@@ -73,6 +74,7 @@ func TestStartMNEDCServer(t *testing.T) {
 		s := GetServerInstance()
 		mockMnedcServer.EXPECT().CreateServer(gomock.Any(), gomock.Any(), gomock.Any()).Return(&server.Server{}, nil)
 		mockMnedcServer.EXPECT().Run()
+		mockMnedcServer.EXPECT().GetVirtualIP().Return(clientDefaultVirtualIP)
 		mockNetwork.EXPECT().GetOutboundIP().Return(defaultOutboundIP, nil)
 		mockMnedcServer.EXPECT().SetClientIP(gomock.Any(), gomock.Any(), gomock.Any())
 		s.StartMNEDCServer(defaultDeviceIDFilePath)

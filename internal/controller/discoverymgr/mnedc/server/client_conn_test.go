@@ -19,6 +19,7 @@ package server
 
 import (
 	"errors"
+	"math/rand"
 	"net"
 	"testing"
 	"time"
@@ -26,6 +27,7 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/songgao/water"
 
+	networkmocks "github.com/lf-edge/edge-home-orchestration-go/internal/common/networkhelper/mocks"
 	networkUtilMocks "github.com/lf-edge/edge-home-orchestration-go/internal/controller/discoverymgr/mnedc/connectionutil/mocks"
 	tunMocks "github.com/lf-edge/edge-home-orchestration-go/internal/controller/discoverymgr/mnedc/tunmgr/mocks"
 )
@@ -33,7 +35,8 @@ import (
 var (
 	tunIntf         *water.Interface
 	mockTun         *tunMocks.MockTun
-	mockNetworkUtil *networkUtilMocks.MockNetworkUtil
+	mockNetwork	*networkmocks.MockNetwork
+	mockNetworkUtil	*networkUtilMocks.MockNetworkUtil
 	runningServer   *Server
 	listener        net.Listener
 )
@@ -125,6 +128,7 @@ func TestCreateServer(t *testing.T) {
 
 	t.Run("TunError", func(t *testing.T) {
 		mockNetworkUtil.EXPECT().ListenIP(gomock.Any(), gomock.Any()).Return(defaultListener, nil)
+		mockNetwork.EXPECT().GetOutboundIP().Return("10.0.0.1",nil)
 		mockTun.EXPECT().CreateTUN().Return(nil, errors.New("TUN error"))
 		serverInstance := GetInstance()
 		_, err := serverInstance.CreateServer("", "", false)
@@ -136,6 +140,7 @@ func TestCreateServer(t *testing.T) {
 	t.Run("TunIPError", func(t *testing.T) {
 
 		mockNetworkUtil.EXPECT().ListenIP(gomock.Any(), gomock.Any()).Return(defaultListener, nil)
+		mockNetwork.EXPECT().GetOutboundIP().Return("10.0.0.1",nil)
 		mockTun.EXPECT().CreateTUN().Return(tunIntf, nil)
 		mockTun.EXPECT().SetTUNIP(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
 		mockTun.EXPECT().SetTUNStatus(gomock.Any(), gomock.Any(), gomock.Any()).Return(errors.New("TUN Errror"))
@@ -150,11 +155,14 @@ func TestCreateServer(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 
 		mockNetworkUtil.EXPECT().ListenIP(gomock.Any(), gomock.Any()).Return(defaultListener, nil)
+		mockNetwork.EXPECT().GetOutboundIP().Return("10.0.0.1",nil)
 		mockTun.EXPECT().CreateTUN().Return(tunIntf, nil)
 		mockTun.EXPECT().SetTUNIP(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
 		mockTun.EXPECT().SetTUNStatus(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
 
+
 		serverInstance := GetInstance()
+
 		server, err := serverInstance.CreateServer("", "", false)
 		if err != nil {
 			t.Error("Server not started")
@@ -176,6 +184,7 @@ func TestClientMaps(t *testing.T) {
 			clientIDByAddress:       map[string]string{},
 			clientAddressByDeviceID: map[string]string{},
 			clientCount:             1,
+			virtualIP:               net.IPv4(10,7,byte(rand.Intn(255)),1),
 		}
 
 		serverInstance.SetClientIP(defaultID, defaultIP, defaultVirtualIP)
@@ -212,6 +221,7 @@ func TestNewConnection(t *testing.T) {
 			return
 		}
 		mockNetworkUtil.EXPECT().ListenIP(gomock.Any(), gomock.Any()).Return(defaultListener, nil)
+		mockNetwork.EXPECT().GetOutboundIP().Return("10.0.0.1",nil)
 		mockTun.EXPECT().CreateTUN().Return(tunIntf, nil)
 		mockTun.EXPECT().SetTUNIP(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
 		mockTun.EXPECT().SetTUNStatus(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
@@ -248,9 +258,11 @@ func TestNewConnection(t *testing.T) {
 			return
 		}
 		mockNetworkUtil.EXPECT().ListenIP(gomock.Any(), gomock.Any()).Return(defaultListener, nil)
+		mockNetwork.EXPECT().GetOutboundIP().Return("10.0.0.1",nil)
 		mockTun.EXPECT().CreateTUN().Return(tunIntf, nil)
 		mockTun.EXPECT().SetTUNIP(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
 		mockTun.EXPECT().SetTUNStatus(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
+
 
 		serverInstance := GetInstance()
 		server, err := serverInstance.CreateServer("", "", false)
@@ -464,4 +476,7 @@ func createMockIns(ctrl *gomock.Controller) {
 
 	mockNetworkUtil = networkUtilMocks.NewMockNetworkUtil(ctrl)
 	networkUtilIns = mockNetworkUtil
+
+	mockNetwork = networkmocks.NewMockNetwork(ctrl)
+	networkIns = mockNetwork
 }

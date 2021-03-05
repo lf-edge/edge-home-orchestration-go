@@ -20,9 +20,11 @@ package server
 import (
 	"errors"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
+	"github.com/lf-edge/edge-home-orchestration-go/internal/common/networkhelper"
+	"math/rand"
 	"net"
-	"strconv"
 	"sync"
+	"time"
 
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/discoverymgr/mnedc/connectionutil"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/discoverymgr/mnedc/tunmgr"
@@ -50,8 +52,6 @@ type IPTypes struct {
 
 const (
 	logTag               = "[mnedcserver]"
-	serverVirtualAddress = "10.0.0.1/24"
-	virtualIPPrefix      = "10.0.0."
 	channelSize          = 200
 	packetSize           = 1024
 )
@@ -61,6 +61,7 @@ var (
 	tunIns         tunmgr.Tun
 	networkUtilIns connectionutil.NetworkUtil
 	log            = logmgr.GetInstance()
+	networkIns     networkhelper.Network
 )
 
 //Server defines MNEDC server struct
@@ -97,12 +98,14 @@ type MNEDCServer interface {
 	TunReadRoutine()
 	TunWriteRoutine()
 	Close() error
+	GetVirtualIP() string
 }
 
 func init() {
 	serverIns = &Server{}
 	tunIns = tunmgr.GetInstance()
 	networkUtilIns = connectionutil.GetInstance()
+	networkIns = networkhelper.GetInstance()
 }
 
 //GetInstance returns server instance
@@ -122,14 +125,12 @@ func (s *Server) CreateServer(address, port string, isSecure bool) (*Server, err
 		return nil, err
 	}
 
-	virtualIP, virtualNetMask, err := net.ParseCIDR(serverVirtualAddress)
-	if err != nil {
-		return nil, errors.New(logPrefix + " Invalid network/mask:" + err.Error())
-	}
-
 	s.listener = listener
-	s.virtualIP = virtualIP
-	s.netMask = virtualNetMask
+	s.virtualIP = generateServerIP()
+	s.netMask = &net.IPNet{
+		IP:s.virtualIP,
+		Mask: net.CIDRMask(24, 32),
+	}
 	s.isAlive = true
 	s.clientCount = 1
 	s.clients = map[string]*clientConnection{}
@@ -240,7 +241,7 @@ func (s *Server) SetVirtualIP(deviceID string) string {
 		ip = val
 	} else {
 		s.clientCount = s.clientCount + 1
-		ip = virtualIPPrefix + strconv.Itoa(s.clientCount)
+		ip = net.IPv4(s.virtualIP[12], s.virtualIP[13], s.virtualIP[14], byte(s.clientCount)).String()
 		s.clientsLock.Lock()
 		s.clientAddressByDeviceID[deviceID] = ip
 		s.clientsLock.Unlock()
@@ -367,4 +368,35 @@ func (s *Server) Close() error {
 	}
 
 	return err
+}
+
+//GetVirtualIP returns the server virtualIP
+func (s *Server) GetVirtualIP() string {
+	return s.virtualIP.String()
+}
+
+//generateServerIP generates a virtual IP for the server
+func generateServerIP() net.IP {
+	privateIP,err := networkIns.GetOutboundIP()
+	if err != nil {
+		log.Println("Error in getting private IP ", err.Error())
+		return nil
+	}
+
+	var serverVirtualIP net.IP
+
+	privateIP = privateIP+"/16"
+	_, subnet,_ := net.ParseCIDR(privateIP)
+	rand.Seed(time.Now().UnixNano())
+
+	for {
+		//Assigning new Virtual IP address in case of clash with Private IP
+		serverVirtualIP = net.IPv4(10,byte(rand.Intn(255)),byte(rand.Intn(255)),1)
+		if !subnet.Contains(serverVirtualIP){
+			break
+		}
+	}
+	log.Println("Virtual IP : ",serverVirtualIP)
+	log.Println("Private IP : ", privateIP)
+	return serverVirtualIP
 }
