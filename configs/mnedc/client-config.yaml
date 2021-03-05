@@ -1,0 +1,4 @@
+# This configuration file is for providing the Actual IP and Port of the MNEDC server to the clients
+# NOTE : server-ip and port need to be modified for each environment.
+server-ip: 192.168.0.125
+port: 3334

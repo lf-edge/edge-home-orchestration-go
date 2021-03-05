@@ -21,7 +21,7 @@ jobs:
           go get github.com/axw/gocov/gocov
           echo "$HOME/go/bin" >> $GITHUB_PATH
           sudo mkdir -p /var/edge-orchestration/mnedc
-          echo -e '192.168.0.125\n3334' | sudo tee /var/edge-orchestration/mnedc/client.config
+          echo -e 'server-ip: 192.168.0.125\nport: 3334' | sudo tee /var/edge-orchestration/mnedc/client-config.yaml
 
       - name: Run the Test Suite
         run: |

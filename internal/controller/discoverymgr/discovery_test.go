@@ -48,7 +48,7 @@ var (
 	defaultMyDeviceID    = "edge-orchestration-test-device-id1"
 	defaultIPv4List      = []string{defaultIPv4}
 	defaultServiceList   = []string{defaultService}
-	defaultConfAlternate = "testdata/client.config"
+	defaultConfAlternate = "testdata/client-config.yaml"
 
 	anotherService     = "docker"
 	anotherIPv4        = "2.2.2.2"
