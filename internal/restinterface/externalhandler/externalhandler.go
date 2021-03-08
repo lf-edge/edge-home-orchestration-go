@@ -93,11 +93,11 @@ func (h *Handler) APIV1RequestServicePost(w http.ResponseWriter, r *http.Request
 	log.Printf("[%s] APIV1RequestServicePost", logPrefix)
 	if h.isSetAPI == false {
 		log.Printf("[%s] does not set api", logPrefix)
-		h.helper.Response(w, http.StatusServiceUnavailable)
+		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	} else if h.IsSetKey == false {
 		log.Printf("[%s] does not set key", logPrefix)
-		h.helper.Response(w, http.StatusServiceUnavailable)
+		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	}
 
@@ -114,10 +114,10 @@ func (h *Handler) APIV1RequestServicePost(w http.ResponseWriter, r *http.Request
 
 	ips, err := h.netHelper.GetIPs()
 	if err != nil {
-		h.helper.Response(w, http.StatusServiceUnavailable)
+		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	} else if addr != "localhost" && addr != "127.0.0.1" && common.HasElem(ips, addr) == false {
-		h.helper.Response(w, http.StatusNotAcceptable)
+		h.helper.Response(w, nil, http.StatusNotAcceptable)
 		return
 	}
 
@@ -137,7 +137,7 @@ func (h *Handler) APIV1RequestServicePost(w http.ResponseWriter, r *http.Request
 	appCommand, err := h.Key.DecryptByteToJSON(encryptBytes)
 	if err != nil {
 		log.Printf("[%s] can not decryption", logPrefix)
-		h.helper.Response(w, http.StatusServiceUnavailable)
+		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	}
 
@@ -239,11 +239,11 @@ SEND_RESP:
 	respEncryptBytes, err := h.Key.EncryptJSONToByte(respJSONMsg)
 	if err != nil {
 		log.Printf("[%s] can not encryption", logPrefix)
-		h.helper.Response(w, http.StatusServiceUnavailable)
+		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	}
 
-	h.helper.ResponseJSON(w, respEncryptBytes, http.StatusOK)
+	h.helper.Response(w, respEncryptBytes, http.StatusOK)
 }
 
 // APIV1RequestSecuremgrPost handles securemgr request from securemgr configure application
@@ -251,11 +251,11 @@ func (h *Handler) APIV1RequestSecuremgrPost(w http.ResponseWriter, r *http.Reque
 	log.Printf("[%s] APIV1RequestSecuremgrPost", logPrefix)
 	if h.isSetAPI == false {
 		log.Printf("[%s] does not set api", logPrefix)
-		h.helper.Response(w, http.StatusServiceUnavailable)
+		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	} else if h.IsSetKey == false {
 		log.Printf("[%s] does not set key", logPrefix)
-		h.helper.Response(w, http.StatusServiceUnavailable)
+		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	}
 
@@ -269,10 +269,10 @@ func (h *Handler) APIV1RequestSecuremgrPost(w http.ResponseWriter, r *http.Reque
 
 	ips, err := h.netHelper.GetIPs()
 	if err != nil {
-		h.helper.Response(w, http.StatusServiceUnavailable)
+		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	} else if addr != "localhost" && addr != "127.0.0.1" && common.HasElem(ips, addr) == false {
-		h.helper.Response(w, http.StatusNotAcceptable)
+		h.helper.Response(w, nil, http.StatusNotAcceptable)
 		return
 	}
 
@@ -289,7 +289,7 @@ func (h *Handler) APIV1RequestSecuremgrPost(w http.ResponseWriter, r *http.Reque
 	appCommand, err := h.Key.DecryptByteToJSON(encryptBytes)
 	if err != nil {
 		log.Printf("[%s] cannot decryption", logPrefix)
-		h.helper.Response(w, http.StatusServiceUnavailable)
+		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	}
 
@@ -348,11 +348,11 @@ SEND_RESP:
 	respEncryptBytes, err := h.Key.EncryptJSONToByte(respJSONMsg)
 	if err != nil {
 		log.Printf("[%s] cannot encryption", logPrefix)
-		h.helper.Response(w, http.StatusServiceUnavailable)
+		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	}
 
-	h.helper.ResponseJSON(w, respEncryptBytes, http.StatusOK)
+	h.helper.Response(w, respEncryptBytes, http.StatusOK)
 }
 
 func (h *Handler) setHelper(helper resthelper.RestHelper) {

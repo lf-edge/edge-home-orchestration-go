@@ -111,7 +111,7 @@ func TestRequestHandler(t *testing.T) {
 	helper = mockHelper
 
 	mockCipher.EXPECT().DecryptByteToJSON(gomock.Any()).Return(requestJSON, nil)
-	mockHelper.EXPECT().Response(gomock.Any(), gomock.Eq(http.StatusOK))
+	mockHelper.EXPECT().Response(gomock.Any(), gomock.Any(), gomock.Eq(http.StatusOK))
 	mockMnedcServer.EXPECT().SetClientIP(gomock.Any(), gomock.Any(), gomock.Any()).Return()
 	mockMnedcServer.EXPECT().GetClientIPMap().Return(clientInfoMap)
 	mockCipher.EXPECT().EncryptJSONToByte(gomock.Any()).Return([]byte(defaultMessage), nil).AnyTimes()

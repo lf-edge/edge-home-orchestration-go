@@ -58,8 +58,7 @@ type requestHelper interface {
 }
 
 type responseHelper interface {
-	Response(w http.ResponseWriter, httpStatus int)
-	ResponseJSON(w http.ResponseWriter, bytes []byte, httpStatus int)
+	Response(w http.ResponseWriter, bytes []byte, httpStatus int)
 }
 
 type helperImpl struct {
@@ -216,17 +215,12 @@ func (h helperImpl) MakeTargetURL(target string, port int, restapi string) strin
 	return fmt.Sprintf("%s://%s:%d%s", protocol, target, port, restapi)
 }
 
-// ResponseJSON function
-func (helperImpl) ResponseJSON(w http.ResponseWriter, bytes []byte, httpStatus int) {
-	w.Header().Set("Connection", "close")
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(httpStatus)
-	w.Write(bytes)
-}
-
 // Response function
-func (helperImpl) Response(w http.ResponseWriter, httpStatus int) {
+func (helperImpl) Response(w http.ResponseWriter, bytes []byte, httpStatus int) {
 	w.Header().Set("Connection", "close")
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(httpStatus)
+	if bytes != nil {
+		w.Write(bytes)
+	}
 }

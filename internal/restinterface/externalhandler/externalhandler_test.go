@@ -142,7 +142,7 @@ func TestAPIV1RequestServicePost(t *testing.T) {
 	t.Run("Error", func(t *testing.T) {
 		t.Run("IsNotSetApi", func(t *testing.T) {
 			handler.setHelper(mockHelper)
-			mockHelper.EXPECT().Response(gomock.Any(), gomock.Eq(http.StatusServiceUnavailable))
+			mockHelper.EXPECT().Response(gomock.Any(), gomock.Any(), gomock.Eq(http.StatusServiceUnavailable))
 
 			handler.isSetAPI = false
 			handler.APIV1RequestServicePost(w, r)
@@ -150,7 +150,7 @@ func TestAPIV1RequestServicePost(t *testing.T) {
 		t.Run("IsNotSetKey", func(t *testing.T) {
 			handler.SetOrchestrationAPI(mockOrchestration)
 			handler.setHelper(mockHelper)
-			mockHelper.EXPECT().Response(gomock.Any(), gomock.Eq(http.StatusServiceUnavailable))
+			mockHelper.EXPECT().Response(gomock.Any(), gomock.Any(), gomock.Eq(http.StatusServiceUnavailable))
 
 			handler.IsSetKey = false
 			handler.APIV1RequestServicePost(w, r)
@@ -163,7 +163,7 @@ func TestAPIV1RequestServicePost(t *testing.T) {
 			gomock.InOrder(
 				mockNetHelper.EXPECT().GetIPs().Return([]string{addr}, nil),
 				mockCipher.EXPECT().DecryptByteToJSON(gomock.Any()).Return(nil, errors.New("")),
-				mockHelper.EXPECT().Response(gomock.Any(), gomock.Eq(http.StatusServiceUnavailable)),
+				mockHelper.EXPECT().Response(gomock.Any(), gomock.Any(), gomock.Eq(http.StatusServiceUnavailable)),
 			)
 
 			handler.APIV1RequestServicePost(w, r)
@@ -181,7 +181,7 @@ func TestAPIV1RequestServicePost(t *testing.T) {
 				mockCipher.EXPECT().DecryptByteToJSON(gomock.Any()).Return(appCommand, nil),
 				mockOrchestration.EXPECT().RequestService(gomock.Eq(requestService)),
 				mockCipher.EXPECT().EncryptJSONToByte(gomock.Any()).Return(nil, errors.New("")),
-				mockHelper.EXPECT().Response(gomock.Any(), gomock.Eq(http.StatusServiceUnavailable)),
+				mockHelper.EXPECT().Response(gomock.Any(), gomock.Any(), gomock.Eq(http.StatusServiceUnavailable)),
 			)
 
 			handler.APIV1RequestServicePost(w, r)
@@ -204,7 +204,7 @@ func TestAPIV1RequestServicePost(t *testing.T) {
 							t.Error("unexpected response")
 						}
 					}).Return(nil, nil),
-					mockHelper.EXPECT().ResponseJSON(gomock.Any(), gomock.Any(), gomock.Eq(http.StatusOK)),
+					mockHelper.EXPECT().Response(gomock.Any(), gomock.Any(), gomock.Eq(http.StatusOK)),
 				)
 
 				handler.APIV1RequestServicePost(w, r)
@@ -226,7 +226,7 @@ func TestAPIV1RequestServicePost(t *testing.T) {
 							t.Error("unexpected response")
 						}
 					}).Return(nil, nil),
-					mockHelper.EXPECT().ResponseJSON(gomock.Any(), gomock.Any(), gomock.Eq(http.StatusOK)),
+					mockHelper.EXPECT().Response(gomock.Any(), gomock.Any(), gomock.Eq(http.StatusOK)),
 				)
 
 				handler.APIV1RequestServicePost(w, r)
@@ -250,7 +250,7 @@ func TestAPIV1RequestServicePost(t *testing.T) {
 							t.Error("unexpected response")
 						}
 					}).Return(nil, nil),
-					mockHelper.EXPECT().ResponseJSON(gomock.Any(), gomock.Any(), gomock.Eq(http.StatusOK)),
+					mockHelper.EXPECT().Response(gomock.Any(), gomock.Any(), gomock.Eq(http.StatusOK)),
 				)
 
 				handler.APIV1RequestServicePost(w, r)
@@ -274,7 +274,7 @@ func TestAPIV1RequestServicePost(t *testing.T) {
 							t.Error("unexpected response")
 						}
 					}).Return(nil, nil),
-					mockHelper.EXPECT().ResponseJSON(gomock.Any(), gomock.Any(), gomock.Eq(http.StatusOK)),
+					mockHelper.EXPECT().Response(gomock.Any(), gomock.Any(), gomock.Eq(http.StatusOK)),
 				)
 
 				handler.APIV1RequestServicePost(w, r)
@@ -296,7 +296,7 @@ func TestAPIV1RequestServicePost(t *testing.T) {
 			mockCipher.EXPECT().DecryptByteToJSON(gomock.Any()).Return(appCommand, nil),
 			mockOrchestration.EXPECT().RequestService(gomock.Eq(requestService)),
 			mockCipher.EXPECT().EncryptJSONToByte(gomock.Any()).Return(respByte, nil),
-			mockHelper.EXPECT().ResponseJSON(gomock.Any(), gomock.Eq(respByte), gomock.Eq(http.StatusOK)),
+			mockHelper.EXPECT().Response(gomock.Any(), gomock.Eq(respByte), gomock.Eq(http.StatusOK)),
 		)
 
 		handler.APIV1RequestServicePost(w, r)

@@ -18,7 +18,6 @@
 package resthelper
 
 import (
-	//	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -108,43 +107,48 @@ func TestDoDelete(t *testing.T) {
 }
 
 func TestMakeTargetURL(t *testing.T) {
-	target := "testserver.test"
-	port := 1234
-	restapi := "/api/v1/test"
-	expected := "http://" + target + ":" + strconv.Itoa(port) + restapi
+	t.Run("Success",func(t *testing.T) {
+		target := "testserver.test"
+		port := 1234
+		restapi := "/api/v1/test"
+		expected := "http://" + target + ":" + strconv.Itoa(port) + restapi
 
-	fullURL := GetHelper().MakeTargetURL(target, port, restapi)
+		fullURL := GetHelper().MakeTargetURL(target, port, restapi)
 
-	if expected != fullURL {
-		t.Error("expect same, but not same")
-	}
-}
-
-func TestResponseJSON(t *testing.T) {
-	contentsType := "application/json; charset=UTF-8"
-	body := "test"
-
-	w := httptest.NewRecorder()
-	GetHelper().ResponseJSON(w, []byte(body), http.StatusOK)
-
-	if w.Code != http.StatusOK {
-		t.Error("unexpected code")
-	} else if w.Header().Get("Content-Type") != contentsType {
-		t.Error("unexpected content type")
-	} else if s, _ := ioutil.ReadAll(w.Body); string(s) != body {
-		t.Error("unexpected body")
-	}
+		if expected != fullURL {
+			t.Error("expect same, but not same")
+		}
+	})
 }
 
 func TestResponse(t *testing.T) {
 	contentsType := "application/json; charset=UTF-8"
+	body := "test"
 
-	w := httptest.NewRecorder()
-	GetHelper().Response(w, http.StatusOK)
+	t.Run("Success",func(t *testing.T) {
+		t.Run("WithBody",func(t *testing.T) {
+			w := httptest.NewRecorder()
+			GetHelper().Response(w, []byte(body), http.StatusOK)
 
-	if w.Code != http.StatusOK {
-		t.Error("unexpected code")
-	} else if w.Header().Get("Content-Type") != contentsType {
-		t.Error("unexpected content type")
-	}
+			if w.Code != http.StatusOK {
+				t.Error("unexpected code")
+			} else if w.Header().Get("Content-Type") != contentsType {
+				t.Error("unexpected content type")
+			} else if s, _ := ioutil.ReadAll(w.Body); string(s) != body {
+				t.Error("unexpected body")
+			}
+		})
+		t.Run("WithoutBody",func(t *testing.T) {
+			w := httptest.NewRecorder()
+			GetHelper().Response(w, nil, http.StatusOK)
+
+			if w.Code != http.StatusOK {
+				t.Error("unexpected code")
+			} else if w.Header().Get("Content-Type") != contentsType {
+				t.Error("unexpected content type")
+			} else if s, _ := ioutil.ReadAll(w.Body); len(s) > 0 {
+				t.Error("unexpected body")
+			}
+		})
+	})
 }
