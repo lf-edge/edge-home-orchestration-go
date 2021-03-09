@@ -104,10 +104,10 @@ func handleClientInfo(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		log.Printf("[%s] can not decryption %s", logPrefix, err.Error())
-		helper.Response(w, http.StatusServiceUnavailable)
+		helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	}
-	helper.Response(w, http.StatusOK)
+	helper.Response(w, nil, http.StatusOK)
 
 	mnedcServerIns.SetClientIP(Info["DeviceID"].(string), Info["PrivateIP"].(string), Info["VirtualIP"].(string))
 	broadcastPeers(Info["DeviceID"].(string), Info["PrivateIP"].(string), Info["VirtualIP"].(string))

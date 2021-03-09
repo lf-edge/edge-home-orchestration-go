@@ -125,7 +125,7 @@ func (h *Handler) SetCertificateFilePath(path string) {
 
 // APIV1Ping handles ping request from remote orchestration
 func (h *Handler) APIV1Ping(w http.ResponseWriter, r *http.Request) {
-	h.helper.Response(w, http.StatusOK)
+	h.helper.Response(w, nil, http.StatusOK)
 }
 
 // APIV1ServicemgrServicesPost handles service execution request from remote orchestration
@@ -133,11 +133,11 @@ func (h *Handler) APIV1ServicemgrServicesPost(w http.ResponseWriter, r *http.Req
 	log.Printf("[%s] APIV1ServicemgrServicesPost", logPrefix)
 	if h.isSetAPI == false {
 		log.Printf("[%s] does not set api", logPrefix)
-		h.helper.Response(w, http.StatusServiceUnavailable)
+		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	} else if h.IsSetKey == false {
 		log.Printf("[%s] does not set key", logPrefix)
-		h.helper.Response(w, http.StatusServiceUnavailable)
+		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	}
 
@@ -147,7 +147,7 @@ func (h *Handler) APIV1ServicemgrServicesPost(w http.ResponseWriter, r *http.Req
 	appInfo, err := h.Key.DecryptByteToJSON(encryptBytes)
 	if err != nil {
 		log.Printf("[%s] can not decryption", logPrefix)
-		h.helper.Response(w, http.StatusServiceUnavailable)
+		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	}
 
@@ -173,14 +173,14 @@ func (h *Handler) APIV1ServicemgrServicesPost(w http.ResponseWriter, r *http.Req
 		vRequester := requestervalidator.RequesterValidator{}
 		if err := vRequester.CheckRequester(serviceName, requester); err != nil {
 			log.Printf("[%s] ", err.Error())
-			h.helper.Response(w, http.StatusBadRequest)
+			h.helper.Response(w, nil, http.StatusBadRequest)
 			return
 		}
 
 		validator := commandvalidator.CommandValidator{}
 		if err := validator.CheckCommand(serviceName, args); err != nil {
 			log.Printf("[%s] ", err.Error())
-			h.helper.Response(w, http.StatusBadRequest)
+			h.helper.Response(w, nil, http.StatusBadRequest)
 			return
 		}
 	}
@@ -193,11 +193,11 @@ func (h *Handler) APIV1ServicemgrServicesPost(w http.ResponseWriter, r *http.Req
 	respEncryptBytes, err := h.Key.EncryptJSONToByte(respJSONMsg)
 	if err != nil {
 		log.Printf("[%s] can not encryption", logPrefix)
-		h.helper.Response(w, http.StatusServiceUnavailable)
+		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	}
 
-	h.helper.ResponseJSON(w, respEncryptBytes, http.StatusOK)
+	h.helper.Response(w, respEncryptBytes, http.StatusOK)
 }
 
 // APIV1ServicemgrServicesNotificationServiceIDPost handles service notification request from remote orchestration
@@ -205,11 +205,11 @@ func (h *Handler) APIV1ServicemgrServicesNotificationServiceIDPost(w http.Respon
 	log.Printf("[%s] APIV1ServicemgrServicesNotificationServiceIDPost", logPrefix)
 	if h.isSetAPI == false {
 		log.Printf("[%s] does not set api", logPrefix)
-		h.helper.Response(w, http.StatusServiceUnavailable)
+		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	} else if h.IsSetKey == false {
 		log.Printf("[%s] does not set key", logPrefix)
-		h.helper.Response(w, http.StatusServiceUnavailable)
+		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	}
 
@@ -218,7 +218,7 @@ func (h *Handler) APIV1ServicemgrServicesNotificationServiceIDPost(w http.Respon
 	statusNotification, err := h.Key.DecryptByteToJSON(encryptBytes)
 	if err != nil {
 		log.Printf("[%s] can not decryption", logPrefix)
-		h.helper.Response(w, http.StatusServiceUnavailable)
+		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	}
 
@@ -227,11 +227,11 @@ func (h *Handler) APIV1ServicemgrServicesNotificationServiceIDPost(w http.Respon
 
 	err = h.api.HandleNotificationOnLocal(serviceID, status)
 	if err != nil {
-		h.helper.Response(w, http.StatusInternalServerError)
+		h.helper.Response(w, nil, http.StatusInternalServerError)
 		return
 	}
 
-	handler.helper.Response(w, http.StatusOK)
+	handler.helper.Response(w, nil, http.StatusOK)
 }
 
 // APIV1ScoringmgrScoreLibnameGet handles scoring request from remote orchestration
@@ -239,11 +239,11 @@ func (h *Handler) APIV1ScoringmgrScoreLibnameGet(w http.ResponseWriter, r *http.
 	log.Printf("[%s] APIV1ScoringmgrScoreLibnameGet", logPrefix)
 	if h.isSetAPI == false {
 		log.Printf("[%s] does not set api", logPrefix)
-		h.helper.Response(w, http.StatusServiceUnavailable)
+		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	} else if h.IsSetKey == false {
 		log.Printf("[%s] does not set key", logPrefix)
-		h.helper.Response(w, http.StatusServiceUnavailable)
+		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	}
 
@@ -251,7 +251,7 @@ func (h *Handler) APIV1ScoringmgrScoreLibnameGet(w http.ResponseWriter, r *http.
 	Info, err := h.Key.DecryptByteToJSON(encryptBytes)
 	if err != nil {
 		log.Printf("[%s] can not decryption %s", logPrefix, err.Error())
-		h.helper.Response(w, http.StatusServiceUnavailable)
+		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	}
 
@@ -260,7 +260,7 @@ func (h *Handler) APIV1ScoringmgrScoreLibnameGet(w http.ResponseWriter, r *http.
 	scoreValue, err := h.api.GetScore(devID.(string))
 	if err != nil {
 		log.Printf("[%s] GetScore fail : %s", logPrefix, err.Error())
-		h.helper.Response(w, http.StatusInternalServerError)
+		h.helper.Response(w, nil, http.StatusInternalServerError)
 		return
 	}
 
@@ -270,11 +270,11 @@ func (h *Handler) APIV1ScoringmgrScoreLibnameGet(w http.ResponseWriter, r *http.
 	respEncryptBytes, err := h.Key.EncryptJSONToByte(respJSONMsg)
 	if err != nil {
 		log.Printf("[%s] can not encryption %s", logPrefix, err.Error())
-		h.helper.Response(w, http.StatusServiceUnavailable)
+		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	}
 
-	h.helper.ResponseJSON(w, respEncryptBytes, http.StatusOK)
+	h.helper.Response(w, respEncryptBytes, http.StatusOK)
 }
 
 // APIV1ScoringmgrResourceGet handles Resource request from remote orchestration
@@ -282,11 +282,11 @@ func (h *Handler) APIV1ScoringmgrResourceGet(w http.ResponseWriter, r *http.Requ
 	log.Printf("[%s] APIV1ScoringmgrResourceGet", logPrefix)
 	if h.isSetAPI == false {
 		log.Printf("[%s] does not set api", logPrefix)
-		h.helper.Response(w, http.StatusServiceUnavailable)
+		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	} else if h.IsSetKey == false {
 		log.Printf("[%s] does not set key", logPrefix)
-		h.helper.Response(w, http.StatusServiceUnavailable)
+		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	}
 
@@ -294,7 +294,7 @@ func (h *Handler) APIV1ScoringmgrResourceGet(w http.ResponseWriter, r *http.Requ
 	Info, err := h.Key.DecryptByteToJSON(encryptBytes)
 	if err != nil {
 		log.Printf("[%s] can not decryption %s", logPrefix, err.Error())
-		h.helper.Response(w, http.StatusServiceUnavailable)
+		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	}
 
@@ -303,18 +303,18 @@ func (h *Handler) APIV1ScoringmgrResourceGet(w http.ResponseWriter, r *http.Requ
 	resourceValue, err := h.api.GetResource(devID.(string))
 	if err != nil {
 		log.Printf("[%s] GetResource fail : %s", logPrefix, err.Error())
-		h.helper.Response(w, http.StatusInternalServerError)
+		h.helper.Response(w, nil, http.StatusInternalServerError)
 		return
 	}
 
 	respEncryptBytes, err := h.Key.EncryptJSONToByte(resourceValue)
 	if err != nil {
 		log.Printf("[%s] can not encryption %s", logPrefix, err.Error())
-		h.helper.Response(w, http.StatusServiceUnavailable)
+		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	}
 
-	h.helper.ResponseJSON(w, respEncryptBytes, http.StatusOK)
+	h.helper.Response(w, respEncryptBytes, http.StatusOK)
 }
 
 //APIV1DiscoverymgrMNEDCDeviceInfoPost handles device info from MNEDC server
@@ -322,11 +322,11 @@ func (h *Handler) APIV1DiscoverymgrMNEDCDeviceInfoPost(w http.ResponseWriter, r 
 	log.Printf("[%s] APIV1DiscoveryFromMNEDCServer", logPrefix)
 	if h.isSetAPI == false {
 		log.Printf("[%s] does not set api", logPrefix)
-		h.helper.Response(w, http.StatusServiceUnavailable)
+		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	} else if h.IsSetKey == false {
 		log.Printf("[%s] does not set key", logPrefix)
-		h.helper.Response(w, http.StatusServiceUnavailable)
+		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	}
 
@@ -335,7 +335,7 @@ func (h *Handler) APIV1DiscoverymgrMNEDCDeviceInfoPost(w http.ResponseWriter, r 
 
 	if err != nil {
 		log.Printf("[%s] can not decryption %s", logPrefix, err.Error())
-		h.helper.Response(w, http.StatusServiceUnavailable)
+		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	}
 
@@ -349,7 +349,7 @@ func (h *Handler) APIV1DiscoverymgrMNEDCDeviceInfoPost(w http.ResponseWriter, r 
 	virtualIP := Info["VirtualAddr"].(string)
 
 	h.api.HandleDeviceInfo(devID, virtualIP, privateIP)
-	handler.helper.Response(w, http.StatusOK)
+	handler.helper.Response(w, nil, http.StatusOK)
 }
 
 //APIV1DiscoverymgrOrchestrationInfoGet handles device info requests from peers
@@ -357,11 +357,11 @@ func (h *Handler) APIV1DiscoverymgrOrchestrationInfoGet(w http.ResponseWriter, r
 	log.Printf("[%s] APIV1DiscoverymgrOrchestrationInfoGet", logPrefix)
 	if h.isSetAPI == false {
 		log.Printf("[%s] does not set api", logPrefix)
-		h.helper.Response(w, http.StatusServiceUnavailable)
+		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	} else if h.IsSetKey == false {
 		log.Printf("[%s] does not set key", logPrefix)
-		h.helper.Response(w, http.StatusServiceUnavailable)
+		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	}
 
@@ -369,7 +369,7 @@ func (h *Handler) APIV1DiscoverymgrOrchestrationInfoGet(w http.ResponseWriter, r
 
 	if err != nil {
 		log.Printf("[%s] can not encryption %s", logPrefix, err.Error())
-		h.helper.Response(w, http.StatusServiceUnavailable)
+		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	}
 
@@ -381,11 +381,11 @@ func (h *Handler) APIV1DiscoverymgrOrchestrationInfoGet(w http.ResponseWriter, r
 	respEncryptBytes, err := h.Key.EncryptJSONToByte(respJSONMsg)
 	if err != nil {
 		log.Printf("[%s] can not encryption %s", logPrefix, err.Error())
-		h.helper.Response(w, http.StatusServiceUnavailable)
+		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	}
 
-	h.helper.ResponseJSON(w, respEncryptBytes, http.StatusOK)
+	h.helper.Response(w, respEncryptBytes, http.StatusOK)
 }
 
 func (h *Handler) setHelper(helper resthelper.RestHelper) {
