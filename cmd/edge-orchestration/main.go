@@ -109,19 +109,16 @@ func orchestrationInit() error {
 		isSecured = true
 	}
 
+	cipher := dummy.GetCipher(cipherKeyFilePath)
 	if isSecured {
 		verifier.Init(containerWhiteListPath)
 		authenticator.Init(passPhraseJWTPath)
 		authorizer.Init(rbacRulePath)
+		cipher = sha256.GetCipher(cipherKeyFilePath)
 	}
 
 	restIns := restclient.GetRestClient()
-
-	if isSecured {
-		restIns.SetCipher(dummy.GetCipher(cipherKeyFilePath))
-	} else {
-		restIns.SetCipher(sha256.GetCipher(cipherKeyFilePath))
-	}
+	restIns.SetCipher(cipher)
 
 	servicemgr.GetInstance().SetClient(restIns)
 	discoverymgr.GetInstance().SetClient(restIns)
@@ -160,11 +157,9 @@ func orchestrationInit() error {
 	ihandle.SetOrchestrationAPI(internalapi)
 
 	if isSecured {
-		ihandle.SetCipher(dummy.GetCipher(cipherKeyFilePath))
 		ihandle.SetCertificateFilePath(certificateFilePath)
-	} else {
-		ihandle.SetCipher(sha256.GetCipher(cipherKeyFilePath))
 	}
+	ihandle.SetCipher(cipher)
 	restEdgeRouter.Add(ihandle)
 
 	// external rest api
@@ -184,11 +179,9 @@ func orchestrationInit() error {
 
 	if len(mnedc) > 0 {
 		if strings.Compare(strings.ToLower(mnedc), "server") == 0 {
+			mnedcmgr.GetServerInstance().SetCipher(cipher)
 			if isSecured {
-				mnedcmgr.GetServerInstance().SetCipher(dummy.GetCipher(cipherKeyFilePath))
 				mnedcmgr.GetServerInstance().SetCertificateFilePath(certificateFilePath)
-			} else {
-				mnedcmgr.GetServerInstance().SetCipher(sha256.GetCipher(cipherKeyFilePath))
 			}
 			go discoverymgr.GetInstance().StartMNEDCServer(deviceIDFilePath)
 		} else if strings.Compare(strings.ToLower(mnedc), "client") == 0 {
@@ -199,11 +192,9 @@ func orchestrationInit() error {
 		}
 	} else {
 		if strings.Contains(buildTags, "mnedcserver") {
+			mnedcmgr.GetServerInstance().SetCipher(cipher)
 			if isSecured {
-				mnedcmgr.GetServerInstance().SetCipher(dummy.GetCipher(cipherKeyFilePath))
 				mnedcmgr.GetServerInstance().SetCertificateFilePath(certificateFilePath)
-			} else {
-				mnedcmgr.GetServerInstance().SetCipher(sha256.GetCipher(cipherKeyFilePath))
 			}
 			go discoverymgr.GetInstance().StartMNEDCServer(deviceIDFilePath)
 		} else if strings.Contains(buildTags, "mnedcclient") {
