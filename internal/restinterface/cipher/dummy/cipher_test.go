@@ -80,6 +80,8 @@ func TestDummyEncryptDecryptByteJsonMap(t *testing.T) {
 	}
 
 	decryptedJSONMap, err := ec.DecryptByteToJSON(encryptedByte)
+	errCheck(t, err)
+
 	jsonByte, err := json.Marshal(decryptedJSONMap)
 
 	errCheck(t, err)

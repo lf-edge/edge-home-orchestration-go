@@ -57,7 +57,7 @@ var (
 	// notificaitonImpl is instance of NotiImpl
 	notificationImpl = &NotiImpl{}
 
-	// NotificationMap is map strucutre (serviceID / Notification Channel)
+	// NotificationMap is map structure (serviceID / Notification Channel)
 	notificationMap  = ConcurrentMap{items: make(map[uint64]interface{})}
 )
 
