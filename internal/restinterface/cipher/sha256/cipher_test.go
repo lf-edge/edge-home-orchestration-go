@@ -62,10 +62,10 @@ func TestEncryptDecryptByte(t *testing.T) {
 	assertEqualByteSlice(t, data, decryptedByte)
 
 	ec.passphrase = []byte("")
-	encryptedByte, err = ec.EncryptByte(data)
+	_, err = ec.EncryptByte(data)
 	noErrCheck(t, err)
 
-	decryptedByte, err = ec.DecryptByte(data)
+	_, err = ec.DecryptByte(data)
 	noErrCheck(t, err)
 
 	var nulByte []byte
@@ -99,8 +99,9 @@ func TestEncryptDecryptByteJsonMap(t *testing.T) {
 	}
 
 	decryptedJSONMap, err := ec.DecryptByteToJSON(encryptedByte)
-	jsonByte, err := json.Marshal(decryptedJSONMap)
+	errCheck(t, err)
 
+	jsonByte, err := json.Marshal(decryptedJSONMap)
 	errCheck(t, err)
 	if len(jsonByte) == 0 {
 		t.Error(err)
@@ -115,7 +116,7 @@ func TestEncryptDecryptByteJsonMap(t *testing.T) {
 	encryptedByte, err = ec.EncryptJSONToByte(jsonMap)
 	noErrCheck(t, err)
 
-	decryptedJSONMap, err = ec.DecryptByteToJSON(encryptedByte)
+	_, err = ec.DecryptByteToJSON(encryptedByte)
 	noErrCheck(t, err)
 
 	var nulByte []byte

@@ -15,7 +15,7 @@
  *
  *******************************************************************************/
 
-// Package containerexecutor provides functions to execute service application in container enviroment
+// Package containerexecutor provides functions to execute service application in container environment
 package containerexecutor
 
 import (

@@ -51,7 +51,7 @@ type Discovery interface {
 	RemoveServiceName(serviceName string) error
 	ResetServiceName()
 	AddDeviceInfo(deviceID string, virtualAddr string, privateAddr string)
-	GetOrchestrationInfo() (platfrom string, executionType string, serviceList []string, err error)
+	GetOrchestrationInfo() (platform string, executionType string, serviceList []string, err error)
 	SetRestResource()
 	MNEDCClosedCallback()
 	NotifyMNEDCBroadcastServer() error
@@ -262,14 +262,14 @@ func (d *DiscoveryImpl) AddDeviceInfo(deviceID string, virtualAddr string, priva
 }
 
 //GetOrchestrationInfo returns the orchestration info of the device
-func (DiscoveryImpl) GetOrchestrationInfo() (platfrom string, executionType string, serviceList []string, err error) {
+func (DiscoveryImpl) GetOrchestrationInfo() (platform string, executionType string, serviceList []string, err error) {
 
 	log.Println(logPrefix, "Orch info requested")
 	serviceList, err = getServiceList()
 	if err != nil {
 		return
 	}
-	platfrom, err = getPlatform()
+	platform, err = getPlatform()
 	if err != nil {
 		return
 	}

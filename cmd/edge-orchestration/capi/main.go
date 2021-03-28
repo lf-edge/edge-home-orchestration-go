@@ -184,7 +184,7 @@ func OrchestrationInit() C.int {
 	builder.SetClient(restIns)
 	orcheEngine = builder.Build()
 	if orcheEngine == nil {
-		log.Fatalf("[%s] Orchestaration initalize fail", logPrefix)
+		log.Fatalf("[%s] Orchestaration initialize fail", logPrefix)
 		return -1
 	}
 

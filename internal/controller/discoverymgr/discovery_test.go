@@ -104,7 +104,7 @@ func addDevice(Another bool) {
 		return
 	}
 
-	deviceID, confInfo, netInfo, serviceInfo = convertToDBInfo(anotherEntity)
+	_, confInfo, netInfo, serviceInfo = convertToDBInfo(anotherEntity)
 
 	setConfigurationDB(confInfo)
 	setNetworkDB(netInfo)

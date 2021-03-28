@@ -80,7 +80,7 @@ var (
 
 func main() {
 	if err := orchestrationInit(); err != nil {
-		log.Fatalf("[%s] Orchestaration initalize fail : %s", logPrefix, err.Error())
+		log.Fatalf("[%s] Orchestaration initialize fail : %s", logPrefix, err.Error())
 	}
 	sigmgr.Watch()
 }
@@ -136,7 +136,7 @@ func orchestrationInit() error {
 
 	orcheEngine := builder.Build()
 	if orcheEngine == nil {
-		log.Fatalf("[%s] Orchestaration initalize fail", logPrefix)
+		log.Fatalf("[%s] Orchestaration initialize fail", logPrefix)
 		return errors.New("fail to init orchestration")
 	}
 
