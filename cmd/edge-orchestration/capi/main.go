@@ -82,6 +82,7 @@ import (
 	"unsafe"
 
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
+	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/storagemgr"
 
 	configuremgr "github.com/lf-edge/edge-home-orchestration-go/internal/controller/configuremgr/native"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/discoverymgr"
@@ -177,6 +178,7 @@ func OrchestrationInit() C.int {
 	builder := orchestrationapi.OrchestrationBuilder{}
 	builder.SetWatcher(configuremgr.GetInstance(configPath))
 	builder.SetDiscovery(discoverymgr.GetInstance())
+	builder.SetStorage(storagemgr.GetInstance())
 	builder.SetVerifierConf(verifier.GetInstance())
 	builder.SetScoring(scoringmgr.GetInstance())
 	builder.SetService(servicemgr.GetInstance())
