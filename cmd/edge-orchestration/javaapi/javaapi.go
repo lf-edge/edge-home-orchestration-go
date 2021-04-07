@@ -170,19 +170,16 @@ func OrchestrationInit(executeCallback ExecuteCallback, edgeDir string, isSecure
 
 	wrapper.SetBoltDBPath(dbPath)
 
+	cipher := dummy.GetCipher(cipherKeyFilePath)
 	if isSecured {
 		verifier.Init(containerWhiteListPath)
 		authenticator.Init(passPhraseJWTPath)
 		authorizer.Init(rbacRulePath)
-
+		cipher = sha256.GetCipher(cipherKeyFilePath)
 	}
 
 	restIns := restclient.GetRestClient()
-	if isSecured {
-		restIns.SetCipher(dummy.GetCipher(cipherKeyFilePath))
-	} else {
-		restIns.SetCipher(sha256.GetCipher(cipherKeyFilePath))
-	}
+	restIns.SetCipher(cipher)
 
 	servicemgr.GetInstance().SetClient(restIns)
 	discoverymgr.GetInstance().SetClient(restIns)
@@ -222,12 +219,9 @@ func OrchestrationInit(executeCallback ExecuteCallback, edgeDir string, isSecure
 	ihandle.SetOrchestrationAPI(internalapi)
 
 	if isSecured {
-		ihandle.SetCipher(dummy.GetCipher(cipherKeyFilePath))
 		ihandle.SetCertificateFilePath(certificateFilePath)
-	} else {
-		ihandle.SetCipher(sha256.GetCipher(cipherKeyFilePath))
 	}
-
+	ihandle.SetCipher(cipher)
 	restEdgeRouter.Add(ihandle)
 
 	restEdgeRouter.Start()

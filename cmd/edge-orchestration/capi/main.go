@@ -158,19 +158,16 @@ func OrchestrationInit() C.int {
 		isSecured = true
 	}
 
+	cipher := dummy.GetCipher(cipherKeyFilePath)
 	if isSecured {
 		verifier.Init(containerWhiteListPath)
 		authenticator.Init(passPhraseJWTPath)
 		authorizer.Init(rbacRulePath)
+		cipher = sha256.GetCipher(cipherKeyFilePath)
 	}
 
 	restIns := restclient.GetRestClient()
-
-	if isSecured {
-		restIns.SetCipher(dummy.GetCipher(cipherKeyFilePath))
-	} else {
-		restIns.SetCipher(sha256.GetCipher(cipherKeyFilePath))
-	}
+	restIns.SetCipher(cipher)
 
 	servicemgr.GetInstance().SetClient(restIns)
 	discoverymgr.GetInstance().SetClient(restIns)
@@ -207,12 +204,9 @@ func OrchestrationInit() C.int {
 	ihandle.SetOrchestrationAPI(internalapi)
 
 	if isSecured {
-		ihandle.SetCipher(dummy.GetCipher(cipherKeyFilePath))
 		ihandle.SetCertificateFilePath(certificateFilePath)
-	} else {
-		ihandle.SetCipher(sha256.GetCipher(cipherKeyFilePath))
 	}
-
+	ihandle.SetCipher(cipher)
 	restEdgeRouter.Add(ihandle)
 
 	externalapi, err := orchestrationapi.GetExternalAPI()
@@ -221,21 +215,16 @@ func OrchestrationInit() C.int {
 	}
 	ehandle := externalhandler.GetHandler()
 	ehandle.SetOrchestrationAPI(externalapi)
-
 	ehandle.SetCipher(dummy.GetCipher(cipherKeyFilePath))
-
 	restEdgeRouter.Add(ehandle)
 
 	restEdgeRouter.Start()
 
 	log.Println(logPrefix, "orchestration init done")
-
+	mnedcmgr.GetServerInstance().SetCipher(cipher)
 	if isSecured {
-		mnedcmgr.GetServerInstance().SetCipher(dummy.GetCipher(cipherKeyFilePath))
 		mnedcmgr.GetServerInstance().SetCertificateFilePath(certificateFilePath)
 		mnedcmgr.GetClientInstance().SetCertificateFilePath(certificateFilePath)
-	} else {
-		mnedcmgr.GetServerInstance().SetCipher(sha256.GetCipher(cipherKeyFilePath))
 	}
 	isMNEDCServer := false
 	isMNEDCClient := false
