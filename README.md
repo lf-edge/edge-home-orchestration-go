@@ -25,9 +25,9 @@ You can see our project roadmap and details about release notes since our projec
 
 ## Platforms supported
 
-| **x86-64 Linux** | **Raspberry Pi3** | **HiKey960** | **Raspberry Pi3 Cluster** |
-|------------------|-------------------|--------------|---------------------------|
-|[![](docs/platforms/x86_64_linux/x86_64_linux.png)](docs/platforms/x86_64_linux/x86_64_linux.md)|[![](docs/platforms/raspberry_pi3/raspberry_pi3.jpg)](docs/platforms/raspberry_pi3/raspberry_pi3.md)|[![](docs/platforms/hikey960/hikey960.png)](docs/platforms/hikey960/hikey960.md)|[![](docs/platforms/raspberry_pi3_cluster/raspberry_pi3_cluster.jpg)](docs/platforms/raspberry_pi3_cluster/raspberry_pi3_cluster.md)|
+| **x86-64 Linux** | **Raspberry Pi3** | **HiKey960** | **Raspberry Pi3 Cluster** | **Orange Pi3** |
+|------------------|-------------------|--------------|---------------------------|----------------|
+|[![](docs/platforms/x86_64_linux/x86_64_linux.png)](docs/platforms/x86_64_linux/x86_64_linux.md)|[![](docs/platforms/raspberry_pi3/raspberry_pi3.jpg)](docs/platforms/raspberry_pi3/raspberry_pi3.md)|[![](docs/platforms/hikey960/hikey960.png)](docs/platforms/hikey960/hikey960.md)|[![](docs/platforms/raspberry_pi3_cluster/raspberry_pi3_cluster.jpg)](docs/platforms/raspberry_pi3_cluster/raspberry_pi3_cluster.md)|[![](docs/platforms/orange_pi3/orange_pi3.jpg)](docs/platforms/orange_pi3/orange_pi3.md)|
 
 ---
 
@@ -61,6 +61,7 @@ Please select the target platform in the table below and follow the link.
 | [Raspberry Pi3]         | coconut    |
 | [HiKey960]              | coconut    |
 | [Raspberry Pi3 Cluster] | coconut    |
+| [Orange Pi3]            | coconut    |
 
 ---
 
@@ -73,7 +74,7 @@ You can also familiarize yourself with other materials and plans by visiting the
 ## License
 The Edge Orchestration source code is distributed under the [Apache License, Version 2.0](https://opensource.org/licenses/Apache-2.0) open source license.
 
---- 
+---
 
 ## Contributing
 If you want to contribute to the Edge Orchestration project and make it better, your help is
@@ -89,4 +90,4 @@ coding on Github, new technologies and and their ecosystems.
 [Raspberry Pi3]: docs/platforms/raspberry_pi3/raspberry_pi3.md
 [HiKey960]: docs/platforms/hikey960/hikey960.md
 [Raspberry Pi3 Cluster]: docs/platforms/raspberry_pi3_cluster/raspberry_pi3_cluster.md
-
+[Orange Pi3]: docs/platforms/orange_pi3/orange_pi3.md
