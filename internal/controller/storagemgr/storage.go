@@ -26,7 +26,7 @@ import (
 
 const (
 	dataStorageService = "datastorage"
-	dataStorageFilePath = "/var/edge-orchestration" + "/datastorage/configuration.toml"
+	dataStorageConfPath = "res/configuration.toml"
 )
 
 type Storage interface{
@@ -46,7 +46,7 @@ func GetInstance() Storage {
 	return storageIns
 }
 func (StorageImpl) StartStorage() error {
-	if _, err := os.Stat(dataStorageFilePath); err == nil {
+	if _, err := os.Stat(dataStorageConfPath); err == nil {
 		sd := storagedriver.StorageDriver{}
 		go startup.Bootstrap(dataStorageService, device.Version, &sd)
 		return nil
