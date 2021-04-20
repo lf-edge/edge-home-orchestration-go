@@ -44,7 +44,7 @@ $ ./build.sh container secure arm
 ```
 the build result will be `edge-orchestration.tar` archive that can be found `bin/edge-orchestration.tar`
 
-Next, need to copy `edge-orchestration.tar` archive to the Paspberry Pi 3 board, install the docker container (see [here](../x86_64_linux/x86_64_linux.md#Build-Prerequisites) only docker part) and load the image using the command:
+Next, need to copy `edge-orchestration.tar` archive to the Raspberry Pi 3 board, install the docker container (see [here](../x86_64_linux/x86_64_linux.md#Build-Prerequisites) only docker part) and load the image using the command:
 ```shell
 $ docker load -i edge-orchestration.tar
 ```
