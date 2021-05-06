@@ -20,6 +20,8 @@ package nativeexecutor
 import (
 	"testing"
 
+	"github.com/lf-edge/edge-home-orchestration-go/internal/common/commandvalidator"
+	"github.com/lf-edge/edge-home-orchestration-go/internal/common/types/configuremgrtypes"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/servicemgr/executor"
 	notificationMock "github.com/lf-edge/edge-home-orchestration-go/internal/controller/servicemgr/notification/mocks"
 	clientApiMock "github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/client/mocks"
@@ -61,11 +63,14 @@ func TestExecute(t *testing.T) {
 	gomock.InOrder(
 		noti.EXPECT().InvokeNotification(gomock.Any(), gomock.Any(), gomock.Any()),
 	)
+	validator := commandvalidator.CommandValidator{}
+	info := configuremgrtypes.ServiceInfo{ServiceName: "ls", ExecutableFileName: "ls"}
+	err := validator.AddWhiteCommand(info)
 
-	s := executor.ServiceExecutionInfo{ServiceID: uint64(1), ServiceName: "ls_service", ParamStr: []string{"ls", "-ail"}, NotificationTargetURL: ""}
+	s := executor.ServiceExecutionInfo{ServiceID: uint64(1), ServiceName: "ls", ParamStr: []string{"ls", "-ail"}, NotificationTargetURL: ""}
 
 	tExecutor.SetNotiImpl(noti)
-	err := tExecutor.Execute(s)
+	err = tExecutor.Execute(s)
 
 	if err != nil {
 		t.Error()
@@ -79,11 +84,14 @@ func TestExecuteFailWithEmptyServiceCmd(t *testing.T) {
 	gomock.InOrder(
 		noti.EXPECT().InvokeNotification(gomock.Any(), gomock.Any(), gomock.Any()),
 	)
+	validator := commandvalidator.CommandValidator{}
+	info := configuremgrtypes.ServiceInfo{ServiceName: "ls", ExecutableFileName: "ls"}
+	err := validator.AddWhiteCommand(info)
 
-	s := executor.ServiceExecutionInfo{ServiceID: uint64(1), ServiceName: "ls_service", NotificationTargetURL: ""}
+	s := executor.ServiceExecutionInfo{ServiceID: uint64(1), ServiceName: "ls", NotificationTargetURL: ""}
 
 	tExecutor.SetNotiImpl(noti)
-	err := tExecutor.Execute(s)
+	err = tExecutor.Execute(s)
 
 	if err == nil {
 		t.Error()
@@ -100,11 +108,14 @@ func TestExecuteFailWithInvalidServiceName(t *testing.T) {
 	gomock.InOrder(
 		noti.EXPECT().InvokeNotification(gomock.Any(), gomock.Any(), gomock.Any()),
 	)
+	validator := commandvalidator.CommandValidator{}
+	info := configuremgrtypes.ServiceInfo{ServiceName: "ls", ExecutableFileName: "ls"}
+	err := validator.AddWhiteCommand(info)
 
 	s := executor.ServiceExecutionInfo{ServiceID: uint64(1), ServiceName: "InvalidService", ParamStr: []string{"invalid", "-ail"}, NotificationTargetURL: ""}
 
 	tExecutor.SetNotiImpl(noti)
-	err := tExecutor.Execute(s)
+	err = tExecutor.Execute(s)
 
 	if err == nil {
 		t.Error()
@@ -120,11 +131,14 @@ func TestExecuteFailWithInvalidServiceArgs(t *testing.T) {
 	gomock.InOrder(
 		noti.EXPECT().InvokeNotification(gomock.Any(), gomock.Any(), gomock.Any()),
 	)
+	validator := commandvalidator.CommandValidator{}
+	info := configuremgrtypes.ServiceInfo{ServiceName: "ls", ExecutableFileName: "ls"}
+	err := validator.AddWhiteCommand(info)
 
 	s := executor.ServiceExecutionInfo{ServiceID: uint64(1), ServiceName: "ls", ParamStr: []string{"ls", "InvalidArgs"}, NotificationTargetURL: ""}
 
 	tExecutor.SetNotiImpl(noti)
-	err := tExecutor.Execute(s)
+	err = tExecutor.Execute(s)
 
 	if err == nil {
 		t.Error()

@@ -28,6 +28,7 @@ import (
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/servicemgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/servicemgr/executor"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/servicemgr/notification"
+	"github.com/lf-edge/edge-home-orchestration-go/internal/common/commandvalidator"
 )
 
 var (
@@ -81,6 +82,13 @@ func (t NativeExecutor) setService() (cmd *exec.Cmd, pid int, err error) {
 		err = errors.New("error: empty parameter")
 		return
 	}
+
+	validator := commandvalidator.CommandValidator{}
+	if err = validator.CheckCommand(t.ServiceName, t.ParamStr); err != nil {
+		log.Println(err.Error())
+		return
+	}
+
 	cmd = exec.Command(t.ParamStr[0], t.ParamStr[1:]...)
 
 	// set "owner" account: need to execute user app
