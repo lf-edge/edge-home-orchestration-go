@@ -38,41 +38,20 @@ FailWaitTime = 10
   Port = 48061
 
 [Device]
-  DataTransform = true
-  InitCmd = ""
-  InitCmdArgs = ""
-  MaxCmdOps = 128
-  MaxCmdValueLen = 256
-  RemoveCmd = ""
-  RemoveCmdArgs = ""
-  ProfilesDir = "./res"
-
-# Driver configs
-[Driver]
-
-[Logging]
-EnableRemote = false
-File = "./device-rest-go.log"
+DataTransform = true
+InitCmd = ""
+InitCmdArgs = ""
+MaxCmdOps = 128
+MaxCmdValueLen = 256
+RemoveCmd = ""
+RemoveCmdArgs = ""
+ProfilesDir = "./res"
 
 # Pre-define Devices
 [[DeviceList]]
-Name = "SampleA"
- Profile = "datastorage"
-  Description = "RESTful Device that sends in JSON data"
-  Labels = [ "rest", "json" ]
-  [DeviceList.Protocols]
-    [DeviceList.Protocols.other]
-[[DeviceList]]
-Name = "SampleB"
- Profile = "datastorage"
-  Description = "RESTful Device that sends in binary image data"
-  Labels = [ "rest", "binary", "image" ]
-  [DeviceList.Protocols]
-    [DeviceList.Protocols.other]
-[[DeviceList]]
-Name = "SampleC"
- Profile = "datastorage"
-  Description = "RESTful Device that sends in numeric data"
-  Labels = [ "rest", "numeric", "float", "int" ]
+  Name = "datastorage"
+  Profile = "datastorage"
+  Description = "RESTful Device"
+  Labels = [ "rest", "json", "numeric", "float", "int" ]
   [DeviceList.Protocols]
     [DeviceList.Protocols.other]
