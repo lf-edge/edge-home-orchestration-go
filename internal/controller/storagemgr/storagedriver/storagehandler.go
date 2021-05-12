@@ -19,6 +19,7 @@ package storagedriver
 
 import (
 	"context"
+	b64 "encoding/base64"
 	"fmt"
 	"io/ioutil"
 	"math"
@@ -196,6 +197,12 @@ func deviceHandler(writer http.ResponseWriter, request *http.Request) {
 	handler.processAsyncRequest(writer, request)
 }
 
+func convertToBase64(val []byte) string {
+	// Convert to Base 64
+	Base64Val := b64.StdEncoding.EncodeToString(val)
+	return Base64Val
+}
+
 func (handler StorageHandler) newCommandValue(resourceName string, reading interface{}, valueType models.ValueType) (*models.CommandValue, error) {
 	var result = &models.CommandValue{}
 	var errn error
@@ -214,7 +221,13 @@ func (handler StorageHandler) newCommandValue(resourceName string, reading inter
 		if !ok {
 			return nil, fmt.Errorf(castError, resourceName, "not []byte")
 		}
-		result, errn = models.NewCommandValue(resourceName, timestamp, val, valueType)
+		if resourceName == "jpeg" || resourceName == "png" {
+			Base64Val := convertToBase64(val)
+			valueType = models.String
+			result, errn = models.NewCommandValue(resourceName, timestamp, Base64Val, valueType)
+		}else {
+			result, errn = models.NewCommandValue(resourceName, timestamp, val, valueType)
+		}
 
 	case models.Bool:
 		val, err := cast.ToBoolE(reading)
