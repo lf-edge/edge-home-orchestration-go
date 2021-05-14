@@ -31,3 +31,24 @@ deviceResources:
         { type: "Float64", readWrite: "RW" , mediaType : "text/plain" }
       units:
         { type: "String", readWrite: "R" }
+  - name: jpeg
+    description: "Jpeg image"
+    properties:
+      value:
+        { type: "Binary", readWrite: "RW" , mediaType : "image/jpeg" }
+      units:
+        { type: "String", readWrite: "R" }
+  - name: png
+    description: "png image"
+    properties:
+      value:
+        { type: "Binary", readWrite: "RW" , mediaType : "image/png" }
+      units:
+        { type: "String", readWrite: "R" }
+  - name: string
+    description: "String"
+    properties:
+      value:
+        { type: "String", readWrite: "RW" , mediaType : "text/plain"}
+      units:
+        { type: "String", readWrite: "R" }
