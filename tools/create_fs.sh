@@ -8,6 +8,8 @@ fs=(
     "/var/edge-orchestration/data/cert"
     "/var/edge-orchestration/device"
     "/var/edge-orchestration/user"
+    "/var/edge-orchestration/mnedc"
+    "/var/edge-orchestration/datastorage"
 )
 
 # Create file system for edge-orchestration

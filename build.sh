@@ -239,15 +239,7 @@ function run_docker_container() {
     echo "--------------------------------------------"
     echo "  Create prerequisite Folder [SuperUser]"
     echo "--------------------------------------------"
-    sudo mkdir -p /var/edge-orchestration/log
-    sudo mkdir -p /var/edge-orchestration/apps
-    sudo mkdir -p /var/edge-orchestration/data/db
-    sudo mkdir -p /var/edge-orchestration/data/cert
-    sudo mkdir -p /var/edge-orchestration/user
-    sudo mkdir -p /var/edge-orchestration/device
-    sudo mkdir -p /var/edge-orchestration/mnedc
-    sudo mkdir -p /var/edge-orchestration/datastorage
-
+    sudo ./tools/create_fs.sh
     echo ""
     echo "**********************************"
     echo " Run Docker container "
