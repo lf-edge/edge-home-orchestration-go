@@ -32,7 +32,7 @@ const (
 
 var (
 	certFilePath atomic.Value
-	handler      PSKHandler
+	handler	     Handler
 	log          = logmgr.GetInstance()
 )
 
@@ -48,6 +48,11 @@ func SetCertFilePath(path string) {
 
 func GetCertFilePath() string {
 	return certFilePath.Load().(string)
+}
+
+type Handler interface {
+	GetIdentity() string
+	GetKey(identity string) ([]byte, error)
 }
 
 type PSKHandler interface {
@@ -67,7 +72,7 @@ type HasCertificate struct {
 	IsSetCert bool
 }
 
-func SetPSKHandler(h PSKHandler) {
+func SetHandler(h Handler) {
 	handler = h
 }
 

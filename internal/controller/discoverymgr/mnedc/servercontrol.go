@@ -27,7 +27,7 @@ import (
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/discoverymgr/mnedc/server"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/cipher"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/resthelper"
-	"github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/route/tlspskserver"
+	"github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/route/tlsserver"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/tls"
 )
 
@@ -92,7 +92,7 @@ func startMNEDCBroadcastServer() {
 		http.HandleFunc("/register", handleClientInfo)
 		go http.ListenAndServe(":"+strconv.Itoa(broadcastServerPort), nil)
 	} else {
-		go tlspskserver.TLSPSKServer{}.ListenAndServe(":"+strconv.Itoa(broadcastServerPort), http.HandlerFunc(handleClientInfo))
+		go tlsserver.TLSServer{}.ListenAndServe(":"+strconv.Itoa(broadcastServerPort), http.HandlerFunc(handleClientInfo))
 	}
 }
 
