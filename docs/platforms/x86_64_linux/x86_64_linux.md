@@ -128,6 +128,7 @@ Note that you can visit [Swagger Editor](https://editor.swagger.io/) to graphica
 `/var/edge-orchestration/data/cert/edge-orchestration.key` (Any cert file can be authentication key)
   - Edge Orchestration Docker image
     - Please see the above [How to build](#how-to-build) to know how to build Edge Orchestration Docker image
+  - If you use in secure mode, you must [deploy the key infrastructure](../../secure_manager.md#53-generation-key-infrastructure). 
 
 #### 1. Run Edge Orchestration container
 

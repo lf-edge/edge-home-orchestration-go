@@ -31,7 +31,7 @@ import (
 	"github.com/lf-edge/edge-home-orchestration-go/internal/restinterface"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/externalhandler"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/internalhandler"
-	"github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/route/tlspskserver"
+	"github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/route/tlsserver"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/tls"
 )
 
@@ -109,7 +109,7 @@ func (r RestRouter) listenAndServe() {
 	switch r.IsSetCert {
 	case true:
 		log.Printf("ListenAndServeTLS_For_Inter")
-		go tlspskserver.TLSPSKServer{}.ListenAndServe(":"+strconv.Itoa(ConstInternalPort), r.routerInternal)
+		go tlsserver.TLSServer{}.ListenAndServe(":"+strconv.Itoa(ConstInternalPort), r.routerInternal)
 	default:
 		log.Printf("ListenAndServe_For_Inter")
 		go http.ListenAndServe(":"+strconv.Itoa(ConstInternalPort), r.routerInternal)

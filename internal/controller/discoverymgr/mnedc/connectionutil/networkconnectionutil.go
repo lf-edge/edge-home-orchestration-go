@@ -20,19 +20,77 @@ package connectionutil
 import (
 	"errors"
 	"net"
+	"crypto/tls"
+	"crypto/x509"
+	"io/ioutil"
+	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
 
-	"github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/tls"
-
-	rafftls "github.com/raff/tls-ext"
-	psk "github.com/raff/tls-psk"
 )
 
 type networkUtilImpl struct{}
 
-var networkUtilIns networkUtilImpl
+var (
+	networkUtilIns networkUtilImpl
+	log            = logmgr.GetInstance()
+)
 
 func init() {
 	// Do nothing because there is no need to initialize anything
+}
+
+func createClientConfig() (*tls.Config, error) {
+	caCertPEM, err := ioutil.ReadFile("/var/edge-orchestration/data/cert/ca.crt")
+	if err != nil {
+		return nil, err
+	}
+
+	roots := x509.NewCertPool()
+	ok := roots.AppendCertsFromPEM(caCertPEM)
+	if !ok {
+		panic("failed to parse root certificate")
+	}
+
+	cert, err := tls.LoadX509KeyPair("/var/edge-orchestration/data/cert/hen.crt", "/var/edge-orchestration/data/cert/hen.key")
+	if err != nil {
+		return nil, err
+	}
+	return &tls.Config{
+		Certificates: []tls.Certificate{cert},
+		RootCAs:      roots,
+		PreferServerCipherSuites: true,
+		CipherSuites: []uint16{
+            tls.TLS_RSA_WITH_AES_256_GCM_SHA384,
+            tls.TLS_RSA_WITH_AES_256_CBC_SHA,
+        },
+	}, nil
+}
+
+func createServerConfig() (*tls.Config, error) {
+	caCertPEM, err := ioutil.ReadFile("/var/edge-orchestration/data/cert/ca.crt")
+	if err != nil {
+		return nil, err
+	}
+
+	roots := x509.NewCertPool()
+	ok := roots.AppendCertsFromPEM(caCertPEM)
+	if !ok {
+		panic("failed to parse root certificate")
+	}
+
+	cert, err := tls.LoadX509KeyPair("/var/edge-orchestration/data/cert/hen.crt", "/var/edge-orchestration/data/cert/hen.key")
+	if err != nil {
+		return nil, err
+	}
+	return &tls.Config{
+		Certificates: []tls.Certificate{cert},
+		ClientAuth:   tls.RequireAndVerifyClientCert,
+		ClientCAs:    roots,
+		PreferServerCipherSuites: true,
+		CipherSuites: []uint16{
+            tls.TLS_RSA_WITH_AES_256_GCM_SHA384,
+            tls.TLS_RSA_WITH_AES_256_CBC_SHA,
+        },
+	}, nil
 }
 
 //NetworkUtil interface declares the network methods
@@ -54,16 +112,13 @@ func (networkUtilImpl) ConnectToHost(ip string, port string, isSecure bool) (net
 		conn, err := net.Dial("tcp", ip+":"+port)
 		return conn, err
 	}
-	var config = &rafftls.Config{
-		CipherSuites: []uint16{psk.TLS_PSK_WITH_AES_128_CBC_SHA},
-		Certificates: []rafftls.Certificate{rafftls.Certificate{}},
-		Extra: psk.PSKConfig{
-			GetKey:      tls.GetKey,
-			GetIdentity: tls.GetIdentity,
-		},
+
+	config, err := createClientConfig()
+	if err != nil {
+		log.Fatal("config failed: ", err)
 	}
 
-	conn, err := rafftls.Dial("tcp", ip+":"+port, config)
+	conn, err := tls.Dial("tcp", ip+":"+port, config)
 	return conn, err
 
 }
@@ -93,15 +148,12 @@ func (networkUtilImpl) ListenIP(address string, isSecure bool) (net.Listener, er
 		listener, err := net.Listen("tcp", address)
 		return listener, err
 	}
-	var config = &rafftls.Config{
-		CipherSuites: []uint16{psk.TLS_PSK_WITH_AES_128_CBC_SHA},
-		Certificates: []rafftls.Certificate{rafftls.Certificate{}},
-		Extra: psk.PSKConfig{
-			GetKey:      tls.GetKey,
-			GetIdentity: tls.GetIdentity,
-		},
+
+	config, err := createServerConfig()
+	if err != nil {
+		log.Fatal("config failed: ", err)
 	}
 
-	listener, err := rafftls.Listen("tcp", address, config)
+	listener, err := tls.Listen("tcp", address, config)
 	return listener, err
 }
