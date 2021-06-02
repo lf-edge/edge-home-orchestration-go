@@ -21,8 +21,8 @@ import (
 	"io/ioutil"
 	"sync/atomic"
 
-	"github.com/satori/go.uuid"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
+	"github.com/satori/go.uuid"
 )
 
 const (
@@ -32,7 +32,7 @@ const (
 
 var (
 	certFilePath atomic.Value
-	handler	     Handler
+	handler      Handler
 	log          = logmgr.GetInstance()
 )
 

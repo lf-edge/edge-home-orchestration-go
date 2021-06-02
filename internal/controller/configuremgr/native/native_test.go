@@ -61,15 +61,15 @@ func TestSetConfigPath(t *testing.T) {
 		}
 	})
 	t.Run("No File", func(t *testing.T) {
-                testConfigObj := new(ConfigureMgr)
+		testConfigObj := new(ConfigureMgr)
 
-                err := testConfigObj.SetConfigPath(fakeConfPath)
-                if err == nil {
-                        if strings.Compare(fakeConfPath, configuremgrObj.confpath) != 0 {
-                                t.Errorf("%s != %s", fakeConfPath, configuremgrObj.confpath)
-                        }
-                }
-        })
+		err := testConfigObj.SetConfigPath(fakeConfPath)
+		if err == nil {
+			if strings.Compare(fakeConfPath, configuremgrObj.confpath) != 0 {
+				t.Errorf("%s != %s", fakeConfPath, configuremgrObj.confpath)
+			}
+		}
+	})
 }
 
 func TestBasicMockConfigureMgr(t *testing.T) {
@@ -86,7 +86,7 @@ func TestBasicMockConfigureMgr(t *testing.T) {
 		go testConfigObj.Watch(contextNoti)
 		time.Sleep(time.Duration(1) * time.Second)
 
-		dir := defaultConfPath+"/mysum"
+		dir := defaultConfPath + "/mysum"
 		os.RemoveAll(dir)
 		err := os.Mkdir(dir, 0775)
 		if err != nil {

@@ -22,57 +22,57 @@ import (
 )
 
 type Writable struct {
-	LogLevel	string `toml:"LogLevel,omitempty"`
+	LogLevel string `toml:"LogLevel,omitempty"`
 }
 
 type Service struct {
-	Host			string		`toml:"Host"`
-	Port			int		`toml:"Port"`
-	ConnectionRetries	int		`toml:"ConnectionRetries,omitempty"`
-	Labels			[]string	`toml:"Labels"`
-	OpenMsg			string		`toml:"OpenMsg,omitempty"`
-	Timeout			int		`toml:"Timeout,omitempty"`
-	EnableAsyncReadings	bool		`toml:"EnableAsyncReadings,omitempty"`
-	AsyncBufferSize		int		`toml:"AsyncBufferSize,omitempty"`
+	Host                string   `toml:"Host"`
+	Port                int      `toml:"Port"`
+	ConnectionRetries   int      `toml:"ConnectionRetries,omitempty"`
+	Labels              []string `toml:"Labels"`
+	OpenMsg             string   `toml:"OpenMsg,omitempty"`
+	Timeout             int      `toml:"Timeout,omitempty"`
+	EnableAsyncReadings bool     `toml:"EnableAsyncReadings,omitempty"`
+	AsyncBufferSize     int      `toml:"AsyncBufferSize,omitempty"`
 }
 
 type Registry struct {
-	Host		string	`toml:"Host"`
-	Port		int	`toml:"Port"`
-	Type		string	`toml:"Type"`
-	CheckInterval	string	`toml:"CheckInterval,omitempty"`
-	FailLimit	int	`toml:"FailLimit,omitempty"`
-	FailWaitTime	int	`toml:"FailWaitTime,omitempty"`
+	Host          string `toml:"Host"`
+	Port          int    `toml:"Port"`
+	Type          string `toml:"Type"`
+	CheckInterval string `toml:"CheckInterval,omitempty"`
+	FailLimit     int    `toml:"FailLimit,omitempty"`
+	FailWaitTime  int    `toml:"FailWaitTime,omitempty"`
 }
 
 type Device struct {
-	DataTransform	bool	`toml:"DataTransform,omitempty"`
-	InitCmd		string	`toml:"InitCmd"`
-	InitCmdArgs	string	`toml:"InitCmdArgs"`
-	MaxCmdOps	int	`toml:"MaxCmdOps,omitempty"`
-	MaxCmdValueLen	int	`toml:"MaxCmdValueLen,omitempty"`
-	RemoveCmd	string	`toml:"RemoveCmd"`
-	RemoveCmdArgs	string	`toml:"RemoveCmdArgs"`
-	ProfilesDir	string	`toml:"ProfilesDir,omitempty"`
+	DataTransform  bool   `toml:"DataTransform,omitempty"`
+	InitCmd        string `toml:"InitCmd"`
+	InitCmdArgs    string `toml:"InitCmdArgs"`
+	MaxCmdOps      int    `toml:"MaxCmdOps,omitempty"`
+	MaxCmdValueLen int    `toml:"MaxCmdValueLen,omitempty"`
+	RemoveCmd      string `toml:"RemoveCmd"`
+	RemoveCmdArgs  string `toml:"RemoveCmdArgs"`
+	ProfilesDir    string `toml:"ProfilesDir,omitempty"`
 }
 
 type ProtocolProperties map[string]string
 
 type DeviceProperties struct {
-	Name		string				`toml:"Name"`
-	Profile		string				`toml:"Profile"`
-	Description	string				`toml:"Description,omitempty"`
-	Labels		[]string			`toml:"Labels,omitempty"`
-	Protocols	map[string]ProtocolProperties	`toml:"Protocols,omitempty"`
+	Name        string                        `toml:"Name"`
+	Profile     string                        `toml:"Profile"`
+	Description string                        `toml:"Description,omitempty"`
+	Labels      []string                      `toml:"Labels,omitempty"`
+	Protocols   map[string]ProtocolProperties `toml:"Protocols,omitempty"`
 }
 
-type DeviceList	[]DeviceProperties
+type DeviceList []DeviceProperties
 
 type Client struct {
-	Host            string  `toml:"Host"`
-	Port            int     `toml:"Port"`
-	Protocol	string	`toml:"Protocol"`
-	Timeout		int	`toml:"Timeout,omitempty"`
+	Host     string `toml:"Host"`
+	Port     int    `toml:"Port"`
+	Protocol string `toml:"Protocol"`
+	Timeout  int    `toml:"Timeout,omitempty"`
 }
 
 type Clients map[string]Client
@@ -87,7 +87,7 @@ type Toml struct {
 }
 
 var (
-	tomlInfo	Toml
+	tomlInfo Toml
 )
 
 func SetWritable(level string) {
@@ -96,58 +96,58 @@ func SetWritable(level string) {
 
 func SetService(port int, label []string) {
 	tomlInfo.Service = Service{
-		Host: "127.0.0.1",
-		Port: port,
-		ConnectionRetries: 20,
-		Labels: label,
-		OpenMsg: "REST device started",
-		Timeout: 5000,
+		Host:                "127.0.0.1",
+		Port:                port,
+		ConnectionRetries:   20,
+		Labels:              label,
+		OpenMsg:             "REST device started",
+		Timeout:             5000,
 		EnableAsyncReadings: true,
-		AsyncBufferSize: 16}
+		AsyncBufferSize:     16}
 }
 
 func SetRegistry(host string, port int) {
 	tomlInfo.Registry = Registry{
-		Host: host,
-		Port: port,
-		Type: "consul",
+		Host:          host,
+		Port:          port,
+		Type:          "consul",
 		CheckInterval: "10s",
-		FailLimit: 3,
-		FailWaitTime: 10}
+		FailLimit:     3,
+		FailWaitTime:  10}
 }
 
 func SetDevice(dataTransform bool, initCmd string, initCmdArgs string, maxCmdOps int,
-		maxCmdValueLen int, removeCmd string, removeCmdArgs string, profilesDir string) {
+	maxCmdValueLen int, removeCmd string, removeCmdArgs string, profilesDir string) {
 	tomlInfo.Device = Device{
-		DataTransform: dataTransform,
-		InitCmd: initCmd,
-		InitCmdArgs: initCmdArgs,
-		MaxCmdOps: maxCmdOps,
+		DataTransform:  dataTransform,
+		InitCmd:        initCmd,
+		InitCmdArgs:    initCmdArgs,
+		MaxCmdOps:      maxCmdOps,
 		MaxCmdValueLen: maxCmdValueLen,
-		RemoveCmd: removeCmd,
-		RemoveCmdArgs: removeCmdArgs,
-		ProfilesDir: profilesDir}
+		RemoveCmd:      removeCmd,
+		RemoveCmdArgs:  removeCmdArgs,
+		ProfilesDir:    profilesDir}
 }
 
 func SetDeviceList(name string, profile string, description string, label []string) {
 	tomlInfo.DeviceList = DeviceList{DeviceProperties{
-		Name: name,
-		Profile: profile,
+		Name:        name,
+		Profile:     profile,
 		Description: description,
-		Labels: label,
-		Protocols: map[string]ProtocolProperties{ "other":{} }}}
+		Labels:      label,
+		Protocols:   map[string]ProtocolProperties{"other": {}}}}
 }
 
 func SetClients(host string, protocol string, timeout int) {
 	tomlInfo.Clients = Clients{
-				"Data":Client{Host:host,
-						Port:48080,
-						Protocol:protocol,
-						Timeout:timeout},
-				"Metadata":Client{Host:host,
-						Port:48081,
-						Protocol:protocol,
-						Timeout:timeout}}
+		"Data": Client{Host: host,
+			Port:     48080,
+			Protocol: protocol,
+			Timeout:  timeout},
+		"Metadata": Client{Host: host,
+			Port:     48081,
+			Protocol: protocol,
+			Timeout:  timeout}}
 }
 
 func Marshal() (b []byte, err error) {

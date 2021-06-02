@@ -26,6 +26,7 @@ import (
 )
 
 const logPrefix = "[discovery][wrapper]"
+
 var (
 	log = logmgr.GetInstance()
 )

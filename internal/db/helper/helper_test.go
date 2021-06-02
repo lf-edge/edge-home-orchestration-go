@@ -66,12 +66,12 @@ func TestGetDeviceInfoWithService(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		gomock.InOrder(
 			mockConf.EXPECT().GetList().Return([]configuration.Configuration{
-				configuration.Configuration{
+				{
 					ID:       "test",
 					Platform: "test",
 					ExecType: "native",
 				},
-				configuration.Configuration{
+				{
 					ID:       "test",
 					Platform: "test",
 					ExecType: "container",
@@ -131,7 +131,7 @@ func TestGetDeviceInfoWithService(t *testing.T) {
 		})
 		t.Run("noHasExecType", func(t *testing.T) {
 			mockConf.EXPECT().GetList().Return([]configuration.Configuration{
-				configuration.Configuration{
+				{
 					ID:       "test",
 					Platform: "test",
 					ExecType: "native",
@@ -148,7 +148,7 @@ func TestGetDeviceInfoWithService(t *testing.T) {
 		t.Run("netQueryGet", func(t *testing.T) {
 			gomock.InOrder(
 				mockConf.EXPECT().GetList().Return([]configuration.Configuration{
-					configuration.Configuration{
+					{
 						ID:       "test",
 						Platform: "test",
 						ExecType: "container",
@@ -167,7 +167,7 @@ func TestGetDeviceInfoWithService(t *testing.T) {
 		t.Run("serviceQueryGet", func(t *testing.T) {
 			gomock.InOrder(
 				mockConf.EXPECT().GetList().Return([]configuration.Configuration{
-					configuration.Configuration{
+					{
 						ID:       "test",
 						Platform: "test",
 						ExecType: "native",
@@ -186,7 +186,7 @@ func TestGetDeviceInfoWithService(t *testing.T) {
 		t.Run("noMatchServiceName", func(t *testing.T) {
 			gomock.InOrder(
 				mockConf.EXPECT().GetList().Return([]configuration.Configuration{
-					configuration.Configuration{
+					{
 						ID:       "test",
 						Platform: "test",
 						ExecType: "native",
@@ -211,7 +211,7 @@ func TestGetDeviceInfoWithService(t *testing.T) {
 		t.Run("NonContainerNetQueryGet", func(t *testing.T) {
 			gomock.InOrder(
 				mockConf.EXPECT().GetList().Return([]configuration.Configuration{
-					configuration.Configuration{
+					{
 						ID:       "test",
 						Platform: "test",
 						ExecType: "native",

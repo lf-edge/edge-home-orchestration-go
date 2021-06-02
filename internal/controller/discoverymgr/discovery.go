@@ -729,15 +729,15 @@ func clearMap() {
 func clearAllDeviceInfo() {
 	log.Println(logPrefix, "Delete All Device Info")
 
-        confItems, err := confQuery.GetList()
-        if err != nil {
-                log.Println(logPrefix, err.Error())
-                return
-        }
+	confItems, err := confQuery.GetList()
+	if err != nil {
+		log.Println(logPrefix, err.Error())
+		return
+	}
 
-        for _, confItem := range confItems {
-                deleteDevice(confItem.ID)
-        }
+	for _, confItem := range confItems {
+		deleteDevice(confItem.ID)
+	}
 }
 
 func convertToDBInfo(entity wrapper.Entity) (string, configurationdb.Configuration, networkdb.NetworkInfo, servicedb.ServiceInfo) {
@@ -860,7 +860,7 @@ func getMNEDCServerAddress(path string) (string, string, error) {
 		return "", "", err
 	}
 
-	err = yaml.Unmarshal(yamlFile,&c)
+	err = yaml.Unmarshal(yamlFile, &c)
 	if err != nil {
 		return "", "", err
 	}

@@ -31,8 +31,8 @@ import (
 )
 
 var (
-	logPrefix     = "[nativeexecutor]"
-	log           = logmgr.GetInstance()
+	logPrefix      = "[nativeexecutor]"
+	log            = logmgr.GetInstance()
 	nativeexecutor = &NativeExecutor{}
 )
 

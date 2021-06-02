@@ -72,7 +72,7 @@ var (
 	networkUtilIns connectionutil.NetworkUtil
 	networkIns     networkhelper.Network
 	//discoveryIns   discoverymgr.Discovery
-	log            = logmgr.GetInstance()
+	log = logmgr.GetInstance()
 )
 
 const (
@@ -109,7 +109,7 @@ func init() {
 // serverConf is the Server Config Structure
 type serverConf struct {
 	ServerIP string `yaml:"server-ip"`
-	Port string `yaml:"port"`
+	Port     string `yaml:"port"`
 }
 
 //GetInstance returns MNEDCClient interface instance
@@ -489,7 +489,7 @@ func getMNEDCServerAddress(path string) (string, string, error) {
 		return "", "", err
 	}
 
-	err = yaml.Unmarshal(yamlFile,&c)
+	err = yaml.Unmarshal(yamlFile, &c)
 	if err != nil {
 		return "", "", err
 	}

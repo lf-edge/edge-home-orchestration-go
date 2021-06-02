@@ -18,8 +18,8 @@
 package networkhelper
 
 import (
-	"github.com/lf-edge/edge-home-orchestration-go/internal/common/networkhelper/detector/mocks"
 	"errors"
+	"github.com/lf-edge/edge-home-orchestration-go/internal/common/networkhelper/detector/mocks"
 	"net"
 	"reflect"
 	"sync"
