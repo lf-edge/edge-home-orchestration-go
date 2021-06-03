@@ -21,6 +21,7 @@ import (
 	"context"
 	b64 "encoding/base64"
 	"fmt"
+	"github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/resthelper"
 	"io/ioutil"
 	"math"
 	"net/http"
@@ -33,6 +34,7 @@ import (
 	sdk "github.com/edgexfoundry/device-sdk-go/pkg/service"
 	"github.com/edgexfoundry/go-mod-core-contracts/clients"
 	"github.com/edgexfoundry/go-mod-core-contracts/clients/logger"
+	"github.com/pelletier/go-toml"
 )
 
 const (
@@ -40,12 +42,14 @@ const (
 	resourceNameKey   = "resourceName"
 	apiResourceRoute  = clients.ApiBase + "/resource/{" + deviceNameKey + "}/{" + resourceNameKey + "}"
 	handlerContextKey = "StorageHandler"
+	configPath        = "res/configuration.toml"
 )
 
 type StorageHandler struct {
 	service     *sdk.DeviceService
 	logger      logger.LoggingClient
 	asyncValues chan<- *models.AsyncValues
+	helper      resthelper.RestHelper
 }
 
 func NewStorageHandler(service *sdk.DeviceService, logger logger.LoggingClient, asyncValues chan<- *models.AsyncValues) *StorageHandler {
@@ -53,13 +57,14 @@ func NewStorageHandler(service *sdk.DeviceService, logger logger.LoggingClient, 
 		service:     service,
 		logger:      logger,
 		asyncValues: asyncValues,
+		helper:      resthelper.GetHelper(),
 	}
 
 	return &handler
 }
 
 func (handler StorageHandler) Start() error {
-	if err := handler.service.AddRoute(apiResourceRoute, handler.addContext(deviceHandler), http.MethodPost); err != nil {
+	if err := handler.service.AddRoute(apiResourceRoute, handler.addContext(deviceHandler), http.MethodPost, http.MethodGet); err != nil {
 		return fmt.Errorf("unable to add required route: %s: %s", apiResourceRoute, err.Error())
 	}
 
@@ -76,7 +81,47 @@ func (handler StorageHandler) addContext(next func(http.ResponseWriter, *http.Re
 	})
 }
 
-func (handler StorageHandler) processAsyncRequest(writer http.ResponseWriter, request *http.Request) {
+// processGetAsyncRequest is used to handle Async Get Requests
+func (handler StorageHandler) processAsyncGetRequest(writer http.ResponseWriter, request *http.Request) {
+	vars := mux.Vars(request)
+	deviceName := vars[deviceNameKey]
+	resourceName := vars[resourceNameKey]
+
+	handler.logger.Debug(fmt.Sprintf("Received POST for Device=%s Resource=%s", deviceName, resourceName))
+
+	_, err := handler.service.GetDeviceByName(deviceName)
+	if err != nil {
+		handler.logger.Error(fmt.Sprintf("Incoming reading ignored. Device '%s' not found", deviceName))
+		http.Error(writer, fmt.Sprintf("Device not found"), http.StatusNotFound)
+		return
+	}
+	_, ok := handler.service.DeviceResource(deviceName, resourceName, "get")
+	if !ok {
+		handler.logger.Error(fmt.Sprintf("Incoming reading ignored. Resource '%s' not found", resourceName))
+		http.Error(writer, fmt.Sprintf("Resource not found"), http.StatusNotFound)
+		return
+	}
+
+	serverIP, readingPort, err := getServerIP(configPath)
+
+	if err != nil {
+		http.Error(writer, fmt.Sprintf("Configuration File Not Found"), http.StatusNotFound)
+		return
+	}
+
+	readingAPI := "/api/v1/reading/name/" + resourceName + "/device/" + deviceName + "/1"
+
+	requestUrl := handler.helper.MakeTargetURL(serverIP, readingPort, readingAPI)
+	resp, _, err := handler.helper.DoGet(requestUrl)
+	if err != nil {
+		http.Error(writer, fmt.Sprintf("Resource not found"), http.StatusNotFound)
+		return
+	}
+
+	handler.helper.Response(writer, resp, http.StatusOK)
+}
+
+func (handler StorageHandler) processAsyncPostRequest(writer http.ResponseWriter, request *http.Request) {
 	vars := mux.Vars(request)
 	deviceName := vars[deviceNameKey]
 	resourceName := vars[resourceNameKey]
@@ -193,8 +238,13 @@ func deviceHandler(writer http.ResponseWriter, request *http.Request) {
 		writer.Write([]byte("Bad context pass to handler"))
 		return
 	}
+	switch request.Method {
+	case "GET":
+		handler.processAsyncGetRequest(writer, request)
+	case "POST":
+		handler.processAsyncPostRequest(writer, request)
+	}
 
-	handler.processAsyncRequest(writer, request)
 }
 
 func convertToBase64(val []byte) string {
@@ -407,4 +457,12 @@ func checkFloatValueRange(valueType models.ValueType, val float64) bool {
 		}
 	}
 	return isValid
+}
+
+func getServerIP(ConfigPath string) (string, int, error) {
+	config, err := toml.LoadFile(ConfigPath)
+	if err != nil {
+		return "", 0, err
+	}
+	return config.Get("Clients.Data.Host").(string), (int)(config.Get("Clients.Data.Port").(int64)), nil
 }
