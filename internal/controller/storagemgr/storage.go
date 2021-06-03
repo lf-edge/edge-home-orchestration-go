@@ -17,29 +17,29 @@
 package storagemgr
 
 import (
-	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/storagemgr/storagedriver"
 	"errors"
 	"github.com/edgexfoundry/device-sdk-go"
 	"github.com/edgexfoundry/device-sdk-go/pkg/startup"
+	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/storagemgr/storagedriver"
 	"os"
 )
 
 const (
-	dataStorageService = "datastorage"
+	dataStorageService  = "datastorage"
 	dataStorageConfPath = "res/configuration.toml"
 )
 
-type Storage interface{
+type Storage interface {
 	StartStorage() error
 }
 
-type StorageImpl struct {}
+type StorageImpl struct{}
 
 var (
 	storageIns *StorageImpl
 )
 
-func init(){
+func init() {
 	storageIns = &StorageImpl{}
 }
 func GetInstance() Storage {

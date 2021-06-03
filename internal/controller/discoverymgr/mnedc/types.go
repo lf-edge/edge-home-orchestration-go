@@ -18,11 +18,11 @@
 package mnedcmgr
 
 const (
-	logPrefix            = "[mnedcmgr]"
-	mnedcServerPort      = 3334
-	broadcastServerPort  = 3333
-	internalPort         = 56002
-	maxAttempts          = 5
+	logPrefix           = "[mnedcmgr]"
+	mnedcServerPort     = 3334
+	broadcastServerPort = 3333
+	internalPort        = 56002
+	maxAttempts         = 5
 )
 
 type ipTypes struct {

@@ -47,7 +47,6 @@ import (
 	"github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/route"
 
 	"github.com/lf-edge/edge-home-orchestration-go/internal/db/bolt/wrapper"
-
 )
 
 const logPrefix = "interface"
@@ -67,9 +66,9 @@ const (
 	passPhraseJWTPath      = edgeDir + "/data/jwt"
 	rbacRulePath           = edgeDir + "/data/rbac"
 
-	cipherKeyFilePath   = edgeDir + "/user/orchestration_userID.txt"
-	deviceIDFilePath    = edgeDir + "/device/orchestration_deviceID.txt"
-	mnedcServerConfig   = edgeDir + "/mnedc/client-config.yaml"
+	cipherKeyFilePath = edgeDir + "/user/orchestration_userID.txt"
+	deviceIDFilePath  = edgeDir + "/device/orchestration_deviceID.txt"
+	mnedcServerConfig = edgeDir + "/mnedc/client-config.yaml"
 )
 
 var (
@@ -173,7 +172,6 @@ func orchestrationInit() error {
 	restEdgeRouter.Add(ehandle)
 
 	restEdgeRouter.Start()
-
 
 	log.Println(logPrefix, "orchestration init done")
 

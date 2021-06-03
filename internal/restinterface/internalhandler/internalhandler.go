@@ -19,8 +19,8 @@
 package internalhandler
 
 import (
-	"io/ioutil"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
+	"io/ioutil"
 	"net"
 	"net/http"
 	"strings"

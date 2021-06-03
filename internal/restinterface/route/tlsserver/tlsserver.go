@@ -20,9 +20,9 @@ package tlsserver
 import (
 	"net/http"
 
-	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
 	"crypto/tls"
 	"crypto/x509"
+	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
 	"io/ioutil"
 )
 
@@ -53,17 +53,16 @@ func createServerConfig() (*tls.Config, error) {
 		return nil, err
 	}
 	return &tls.Config{
-		Certificates: []tls.Certificate{cert},
-		ClientAuth:   tls.RequireAndVerifyClientCert,
-		ClientCAs:    roots,
+		Certificates:             []tls.Certificate{cert},
+		ClientAuth:               tls.RequireAndVerifyClientCert,
+		ClientCAs:                roots,
 		PreferServerCipherSuites: true,
 		CipherSuites: []uint16{
-            tls.TLS_RSA_WITH_AES_256_GCM_SHA384,
-            tls.TLS_RSA_WITH_AES_256_CBC_SHA,
-        },
+			tls.TLS_RSA_WITH_AES_256_GCM_SHA384,
+			tls.TLS_RSA_WITH_AES_256_CBC_SHA,
+		},
 	}, nil
 }
-
 
 func (TLSServer) ListenAndServe(addr string, handler http.Handler) {
 

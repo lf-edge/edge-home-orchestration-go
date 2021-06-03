@@ -31,7 +31,6 @@ import (
 	ciphermock "github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/cipher/mocks"
 	helpermock "github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/resthelper/mocks"
 
-
 	"github.com/golang/mock/gomock"
 )
 

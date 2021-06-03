@@ -18,13 +18,13 @@
 package tlshelper
 
 import (
+	"bufio"
 	"crypto/tls"
 	"crypto/x509"
-	"io/ioutil"
-	"log"
-	"bufio"
 	"errors"
 	"fmt"
+	"io/ioutil"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -45,7 +45,6 @@ func init() {
 
 }
 
-
 func createClientConfig() (*tls.Config, error) {
 	caCertPEM, err := ioutil.ReadFile("/var/edge-orchestration/data/cert/ca.crt")
 	if err != nil {
@@ -63,23 +62,22 @@ func createClientConfig() (*tls.Config, error) {
 		return nil, err
 	}
 	return &tls.Config{
-		Certificates: []tls.Certificate{cert},
-		RootCAs:      roots,
+		Certificates:             []tls.Certificate{cert},
+		RootCAs:                  roots,
 		PreferServerCipherSuites: true,
 		CipherSuites: []uint16{
-            tls.TLS_RSA_WITH_AES_256_GCM_SHA384,
-            tls.TLS_RSA_WITH_AES_256_CBC_SHA,
-        },
+			tls.TLS_RSA_WITH_AES_256_GCM_SHA384,
+			tls.TLS_RSA_WITH_AES_256_CBC_SHA,
+		},
 	}, nil
 }
-
 
 func (TLSHelper) Do(req *http.Request) (*http.Response, error) {
 	if _, err := strconv.Atoi(req.URL.Port()); err != nil {
 		return nil, fmt.Errorf("invalid URL port %q", req.URL.Port())
 	}
 
-    config, err := createClientConfig()
+	config, err := createClientConfig()
 	if err != nil {
 		log.Fatal("config failed: ", err)
 	}

@@ -23,13 +23,13 @@ import (
 	"testing"
 	"time"
 
+	goerror "errors"
 	errormsg "github.com/lf-edge/edge-home-orchestration-go/internal/common/errormsg"
 	errors "github.com/lf-edge/edge-home-orchestration-go/internal/common/errors"
 	networkmocks "github.com/lf-edge/edge-home-orchestration-go/internal/common/networkhelper/mocks"
 	wrapper "github.com/lf-edge/edge-home-orchestration-go/internal/controller/discoverymgr/wrapper"
 	wrappermocks "github.com/lf-edge/edge-home-orchestration-go/internal/controller/discoverymgr/wrapper/mocks"
 	systemdb "github.com/lf-edge/edge-home-orchestration-go/internal/db/bolt/system"
-	goerror "errors"
 	clientMocks "github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/client/mocks"
 
 	dbwrapper "github.com/lf-edge/edge-home-orchestration-go/internal/db/bolt/wrapper"

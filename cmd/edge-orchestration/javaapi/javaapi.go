@@ -20,8 +20,8 @@ package javaapi
 
 import (
 	"bytes"
-	"github.com/lf-edge/edge-home-orchestration-go/internal/db/bolt/wrapper"
 	"fmt"
+	"github.com/lf-edge/edge-home-orchestration-go/internal/db/bolt/wrapper"
 	"net/http"
 	"strings"
 	"sync"

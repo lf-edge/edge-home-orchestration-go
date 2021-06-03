@@ -53,12 +53,12 @@ type NotiImpl struct {
 }
 
 var (
-	log              = logmgr.GetInstance()
+	log = logmgr.GetInstance()
 	// notificaitonImpl is instance of NotiImpl
 	notificationImpl = &NotiImpl{}
 
 	// NotificationMap is map structure (serviceID / Notification Channel)
-	notificationMap  = ConcurrentMap{items: make(map[uint64]interface{})}
+	notificationMap = ConcurrentMap{items: make(map[uint64]interface{})}
 )
 
 // GetInstance returns the singleton NotiImpl instance

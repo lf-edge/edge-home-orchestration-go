@@ -51,9 +51,9 @@ type IPTypes struct {
 }
 
 const (
-	logTag               = "[mnedcserver]"
-	channelSize          = 200
-	packetSize           = 1024
+	logTag      = "[mnedcserver]"
+	channelSize = 200
+	packetSize  = 1024
 )
 
 var (
@@ -128,7 +128,7 @@ func (s *Server) CreateServer(address, port string, isSecure bool) (*Server, err
 	s.listener = listener
 	s.virtualIP = generateServerIP()
 	s.netMask = &net.IPNet{
-		IP:s.virtualIP,
+		IP:   s.virtualIP,
 		Mask: net.CIDRMask(24, 32),
 	}
 	s.isAlive = true
@@ -377,7 +377,7 @@ func (s *Server) GetVirtualIP() string {
 
 //generateServerIP generates a virtual IP for the server
 func generateServerIP() net.IP {
-	privateIP,err := networkIns.GetOutboundIP()
+	privateIP, err := networkIns.GetOutboundIP()
 	if err != nil {
 		log.Println("Error in getting private IP ", err.Error())
 		return nil
@@ -385,18 +385,18 @@ func generateServerIP() net.IP {
 
 	var serverVirtualIP net.IP
 
-	privateIP = privateIP+"/16"
-	_, subnet,_ := net.ParseCIDR(privateIP)
+	privateIP = privateIP + "/16"
+	_, subnet, _ := net.ParseCIDR(privateIP)
 	rand.Seed(time.Now().UnixNano())
 
 	for {
 		//Assigning new Virtual IP address in case of clash with Private IP
-		serverVirtualIP = net.IPv4(10,byte(rand.Intn(255)),byte(rand.Intn(255)),1)
-		if !subnet.Contains(serverVirtualIP){
+		serverVirtualIP = net.IPv4(10, byte(rand.Intn(255)), byte(rand.Intn(255)), 1)
+		if !subnet.Contains(serverVirtualIP) {
 			break
 		}
 	}
-	log.Println("Virtual IP : ",serverVirtualIP)
+	log.Println("Virtual IP : ", serverVirtualIP)
 	log.Println("Private IP : ", privateIP)
 	return serverVirtualIP
 }

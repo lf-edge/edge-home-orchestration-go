@@ -225,7 +225,7 @@ func (handler StorageHandler) newCommandValue(resourceName string, reading inter
 			Base64Val := convertToBase64(val)
 			valueType = models.String
 			result, errn = models.NewCommandValue(resourceName, timestamp, Base64Val, valueType)
-		}else {
+		} else {
 			result, errn = models.NewCommandValue(resourceName, timestamp, val, valueType)
 		}
 

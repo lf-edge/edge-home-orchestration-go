@@ -18,13 +18,12 @@
 package connectionutil
 
 import (
-	"errors"
-	"net"
 	"crypto/tls"
 	"crypto/x509"
-	"io/ioutil"
+	"errors"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
-
+	"io/ioutil"
+	"net"
 )
 
 type networkUtilImpl struct{}
@@ -55,13 +54,13 @@ func createClientConfig() (*tls.Config, error) {
 		return nil, err
 	}
 	return &tls.Config{
-		Certificates: []tls.Certificate{cert},
-		RootCAs:      roots,
+		Certificates:             []tls.Certificate{cert},
+		RootCAs:                  roots,
 		PreferServerCipherSuites: true,
 		CipherSuites: []uint16{
-            tls.TLS_RSA_WITH_AES_256_GCM_SHA384,
-            tls.TLS_RSA_WITH_AES_256_CBC_SHA,
-        },
+			tls.TLS_RSA_WITH_AES_256_GCM_SHA384,
+			tls.TLS_RSA_WITH_AES_256_CBC_SHA,
+		},
 	}, nil
 }
 
@@ -82,14 +81,14 @@ func createServerConfig() (*tls.Config, error) {
 		return nil, err
 	}
 	return &tls.Config{
-		Certificates: []tls.Certificate{cert},
-		ClientAuth:   tls.RequireAndVerifyClientCert,
-		ClientCAs:    roots,
+		Certificates:             []tls.Certificate{cert},
+		ClientAuth:               tls.RequireAndVerifyClientCert,
+		ClientCAs:                roots,
 		PreferServerCipherSuites: true,
 		CipherSuites: []uint16{
-            tls.TLS_RSA_WITH_AES_256_GCM_SHA384,
-            tls.TLS_RSA_WITH_AES_256_CBC_SHA,
-        },
+			tls.TLS_RSA_WITH_AES_256_GCM_SHA384,
+			tls.TLS_RSA_WITH_AES_256_CBC_SHA,
+		},
 	}, nil
 }
 

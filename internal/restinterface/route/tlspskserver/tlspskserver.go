@@ -41,7 +41,7 @@ type TLSPSKServer struct{}
 func (TLSPSKServer) ListenAndServe(addr string, handler http.Handler) {
 	var config = &rafftls.Config{
 		CipherSuites: []uint16{psk.TLS_PSK_WITH_AES_128_CBC_SHA},
-		Certificates: []rafftls.Certificate{rafftls.Certificate{}},
+		Certificates: []rafftls.Certificate{{}},
 		Extra: psk.PSKConfig{
 			GetKey:      tls.GetKey,
 			GetIdentity: tls.GetIdentity,
