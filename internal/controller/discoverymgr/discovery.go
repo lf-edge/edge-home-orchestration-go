@@ -22,6 +22,7 @@ import (
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"net"
+	"os"
 	"reflect"
 	"sync"
 	"time"
@@ -239,9 +240,13 @@ func (d *DiscoveryImpl) ResetServiceName() {
 		return
 	}
 
+	servicEnv := getServiceFromEnv()
 	var serverTXT []string
 	serverTXT = append(serverTXT, confItem.ExecType)
 	serverTXT = append(serverTXT, confItem.Platform)
+	if len(servicEnv) > 0 {
+		serverTXT = append(serverTXT, servicEnv)
+	}
 
 	d.setNewServiceList(serverTXT)
 }
@@ -520,8 +525,12 @@ func setDeviceArgument(deviceUUID string, platform string, executionType string)
 	deviceID = "edge-orchestration-" + deviceUUID
 	hostName = "edge-" + deviceUUID
 
+	servicEnv := getServiceFromEnv()
 	Text = append(Text, platform)
 	Text = append(Text, executionType)
+	if len(servicEnv) > 0 {
+		Text = append(Text, servicEnv)
+	}
 	return
 }
 
@@ -850,6 +859,11 @@ func activeDiscovery() {
 // It Clears Map
 func resetServer(ips []net.IP) {
 	wrapperIns.ResetServer(ips)
+}
+
+// getServiceFromEnv returns the environment variable of service
+func getServiceFromEnv() string {
+	return os.Getenv("SERVICE")
 }
 
 // getMNEDCServerAddress fetches the IP and Port of the server
