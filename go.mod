@@ -38,8 +38,6 @@ require (
 	github.com/opencontainers/selinux v1.8.0 // indirect
 	github.com/pelletier/go-toml v1.2.0
 	github.com/pkg/errors v0.9.1
-	github.com/raff/tls-ext v0.0.1
-	github.com/raff/tls-psk v0.0.0
 	github.com/satori/go.uuid v1.2.0
 	github.com/shirou/gopsutil v3.20.11+incompatible
 	github.com/sirupsen/logrus v1.7.0

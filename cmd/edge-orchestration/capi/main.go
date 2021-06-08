@@ -52,7 +52,7 @@ typedef char* (*keyGetterFunc)(char* id);
 identityGetterFunc iGetter;
 keyGetterFunc kGetter;
 
-static void setPSKHandler(identityGetterFunc ihandle, keyGetterFunc khandle){
+static void setHandler(identityGetterFunc ihandle, keyGetterFunc khandle){
 	iGetter = ihandle;
 	kGetter = khandle;
 }
@@ -297,16 +297,16 @@ func OrchestrationRequestService(cAppName *C.char, cSelfSelection C.int, cReques
 	return ret
 }
 
-type customPSKHandler struct{}
+type customHandler struct{}
 
-func (cHandler customPSKHandler) GetIdentity() string {
+func (cHandler customHandler) GetIdentity() string {
 	var cIdentity *C.char
 	cIdentity = C.bridge_iGetter()
 	identity := C.GoString(cIdentity)
 	return identity
 }
 
-func (cHandler customPSKHandler) GetKey(id string) ([]byte, error) {
+func (cHandler customHandler) GetKey(id string) ([]byte, error) {
 	var cKey *C.char
 	cStr := C.CString(id)
 	defer C.free(unsafe.Pointer(cStr))
@@ -319,10 +319,10 @@ func (cHandler customPSKHandler) GetKey(id string) ([]byte, error) {
 	return []byte(key), nil
 }
 
-//export SetPSKHandler
-func SetPSKHandler(iGetter C.identityGetterFunc, kGetter C.keyGetterFunc) {
-	C.setPSKHandler(iGetter, kGetter)
-	tls.SetPSKHandler(customPSKHandler{})
+//export SetHandler
+func SetHandler(iGetter C.identityGetterFunc, kGetter C.keyGetterFunc) {
+	C.setHandler(iGetter, kGetter)
+	tls.SetHandler(customHandler{})
 }
 
 var count int

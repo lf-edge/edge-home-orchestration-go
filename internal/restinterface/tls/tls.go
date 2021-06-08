@@ -55,11 +55,6 @@ type Handler interface {
 	GetKey(identity string) ([]byte, error)
 }
 
-type PSKHandler interface {
-	GetIdentity() string
-	GetKey(identity string) ([]byte, error)
-}
-
 type CertificateSetter interface {
 	SetCertificateFilePath(path string)
 }
