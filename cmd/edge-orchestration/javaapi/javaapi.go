@@ -363,12 +363,12 @@ func GetPrivateIP() string {
 
 }
 
-type PSKHandler interface {
-	tls.PSKHandler
+type Handler interface {
+	tls.Handler
 }
 
-func OrchestrationSetPSKHandler(pskHandler PSKHandler) {
-	tls.SetPSKHandler(pskHandler)
+func OrchestrationSetHandler(handler Handler) {
+	tls.SetHandler(handler)
 }
 
 var count int
