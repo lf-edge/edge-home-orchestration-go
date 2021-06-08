@@ -34,7 +34,7 @@ func TestToml(t *testing.T) {
 	SetDeviceList("datastorage", "datastorage", "RESTful Device", []string{"rest", "json"})
 	SetClients("127.0.0.1", "http", 5000)
 
-	b, err := Marshal()
+	b, err := TomlMarshal()
 	if err != nil {
 		t.Fatal("Unexpected Error")
 	}

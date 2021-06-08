@@ -150,6 +150,6 @@ func SetClients(host string, protocol string, timeout int) {
 			Timeout:  timeout}}
 }
 
-func Marshal() (b []byte, err error) {
+func TomlMarshal() (b []byte, err error) {
 	return toml.Marshal(tomlInfo)
 }
