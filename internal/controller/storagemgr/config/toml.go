@@ -94,9 +94,9 @@ func SetWritable(level string) {
 	tomlInfo.Writable = Writable{LogLevel: level}
 }
 
-func SetService(port int, label []string) {
+func SetService(host string, port int, label []string) {
 	tomlInfo.Service = Service{
-		Host:                "127.0.0.1",
+		Host:                host,
 		Port:                port,
 		ConnectionRetries:   20,
 		Labels:              label,

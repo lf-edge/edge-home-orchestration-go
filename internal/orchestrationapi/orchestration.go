@@ -201,7 +201,7 @@ func (o OrchestrationBuilder) Build() Orche {
 func (o *orcheImpl) Start(deviceIDPath string, platform string, executionType string) {
 	resourceMonitorImpl.StartMonitoringResource()
 	o.discoverIns.StartDiscovery(deviceIDPath, platform, executionType)
-	o.storageIns.StartStorage()
+	o.storageIns.StartStorage("")
 	o.watcher.Watch(o)
 	o.Ready = true
 	time.Sleep(1000)

@@ -28,7 +28,7 @@ var (
 
 func TestToml(t *testing.T) {
 	SetWritable("DEBUG")
-	SetService(49986, nil)
+	SetService("127.0.0.1", 49986, nil)
 	SetRegistry("127.0.0.1", 8500)
 	SetDevice(true, "", "", 128, 256, "", "", "./res")
 	SetDeviceList("datastorage", "datastorage", "RESTful Device", []string{"rest", "json"})
