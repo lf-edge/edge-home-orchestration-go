@@ -103,6 +103,9 @@ clean:
 	-rm -rf $(BUILD_VENDOR_DIR)
 	-rm -rf $(INTERFACE_OUT_DIR)
 	-rm -rf $(ANDROID_LIBRARY_OUT_DIR)
+	-rm -rf $(BASE_DIR)/bin/$(PKG_NAME)*
+	-rm -rf $(BASE_DIR)/coverage.out
+	@make -C examples/native clean
 
 ## check go style and static analysis
 lint:
