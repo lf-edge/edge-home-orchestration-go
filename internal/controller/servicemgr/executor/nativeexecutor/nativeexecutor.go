@@ -81,7 +81,8 @@ func (t NativeExecutor) setService() (cmd *exec.Cmd, pid int, err error) {
 		err = errors.New("error: empty parameter")
 		return
 	}
-	cmd = exec.Command(t.ParamStr[0], t.ParamStr[1:]...)
+
+	cmd = exec.Command(t.ParamStr[0], t.ParamStr[1:]...) // lgtm[go/command-injection]
 
 	// set "owner" account: need to execute user app
 	/*
