@@ -34,6 +34,7 @@ const (
 )
 
 type Storage interface {
+	GetStatus() int
 	StartStorage(host string) error
 	BuildConfiguration(host string) error
 }
@@ -63,6 +64,11 @@ func init() {
 // GetInstance returns the instance of DataStorage
 func GetInstance() Storage {
 	return storageIns
+}
+
+// GetStatus returns the status value in StorageImpl
+func (s *StorageImpl) GetStatus() int {
+	return s.status
 }
 
 // StartStorage starts a server in terms of DataStorage
