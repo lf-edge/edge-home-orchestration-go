@@ -27,6 +27,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/lf-edge/edge-home-orchestration-go/internal/common/fscreator"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/networkhelper"
 
@@ -65,6 +66,7 @@ const (
 
 	cipherKeyFile = "/user/orchestration_userID.txt"
 	deviceIDFile  = "/device/orchestration_deviceID.txt"
+
 )
 
 var (
@@ -164,6 +166,11 @@ type ExecuteCallback interface {
 // OrchestrationInit runs orchestration service and discovers remote orchestration services
 func OrchestrationInit(executeCallback ExecuteCallback, edgeDir string, isSecured bool) (errCode int) {
 	initPlatformPath(edgeDir)
+
+	if err := fscreator.CreateFileSystem(edgeDir); err != nil {
+		log.Panicf("%s Failed to create edge-orchestration file system\n", logPrefix)
+		return
+	}
 
 	logmgr.InitLogfile(logPath)
 	log.Printf("[%s] OrchestrationInit", logPrefix)
