@@ -48,6 +48,18 @@ func (_m *MockStorage) EXPECT() *MockStorageMockRecorder {
 	return _m.recorder
 }
 
+// GetStatus mocks base method
+func (_m *MockStorage) GetStatus() int {
+	ret := _m.ctrl.Call(_m, "GetStatus")
+	ret0, _ := ret[0].(int)
+	return ret0
+}
+
+// GetStatus indicates an expected call of GetStatus
+func (_mr *MockStorageMockRecorder) GetStatus() *gomock.Call {
+	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "GetStatus", reflect.TypeOf((*MockStorage)(nil).GetStatus))
+}
+
 // StartStorage mocks base method
 func (_m *MockStorage) StartStorage(host string) error {
 	ret := _m.ctrl.Call(_m, "StartStorage", host)

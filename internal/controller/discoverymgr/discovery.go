@@ -18,16 +18,18 @@
 package discoverymgr
 
 import (
-	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"net"
 	"os"
 	"reflect"
 	"sync"
+	"strings"
 	"time"
 
 	errors "github.com/lf-edge/edge-home-orchestration-go/internal/common/errors"
+	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
+	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/storagemgr"
 	networkhelper "github.com/lf-edge/edge-home-orchestration-go/internal/common/networkhelper"
 	mnedc "github.com/lf-edge/edge-home-orchestration-go/internal/controller/discoverymgr/mnedc"
 	wrapper "github.com/lf-edge/edge-home-orchestration-go/internal/controller/discoverymgr/wrapper"
@@ -82,6 +84,7 @@ func (d *DiscoveryImpl) GetDeviceID() (id string, err error) {
 var (
 	discoveryIns *DiscoveryImpl
 	networkIns   networkhelper.Network
+	storageIns   storagemgr.Storage
 	mutexLock    sync.Mutex
 	log          = logmgr.GetInstance()
 )
@@ -92,6 +95,7 @@ func init() {
 	shutdownChan = make(chan struct{})
 
 	networkIns = networkhelper.GetInstance()
+	storageIns = storagemgr.GetInstance()
 
 	sysQuery = systemdb.Query{}
 	confQuery = configurationdb.Query{}
@@ -590,6 +594,15 @@ func deviceDetectionRoutine() {
 				// @Note Is it need to call Update API?
 				setConfigurationDB(confInfo)
 				setServiceDB(serviceInfo)
+
+				// Connect to the device which has DataStroage service
+				if len(netInfo.IPv4) > 0 && storageIns.GetStatus() == 0 {
+					for _, s := range serviceInfo.Services {
+						if strings.Contains(s, "DataStorage") {
+							storageIns.StartStorage(netInfo.IPv4[0])
+						}
+					}
+				}
 			}
 		}
 	}()
