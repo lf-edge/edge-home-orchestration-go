@@ -69,13 +69,11 @@ FailWaitTime = 10
   Port = 48061
 ```
 
-2. Run the EdgeX Docker containers on your Linux machine (**Device B**) with respect to the guidance from [EdgeX Foundry Services](https://github.com/edgexfoundry/edgex-go#get-started), as the _simplest way_ that you can follow using follows;
+2. Run the EdgeX Docker containers on your Linux machine (**Device B**) with respect to the guidance from [EdgeX Foundry Services](https://github.com/edgexfoundry/edgex-go#get-started), or the _simplest way_ that you can follow using follows;
 
 ```sh
-wget -O docker-compose.yml \
-https://raw.githubusercontent.com/edgexfoundry/developer-scripts/master/releases/geneva/compose-files/docker-compose-geneva-mongo-no-secty.yml
-
-docker-compose up -d
+$ cd deployments/datastorage
+$ docker-compose up -d
 ```
 
 3. Run `edge-home-orchestration-go` with DataStorage on **Device A**, referring to "How to work" in [link](./platforms/x86_64_linux/x86_64_linux.md#how-to-work).
