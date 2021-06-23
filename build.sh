@@ -234,13 +234,6 @@ function build_docker_container() {
 }
 
 function run_docker_container() {
-    ### Add temporarily, TO DO: move files into container
-    echo ""
-    echo "--------------------------------------------"
-    echo "  Create prerequisite Folder [SuperUser]"
-    echo "--------------------------------------------"
-    sudo ./tools/create_fs.sh
-    echo ""
     echo "**********************************"
     echo " Run Docker container "
     echo "**********************************"

@@ -44,25 +44,16 @@ test
     ├── copy_srvs.sh
     └── ls_srv
         └── ls_srv.conf
-tools
-└── create_fs.sh 
-
 ```
 
-1. To start for the first time, need to create a file system (only once need to execute the command)
-```
-$ cd tools
-$ sudo ./create_fs.sh
-```
-
-2. Copy the folder with the service configuration file from `services` to `/var/edge-orchestration/apps` or use `copy_srvs.sh` to copy all service folders to `/var/edge-orchestration/apps`.
+1. Copy the folder with the service configuration file from `services` to `/var/edge-orchestration/apps` or use `copy_srvs.sh` to copy all service folders to `/var/edge-orchestration/apps`.
  ```
  $ cd test/native
  $ sudo ./copy_srvs.sh
 ```
 > The structure of the [configuration file](../../../internal/controller/configuremgr/native/description/doc.go) and example can be found [ls_srv.conf](../../../test/native/ls_srv/ls_srv.conf).
 
-3. To build the native edge-orchestration, run the following commands:
+2. To build the native edge-orchestration, run the following commands:
 ```
 $ cd examples/native
 $ make
@@ -71,7 +62,7 @@ gcc -c -I../../bin/capi/output/inc/linux_x86-64 main.c -o main.o
 gcc   main.o -L../../bin/capi/output/lib/linux_x86-64 -pthread -lorchestration -o edge-orchestration
 
 ```
-4. Run native edge-orchestration
+3. Run native edge-orchestration
 ```
 $ sudo ./edge-orchestration 
 2020/07/20 09:24:10 main.go:158: [interface] OrchestrationInit

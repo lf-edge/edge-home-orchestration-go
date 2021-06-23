@@ -23,6 +23,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/lf-edge/edge-home-orchestration-go/internal/common/fscreator"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/sigmgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/storagemgr"
@@ -93,6 +94,11 @@ func orchestrationInit() error {
 	log.Println(">>> buildTime : ", buildTime)
 	log.Println(">>> buildTags : ", buildTags)
 	wrapper.SetBoltDBPath(dbPath)
+
+	if err := fscreator.CreateFileSystem(edgeDir); err != nil {
+		log.Panicf("%s Failed to create edge-orchestration file system\n", logPrefix)
+		return err
+	}
 
 	secure := os.Getenv("SECURE")
 	mnedc := os.Getenv("MNEDC")
