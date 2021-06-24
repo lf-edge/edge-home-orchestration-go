@@ -34,6 +34,7 @@ import (
 	mnedc "github.com/lf-edge/edge-home-orchestration-go/internal/controller/discoverymgr/mnedc"
 	wrapper "github.com/lf-edge/edge-home-orchestration-go/internal/controller/discoverymgr/wrapper"
 
+	dbhelper "github.com/lf-edge/edge-home-orchestration-go/internal/db/helper"
 	configurationdb "github.com/lf-edge/edge-home-orchestration-go/internal/db/bolt/configuration"
 	networkdb "github.com/lf-edge/edge-home-orchestration-go/internal/db/bolt/network"
 	servicedb "github.com/lf-edge/edge-home-orchestration-go/internal/db/bolt/service"
@@ -59,7 +60,6 @@ type Discovery interface {
 	MNEDCClosedCallback()
 	NotifyMNEDCBroadcastServer() error
 	MNEDCReconciledCallback()
-	GetDeviceID() (id string, err error)
 	StartMNEDCClient(string, string)
 	StartMNEDCServer(string)
 	client.Setter
@@ -72,17 +72,9 @@ type DiscoveryImpl struct {
 	cipher.HasCipher
 }
 
-func (d *DiscoveryImpl) GetDeviceID() (id string, err error) {
-	id, err = getSystemDB(systemdb.ID)
-	if err != nil {
-		log.Println(err.Error())
-	}
-
-	return
-}
-
 var (
 	discoveryIns *DiscoveryImpl
+	dbIns        dbhelper.MultipleBucketQuery
 	networkIns   networkhelper.Network
 	storageIns   storagemgr.Storage
 	mutexLock    sync.Mutex
@@ -94,6 +86,7 @@ func init() {
 	wrapperIns = wrapper.GetZeroconfImpl()
 	shutdownChan = make(chan struct{})
 
+	dbIns      = dbhelper.GetInstance()
 	networkIns = networkhelper.GetInstance()
 	storageIns = storagemgr.GetInstance()
 
@@ -160,7 +153,7 @@ func (DiscoveryImpl) DeleteDeviceWithIP(targetIP string) {
 // DeleteDeviceWithID delete device using deviceID
 func (d DiscoveryImpl) DeleteDeviceWithID(ID string) {
 	// @Note Delete device with id in DB
-	deviceID, err := d.GetDeviceID()
+	deviceID, err := dbIns.GetDeviceID()
 	if err != nil {
 		log.Println(err.Error())
 		return
@@ -230,7 +223,7 @@ func (d *DiscoveryImpl) ResetServiceName() {
 		return
 	}
 
-	deviceID, err := d.GetDeviceID()
+	deviceID, err := dbIns.GetDeviceID()
 	if err != nil {
 		return
 	}
@@ -362,7 +355,7 @@ func detectNetworkChgRoutine() {
 		case <-shutdownChan:
 			return
 		case latestIPs := <-ips:
-			id, err := discoveryIns.GetDeviceID()
+			id, err := dbIns.GetDeviceID()
 			if err != nil {
 				continue
 			}
@@ -425,7 +418,7 @@ func getExecType() (execType string, err error) {
 }
 
 func getServiceList() (serviceList []string, err error) {
-	id, err := discoveryIns.GetDeviceID()
+	id, err := dbIns.GetDeviceID()
 	if err != nil {
 		return
 	}
@@ -486,7 +479,7 @@ func (d *DiscoveryImpl) NotifyMNEDCBroadcastServer() error {
 		return err
 	}
 
-	deviceID, err := d.GetDeviceID()
+	deviceID, err := dbIns.GetDeviceID()
 	if err != nil {
 		log.Println(logPrefix, "Error getting device ID while registering to Broadcast server", err.Error())
 		return err
@@ -609,7 +602,7 @@ func deviceDetectionRoutine() {
 }
 
 func serverPresenceChecker() error {
-	_, err := discoveryIns.GetDeviceID()
+	_, err := dbIns.GetDeviceID()
 	if err != nil {
 		return errors.SystemError{Message: "no server initiated yet"}
 	}
@@ -678,7 +671,7 @@ func (d *DiscoveryImpl) setNewServiceList(serverTXT []string) {
 	// if len(serverTXT) > 2 {
 	newServiceList := serverTXT[2:]
 
-	deviceID, err := discoveryIns.GetDeviceID()
+	deviceID, err := dbIns.GetDeviceID()
 	if err != nil {
 		return
 	}
@@ -734,7 +727,7 @@ func clearMap() {
 		return
 	}
 
-	deviceID, err := discoveryIns.GetDeviceID()
+	deviceID, err := dbIns.GetDeviceID()
 	if err != nil {
 		return
 	}
