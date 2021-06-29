@@ -29,31 +29,38 @@ import (
 	dbNetworkMocks "github.com/lf-edge/edge-home-orchestration-go/internal/db/bolt/network/mocks"
 	service "github.com/lf-edge/edge-home-orchestration-go/internal/db/bolt/service"
 	dbServiceMocks "github.com/lf-edge/edge-home-orchestration-go/internal/db/bolt/service/mocks"
+	system "github.com/lf-edge/edge-home-orchestration-go/internal/db/bolt/system"
+	dbSysMocks "github.com/lf-edge/edge-home-orchestration-go/internal/db/bolt/system/mocks"
 )
 
 var (
 	mockConf    *dbConfigurationMocks.MockDBInterface
 	mockNet     *dbNetworkMocks.MockDBInterface
 	mockService *dbServiceMocks.MockDBInterface
+	mockSys     *dbSysMocks.MockDBInterface
 )
 
 func testInit(ctrl *gomock.Controller) func() {
 	originConfQuery := confQuery
 	originNetQuery := netQuery
 	originServiceQuery := serviceQuery
+	originSysQuery := sysQuery
 
 	mockConf = dbConfigurationMocks.NewMockDBInterface(ctrl)
 	mockNet = dbNetworkMocks.NewMockDBInterface(ctrl)
 	mockService = dbServiceMocks.NewMockDBInterface(ctrl)
+	mockSys = dbSysMocks.NewMockDBInterface(ctrl)
 
 	confQuery = mockConf
 	netQuery = mockNet
 	serviceQuery = mockService
+	sysQuery = mockSys
 
 	return func() {
 		confQuery = originConfQuery
 		netQuery = originNetQuery
 		serviceQuery = originServiceQuery
+		sysQuery = originSysQuery
 	}
 }
 
@@ -234,5 +241,33 @@ func TestGetDeviceInfoWithService(t *testing.T) {
 				t.Error("unexpected success")
 			}
 		})
+	})
+}
+
+func TestGetDeviceID(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	f := testInit(ctrl)
+	defer ctrl.Finish()
+	defer f()
+
+	t.Run("Success", func(t *testing.T) {
+		mockSys.EXPECT().Get(gomock.Eq("id")).Return(system.SystemInfo{
+                                        Name: "id",
+                                        Value: "testID",
+                                        }, nil)
+		_, err := GetInstance().GetDeviceID()
+		if err != nil {
+			t.Error("unexpected error")
+		}
+	})
+	t.Run("Fail", func(t *testing.T) {
+		mockSys.EXPECT().Get(gomock.Eq("id")).Return(system.SystemInfo{
+                                        Name: "id",
+                                        Value: "testID",
+                                        }, errors.New(""))
+		_, err := GetInstance().GetDeviceID()
+		if err == nil {
+			t.Error("unexpected success")
+		}
 	})
 }

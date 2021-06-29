@@ -30,6 +30,7 @@ import (
 	wrapper "github.com/lf-edge/edge-home-orchestration-go/internal/controller/discoverymgr/wrapper"
 	wrappermocks "github.com/lf-edge/edge-home-orchestration-go/internal/controller/discoverymgr/wrapper/mocks"
 	systemdb "github.com/lf-edge/edge-home-orchestration-go/internal/db/bolt/system"
+	dbmocks "github.com/lf-edge/edge-home-orchestration-go/internal/db/helper/mocks"
 	clientMocks "github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/client/mocks"
 
 	dbwrapper "github.com/lf-edge/edge-home-orchestration-go/internal/db/bolt/wrapper"
@@ -40,6 +41,7 @@ import (
 var (
 	mockWrapper          *wrappermocks.MockZeroconfInterface
 	mockNetwork          *networkmocks.MockNetwork
+	mockDB               *dbmocks.MockMultipleBucketQuery
 	defaultUUIDPath      = "/etc/orchestration_deviceID.txt"
 	defaultPlatform      = "LINUX"
 	defaultExecutionType = "Executable"
@@ -86,9 +88,11 @@ var (
 func createMockIns(ctrl *gomock.Controller) {
 	mockWrapper = wrappermocks.NewMockZeroconfInterface(ctrl)
 	mockNetwork = networkmocks.NewMockNetwork(ctrl)
+	mockDB      = dbmocks.NewMockMultipleBucketQuery(ctrl)
 
 	wrapperIns = mockWrapper
 	networkIns = mockNetwork
+	dbIns      = mockDB
 }
 
 func addDevice(Another bool) {
@@ -224,6 +228,7 @@ func TestStartDiscovery(t *testing.T) {
 			gomock.Any(), gomock.Any()).Return(defaultMyDeviceEntity, nil)
 		mockWrapper.EXPECT().GetSubscriberChan().Return(devicesubchan, nil)
 		mockWrapper.EXPECT().Shutdown().Return()
+		mockDB.EXPECT().GetDeviceID().Return(defaultMyDeviceID, nil).AnyTimes()
 		//let the test start
 		discoveryInstance := GetInstance()
 		discoveryInstance.StartDiscovery(defaultUUIDPath,
@@ -247,12 +252,11 @@ func TestDeviceDetectionRoutine(t *testing.T) {
 	createMockIns(ctrl)
 
 	t.Run("Success", func(t *testing.T) {
-
-		discoveryInstance := GetInstance()
 		//declare mock argument
 		devicesubchan := make(chan *wrapper.Entity, 20)
 
 		mockWrapper.EXPECT().GetSubscriberChan().Return(devicesubchan, nil)
+		mockDB.EXPECT().GetDeviceID().Return(defaultMyDeviceID, nil).AnyTimes()
 
 		//set my device info
 		addDevice(false)
@@ -297,13 +301,7 @@ func TestDeviceDetectionRoutine(t *testing.T) {
 
 			presence := false
 
-			deviceID, err := discoveryInstance.GetDeviceID()
-			log.Println(deviceID)
-			if err != nil {
-				t.Fatal(err.Error())
-			}
-
-			netInfo, err := netQuery.Get(deviceID)
+			netInfo, err := netQuery.Get(defaultMyDeviceID)
 			if err != nil {
 				t.Fatal(err.Error())
 			}
@@ -368,6 +366,7 @@ func TestAddNewServiceName(t *testing.T) {
 		t.Run("AddNewServiceName", func(t *testing.T) {
 			mockWrapper.EXPECT().GetText().Return(serverTXT)
 			mockWrapper.EXPECT().SetText(gomock.Any()).Return()
+			mockDB.EXPECT().GetDeviceID().Return(defaultMyDeviceID, nil).AnyTimes()
 
 			err := discoveryInstance.AddNewServiceName(newServiceName)
 			if err != nil {
@@ -375,12 +374,7 @@ func TestAddNewServiceName(t *testing.T) {
 			}
 			presence := false
 
-			deviceID, err := discoveryInstance.GetDeviceID()
-			if err != nil {
-				t.Fatal(err.Error())
-			}
-
-			serviceInfo, err := serviceQuery.Get(deviceID)
+			serviceInfo, err := serviceQuery.Get(defaultMyDeviceID)
 			if err != nil {
 				t.Fatal(err.Error())
 			}
@@ -414,6 +408,7 @@ func TestRemoveServiceName(t *testing.T) {
 		t.Run("RemoveServiceName", func(t *testing.T) {
 			mockWrapper.EXPECT().GetText().Return(serverTXT)
 			mockWrapper.EXPECT().SetText(gomock.Any()).Return()
+			mockDB.EXPECT().GetDeviceID().Return(defaultMyDeviceID, nil).AnyTimes()
 			err := discoveryInstance.RemoveServiceName(defaultService)
 			if err != nil {
 				t.Error("delete service error : ", err)
@@ -421,12 +416,7 @@ func TestRemoveServiceName(t *testing.T) {
 
 			isPresence := false
 
-			deviceID, err := discoveryInstance.GetDeviceID()
-			if err != nil {
-				t.Fatal(err.Error())
-			}
-
-			serviceInfo, err := serviceQuery.Get(deviceID)
+			serviceInfo, err := serviceQuery.Get(defaultMyDeviceID)
 			if err != nil {
 				t.Fatal(err.Error())
 			}
@@ -458,14 +448,10 @@ func TestResetServiceName(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		t.Run("ResetServiceName", func(t *testing.T) {
 			mockWrapper.EXPECT().SetText(gomock.Any()).Return()
+			mockDB.EXPECT().GetDeviceID().Return(defaultMyDeviceID, nil).AnyTimes()
 			discoveryInstance.ResetServiceName()
 
-			deviceID, err := discoveryInstance.GetDeviceID()
-			if err != nil {
-				t.Fatal(err.Error())
-			}
-
-			serviceInfo, err := serviceQuery.Get(deviceID)
+			serviceInfo, err := serviceQuery.Get(defaultMyDeviceID)
 			if err != nil {
 				t.Fatal(err.Error())
 			}
@@ -556,8 +542,6 @@ func TestDetectNetworkChgRoutine(t *testing.T) {
 
 	createMockIns(ctrl)
 
-	discoveryInstance := GetInstance()
-
 	addDevice(false)
 
 	shutdownChan = make(chan struct{})
@@ -566,6 +550,7 @@ func TestDetectNetworkChgRoutine(t *testing.T) {
 	ipsub := make(chan []net.IP, 2)
 	mockNetwork.EXPECT().AppendSubscriber().Return(ipsub)
 	mockWrapper.EXPECT().ResetServer(gomock.Any()).Return()
+	mockDB.EXPECT().GetDeviceID().Return(defaultMyDeviceID, nil).AnyTimes()
 	go detectNetworkChgRoutine()
 
 	t.Run("Success", func(t *testing.T) {
@@ -573,12 +558,8 @@ func TestDetectNetworkChgRoutine(t *testing.T) {
 		ipsub <- []net.IP{net.ParseIP("192.0.2.1")}
 
 		time.Sleep(time.Millisecond * time.Duration(10))
-		deviceID, err := discoveryInstance.GetDeviceID()
-		if err != nil {
-			t.Error(err.Error())
-		}
 
-		netInfo, err := netQuery.Get(deviceID)
+		netInfo, err := netQuery.Get(defaultMyDeviceID)
 		if err != nil {
 			t.Error(err.Error())
 		}
@@ -678,6 +659,7 @@ func TestGetOrchestrationInfo(t *testing.T) {
 	createMockIns(ctrl)
 
 	addDevice(true)
+	mockDB.EXPECT().GetDeviceID().Return(defaultMyDeviceID, nil).AnyTimes()
 
 	discoveryInstance := GetInstance()
 	platform, executionType, serviceList, err := discoveryInstance.GetOrchestrationInfo()
@@ -739,6 +721,7 @@ func TestNotifyMNEDCBroadcastServer(t *testing.T) {
 		mockNetwork.EXPECT().GetVirtualIP().Return(defaultVirtualIP, nil)
 		mockNetwork.EXPECT().GetOutboundIP().Return(defaultIPv4, nil)
 		mockClient.EXPECT().DoNotifyMNEDCBroadcastServer(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
+		mockDB.EXPECT().GetDeviceID().Return(defaultMyDeviceID, nil).AnyTimes()
 
 		err := discoveryInstance.NotifyMNEDCBroadcastServer()
 		if err != nil {
@@ -750,7 +733,7 @@ func TestNotifyMNEDCBroadcastServer(t *testing.T) {
 	closeTest()
 }
 
-func TestGetDeviceID(t *testing.T) {
+func TestSetDeviceID(t *testing.T) {
 	t.Run("SuccessNewV4", func(t *testing.T) {
 		uuid, _ := setDeviceID("/x/y/z/NoFileIsThisName")
 		if len(uuid) == 0 {
