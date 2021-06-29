@@ -1,0 +1,14 @@
+#
+# Automatically generated file; DO NOT EDIT.
+# Edge-Home-Orchstration Configuration
+#
+CONFIG_CONFIGURATION_FILE_NAME="x86_64n"
+CONFIG_X86_64=y
+# CONFIG_X86 is not set
+# CONFIG_ARM is not set
+# CONFIG_ARM64 is not set
+# CONFIG_CONTAINER is not set
+CONFIG_NATIVE=y
+# CONFIG_ANDROID is not set
+# CONFIG_MNEDC is not set
+# CONFIG_SECURE_MODE is not set

@@ -1,0 +1,84 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt.
+#
+
+mainmenu "Edge-Home-Orchstration Configuration"
+
+config CONFIGURATION_FILE_NAME
+	string "Configuration file name"
+	help
+		Configuration file name
+
+choice
+	prompt "H/W Platform architecture"
+	default X86_64
+
+config X86_64
+	bool "x86_64"
+	---help---
+		"x86_64 architecture"
+
+config X86
+	bool "x86"
+	---help---
+		"x86 architecture"
+
+config ARM
+	bool "arm"
+	---help---
+		"arm architecture (32 bit)"
+
+config ARM64
+	bool "arm64"
+	---help---
+		"arm64 architecture"
+endchoice
+
+choice
+	prompt "S/W Platform"
+	default CONTAINER
+
+config CONTAINER
+	bool "Container"
+	---help---
+		"Docker Container"
+
+config NATIVE
+	bool "Native"
+	---help---
+		"Native"
+
+config ANDROID
+	bool "Android"
+	---help---
+		"Android"
+
+endchoice
+
+config MNEDC
+	bool "MNEDC"
+
+choice
+	depends on MNEDC
+	prompt "MNEDC"
+
+config MNEDC_SERVER
+	bool "MNEDC server"
+	default n
+	---help---
+		"MNEDC Server"
+
+config MNEDC_CLIENT
+	bool "MNEDC client"
+	default n
+	---help---
+		"MNEDC Client"
+
+endchoice
+
+config SECURE_MODE
+	bool "Secure Mode is enable"
+	default y
+	---help---
+		"Secure mode is enable"
