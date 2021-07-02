@@ -1,0 +1,48 @@
+name: "datastorage"
+manufacturer: "Home Edge"
+model: "Home Edge"
+labels:
+ - "rest"
+ - "json"
+ - "numeric"
+ - "float"
+ - "int"
+description: "REST Device"
+
+deviceResources:
+  - name: json
+    description: "JSON message"
+    properties:
+      valueType: "String"
+      readWrite: "RW"
+      mediaType: "application/json"
+  - name: int
+    description: "Int64 value"
+    properties:
+      valueType: "Int64"
+      readWrite: "RW"
+      mediaType: "text/plain"
+  - name: float
+    description: "Float64 value"
+    properties:
+      valueType: "Float64"
+      readWrite: "RW"
+      mediaType: "text/plain"
+  - name: jpeg
+    description: "Jpeg image"
+    properties:
+      valueType: "Binary"
+      readWrite: "RW"
+      mediaType: "image/jpeg"
+  - name: png
+    description: "png image"
+    properties:
+      valueType: "Binary"
+      readWrite: "RW"
+      mediaType: "image/jpeg"
+  - name: string
+    description: "String"
+    properties:
+      valueType: "String"
+      readWrite: "RW"
+      mediaType: "text/plain"

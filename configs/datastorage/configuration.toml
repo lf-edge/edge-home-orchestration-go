@@ -1,57 +1,43 @@
 [Writable]
-LogLevel = 'DEBUG'
+LogLevel = 'INFO'
 
 [Service]
-Host = 'localhost'
+HealthCheckInterval = '10s'
+Host = ''
 Port = 49986
-ConnectRetries = 20
-Labels = []
-OpenMsg = "REST device started"
-Timeout = 5000
-EnableAsyncReadings = true
-AsyncBufferSize = 16
+ServerBindAddr = ''  # blank value defaults to Service.Host value
+StartupMsg = 'device rest started'
+# MaxRequestSize limit the request body size in byte of put command
+MaxRequestSize = 0 # value 0 unlimit the request size.
+RequestTimeout = '5s'
 
 [Registry]
 Host = 'localhost'
 Port = 8500
-Type = "consul"
-CheckInterval = "10s"
-FailLimit = 3
-FailWaitTime = 10
+Type = 'consul'
 
 [Clients]
-  [Clients.Data]
-  Protocol = "http"
-  Host = "localhost"
-  Port = 48080
-  Timeout = 5000
+  [Clients.core-data]
+  Protocol = 'http'
+  Host = 'localhost'
+  Port = 59880
 
-  [Clients.Metadata]
-  Protocol = "http"
-  Host = "localhost"
-  Port = 48081
-  Timeout = 5000
-
-  [Clients.Logging]
-  Protocol = "http"
-  Host = "localhost"
-  Port = 48061
+  [Clients.core-metadata]
+  Protocol = 'http'
+  Host = 'localhost'
+  Port = 59881
 
 [Device]
 DataTransform = true
-InitCmd = ""
-InitCmdArgs = ""
 MaxCmdOps = 128
 MaxCmdValueLen = 256
-RemoveCmd = ""
-RemoveCmdArgs = ""
-ProfilesDir = "./res"
+ProfilesDir = './res/profiles'
+DevicesDir = './res/devices'
+UpdateLastConnected = true
+Labels = []
+EnableAsyncReadings = true
+AsyncBufferSize = 16
+UseMessageBus = false
 
-# Pre-define Devices
-[[DeviceList]]
-  Name = "datastorage"
-  Profile = "datastorage"
-  Description = "RESTful Device"
-  Labels = [ "rest", "json", "numeric", "float", "int" ]
-  [DeviceList.Protocols]
-    [DeviceList.Protocols.other]
+# Driver configs
+# [Driver]

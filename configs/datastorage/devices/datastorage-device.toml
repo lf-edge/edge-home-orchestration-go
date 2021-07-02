@@ -1,0 +1,6 @@
+# Pre-define Devices
+[[DeviceList]]
+  Name = 'datastorage'
+  ProfileName = 'datastorage'
+  [DeviceList.Protocols]
+    [DeviceList.Protocols.other]
