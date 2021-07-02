@@ -140,12 +140,12 @@ func SetDeviceList(name string, profile string, description string, label []stri
 
 func SetClients(host string, protocol string, timeout int) {
 	tomlInfo.Clients = Clients{
-		"Data": Client{Host: host,
-			Port:     48080,
+		"core-data": Client{Host: host,
+			Port:     59880,
 			Protocol: protocol,
 			Timeout:  timeout},
-		"Metadata": Client{Host: host,
-			Port:     48081,
+		"core-metadata": Client{Host: host,
+			Port:     59881,
 			Protocol: protocol,
 			Timeout:  timeout}}
 }

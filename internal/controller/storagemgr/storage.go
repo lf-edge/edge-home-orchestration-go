@@ -21,8 +21,8 @@ import (
 	"io/ioutil"
 	"os"
 	"strings"
-	"github.com/edgexfoundry/device-sdk-go"
-	"github.com/edgexfoundry/device-sdk-go/pkg/startup"
+	"github.com/edgexfoundry/device-sdk-go/v2"
+	"github.com/edgexfoundry/device-sdk-go/v2/pkg/startup"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/storagemgr/config"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/storagemgr/storagedriver"
 )
@@ -84,7 +84,7 @@ func (s *StorageImpl) StartStorage(host string) (err error) {
 	}
 
 	if _, err := os.Stat(dataStorageConfFolder+"/configuration.toml"); err == nil {
-		if s.status < 2{
+		if s.status < 2 {
 			go startup.Bootstrap(dataStorageService, device.Version, &storageIns.sd)
 			s.status = 2
 			return nil

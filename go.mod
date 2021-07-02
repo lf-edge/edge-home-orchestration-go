@@ -2,9 +2,6 @@ module github.com/lf-edge/edge-home-orchestration-go
 
 go 1.15
 
-// Temporary measure to avoid crash in Hanoi release of EdgeX, Will be removed post Ireland release.
-replace github.com/edgexfoundry/device-sdk-go v1.4.0 => github.com/hahattan/device-sdk-go v1.4.1
-
 require (
 	github.com/Microsoft/go-winio v0.4.16 // indirect
 	github.com/StackExchange/wmi v0.0.0-20190523213315-cbe66965904d // indirect
@@ -21,8 +18,8 @@ require (
 	github.com/docker/go-connections v0.4.0
 	github.com/docker/go-events v0.0.0-20190806004212-e31b211e4f1c // indirect
 	github.com/docker/go-units v0.4.0
-	github.com/edgexfoundry/device-sdk-go v1.4.0
-	github.com/edgexfoundry/go-mod-core-contracts v0.1.115
+	github.com/edgexfoundry/device-sdk-go/v2 v2.0.0
+	github.com/edgexfoundry/go-mod-core-contracts/v2 v2.0.0
 	github.com/fsnotify/fsnotify v1.4.9
 	github.com/go-ole/go-ole v1.2.5 // indirect
 	github.com/golang/mock v1.4.4
@@ -36,7 +33,7 @@ require (
 	github.com/opencontainers/image-spec v1.0.1 // indirect
 	github.com/opencontainers/runc v0.1.1 // indirect
 	github.com/opencontainers/selinux v1.8.0 // indirect
-	github.com/pelletier/go-toml v1.2.0
+	github.com/pelletier/go-toml v1.9.2
 	github.com/pkg/errors v0.9.1
 	github.com/satori/go.uuid v1.2.0
 	github.com/shirou/gopsutil v3.20.11+incompatible
@@ -44,7 +41,7 @@ require (
 	github.com/songgao/water v0.0.0-20200317203138-2b4b6d7c09d8
 	github.com/spf13/cast v1.3.1
 	github.com/spf13/pflag v1.0.3
-	github.com/stretchr/testify v1.6.1
+	github.com/stretchr/testify v1.7.0
 	github.com/vishvananda/netlink v1.1.0
 	github.com/xeipuuv/gojsonpointer v0.0.0-20180127040702-4e3ac2762d5f // indirect
 	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect

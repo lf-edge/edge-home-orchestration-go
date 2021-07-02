@@ -1,6 +1,7 @@
 //
-// Copyright (c) 2020 Samsung Electronics Co., Ltd All Rights Reserved.
 // Copyright (c) 2019 Intel Corporation
+// Copyright (c) 2020 Samsung Electronics Co., Ltd All Rights Reserved.
+// Copyright (c) 2021 IOTech Ltd
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,176 +22,87 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
-	"strconv"
 	"testing"
 
+	"github.com/edgexfoundry/device-sdk-go/v2/pkg/models"
+	sdk "github.com/edgexfoundry/device-sdk-go/v2/pkg/service"
+	"github.com/edgexfoundry/go-mod-core-contracts/v2/clients/logger"
+	"github.com/edgexfoundry/go-mod-core-contracts/v2/common"
 	"github.com/stretchr/testify/assert"
-
-	"github.com/edgexfoundry/device-sdk-go/pkg/models"
-	sdk "github.com/edgexfoundry/device-sdk-go/pkg/service"
-	"github.com/edgexfoundry/go-mod-core-contracts/clients/logger"
+	"github.com/stretchr/testify/require"
 )
 
 var handler *StorageHandler
 
 func TestMain(m *testing.M) {
 	service := &sdk.DeviceService{}
-	logger := logger.NewClient("test", false, "./tests.log", "DEBUG")
+	logger := logger.NewMockClient()
 	asyncValues := make(chan<- *models.AsyncValues)
 
 	handler = NewStorageHandler(service, logger, asyncValues)
 	os.Exit(m.Run())
 }
 
-func TestReadasBinary(t *testing.T) {
-
-	req := httptest.NewRequest(http.MethodPost, "http://0.0.0.0:12345", nil)
-
-	handler.readBodyAsString(nil, req)
-
-	handler.readBodyAsBinary(nil, req)
-}
-
 func TestNewCommandValue(t *testing.T) {
 
 	tests := []struct {
 		Name          string
+		Value         interface{}
 		Expected      interface{}
-		Type          models.ValueType
+		Type          string
 		ErrorExpected bool
 	}{
-		{"Test A Binary", []byte{1, 0, 0, 1}, models.Binary, false},
-		{"Test A String JSON", `{"name" : "My JSON"}`, models.String, false},
-		{"Test A String Text", "Random Text", models.String, false},
-		{"Test A Bool true", "true", models.Bool, false},
-		{"Test A Bool false", "false", models.Bool, false},
-		{"Test A Bool error", "bad", models.Bool, true},
-		{"Test A Float32+", "123.456", models.Float32, false},
-		{"Test A Float32-", "-123.456", models.Float32, false},
-		{"Test A Float32 error", "-123.junk", models.Float32, true},
-		{"Test A Float64+", "456.123", models.Float64, false},
-		{"Test A Float64-", "-456.123", models.Float64, false},
-		{"Test A Float64 error", "Random", models.Float64, true},
-		{"Test A Uint8", "255", models.Uint8, false},
-		{"Test A Uint8 error", "FF", models.Uint8, true},
-		{"Test A Uint16", "65535", models.Uint16, false},
-		{"Test A Uint16 error", "FFFF", models.Uint16, true},
-		{"Test A Uint32", "4294967295", models.Uint32, false},
-		{"Test A Uint32 error", "FFFFFFFF", models.Uint32, true},
-		{"Test A Uint64", "18446744073709551615", models.Uint64, false},
-		{"Test A Uint64 error", "FFFFFFFFFFFFFFFF", models.Uint64, true},
-		{"Test A Int8+", "101", models.Int8, false},
-		{"Test A Int8-", "-101", models.Int8, false},
-		{"Test A Int8 error", "-101.98", models.Int8, true},
-		{"Test A Int16+", "2001", models.Int16, false},
-		{"Test A Int16-", "-2001", models.Int16, false},
-		{"Test A Int16 error", "-FF", models.Int16, true},
-		{"Test A Int32+", "32000", models.Int32, false},
-		{"Test A Int32-", "-32000", models.Int32, false},
-		{"Test A Int32 error", "-32.456", models.Int32, true},
-		{"Test A Int64+", "214748364800", models.Int64, false},
-		{"Test A Int64-", "-214748364800", models.Int64, false},
-		{"Test A Int64 error", "-21474.99", models.Int64, true},
+		{"Test A Binary", []byte{1, 0, 0, 1}, []byte{1, 0, 0, 1}, common.ValueTypeBinary, false},
+		{"Test A String JSON", `{"name" : "My JSON"}`, `{"name" : "My JSON"}`, common.ValueTypeString, false},
+		{"Test A String Text", "Random Text", "Random Text", common.ValueTypeString, false},
+		{"Test A Bool true", "true", true, common.ValueTypeBool, false},
+		{"Test A Bool false", "false", false, common.ValueTypeBool, false},
+		{"Test A Bool error", "bad", nil, common.ValueTypeBool, true},
+		{"Test A Float32+", "123.456", float32(123.456), common.ValueTypeFloat32, false},
+		{"Test A Float32-", "-123.456", float32(-123.456), common.ValueTypeFloat32, false},
+		{"Test A Float32 error", "-123.junk", nil, common.ValueTypeFloat32, true},
+		{"Test A Float64+", "456.123", 456.123, common.ValueTypeFloat64, false},
+		{"Test A Float64-", "-456.123", -456.123, common.ValueTypeFloat64, false},
+		{"Test A Float64 error", "Random", nil, common.ValueTypeFloat64, true},
+		{"Test A Uint8", "255", uint8(255), common.ValueTypeUint8, false},
+		{"Test A Uint8 error", "FF", nil, common.ValueTypeUint8, true},
+		{"Test A Uint16", "65535", uint16(65535), common.ValueTypeUint16, false},
+		{"Test A Uint16 error", "FFFF", nil, common.ValueTypeUint16, true},
+		{"Test A Uint32", "4294967295", uint32(4294967295), common.ValueTypeUint32, false},
+		{"Test A Uint32 error", "FFFFFFFF", nil, common.ValueTypeUint32, true},
+		{"Test A Uint64", "6744073709551615", uint64(6744073709551615), common.ValueTypeUint64, false},
+		{"Test A Uint64 error", "FFFFFFFFFFFFFFFF", nil, common.ValueTypeUint64, true},
+		{"Test A Int8+", "101", int8(101), common.ValueTypeInt8, false},
+		{"Test A Int8-", "-101", int8(-101), common.ValueTypeInt8, false},
+		{"Test A Int8 error", "-101.98", nil, common.ValueTypeInt8, true},
+		{"Test A Int16+", "2001", int16(2001), common.ValueTypeInt16, false},
+		{"Test A Int16-", "-2001", int16(-2001), common.ValueTypeInt16, false},
+		{"Test A Int16 error", "-FF", nil, common.ValueTypeInt16, true},
+		{"Test A Int32+", "32000", int32(32000), common.ValueTypeInt32, false},
+		{"Test A Int32-", "-32000", int32(-32000), common.ValueTypeInt32, false},
+		{"Test A Int32 error", "-32.456", nil, common.ValueTypeInt32, true},
+		{"Test A Int64+", "214748364800", int64(214748364800), common.ValueTypeInt64, false},
+		{"Test A Int64-", "-214748364800", int64(-214748364800), common.ValueTypeInt64, false},
+		{"Test A Int64 error", "-21474.99", nil, common.ValueTypeInt64, true},
 	}
 
 	for _, currentTest := range tests {
 		t.Run(currentTest.Name, func(t *testing.T) {
-			cmdVal, err := handler.newCommandValue("test", currentTest.Expected, currentTest.Type)
+			cmdVal, err := handler.newCommandValue("test", currentTest.Value, currentTest.Type)
 			if currentTest.ErrorExpected {
-				if err == nil {
-					t.Fatal("Expected an Error")
-				}
-				return
+				assert.Error(t, err, "Expected an Error")
+			} else {
+				require.NoError(t, err, "Unexpected an Error")
+				assert.Equal(t, cmdVal.Value, currentTest.Expected)
 			}
-
-			if !currentTest.ErrorExpected && err != nil {
-				t.Fatal("Unexpected an Error")
-			}
-
-			var actual interface{}
-
-			switch currentTest.Type {
-			case models.Binary:
-				actual, err = cmdVal.BinaryValue()
-				if !assert.NoError(t, err) {
-					t.Fatal()
-				}
-			case models.String:
-				actual, err = cmdVal.StringValue()
-				if !assert.NoError(t, err) {
-					t.Fatal()
-				}
-			case models.Bool:
-				value, err := cmdVal.BoolValue()
-				if !assert.NoError(t, err) {
-					t.Fatal()
-				}
-				actual = strconv.FormatBool(value)
-			case models.Float32:
-				value, err := cmdVal.Float32Value()
-				if !assert.NoError(t, err) {
-					t.Fatal()
-				}
-				actual = strconv.FormatFloat(float64(value), 'f', 3, 32)
-			case models.Float64:
-				value, err := cmdVal.Float64Value()
-				if !assert.NoError(t, err) {
-					t.Fatal()
-				}
-				actual = strconv.FormatFloat(value, 'f', 3, 64)
-			case models.Uint8:
-				value, err := cmdVal.Uint8Value()
-				if !assert.NoError(t, err) {
-					t.Fatal()
-				}
-				actual = strconv.FormatUint(uint64(value), 10)
-			case models.Uint16:
-				value, err := cmdVal.Uint16Value()
-				if !assert.NoError(t, err) {
-					t.Fatal()
-				}
-				actual = strconv.FormatUint(uint64(value), 10)
-			case models.Uint32:
-				value, err := cmdVal.Uint32Value()
-				if !assert.NoError(t, err) {
-					t.Fatal()
-				}
-				actual = strconv.FormatUint(uint64(value), 10)
-			case models.Uint64:
-				value, err := cmdVal.Uint64Value()
-				if !assert.NoError(t, err) {
-					t.Fatal()
-				}
-				actual = strconv.FormatUint(value, 10)
-			case models.Int8:
-				value, err := cmdVal.Int8Value()
-				if !assert.NoError(t, err) {
-					t.Fatal()
-				}
-				actual = strconv.FormatInt(int64(value), 10)
-			case models.Int16:
-				value, err := cmdVal.Int16Value()
-				if !assert.NoError(t, err) {
-					t.Fatal()
-				}
-				actual = strconv.FormatInt(int64(value), 10)
-			case models.Int32:
-				value, err := cmdVal.Int32Value()
-				if !assert.NoError(t, err) {
-					t.Fatal()
-				}
-				actual = strconv.FormatInt(int64(value), 10)
-			case models.Int64:
-				value, err := cmdVal.Int64Value()
-				if !assert.NoError(t, err) {
-					t.Fatal()
-				}
-				actual = strconv.FormatInt(value, 10)
-			}
-
-			assert.Equal(t, currentTest.Expected, actual)
 		})
 	}
+}
+
+func TestReadasBinary(t *testing.T) {
+	req := httptest.NewRequest(http.MethodPost, "http://0.0.0.0:12345", nil)
+	handler.readBodyAsString(nil, req)
+	handler.readBodyAsBinary(nil, req)
 }
 
 func TestStorageDriver(t *testing.T) {

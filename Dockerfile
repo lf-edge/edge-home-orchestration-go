@@ -24,7 +24,7 @@ RUN mkdir -p $TARGET_DIR/res/
 
 # install required tools
 RUN apt-get update
-RUN apt-get install -y net-tools iproute2
+RUN apt-get install -y net-tools iproute2 libzmq3-dev
 
 # expose ports
 EXPOSE $HTTP_PORT $MDNS_PORT $ZEROCONF_PORT $MNEDC_PORT $MNEDC_BROADCAST_PORT
