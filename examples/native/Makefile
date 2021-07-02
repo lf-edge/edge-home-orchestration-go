@@ -25,7 +25,7 @@ CFLAGS += -I../../bin/capi/output/inc/linux_x86-64
 
 LIBPATHS = -L../../bin/capi/output/lib/linux_x86-64
 
-LIBS =  -pthread -lorchestration
+LIBS =  -pthread -lorchestration -lzmq
 
 ASRCS =
 AOBJS = $(ASRCS:.S=.o)
