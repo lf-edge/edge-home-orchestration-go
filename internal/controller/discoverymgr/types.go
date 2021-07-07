@@ -28,9 +28,9 @@ import (
 )
 
 const (
-	logPrefix       = "[discoverymgr]"
-	edgeDirect      = "/var/edge-orchestration/"
-	configPath      = edgeDirect + "mnedc/client-config.yaml"
+	logPrefix  = "[discoverymgr]"
+	edgeDirect = "/var/edge-orchestration/"
+	configPath = edgeDirect + "mnedc/client-config.yaml"
 )
 
 // OrchestrationInformation is the struct to handle orchestration
@@ -39,9 +39,9 @@ type OrchestrationInformation struct {
 	ExecutionType string `json:"ExecutionType"`
 
 	// List of IP and Services
-	IPv4          []string `json:"IPv4"`
+	IPv4 []string `json:"IPv4"`
 	// IPv6       []string   `json:"IPv6"`
-	ServiceList   []string `json:"ServiceList"`
+	ServiceList []string `json:"ServiceList"`
 }
 
 // ExportDeviceMap gives device info map for discoverymgr user
@@ -56,7 +56,7 @@ type requestData struct {
 // serverConf is the Server Config Structure
 type serverConf struct {
 	ServerIP string `yaml:"server-ip"`
-	Port string `yaml:"port"`
+	Port     string `yaml:"port"`
 }
 
 var (

@@ -62,7 +62,7 @@ func processRTT() {
 				go func(info netDB.NetworkInfo) {
 					result := selectMinRTT(ch, totalCount)
 					if info.RTT < 0 && result < 0 {
-						if info.RTT == -1 * tryLimit {
+						if info.RTT == -1*tryLimit {
 							_, err := netDBExecutor.Get(info.ID)
 							if err == nil {
 								log.Println(logPrefix, "Delete", info.ID, "from netDB")

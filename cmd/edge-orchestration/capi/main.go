@@ -52,7 +52,7 @@ typedef char* (*keyGetterFunc)(char* id);
 identityGetterFunc iGetter;
 keyGetterFunc kGetter;
 
-static void setPSKHandler(identityGetterFunc ihandle, keyGetterFunc khandle){
+static void setHandler(identityGetterFunc ihandle, keyGetterFunc khandle){
 	iGetter = ihandle;
 	kGetter = khandle;
 }
@@ -81,7 +81,9 @@ import (
 	"sync"
 	"unsafe"
 
+	"github.com/lf-edge/edge-home-orchestration-go/internal/common/fscreator"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
+	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/storagemgr"
 
 	configuremgr "github.com/lf-edge/edge-home-orchestration-go/internal/controller/configuremgr/native"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/discoverymgr"
@@ -151,25 +153,27 @@ func OrchestrationInit() C.int {
 	log.Println(">>> buildTags : ", buildTags)
 	wrapper.SetBoltDBPath(dbPath)
 
+	if err := fscreator.CreateFileSystem(edgeDir); err != nil {
+		log.Panicf("%s Failed to create edge-orchestration file system\n", logPrefix)
+		return -1
+	}
+
 	isSecured := false
 	if strings.Contains(buildTags, "secure") {
 		log.Println("Orchestration init with secure option")
 		isSecured = true
 	}
 
+	cipher := dummy.GetCipher(cipherKeyFilePath)
 	if isSecured {
 		verifier.Init(containerWhiteListPath)
 		authenticator.Init(passPhraseJWTPath)
 		authorizer.Init(rbacRulePath)
+		cipher = sha256.GetCipher(cipherKeyFilePath)
 	}
 
 	restIns := restclient.GetRestClient()
-
-	if isSecured {
-		restIns.SetCipher(dummy.GetCipher(cipherKeyFilePath))
-	} else {
-		restIns.SetCipher(sha256.GetCipher(cipherKeyFilePath))
-	}
+	restIns.SetCipher(cipher)
 
 	servicemgr.GetInstance().SetClient(restIns)
 	discoverymgr.GetInstance().SetClient(restIns)
@@ -177,6 +181,7 @@ func OrchestrationInit() C.int {
 	builder := orchestrationapi.OrchestrationBuilder{}
 	builder.SetWatcher(configuremgr.GetInstance(configPath))
 	builder.SetDiscovery(discoverymgr.GetInstance())
+	builder.SetStorage(storagemgr.GetInstance())
 	builder.SetVerifierConf(verifier.GetInstance())
 	builder.SetScoring(scoringmgr.GetInstance())
 	builder.SetService(servicemgr.GetInstance())
@@ -184,7 +189,7 @@ func OrchestrationInit() C.int {
 	builder.SetClient(restIns)
 	orcheEngine = builder.Build()
 	if orcheEngine == nil {
-		log.Fatalf("[%s] Orchestaration initalize fail", logPrefix)
+		log.Fatalf("[%s] Orchestaration initialize fail", logPrefix)
 		return -1
 	}
 
@@ -205,12 +210,9 @@ func OrchestrationInit() C.int {
 	ihandle.SetOrchestrationAPI(internalapi)
 
 	if isSecured {
-		ihandle.SetCipher(dummy.GetCipher(cipherKeyFilePath))
 		ihandle.SetCertificateFilePath(certificateFilePath)
-	} else {
-		ihandle.SetCipher(sha256.GetCipher(cipherKeyFilePath))
 	}
-
+	ihandle.SetCipher(cipher)
 	restEdgeRouter.Add(ihandle)
 
 	externalapi, err := orchestrationapi.GetExternalAPI()
@@ -219,21 +221,16 @@ func OrchestrationInit() C.int {
 	}
 	ehandle := externalhandler.GetHandler()
 	ehandle.SetOrchestrationAPI(externalapi)
-
 	ehandle.SetCipher(dummy.GetCipher(cipherKeyFilePath))
-
 	restEdgeRouter.Add(ehandle)
 
 	restEdgeRouter.Start()
 
 	log.Println(logPrefix, "orchestration init done")
-
+	mnedcmgr.GetServerInstance().SetCipher(cipher)
 	if isSecured {
-		mnedcmgr.GetServerInstance().SetCipher(dummy.GetCipher(cipherKeyFilePath))
 		mnedcmgr.GetServerInstance().SetCertificateFilePath(certificateFilePath)
 		mnedcmgr.GetClientInstance().SetCertificateFilePath(certificateFilePath)
-	} else {
-		mnedcmgr.GetServerInstance().SetCipher(sha256.GetCipher(cipherKeyFilePath))
 	}
 	isMNEDCServer := false
 	isMNEDCClient := false
@@ -306,16 +303,16 @@ func OrchestrationRequestService(cAppName *C.char, cSelfSelection C.int, cReques
 	return ret
 }
 
-type customPSKHandler struct{}
+type customHandler struct{}
 
-func (cHandler customPSKHandler) GetIdentity() string {
+func (cHandler customHandler) GetIdentity() string {
 	var cIdentity *C.char
 	cIdentity = C.bridge_iGetter()
 	identity := C.GoString(cIdentity)
 	return identity
 }
 
-func (cHandler customPSKHandler) GetKey(id string) ([]byte, error) {
+func (cHandler customHandler) GetKey(id string) ([]byte, error) {
 	var cKey *C.char
 	cStr := C.CString(id)
 	defer C.free(unsafe.Pointer(cStr))
@@ -328,10 +325,10 @@ func (cHandler customPSKHandler) GetKey(id string) ([]byte, error) {
 	return []byte(key), nil
 }
 
-//export SetPSKHandler
-func SetPSKHandler(iGetter C.identityGetterFunc, kGetter C.keyGetterFunc) {
-	C.setPSKHandler(iGetter, kGetter)
-	tls.SetPSKHandler(customPSKHandler{})
+//export SetHandler
+func SetHandler(iGetter C.identityGetterFunc, kGetter C.keyGetterFunc) {
+	C.setHandler(iGetter, kGetter)
+	tls.SetHandler(customHandler{})
 }
 
 var count int

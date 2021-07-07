@@ -25,5 +25,5 @@ jobs:
 
       - name: Run the Test Suite
         run: |
-          make go-vendor
+          GO111MODULE=on go mod vendor
           gocov test $(go list ./internal/... | grep -v mock) -coverprofile=/dev/null

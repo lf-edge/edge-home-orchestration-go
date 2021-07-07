@@ -18,8 +18,8 @@
 package configuration
 
 import (
-	"github.com/lf-edge/edge-home-orchestration-go/internal/common/errors"
 	"encoding/json"
+	"github.com/lf-edge/edge-home-orchestration-go/internal/common/errors"
 	"reflect"
 	"testing"
 

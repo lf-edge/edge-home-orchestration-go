@@ -9,21 +9,25 @@ import (
 	configurationdb "github.com/lf-edge/edge-home-orchestration-go/internal/db/bolt/configuration"
 	networkdb "github.com/lf-edge/edge-home-orchestration-go/internal/db/bolt/network"
 	servicedb "github.com/lf-edge/edge-home-orchestration-go/internal/db/bolt/service"
+	systemdb "github.com/lf-edge/edge-home-orchestration-go/internal/db/bolt/system"
 )
 
 var (
 	confQuery    configurationdb.DBInterface
 	netQuery     networkdb.DBInterface
 	serviceQuery servicedb.DBInterface
+	sysQuery     systemdb.DBInterface
 )
 
 func init() {
 	netQuery = networkdb.Query{}
 	confQuery = configurationdb.Query{}
 	serviceQuery = servicedb.Query{}
+	sysQuery = systemdb.Query{}
 }
 
 type MultipleBucketQuery interface {
+	GetDeviceID() (string, error)
 	GetDeviceInfoWithService(serviceName string, executionTypes []string) ([]ExecutionCandidate, error)
 }
 
@@ -39,6 +43,15 @@ var query multipleBucketQuery
 
 func GetInstance() MultipleBucketQuery {
 	return query
+}
+
+func (multipleBucketQuery) GetDeviceID() (string, error) {
+	id, err := sysQuery.Get(systemdb.ID)
+	if err != nil {
+		return "", err
+	}
+
+	return id.Value, err
 }
 
 func (multipleBucketQuery) GetDeviceInfoWithService(serviceName string, executionTypes []string) ([]ExecutionCandidate, error) {

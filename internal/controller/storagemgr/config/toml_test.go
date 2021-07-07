@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2019 Samsung Electronics All Rights Reserved.
+ * Copyright 2021 Samsung Electronics All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,44 +15,28 @@
  *
  *******************************************************************************/
 
-package tlspskserver
+package config
 
 import (
-	"net/http"
-
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
-
-	rafftls "github.com/raff/tls-ext"
-	"github.com/raff/tls-psk"
-
-	"github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/tls"
+	"testing"
 )
 
 var (
 	log = logmgr.GetInstance()
 )
 
-type TLSPSKServerListener interface {
-	ListenAndServe(addr string, handler http.Handler)
-}
+func TestToml(t *testing.T) {
+	SetWritable("DEBUG")
+	SetService("127.0.0.1", 49986, nil)
+	SetRegistry("127.0.0.1", 8500)
+	SetDevice(true, "", "", 128, 256, "", "", "./res")
+	SetDeviceList("datastorage", "datastorage", "RESTful Device", []string{"rest", "json"})
+	SetClients("127.0.0.1", "http", 5000)
 
-type TLSPSKServer struct{}
-
-func (TLSPSKServer) ListenAndServe(addr string, handler http.Handler) {
-	var config = &rafftls.Config{
-		CipherSuites: []uint16{psk.TLS_PSK_WITH_AES_128_CBC_SHA},
-		Certificates: []rafftls.Certificate{rafftls.Certificate{}},
-		Extra: psk.PSKConfig{
-			GetKey:      tls.GetKey,
-			GetIdentity: tls.GetIdentity,
-		},
-	}
-
-	listener, err := rafftls.Listen("tcp", addr, config)
+	b, err := TomlMarshal()
 	if err != nil {
-		log.Println(err.Error())
+		t.Fatal("Unexpected Error")
 	}
-	defer listener.Close()
-
-	(&http.Server{Handler: handler}).Serve(listener)
+	log.Println(string(b))
 }

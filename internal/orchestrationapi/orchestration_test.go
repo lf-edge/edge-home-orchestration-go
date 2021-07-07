@@ -29,10 +29,10 @@ import (
 	contextmgrmocks "github.com/lf-edge/edge-home-orchestration-go/internal/controller/configuremgr/mocks"
 	discoverymocks "github.com/lf-edge/edge-home-orchestration-go/internal/controller/discoverymgr/mocks"
 	scoringmocks "github.com/lf-edge/edge-home-orchestration-go/internal/controller/scoringmgr/mocks"
-	storagemocks "github.com/lf-edge/edge-home-orchestration-go/internal/controller/storagemgr/mocks"
 	verifiermocks "github.com/lf-edge/edge-home-orchestration-go/internal/controller/securemgr/verifier/mocks"
 	executormocks "github.com/lf-edge/edge-home-orchestration-go/internal/controller/servicemgr/executor/mocks"
 	servicemocks "github.com/lf-edge/edge-home-orchestration-go/internal/controller/servicemgr/mocks"
+	storagemocks "github.com/lf-edge/edge-home-orchestration-go/internal/controller/storagemgr/mocks"
 	dbsystemMocks "github.com/lf-edge/edge-home-orchestration-go/internal/db/bolt/system/mocks"
 	dbhelpermocks "github.com/lf-edge/edge-home-orchestration-go/internal/db/helper/mocks"
 	clientmocks "github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/client/mocks"
@@ -218,7 +218,7 @@ func TestStart(t *testing.T) {
 			mockDiscovery.EXPECT().SetRestResource(),
 			mockResourceutil.EXPECT().StartMonitoringResource(),
 			mockDiscovery.EXPECT().StartDiscovery(gomock.Eq(deviceIDPath), gomock.Eq(platform), gomock.Eq(executionType)),
-			mockStorage.EXPECT().StartStorage(),
+			mockStorage.EXPECT().StartStorage(gomock.Any()),
 			mockWatcher.EXPECT().Watch(gomock.Any()),
 		)
 

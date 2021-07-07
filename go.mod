@@ -2,6 +2,9 @@ module github.com/lf-edge/edge-home-orchestration-go
 
 go 1.15
 
+// Temporary measure to avoid crash in Hanoi release of EdgeX, Will be removed post Ireland release.
+replace github.com/edgexfoundry/device-sdk-go v1.4.0 => github.com/hahattan/device-sdk-go v1.4.1
+
 require (
 	github.com/Microsoft/go-winio v0.4.16 // indirect
 	github.com/StackExchange/wmi v0.0.0-20190523213315-cbe66965904d // indirect
@@ -33,9 +36,8 @@ require (
 	github.com/opencontainers/image-spec v1.0.1 // indirect
 	github.com/opencontainers/runc v0.1.1 // indirect
 	github.com/opencontainers/selinux v1.8.0 // indirect
+	github.com/pelletier/go-toml v1.2.0
 	github.com/pkg/errors v0.9.1
-	github.com/raff/tls-ext v0.0.1
-	github.com/raff/tls-psk v0.0.0
 	github.com/satori/go.uuid v1.2.0
 	github.com/shirou/gopsutil v3.20.11+incompatible
 	github.com/sirupsen/logrus v1.7.0

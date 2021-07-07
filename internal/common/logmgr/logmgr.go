@@ -19,14 +19,14 @@
 package logmgr
 
 import (
-	"os"
 	"fmt"
+	"os"
+	"path"
 	"runtime"
 	"strings"
-	"path"
 
-	"github.com/sirupsen/logrus"
 	"github.com/leemcloughlin/logfile"
+	"github.com/sirupsen/logrus"
 )
 
 var (
@@ -38,8 +38,8 @@ func init() {
 	logIns = logrus.New()
 	logIns.SetReportCaller(true)
 	logIns.Formatter = &logrus.TextFormatter{
-		FullTimestamp:true,
-		ForceColors:true,
+		FullTimestamp: true,
+		ForceColors:   true,
 		CallerPrettyfier: func(f *runtime.Frame) (string, string) {
 			s := strings.Split(f.Function, ".")
 			function := s[len(s)-1]

@@ -20,13 +20,14 @@ package javaapi
 
 import (
 	"bytes"
-	"github.com/lf-edge/edge-home-orchestration-go/internal/db/bolt/wrapper"
 	"fmt"
+	"github.com/lf-edge/edge-home-orchestration-go/internal/db/bolt/wrapper"
 	"net/http"
 	"strings"
 	"sync"
 	"time"
 
+	"github.com/lf-edge/edge-home-orchestration-go/internal/common/fscreator"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/networkhelper"
 
@@ -65,6 +66,7 @@ const (
 
 	cipherKeyFile = "/user/orchestration_userID.txt"
 	deviceIDFile  = "/device/orchestration_deviceID.txt"
+
 )
 
 var (
@@ -165,24 +167,26 @@ type ExecuteCallback interface {
 func OrchestrationInit(executeCallback ExecuteCallback, edgeDir string, isSecured bool) (errCode int) {
 	initPlatformPath(edgeDir)
 
+	if err := fscreator.CreateFileSystem(edgeDir); err != nil {
+		log.Panicf("%s Failed to create edge-orchestration file system\n", logPrefix)
+		return
+	}
+
 	logmgr.InitLogfile(logPath)
 	log.Printf("[%s] OrchestrationInit", logPrefix)
 
 	wrapper.SetBoltDBPath(dbPath)
 
+	cipher := dummy.GetCipher(cipherKeyFilePath)
 	if isSecured {
 		verifier.Init(containerWhiteListPath)
 		authenticator.Init(passPhraseJWTPath)
 		authorizer.Init(rbacRulePath)
-
+		cipher = sha256.GetCipher(cipherKeyFilePath)
 	}
 
 	restIns := restclient.GetRestClient()
-	if isSecured {
-		restIns.SetCipher(dummy.GetCipher(cipherKeyFilePath))
-	} else {
-		restIns.SetCipher(sha256.GetCipher(cipherKeyFilePath))
-	}
+	restIns.SetCipher(cipher)
 
 	servicemgr.GetInstance().SetClient(restIns)
 	discoverymgr.GetInstance().SetClient(restIns)
@@ -222,12 +226,9 @@ func OrchestrationInit(executeCallback ExecuteCallback, edgeDir string, isSecure
 	ihandle.SetOrchestrationAPI(internalapi)
 
 	if isSecured {
-		ihandle.SetCipher(dummy.GetCipher(cipherKeyFilePath))
 		ihandle.SetCertificateFilePath(certificateFilePath)
-	} else {
-		ihandle.SetCipher(sha256.GetCipher(cipherKeyFilePath))
 	}
-
+	ihandle.SetCipher(cipher)
 	restEdgeRouter.Add(ihandle)
 
 	restEdgeRouter.Start()
@@ -369,12 +370,12 @@ func GetPrivateIP() string {
 
 }
 
-type PSKHandler interface {
-	tls.PSKHandler
+type Handler interface {
+	tls.Handler
 }
 
-func OrchestrationSetPSKHandler(pskHandler PSKHandler) {
-	tls.SetPSKHandler(pskHandler)
+func OrchestrationSetHandler(handler Handler) {
+	tls.SetHandler(handler)
 }
 
 var count int

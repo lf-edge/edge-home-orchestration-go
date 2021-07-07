@@ -168,7 +168,7 @@ func addHashToContainerWhiteList(hash string) error {
 		}
 		for _, whitelistItem := range containerWhiteList {
 			if whitelistItem == hash {
-				log.Printf("%s container's hash %s already exists in conatiner white list\n", logPrefix, hash)
+				log.Printf("%s container's hash %s already exists in container white list\n", logPrefix, hash)
 				return nil
 			}
 		}

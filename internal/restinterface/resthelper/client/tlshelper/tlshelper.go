@@ -19,20 +19,19 @@ package tlshelper
 
 import (
 	"bufio"
+	"crypto/tls"
+	"crypto/x509"
 	"errors"
 	"fmt"
+	"io/ioutil"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
-
-	"github.com/raff/tls-ext"
-	"github.com/raff/tls-psk"
-
-	tlscipher "github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/tls"
 )
 
 var (
-	//	config        *tls.Config
+	// config        *tls.Config
 	wellKnownPort map[string]string
 )
 
@@ -43,6 +42,34 @@ func init() {
 		"http":  "80",
 		"https": "443",
 	}
+
+}
+
+func createClientConfig() (*tls.Config, error) {
+	caCertPEM, err := ioutil.ReadFile("/var/edge-orchestration/data/cert/ca.crt")
+	if err != nil {
+		return nil, err
+	}
+
+	roots := x509.NewCertPool()
+	ok := roots.AppendCertsFromPEM(caCertPEM)
+	if !ok {
+		panic("failed to parse root certificate")
+	}
+
+	cert, err := tls.LoadX509KeyPair("/var/edge-orchestration/data/cert/hen.crt", "/var/edge-orchestration/data/cert/hen.key")
+	if err != nil {
+		return nil, err
+	}
+	return &tls.Config{
+		Certificates:             []tls.Certificate{cert},
+		RootCAs:                  roots,
+		PreferServerCipherSuites: true,
+		CipherSuites: []uint16{
+			tls.TLS_RSA_WITH_AES_256_GCM_SHA384,
+			tls.TLS_RSA_WITH_AES_256_CBC_SHA,
+		},
+	}, nil
 }
 
 func (TLSHelper) Do(req *http.Request) (*http.Response, error) {
@@ -50,13 +77,9 @@ func (TLSHelper) Do(req *http.Request) (*http.Response, error) {
 		return nil, fmt.Errorf("invalid URL port %q", req.URL.Port())
 	}
 
-	config := &tls.Config{
-		CipherSuites: []uint16{psk.TLS_PSK_WITH_AES_128_CBC_SHA},
-		Certificates: []tls.Certificate{tls.Certificate{}},
-		Extra: psk.PSKConfig{
-			GetKey:      tlscipher.GetKey,
-			GetIdentity: tlscipher.GetIdentity,
-		},
+	config, err := createClientConfig()
+	if err != nil {
+		log.Fatal("config failed: ", err)
 	}
 
 	tlsconn, err := tls.Dial("tcp", req.URL.Host, config)

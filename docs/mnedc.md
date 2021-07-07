@@ -24,15 +24,21 @@ virtual IP to communicate with the peers will be able to send and receive the pa
 
 ## 4. How to Setup
 ### 4.1 Setting up the MNEDC Server
-Just run the following command to run the MNEDC server on the device:
-`./build.sh mnedcserver`.
+Just run the following commands to run the MNEDC server on the device:
+```
+$ make create_context CONFIGURATION_FILE_NAME=x86_64cms
+$ make
+```
 Note that there should be only one device running the MNEDC Server in the network.
 
 ### 4.2 Setting up the MNEDC Client
 Steps to run the MNEDC Client:
 1. Edit the client-config.yaml file inside /configs/mnedc/ directory and put the IP address of the device which is running the MNEDC server.
 2. Copy this client-config.yaml file to /var/edge-orchestration/mnedc folder.
-3. Run the following command:
-`./build.sh mnedcclient`
+3. Run the following commands:
+```
+$ make create_context CONFIGURATION_FILE_NAME=x86_64cmc
+$ make
+```
 
 

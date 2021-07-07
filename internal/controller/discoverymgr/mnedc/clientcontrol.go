@@ -18,8 +18,8 @@
 package mnedcmgr
 
 import (
-	"io/ioutil"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/tls"
+	"io/ioutil"
 	"time"
 
 	restclient "github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/client"

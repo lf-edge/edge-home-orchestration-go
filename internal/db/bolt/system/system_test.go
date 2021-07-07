@@ -18,9 +18,9 @@
 package system
 
 import (
-	"github.com/lf-edge/edge-home-orchestration-go/internal/common/errors"
 	"encoding/json"
 	"fmt"
+	"github.com/lf-edge/edge-home-orchestration-go/internal/common/errors"
 	"reflect"
 	"testing"
 

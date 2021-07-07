@@ -50,12 +50,24 @@ Please see the below [How to work](#how-to-work) to know how to run Edge Orchest
 $ sudo apt-get install tree jq
 ```
 
-This project offers Docker image build as a default build option. 
-
-```shell
-$ ./build.sh
+For build of edge-orchestration project you should run the `make create_context` and specify the configuration file name for example: `x86_64c` and `make` (in the case of building in protected mode, use add `x86_64ns`), see examples below:
 ```
-This build script will build Edge Orchestration in Docker Container environment.
+$ make distclean
+$ make create_context CONFIGURATION_FILE_NAME=x86_64c
+$ make
+```
+or for protected mode:
+```shell
+$ make distclean
+$ make create_context CONFIGURATION_FILE_NAME=x86_64cs
+$ make
+```
+> To easy change the configuration, you can use the kconfig-frontends. For Ubuntu 20.04 you can execute next command `sudo apt-get install kconfig-frontends`.
+
+After successfully build you can run edge-orchestration by execute next command:
+```
+$ make run
+```
 
 If it succeeds, you can see the container runs as follows:
 ```shell
@@ -76,37 +88,10 @@ edge-orchestration         coconut             502e3c07b01f        3 seconds ago
 
 - All Build Options
 ```shell
-build script
-Usage:
----------------------------------------------------------------------------------------------------------------------------------------------------
-  ./build.sh                         : build edge-orchestration by default Docker container
-  ./build.sh secure                  : build edge-orchestration by default Docker container with secure option
-  ./build.sh container [Arch]        : build Docker container Arch:{x86, x86_64, arm, arm64}
-  ./build.sh container secure [Arch] : build Docker container  with secure option Arch:{x86, x86_64, arm, arm64}
-  ./build.sh object [Arch]           : build object (c-object, java-object), Arch:{x86, x86_64, arm, arm64} (default:all)
-  ./build.sh object secure [Arch]    : build object (c-object, java-object) with secure option, Arch:{x86, x86_64, arm, arm64} (default:all)
-  ./build.sh clean                   : build clean
-  ./build.sh test [PKG_PATH]         : run unittests (optional for PKG_PATH which is a relative path such as './internal/common/commandvalidator')
----------------------------------------------------------------------------------------------------------------------------------------------------
+$ make help
 ```
+
 > If you build the edge-orchestration as c-object, then a more detailed description can be found [x86_64_native.md](x86_64_native.md)
-
-The above are the commands for building, but the `build.sh` script also runs `go-callvis`, which generates a visual overview of a Go files using data from call graph and its relations with packages and types.
-To use it, need to take the following steps:
-1. Install go-callvis
-```shell
-$ go get -u github.com/TrueFurby/go-callvis
-$ cd $GOPATH/src/github.com/TrueFurby/go-callvis && make
-```
-2. Comment last line of `build.sh`
-ex) #build_clean_vendor
-
-Then execute the command:
-```shell
-$ ./build.sh callvis
-```
-The result can be seen here `http://localhost:7010/`
->  If you change the code, you must stop the process (` $ kill PID[go-callvis]`) and run the command again (`$ ./build.sh callvis`).
 
 ---
 
@@ -128,6 +113,7 @@ Note that you can visit [Swagger Editor](https://editor.swagger.io/) to graphica
 `/var/edge-orchestration/data/cert/edge-orchestration.key` (Any cert file can be authentication key)
   - Edge Orchestration Docker image
     - Please see the above [How to build](#how-to-build) to know how to build Edge Orchestration Docker image
+  - If you use in secure mode, you must [deploy the key infrastructure](../../secure_manager.md#53-generation-key-infrastructure). 
 
 #### 1. Run Edge Orchestration container
 

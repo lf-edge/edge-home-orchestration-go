@@ -18,19 +18,23 @@
 package discoverymgr
 
 import (
-	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"net"
+	"os"
 	"reflect"
 	"sync"
+	"strings"
 	"time"
 
 	errors "github.com/lf-edge/edge-home-orchestration-go/internal/common/errors"
+	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
+	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/storagemgr"
 	networkhelper "github.com/lf-edge/edge-home-orchestration-go/internal/common/networkhelper"
 	mnedc "github.com/lf-edge/edge-home-orchestration-go/internal/controller/discoverymgr/mnedc"
 	wrapper "github.com/lf-edge/edge-home-orchestration-go/internal/controller/discoverymgr/wrapper"
 
+	dbhelper "github.com/lf-edge/edge-home-orchestration-go/internal/db/helper"
 	configurationdb "github.com/lf-edge/edge-home-orchestration-go/internal/db/bolt/configuration"
 	networkdb "github.com/lf-edge/edge-home-orchestration-go/internal/db/bolt/network"
 	servicedb "github.com/lf-edge/edge-home-orchestration-go/internal/db/bolt/service"
@@ -51,12 +55,11 @@ type Discovery interface {
 	RemoveServiceName(serviceName string) error
 	ResetServiceName()
 	AddDeviceInfo(deviceID string, virtualAddr string, privateAddr string)
-	GetOrchestrationInfo() (platfrom string, executionType string, serviceList []string, err error)
+	GetOrchestrationInfo() (platform string, executionType string, serviceList []string, err error)
 	SetRestResource()
 	MNEDCClosedCallback()
 	NotifyMNEDCBroadcastServer() error
 	MNEDCReconciledCallback()
-	GetDeviceID() (id string, err error)
 	StartMNEDCClient(string, string)
 	StartMNEDCServer(string)
 	client.Setter
@@ -69,18 +72,11 @@ type DiscoveryImpl struct {
 	cipher.HasCipher
 }
 
-func (d *DiscoveryImpl) GetDeviceID() (id string, err error) {
-	id, err = getSystemDB(systemdb.ID)
-	if err != nil {
-		log.Println(err.Error())
-	}
-
-	return
-}
-
 var (
 	discoveryIns *DiscoveryImpl
+	dbIns        dbhelper.MultipleBucketQuery
 	networkIns   networkhelper.Network
+	storageIns   storagemgr.Storage
 	mutexLock    sync.Mutex
 	log          = logmgr.GetInstance()
 )
@@ -90,7 +86,9 @@ func init() {
 	wrapperIns = wrapper.GetZeroconfImpl()
 	shutdownChan = make(chan struct{})
 
+	dbIns      = dbhelper.GetInstance()
 	networkIns = networkhelper.GetInstance()
+	storageIns = storagemgr.GetInstance()
 
 	sysQuery = systemdb.Query{}
 	confQuery = configurationdb.Query{}
@@ -155,7 +153,7 @@ func (DiscoveryImpl) DeleteDeviceWithIP(targetIP string) {
 // DeleteDeviceWithID delete device using deviceID
 func (d DiscoveryImpl) DeleteDeviceWithID(ID string) {
 	// @Note Delete device with id in DB
-	deviceID, err := d.GetDeviceID()
+	deviceID, err := dbIns.GetDeviceID()
 	if err != nil {
 		log.Println(err.Error())
 		return
@@ -225,7 +223,7 @@ func (d *DiscoveryImpl) ResetServiceName() {
 		return
 	}
 
-	deviceID, err := d.GetDeviceID()
+	deviceID, err := dbIns.GetDeviceID()
 	if err != nil {
 		return
 	}
@@ -239,9 +237,13 @@ func (d *DiscoveryImpl) ResetServiceName() {
 		return
 	}
 
+	servicEnv := getServiceFromEnv()
 	var serverTXT []string
 	serverTXT = append(serverTXT, confItem.ExecType)
 	serverTXT = append(serverTXT, confItem.Platform)
+	if len(servicEnv) > 0 {
+		serverTXT = append(serverTXT, servicEnv)
+	}
 
 	d.setNewServiceList(serverTXT)
 }
@@ -262,14 +264,14 @@ func (d *DiscoveryImpl) AddDeviceInfo(deviceID string, virtualAddr string, priva
 }
 
 //GetOrchestrationInfo returns the orchestration info of the device
-func (DiscoveryImpl) GetOrchestrationInfo() (platfrom string, executionType string, serviceList []string, err error) {
+func (DiscoveryImpl) GetOrchestrationInfo() (platform string, executionType string, serviceList []string, err error) {
 
 	log.Println(logPrefix, "Orch info requested")
 	serviceList, err = getServiceList()
 	if err != nil {
 		return
 	}
-	platfrom, err = getPlatform()
+	platform, err = getPlatform()
 	if err != nil {
 		return
 	}
@@ -353,7 +355,7 @@ func detectNetworkChgRoutine() {
 		case <-shutdownChan:
 			return
 		case latestIPs := <-ips:
-			id, err := discoveryIns.GetDeviceID()
+			id, err := dbIns.GetDeviceID()
 			if err != nil {
 				continue
 			}
@@ -416,7 +418,7 @@ func getExecType() (execType string, err error) {
 }
 
 func getServiceList() (serviceList []string, err error) {
-	id, err := discoveryIns.GetDeviceID()
+	id, err := dbIns.GetDeviceID()
 	if err != nil {
 		return
 	}
@@ -477,7 +479,7 @@ func (d *DiscoveryImpl) NotifyMNEDCBroadcastServer() error {
 		return err
 	}
 
-	deviceID, err := d.GetDeviceID()
+	deviceID, err := dbIns.GetDeviceID()
 	if err != nil {
 		log.Println(logPrefix, "Error getting device ID while registering to Broadcast server", err.Error())
 		return err
@@ -520,8 +522,12 @@ func setDeviceArgument(deviceUUID string, platform string, executionType string)
 	deviceID = "edge-orchestration-" + deviceUUID
 	hostName = "edge-" + deviceUUID
 
+	servicEnv := getServiceFromEnv()
 	Text = append(Text, platform)
 	Text = append(Text, executionType)
+	if len(servicEnv) > 0 {
+		Text = append(Text, servicEnv)
+	}
 	return
 }
 
@@ -581,13 +587,22 @@ func deviceDetectionRoutine() {
 				// @Note Is it need to call Update API?
 				setConfigurationDB(confInfo)
 				setServiceDB(serviceInfo)
+
+				// Connect to the device which has DataStroage service
+				if len(netInfo.IPv4) > 0 && storageIns.GetStatus() == 0 {
+					for _, s := range serviceInfo.Services {
+						if strings.Contains(s, "DataStorage") {
+							storageIns.StartStorage(netInfo.IPv4[0])
+						}
+					}
+				}
 			}
 		}
 	}()
 }
 
 func serverPresenceChecker() error {
-	_, err := discoveryIns.GetDeviceID()
+	_, err := dbIns.GetDeviceID()
 	if err != nil {
 		return errors.SystemError{Message: "no server initiated yet"}
 	}
@@ -656,7 +671,7 @@ func (d *DiscoveryImpl) setNewServiceList(serverTXT []string) {
 	// if len(serverTXT) > 2 {
 	newServiceList := serverTXT[2:]
 
-	deviceID, err := discoveryIns.GetDeviceID()
+	deviceID, err := dbIns.GetDeviceID()
 	if err != nil {
 		return
 	}
@@ -712,7 +727,7 @@ func clearMap() {
 		return
 	}
 
-	deviceID, err := discoveryIns.GetDeviceID()
+	deviceID, err := dbIns.GetDeviceID()
 	if err != nil {
 		return
 	}
@@ -729,15 +744,15 @@ func clearMap() {
 func clearAllDeviceInfo() {
 	log.Println(logPrefix, "Delete All Device Info")
 
-        confItems, err := confQuery.GetList()
-        if err != nil {
-                log.Println(logPrefix, err.Error())
-                return
-        }
+	confItems, err := confQuery.GetList()
+	if err != nil {
+		log.Println(logPrefix, err.Error())
+		return
+	}
 
-        for _, confItem := range confItems {
-                deleteDevice(confItem.ID)
-        }
+	for _, confItem := range confItems {
+		deleteDevice(confItem.ID)
+	}
 }
 
 func convertToDBInfo(entity wrapper.Entity) (string, configurationdb.Configuration, networkdb.NetworkInfo, servicedb.ServiceInfo) {
@@ -852,6 +867,11 @@ func resetServer(ips []net.IP) {
 	wrapperIns.ResetServer(ips)
 }
 
+// getServiceFromEnv returns the environment variable of service
+func getServiceFromEnv() string {
+	return os.Getenv("SERVICE")
+}
+
 // getMNEDCServerAddress fetches the IP and Port of the server
 func getMNEDCServerAddress(path string) (string, string, error) {
 	c := serverConf{}
@@ -860,7 +880,7 @@ func getMNEDCServerAddress(path string) (string, string, error) {
 		return "", "", err
 	}
 
-	err = yaml.Unmarshal(yamlFile,&c)
+	err = yaml.Unmarshal(yamlFile, &c)
 	if err != nil {
 		return "", "", err
 	}

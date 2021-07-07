@@ -27,7 +27,10 @@ You can see our project roadmap and details about release notes since our projec
 
 | **x86-64 Linux** | **Raspberry Pi3** | **HiKey960** | **Raspberry Pi3 Cluster** |
 |------------------|-------------------|--------------|---------------------------|
-|[![](docs/platforms/x86_64_linux/x86_64_linux.png)](docs/platforms/x86_64_linux/x86_64_linux.md)|[![](docs/platforms/raspberry_pi3/raspberry_pi3.jpg)](docs/platforms/raspberry_pi3/raspberry_pi3.md)|[![](docs/platforms/hikey960/hikey960.png)](docs/platforms/hikey960/hikey960.md)|[![](docs/platforms/raspberry_pi3_cluster/raspberry_pi3_cluster.jpg)](docs/platforms/raspberry_pi3_cluster/raspberry_pi3_cluster.md)|
+|[![](docs/platforms/x86_64_linux/x86_64_linux.png)](docs/platforms/x86_64_linux/x86_64_linux.md)|[![](docs/platforms/raspberry_pi3/raspberry_pi3.jpg)](docs/platforms/raspberry_pi3/raspberry_pi3.md)|[![](docs/platforms/hikey960/hikey960.png)](docs/platforms/hikey960/hikey960.md)|[![](docs/platforms/raspberry_pi3_cluster/raspberry_pi3_cluster.jpg)](docs/platforms/raspberry_pi3_cluster/raspberry_pi3_cluster.md)|[![](docs/platforms/orange_pi3/orange_pi3.jpg)](docs/platforms/orange_pi3/orange_pi3.md)|
+| **Orange Pi3** | **Add a new Platform** |||
+|[![](docs/platforms/orange_pi3/orange_pi3.jpg)](docs/platforms/orange_pi3/orange_pi3.md)|[![](docs/images/add-new-platform_150.png)](docs/how-to-add-new-platform.md)|||
+
 
 ---
 
@@ -55,13 +58,13 @@ You can see our project roadmap and details about release notes since our projec
 
 Please select the target platform in the table below and follow the link.
 
-| Platform                | Maintained |
-|-------------------------|------------|
-| [x86_64 Linux]          | coconut    |
-| [Raspberry Pi3]         | coconut    |
-| [HiKey960]              | coconut    |
-| [Raspberry Pi3 Cluster] | coconut    |
-
+| Platform                | Maintained  | Maintainer   | Remarks                           |
+|-------------------------|-------------|--------------| ----------------------------------|
+| [x86_64 Linux]          | coconut     | @lf-edge/edge-home-orchestration-go-committers | |
+| [Raspberry Pi3]         | coconut     | @t25kim      |                                   |
+| [HiKey960]              | coconut     | @tdrozdovsky |                                   |
+| [Raspberry Pi3 Cluster] | coconut     | @tdrozdovsky |                                   |
+| [Orange Pi3]            | coconut     | @Vitalii55   |                                   |
 ---
 
 ## Documentation
@@ -73,7 +76,7 @@ You can also familiarize yourself with other materials and plans by visiting the
 ## License
 The Edge Orchestration source code is distributed under the [Apache License, Version 2.0](https://opensource.org/licenses/Apache-2.0) open source license.
 
---- 
+---
 
 ## Contributing
 If you want to contribute to the Edge Orchestration project and make it better, your help is
@@ -89,4 +92,4 @@ coding on Github, new technologies and and their ecosystems.
 [Raspberry Pi3]: docs/platforms/raspberry_pi3/raspberry_pi3.md
 [HiKey960]: docs/platforms/hikey960/hikey960.md
 [Raspberry Pi3 Cluster]: docs/platforms/raspberry_pi3_cluster/raspberry_pi3_cluster.md
-
+[Orange Pi3]: docs/platforms/orange_pi3/orange_pi3.md

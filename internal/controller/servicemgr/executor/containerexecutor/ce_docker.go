@@ -22,10 +22,10 @@ import (
 	"io"
 	"os"
 
-	"github.com/docker/docker/client"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/network"
+	"github.com/docker/docker/client"
 )
 
 // CEImpl is the interface implemented by container execution functions
@@ -46,8 +46,8 @@ type CEImpl interface {
 
 // CEDocker structure
 type CEDocker struct {
-	ctx    context.Context
-	cli    *client.Client
+	ctx context.Context
+	cli *client.Client
 }
 
 func newCEDocker() (ceDocker *CEDocker) {
@@ -85,7 +85,7 @@ func (ce CEDocker) Logs(id string) (io.ReadCloser, error) {
 		ShowStdout: true,
 		ShowStderr: true,
 		Timestamps: true,
-		Follow: true,
+		Follow:     true,
 	}
 	return ce.cli.ContainerLogs(ce.ctx, id, opts)
 }

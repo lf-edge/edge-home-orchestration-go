@@ -107,7 +107,7 @@ func TestDoDelete(t *testing.T) {
 }
 
 func TestMakeTargetURL(t *testing.T) {
-	t.Run("Success",func(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
 		target := "testserver.test"
 		port := 1234
 		restapi := "/api/v1/test"
@@ -125,8 +125,8 @@ func TestResponse(t *testing.T) {
 	contentsType := "application/json; charset=UTF-8"
 	body := "test"
 
-	t.Run("Success",func(t *testing.T) {
-		t.Run("WithBody",func(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
+		t.Run("WithBody", func(t *testing.T) {
 			w := httptest.NewRecorder()
 			GetHelper().Response(w, []byte(body), http.StatusOK)
 
@@ -138,7 +138,7 @@ func TestResponse(t *testing.T) {
 				t.Error("unexpected body")
 			}
 		})
-		t.Run("WithoutBody",func(t *testing.T) {
+		t.Run("WithoutBody", func(t *testing.T) {
 			w := httptest.NewRecorder()
 			GetHelper().Response(w, nil, http.StatusOK)
 

@@ -34,17 +34,21 @@ Prerequisites: install the qemu packages
 $ sudo apt-get install qemu binfmt-support qemu-user-static
 ```
 
-Run the `./build.sh` script and specify the build parameters - `container`,  architecture - `arm`  (in the case of building in protected mode, add `secure`), see examples below:
-```shell
-$ ./build.sh container arm
+Run the `make create_context` and specify the configuration file name `armc` and `make` (in the case of building in protected mode, use add `armcs`), see examples below:
+```
+$ make distclean
+$ make create_context CONFIGURATION_FILE_NAME=armc
+$ make
 ```
 or for protected mode:
 ```shell
-$ ./build.sh container secure arm
+$ make distclean
+$ make create_context CONFIGURATION_FILE_NAME=armcs
+$ make
 ```
 the build result will be `edge-orchestration.tar` archive that can be found `bin/edge-orchestration.tar`
 
-Next, need to copy `edge-orchestration.tar` archive to the Paspberry Pi 3 board, install the docker container (see [here](../x86_64_linux/x86_64_linux.md#Build-Prerequisites) only docker part) and load the image using the command:
+Next, need to copy `edge-orchestration.tar` archive to the Raspberry Pi 3 board, install the docker container (see [here](../x86_64_linux/x86_64_linux.md#Build-Prerequisites) only docker part) and load the image using the command:
 ```shell
 $ docker load -i edge-orchestration.tar
 ```

@@ -9,6 +9,7 @@ pkg/*
 doc/generate-api/*
 vendor/
 go.sum
+.config*
 
 # Sample binary
 libedge-orchestration/lib/*
@@ -31,6 +32,9 @@ examples/native/edge-orchestration
 *.html
 internal/controller/discoverymgr/testDB/*
 internal/controller/storagemgr/storagedriver/tests.log
+
+# Certificates
+cert/
 
 # VS Code
 .vscode/

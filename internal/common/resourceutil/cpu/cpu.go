@@ -190,8 +190,8 @@ func getCPUFreqCpuInfo() (float64, error) {
 				if strings.Contains(val, "GHz") {
 					feq, err := strconv.ParseFloat(strings.Trim(val, "GHz"), 64)
 					if err != nil {
-							return 0.0, err
-						}
+						return 0.0, err
+					}
 					feq *= 1000.0
 					return feq, nil
 				}

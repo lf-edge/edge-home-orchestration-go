@@ -22,11 +22,11 @@
 package mocks
 
 import (
+	gomock "github.com/golang/mock/gomock"
 	executor "github.com/lf-edge/edge-home-orchestration-go/internal/controller/servicemgr/executor"
 	notification "github.com/lf-edge/edge-home-orchestration-go/internal/controller/servicemgr/notification"
-	gomock "github.com/golang/mock/gomock"
-	reflect "reflect"
 	client "github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/client"
+	reflect "reflect"
 )
 
 // MockServiceExecutor is a mock of ServiceExecutor interface

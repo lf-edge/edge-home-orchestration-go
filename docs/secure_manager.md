@@ -15,6 +15,10 @@
     4.1 [Description](#41-description)  
     4.2 [Workflow](#42-workflow)  
     4.3 [JWT generation with user’s name for authorization](#43-jwt-generation-with-users-name-for-authorization)  
+5. [TLS](#5-TLS)  
+    5.1 [Description](#51-description)  
+    5.2 [Workflow](#52-workflow)  
+    5.3 [Generation key infrastructure](#53-generation-key-infrastructure)  
 
 
 ## 1. Introduction
@@ -22,6 +26,7 @@ The **Secure Manager** is designed to control security components. Currently it 
   1. Verifier  
   2. Authenticator
   3. Authorizer (RBAC)
+  4. TLS
  
 In order for the Secure Manager to be allowed, it is necessary to assemble the **Edge-Orchestration** with the `secure` option.
 
@@ -271,5 +276,54 @@ $ . tools/jwt_gen.sh RS256 Member
 users = append(users, User{Name: "Admin", Role: "admin"})
 users = append(users, User{Name: "Member", Role: "member"})
 ```
+
+---
+
+## 5. TLS
+### 5.1 Description
+The **[Transport Layer Security (TLS)](https://en.wikipedia.org/wiki/Transport_Layer_Security)** is a cryptographic protocol designed to provide communications security over a computer network. The Edge-orchestration project uses a standard package [crypto/tls](https://pkg.go.dev/crypto/tls#pkg-overview). The product uses an authentication mechanism with a center authority, realizing a certificate chain of trust and data encryption based on a session key.
+
+---
+
+### 5.2 Workflow
+> To view the Workflow, you need to install a `plantuml` extension for your browser.
+ 
+```plantuml
+
+@startuml
+  autonumber
+  CA->>CA: Generate CA Root Certificate ca.crt ca.key
+  "Node (192.168.0.100)"->>"Node (192.168.0.100)": Generate private key hen.key, request hen.csr
+  "Node (192.168.0.100)"->>CA: Send hen.csr to CA
+  CA-->>"Node (192.168.0.100)": Send ca.crt and hen.crt to Node
+  Note right of CA: For each Node, must be executed items 2-4
+@enduml
+```
+ 
+---
+
+### 5.3 Generation key infrastructure
+
+Before starting work the _Home Edge Network_, need to create a key infrastructure (for a certification authority and for each node separately).
+
+There are two scripts: 
+ * [tools/gen_ca_cert.sh](../tools/gen_ca_cert.sh) for generation of CA Root Certificate, that consists of a private key `ca.key` and a self-signed root certificate `ca.crt`
+ * [tools/gen_hen_cert.sh](../tools/gen_hen_cert.sh) for generation of Home Edge Node (HEN) Certificate, that consists of a private key `hen.key` and a signature HEN certificate: `hen.crt`
+ 
+#### CA Root Certificate
+Generating a CA Root Certificate only needs to be done once for _Home Edge Network_ by running command:
+```shell
+$ tools/gen_ca_cert.sh
+```
+As a result, we get the private key `cert/ca.key` and self-signed root certificate `cert/ca.crt`. The certificate must be saved on all nodes in the `/var/edge-orchestration/data/cert/` folder.
+
+#### Home Edge Node (HEN) Certificate
+Generate HEN Certificate private key : hen.key
+
+For each node, need to create a private key `hen.key` and a certificate `hen.crt`. To do this, need to start the script and specify the node IP address. 
+```shell
+$ tools/gen_hen_cert.sh 192.168.0.100
+```
+As a result, the key and certificate will be created in the `cert/<IP>/`. They must be copied into the `/var/edge-orchestration/data/cert/` folder on a node with the specified IP address
 
 ---

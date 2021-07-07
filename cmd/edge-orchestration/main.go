@@ -23,6 +23,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/lf-edge/edge-home-orchestration-go/internal/common/fscreator"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/sigmgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/storagemgr"
@@ -47,7 +48,6 @@ import (
 	"github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/route"
 
 	"github.com/lf-edge/edge-home-orchestration-go/internal/db/bolt/wrapper"
-
 )
 
 const logPrefix = "interface"
@@ -67,9 +67,9 @@ const (
 	passPhraseJWTPath      = edgeDir + "/data/jwt"
 	rbacRulePath           = edgeDir + "/data/rbac"
 
-	cipherKeyFilePath   = edgeDir + "/user/orchestration_userID.txt"
-	deviceIDFilePath    = edgeDir + "/device/orchestration_deviceID.txt"
-	mnedcServerConfig   = edgeDir + "/mnedc/client-config.yaml"
+	cipherKeyFilePath = edgeDir + "/user/orchestration_userID.txt"
+	deviceIDFilePath  = edgeDir + "/device/orchestration_deviceID.txt"
+	mnedcServerConfig = edgeDir + "/mnedc/client-config.yaml"
 )
 
 var (
@@ -80,7 +80,7 @@ var (
 
 func main() {
 	if err := orchestrationInit(); err != nil {
-		log.Fatalf("[%s] Orchestaration initalize fail : %s", logPrefix, err.Error())
+		log.Fatalf("[%s] Orchestaration initialize fail : %s", logPrefix, err.Error())
 	}
 	sigmgr.Watch()
 }
@@ -94,6 +94,11 @@ func orchestrationInit() error {
 	log.Println(">>> buildTime : ", buildTime)
 	log.Println(">>> buildTags : ", buildTags)
 	wrapper.SetBoltDBPath(dbPath)
+
+	if err := fscreator.CreateFileSystem(edgeDir); err != nil {
+		log.Panicf("%s Failed to create edge-orchestration file system\n", logPrefix)
+		return err
+	}
 
 	secure := os.Getenv("SECURE")
 	mnedc := os.Getenv("MNEDC")
@@ -136,7 +141,7 @@ func orchestrationInit() error {
 
 	orcheEngine := builder.Build()
 	if orcheEngine == nil {
-		log.Fatalf("[%s] Orchestaration initalize fail", logPrefix)
+		log.Fatalf("[%s] Orchestaration initialize fail", logPrefix)
 		return errors.New("fail to init orchestration")
 	}
 
@@ -173,7 +178,6 @@ func orchestrationInit() error {
 	restEdgeRouter.Add(ehandle)
 
 	restEdgeRouter.Start()
-
 
 	log.Println(logPrefix, "orchestration init done")
 

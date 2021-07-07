@@ -34,9 +34,9 @@ const (
 
 var (
 	testData = []data{
-		data{key: []byte("testkey1"), value: []byte("testvalue1")},
-		data{key: []byte("testkey2"), value: []byte("testvalue2")},
-		data{key: []byte("testkey3"), value: []byte("testvalue3")},
+		{key: []byte("testkey1"), value: []byte("testvalue1")},
+		{key: []byte("testkey2"), value: []byte("testvalue2")},
+		{key: []byte("testkey3"), value: []byte("testvalue3")},
 	}
 )
 

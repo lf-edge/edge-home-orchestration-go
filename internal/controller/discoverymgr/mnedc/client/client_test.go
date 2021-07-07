@@ -21,16 +21,16 @@ import (
 	"errors"
 	"net"
 	"os"
+	"sync"
 	"testing"
 	"time"
-	"sync"
 
 	"github.com/golang/mock/gomock"
 	"github.com/songgao/water"
 
 	networkUtilMocks "github.com/lf-edge/edge-home-orchestration-go/internal/controller/discoverymgr/mnedc/connectionutil/mocks"
-	discoveryMocks "github.com/lf-edge/edge-home-orchestration-go/internal/controller/discoverymgr/mocks"
 	tunMocks "github.com/lf-edge/edge-home-orchestration-go/internal/controller/discoverymgr/mnedc/tunmgr/mocks"
+	discoveryMocks "github.com/lf-edge/edge-home-orchestration-go/internal/controller/discoverymgr/mocks"
 )
 
 const (
@@ -53,7 +53,7 @@ var (
 	listener        net.Listener
 	serverListener  net.Listener
 	connection      net.Conn
-	wait		sync.WaitGroup
+	wait            sync.WaitGroup
 )
 
 func init() {
@@ -572,7 +572,7 @@ func createDeviceIDFile() error {
 
 	defer f.Close()
 
-	_, err = f.WriteString("server-ip: "+defaultServerIP + "\n" + "port: "+defaultConnectionPort + "\n")
+	_, err = f.WriteString("server-ip: " + defaultServerIP + "\n" + "port: " + defaultConnectionPort + "\n")
 	if err != nil {
 		return err
 	}

@@ -24,8 +24,8 @@ import (
 	"strings"
 
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
-	"github.com/vishvananda/netlink"
 	"github.com/songgao/water"
+	"github.com/vishvananda/netlink"
 )
 
 //TunImpl is a struct for Tun related methods
@@ -68,7 +68,7 @@ func (TunImpl) SetTUNIP(iName string, localAddr net.IP, addr *net.IPNet, debug b
 		return err
 	}
 	maskLen, _ := addr.Mask.Size()
-	laddr, err := netlink.ParseAddr(fmt.Sprintf("%s/%d",localAddr.String(),maskLen))
+	laddr, err := netlink.ParseAddr(fmt.Sprintf("%s/%d", localAddr.String(), maskLen))
 	if err != nil {
 		return err
 	}

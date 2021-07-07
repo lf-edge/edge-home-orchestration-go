@@ -21,8 +21,8 @@ import (
 	"io/ioutil"
 	"sync/atomic"
 
-	"github.com/satori/go.uuid"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
+	"github.com/satori/go.uuid"
 )
 
 const (
@@ -32,7 +32,7 @@ const (
 
 var (
 	certFilePath atomic.Value
-	handler      PSKHandler
+	handler      Handler
 	log          = logmgr.GetInstance()
 )
 
@@ -50,7 +50,7 @@ func GetCertFilePath() string {
 	return certFilePath.Load().(string)
 }
 
-type PSKHandler interface {
+type Handler interface {
 	GetIdentity() string
 	GetKey(identity string) ([]byte, error)
 }
@@ -67,7 +67,7 @@ type HasCertificate struct {
 	IsSetCert bool
 }
 
-func SetPSKHandler(h PSKHandler) {
+func SetHandler(h Handler) {
 	handler = h
 }
 

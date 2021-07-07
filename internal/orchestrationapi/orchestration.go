@@ -59,7 +59,7 @@ type OrcheInternalAPI interface {
 	ExecuteAppOnLocal(appInfo map[string]interface{})
 	HandleNotificationOnLocal(serviceID float64, status string) error
 	GetScore(target string) (scoreValue float64, err error)
-	GetOrchestrationInfo() (platfrom string, executionType string, serviceList []string, err error)
+	GetOrchestrationInfo() (platform string, executionType string, serviceList []string, err error)
 	HandleDeviceInfo(deviceID string, virtualAddr string, privateAddr string)
 	GetScoreWithResource(target map[string]interface{}) (scoreValue float64, err error)
 	GetResource(target string) (resourceMsg map[string]interface{}, err error)
@@ -201,7 +201,7 @@ func (o OrchestrationBuilder) Build() Orche {
 func (o *orcheImpl) Start(deviceIDPath string, platform string, executionType string) {
 	resourceMonitorImpl.StartMonitoringResource()
 	o.discoverIns.StartDiscovery(deviceIDPath, platform, executionType)
-	o.storageIns.StartStorage()
+	o.storageIns.StartStorage("")
 	o.watcher.Watch(o)
 	o.Ready = true
 	time.Sleep(1000)
