@@ -9,6 +9,7 @@ pkg/*
 doc/generate-api/*
 vendor/
 go.sum
+.config*
 
 # Sample binary
 libedge-orchestration/lib/*

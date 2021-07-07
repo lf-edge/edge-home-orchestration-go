@@ -34,13 +34,17 @@ Prerequisites: install the qemu packages
 $ sudo apt-get install qemu binfmt-support qemu-user-static
 ```
 
-Run the `./build.sh` script and specify the build parameters - `container`,  architecture - `arm64`  (in the case of building in protected mode, add `secure`), see examples below:
-```shell
-$ ./build.sh container arm64
+Run the `make create_context` and specify the configuration file name `arm64c` and `make` (in the case of building in protected mode, use add `arm64cs`), see examples below:
+```
+$ make distclean
+$ make create_context CONFIGURATION_FILE_NAME=arm64c
+$ make
 ```
 or for protected mode:
 ```shell
-$ ./build.sh container secure arm64
+$ make distclean
+$ make create_context CONFIGURATION_FILE_NAME=arm64cs
+$ make
 ```
 the build result will be `edge-orchestration.tar` archive that can be found `bin/edge-orchestration.tar`
 

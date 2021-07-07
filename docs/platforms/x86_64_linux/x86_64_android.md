@@ -26,18 +26,21 @@ $ export PATH=$PATH:$ANDROID_NDK_HOME
 
 ## How to build
 The general preparation steps are described [here](x86_64_linux.md).
-To build an java-object (`liborchestration.aar/liborchestration-sources.jar`), you must run one of the commands depending on normal/secure mode.
-```
-...
-./build.sh object [Arch]        : build object (c-object, java-object), Arch:{x86, x86_64, arm, arm64} (default:all)
-./build.sh object secure [Arch] : build object (c-object, java-object) with secure option, Arch:{x86, x86_64, arm, arm64} (default:all)
-...
+To build an java-object (`liborchestration.aar/liborchestration-sources.jar`), you must run commands depending on configuration file.
 
+Run the `make create_context` and specify the configuration file name `x86_64a` and `make` (in the case of building in protected mode, use add `x86_64as`), see examples below:
 ```
-for example:
+$ make distclean
+$ make create_context CONFIGURATION_FILE_NAME=x86_64a
+$ make
 ```
-$ ./build.sh object x86_64
-
+or for protected mode:
+```shell
+$ make distclean
+$ make create_context CONFIGURATION_FILE_NAME=x86_64as
+$ make
+```
+```
 -----------------------------------
  Build clean
 -----------------------------------
@@ -50,23 +53,6 @@ rm -rf /home/virtual-pc/projects/edge-home-orchestration-go/bin/javaapi/output
  Go Mod Vendor
 -----------------------------------
 GO111MODULE=on go mod vendor
-
-
-**********************************
- Target Binary arch is amd64 
-**********************************
-
-----------------------------------------
- Create Static object of Orchestration
-----------------------------------------
-mkdir -p /home/virtual-pc/projects/edge-home-orchestration-go/bin/capi/output/inc/linux_x86-64 /home/virtual-pc/projects/edge-home-orchestration-go/bin/capi/output/lib/linux_x86-64
-CGO_ENABLED=1 GO111MODULE=on go build -ldflags '-extldflags "-static" -X main.version= -X main.commitID=687e09c -X main.buildTime=20210213.0915 -X main.buildTags=' -o /home/virtual-pc/projects/edge-home-orchestration-go/bin/capi/output/lib/linux_x86-64/liborchestration.a -buildmode=c-archive /home/virtual-pc/projects/edge-home-orchestration-go/cmd/edge-orchestration/capi || exit 1
-mv /home/virtual-pc/projects/edge-home-orchestration-go/bin/capi/output/lib/linux_x86-64/liborchestration.h /home/virtual-pc/projects/edge-home-orchestration-go/bin/capi/output/inc/linux_x86-64/orchestration.h
-ls -al /home/virtual-pc/projects/edge-home-orchestration-go/bin/capi/output/lib/linux_x86-64
-total 37100
-drwxrwxr-x 2 virtual-pc virtual-pc     4096 Feb 13 09:15 .
-drwxrwxr-x 3 virtual-pc virtual-pc     4096 Feb 13 09:15 ..
--rw-rw-r-- 1 virtual-pc virtual-pc 37980926 Feb 13 09:15 liborchestration.a
 
 **********************************
  Target Binary is for Android 

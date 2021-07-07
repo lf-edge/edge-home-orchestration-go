@@ -54,6 +54,6 @@ $(BIN): $(OBJS)
 	$(CC) $(LDFLAGS) $(OBJS) $(LIBPATHS) $(LIBS) -o $@
 
 clean:
-	rm -f $(BIN)
-	rm -f *.o
+	@rm -f $(BIN)
+	@rm -f *.o
 

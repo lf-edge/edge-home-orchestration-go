@@ -3,16 +3,21 @@ The edge-orchestration can be launched as a native Linux application and run ser
 
 ## How to build
 The general preparation steps are described [here](x86_64_linux.md#How-to-build).
-To build an с-object (liborchestration.a), you must run one of the commands depending on normal/secure mode.
+To build an с-object (liborchestration.a), you must run commands depending on configuration file.
+
+Run the `make create_context` and specify the configuration file name `x86_64n` and `make` (in the case of building in protected mode, use add `x86_64ns`), see examples below:
 ```
-...
-./build.sh object [Arch]        : build object (c-object, java-object), Arch:{x86, x86_64, arm, arm64} (default:all)
-./build.sh object secure [Arch] : build object (c-object, java-object) with secure option, Arch:{x86, x86_64, arm, arm64} (default:all)
-...
+$ make distclean
+$ make create_context CONFIGURATION_FILE_NAME=x86_64n
+$ make
 ```
-for example:
+or for protected mode:
+```shell
+$ make distclean
+$ make create_context CONFIGURATION_FILE_NAME=x86_64ns
+$ make
 ```
-$ ./build.sh object x86_64
+```
 ...
 **********************************
  Target Binary arch is amd64 
