@@ -1,4 +1,7 @@
 BASE_DIR := ${shell pwd | sed -e 's/ /\\ /g'}
+ifeq ($(CONFIG_CONTAINER),y)
+BASE_DIR := .
+endif
 
 # Control build verbosity
 #  V=1,2: Enable echo of commands
@@ -56,11 +59,11 @@ BIN_FILE	:= $(PKG_NAME)
 
 # Go Library for C-archive
 LIBRARY_NAME		:= liborchestration
-HEADER_FILE			:= orchestration.h
+HEADER_FILE		:= orchestration.h
 LIBRARY_FILE		:= liborchestration.a
 CUR_HEADER_FILE 	:= $(LIBRARY_NAME).h
 CUR_LIBRARY_FILE 	:= $(LIBRARY_NAME).a
-OBJ_SRC_DIR			:= $(CMD_DIR)/edge-orchestration/capi
+OBJ_SRC_DIR		:= $(CMD_DIR)/edge-orchestration/capi
 INTERFACE_OUT_DIR	:= $(BIN_DIR)/capi/output
 
 ifeq ($(CONFIG_ARM),y)
@@ -128,11 +131,10 @@ define go-vendor
 endef
 
 ## edge-orchestration binary build
-define build_binary
+build_binary:
 	$(call print_header, "Create Executable binary")
 	GOARM=$(GOARM) GOARCH=$(GOARCH) $(GOBUILD) -a $(GO_LDFLAGS) -o $(BIN_DIR)/$(BIN_FILE) $(CMD_SRC) || exit 1
 	$(Q) ls -al $(BIN_DIR)
-endef
 
 ## edge-orchestration static archive build
 define build-object-c
@@ -229,7 +231,6 @@ all:
 	make clean
 	$(call go-vendor)
 ifeq ($(CONFIG_CONTAINER),y)
-	$(call build_binary)
 	make build_docker_container
 else ifeq ($(CONFIG_NATIVE),y)
 	$(call build-object-c)
