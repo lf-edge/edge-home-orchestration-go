@@ -252,9 +252,9 @@ func TestGetDeviceID(t *testing.T) {
 
 	t.Run("Success", func(t *testing.T) {
 		mockSys.EXPECT().Get(gomock.Eq("id")).Return(system.SystemInfo{
-                                        Name: "id",
-                                        Value: "testID",
-                                        }, nil)
+			Name:  "id",
+			Value: "testID",
+		}, nil)
 		_, err := GetInstance().GetDeviceID()
 		if err != nil {
 			t.Error("unexpected error")
@@ -262,9 +262,9 @@ func TestGetDeviceID(t *testing.T) {
 	})
 	t.Run("Fail", func(t *testing.T) {
 		mockSys.EXPECT().Get(gomock.Eq("id")).Return(system.SystemInfo{
-                                        Name: "id",
-                                        Value: "testID",
-                                        }, errors.New(""))
+			Name:  "id",
+			Value: "testID",
+		}, errors.New(""))
 		_, err := GetInstance().GetDeviceID()
 		if err == nil {
 			t.Error("unexpected success")

@@ -23,22 +23,22 @@ import (
 	"net"
 	"os"
 	"reflect"
-	"sync"
 	"strings"
+	"sync"
 	"time"
 
 	errors "github.com/lf-edge/edge-home-orchestration-go/internal/common/errors"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
-	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/storagemgr"
 	networkhelper "github.com/lf-edge/edge-home-orchestration-go/internal/common/networkhelper"
 	mnedc "github.com/lf-edge/edge-home-orchestration-go/internal/controller/discoverymgr/mnedc"
 	wrapper "github.com/lf-edge/edge-home-orchestration-go/internal/controller/discoverymgr/wrapper"
+	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/storagemgr"
 
-	dbhelper "github.com/lf-edge/edge-home-orchestration-go/internal/db/helper"
 	configurationdb "github.com/lf-edge/edge-home-orchestration-go/internal/db/bolt/configuration"
 	networkdb "github.com/lf-edge/edge-home-orchestration-go/internal/db/bolt/network"
 	servicedb "github.com/lf-edge/edge-home-orchestration-go/internal/db/bolt/service"
 	systemdb "github.com/lf-edge/edge-home-orchestration-go/internal/db/bolt/system"
+	dbhelper "github.com/lf-edge/edge-home-orchestration-go/internal/db/helper"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/cipher"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/client"
 
@@ -86,7 +86,7 @@ func init() {
 	wrapperIns = wrapper.GetZeroconfImpl()
 	shutdownChan = make(chan struct{})
 
-	dbIns      = dbhelper.GetInstance()
+	dbIns = dbhelper.GetInstance()
 	networkIns = networkhelper.GetInstance()
 	storageIns = storagemgr.GetInstance()
 

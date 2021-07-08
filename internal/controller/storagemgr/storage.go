@@ -18,13 +18,13 @@ package storagemgr
 
 import (
 	"errors"
-	"io/ioutil"
-	"os"
-	"strings"
 	"github.com/edgexfoundry/device-sdk-go"
 	"github.com/edgexfoundry/device-sdk-go/pkg/startup"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/storagemgr/config"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/storagemgr/storagedriver"
+	"io/ioutil"
+	"os"
+	"strings"
 )
 
 const (
@@ -54,9 +54,9 @@ var (
 
 func init() {
 	deviceID, _ := getDeviceID()
-	deviceName   = dataStorageService + "-" + deviceID
-	storageIns   = &StorageImpl{
-		sd    : storagedriver.StorageDriver{},
+	deviceName = dataStorageService + "-" + deviceID
+	storageIns = &StorageImpl{
+		sd:     storagedriver.StorageDriver{},
 		status: 0,
 	}
 }
@@ -83,8 +83,8 @@ func (s *StorageImpl) StartStorage(host string) (err error) {
 		}
 	}
 
-	if _, err := os.Stat(dataStorageConfFolder+"/configuration.toml"); err == nil {
-		if s.status < 2{
+	if _, err := os.Stat(dataStorageConfFolder + "/configuration.toml"); err == nil {
+		if s.status < 2 {
 			go startup.Bootstrap(dataStorageService, device.Version, &storageIns.sd)
 			s.status = 2
 			return nil
@@ -129,77 +129,77 @@ func saveToml(host string) (err error) {
 }
 
 func saveYaml() (err error) {
-	manufacture    := "Home Edge"
-	model          := "Home Edge"
-	label          := []string{"rest", "json", "int", "float", "jpeg", "png", "string"}
-	description    := "REST Device"
-	propertyJson   := config.Property{
-				Value:config.PropertyDetail{
-					Type:"String",
-					ReadWrite:"RW",
-					MediaType:"application/json"},
-				Units:config.PropertyDetail{
-					Type:"String",
-					ReadWrite:"R"}}
-	propertyInt    := config.Property{
-				Value:config.PropertyDetail{
-					Type:"Int64",
-					ReadWrite:"RW",
-					MediaType:"text/plain"},
-				Units:config.PropertyDetail{
-					Type:"String",
-					ReadWrite:"R"}}
-	propertyFloat  := config.Property{
-				Value:config.PropertyDetail{
-					Type:"Float64",
-					ReadWrite:"RW",
-					MediaType:"text/plain"},
-				Units:config.PropertyDetail{
-					Type:"String",
-					ReadWrite:"R"}}
-	propertyJpeg   := config.Property{
-				Value:config.PropertyDetail{
-					Type:"Binary",
-					ReadWrite:"RW",
-					MediaType:"image/jpeg"},
-				Units:config.PropertyDetail{
-					Type:"String",
-					ReadWrite:"R"}}
-	propertyPng    := config.Property{
-				Value:config.PropertyDetail{
-					Type:"Binary",
-					ReadWrite:"RW",
-					MediaType:"image/png"},
-				Units:config.PropertyDetail{
-					Type:"String",
-					ReadWrite:"R"}}
+	manufacture := "Home Edge"
+	model := "Home Edge"
+	label := []string{"rest", "json", "int", "float", "jpeg", "png", "string"}
+	description := "REST Device"
+	propertyJson := config.Property{
+		Value: config.PropertyDetail{
+			Type:      "String",
+			ReadWrite: "RW",
+			MediaType: "application/json"},
+		Units: config.PropertyDetail{
+			Type:      "String",
+			ReadWrite: "R"}}
+	propertyInt := config.Property{
+		Value: config.PropertyDetail{
+			Type:      "Int64",
+			ReadWrite: "RW",
+			MediaType: "text/plain"},
+		Units: config.PropertyDetail{
+			Type:      "String",
+			ReadWrite: "R"}}
+	propertyFloat := config.Property{
+		Value: config.PropertyDetail{
+			Type:      "Float64",
+			ReadWrite: "RW",
+			MediaType: "text/plain"},
+		Units: config.PropertyDetail{
+			Type:      "String",
+			ReadWrite: "R"}}
+	propertyJpeg := config.Property{
+		Value: config.PropertyDetail{
+			Type:      "Binary",
+			ReadWrite: "RW",
+			MediaType: "image/jpeg"},
+		Units: config.PropertyDetail{
+			Type:      "String",
+			ReadWrite: "R"}}
+	propertyPng := config.Property{
+		Value: config.PropertyDetail{
+			Type:      "Binary",
+			ReadWrite: "RW",
+			MediaType: "image/png"},
+		Units: config.PropertyDetail{
+			Type:      "String",
+			ReadWrite: "R"}}
 	propertyString := config.Property{
-				Value:config.PropertyDetail{
-					Type:"String",
-					ReadWrite:"RW",
-					MediaType:"text/plain"},
-				Units:config.PropertyDetail{
-					Type:"String",
-					ReadWrite:"R"}}
-	resource       := []config.DeviceResource{
-				config.DeviceResource{
-					Name:"json",
-					Properties:propertyJson},
-				config.DeviceResource{
-					Name:"int",
-					Properties:propertyInt},
-				config.DeviceResource{
-					Name:"float",
-					Properties:propertyFloat},
-				config.DeviceResource{
-					Name:"jpeg",
-					Properties:propertyJpeg},
-				config.DeviceResource{
-					Name:"png",
-					Properties:propertyPng},
-				config.DeviceResource{
-					Name:"string",
-					Properties:propertyString}}
+		Value: config.PropertyDetail{
+			Type:      "String",
+			ReadWrite: "RW",
+			MediaType: "text/plain"},
+		Units: config.PropertyDetail{
+			Type:      "String",
+			ReadWrite: "R"}}
+	resource := []config.DeviceResource{
+		{
+			Name:       "json",
+			Properties: propertyJson},
+		{
+			Name:       "int",
+			Properties: propertyInt},
+		{
+			Name:       "float",
+			Properties: propertyFloat},
+		{
+			Name:       "jpeg",
+			Properties: propertyJpeg},
+		{
+			Name:       "png",
+			Properties: propertyPng},
+		{
+			Name:       "string",
+			Properties: propertyString}}
 
 	config.SetYaml(deviceName, manufacture, model, description, label, resource)
 	b, err := config.YamlMarshal()

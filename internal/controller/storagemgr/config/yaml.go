@@ -53,11 +53,11 @@ var (
 
 func SetYaml(name, manufac, model, desc string, labels []string, resources []DeviceResource) {
 	yamlInfo = Yaml{
-		Name: name,
-		Manufacturer: manufac,
-		Model: model,
-		Labels: labels,
-		Description: desc,
+		Name:            name,
+		Manufacturer:    manufac,
+		Model:           model,
+		Labels:          labels,
+		Description:     desc,
 		DeviceResources: resources}
 }
 

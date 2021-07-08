@@ -1,5 +1,5 @@
 ---
-name: Lint and Vet Analysis
+name: Lint, Vet and GoFmt Analysis
 on: [push, pull_request]
 
 jobs:
@@ -25,4 +25,8 @@ jobs:
       - name: Vet Analysis
         run: |
           go vet -v ./internal/...
+
+      - name: GoFmt Analysis
+        run: |
+          if [[ $(gofmt -l ./internal) ]]; then exit 1; fi 
 

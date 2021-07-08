@@ -117,9 +117,9 @@ endif
 
 define print_header
 	@ echo ""
-	@ echo "-----------------------------------"
+	@ echo "--------------------------------------"
 	@ echo " "$1
-	@ echo "-----------------------------------"
+	@ echo "--------------------------------------"
 endef
 
 define go-vendor
@@ -200,6 +200,12 @@ lint:
 	$(GOLINT) ./internal/...
 	$(GOVET) -v ./internal/...
 
+## format go files
+fmt:
+	$(Q) make clean
+	$(call print_header, "Formatting source code using gofmt")
+	$(Q) gofmt -s -w ./internal
+
 ## show help
 help:
 	@echo 'Usage: make <TARGETS>'
@@ -211,12 +217,13 @@ help:
 	@echo '    clean              Remove binaries, artifacts.'
 	@echo '    test               Run unit tests.'
 	@echo '    lint               Run golint and go vet.'
+	@echo '    fmt                Run: gofmt -s -w ./ .'
 	@echo '    all                Build project for current platform.'
 	@echo '    menuconfig         Change configuration by kconfig-frontends.'
 	@echo ''
 
 ## define build target not a file
-.PHONY: all build test clean lint help
+.PHONY: all build test clean lint fmt help
 
 define stop_docker_container
 	$(call print_header, "Stop Docker container")
