@@ -65,6 +65,11 @@ For very small fixes, e.g. typos and documentation changes, there is no need to 
 
 #### 8. Commit your changes
 
+Before creating the Commit, format the source code using GOFMT. This can be done by following command:
+```sh
+$ make fmt
+```
+
 add the files/changes you want to commit to the staging area with
 ```sh
 $ git add path/to/my/file.go

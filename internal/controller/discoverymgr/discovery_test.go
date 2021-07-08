@@ -88,11 +88,11 @@ var (
 func createMockIns(ctrl *gomock.Controller) {
 	mockWrapper = wrappermocks.NewMockZeroconfInterface(ctrl)
 	mockNetwork = networkmocks.NewMockNetwork(ctrl)
-	mockDB      = dbmocks.NewMockMultipleBucketQuery(ctrl)
+	mockDB = dbmocks.NewMockMultipleBucketQuery(ctrl)
 
 	wrapperIns = mockWrapper
 	networkIns = mockNetwork
-	dbIns      = mockDB
+	dbIns = mockDB
 }
 
 func addDevice(Another bool) {

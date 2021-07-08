@@ -66,7 +66,6 @@ const (
 
 	cipherKeyFile = "/user/orchestration_userID.txt"
 	deviceIDFile  = "/device/orchestration_deviceID.txt"
-
 )
 
 var (

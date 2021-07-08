@@ -34,7 +34,7 @@ func TestCreateFileSystem(t *testing.T) {
 
 		CreateFileSystem(fakefsPath)
 		for _, dir := range edgeDirs {
-			if _, err := os.Stat(fakefsPath+dir); err != nil {
+			if _, err := os.Stat(fakefsPath + dir); err != nil {
 				t.Error(err.Error())
 			}
 		}
@@ -46,12 +46,12 @@ func TestCreateFileSystem(t *testing.T) {
 				t.Error(r)
 			}
 			for _, dir := range edgeDirs {
-				if _, err := os.Stat("/"+fakefsPath+dir); err == nil {
+				if _, err := os.Stat("/" + fakefsPath + dir); err == nil {
 					t.Error(unexpectedSuccess)
 				}
 			}
-			os.RemoveAll("/"+fakefsPath)
+			os.RemoveAll("/" + fakefsPath)
 		}()
-		CreateFileSystem("/"+fakefsPath)
+		CreateFileSystem("/" + fakefsPath)
 	})
 }
