@@ -37,13 +37,13 @@ $ sudo apt-get install qemu binfmt-support qemu-user-static
 Run the `make create_context` and specify the configuration file name `armc` and `make` (in the case of building in protected mode, use add `armcs`), see examples below:
 ```
 $ make distclean
-$ make create_context CONFIGURATION_FILE_NAME=armc
+$ make create_context CONFIGFILE=armc
 $ make
 ```
 or for protected mode:
 ```shell
 $ make distclean
-$ make create_context CONFIGURATION_FILE_NAME=armcs
+$ make create_context CONFIGFILE=armcs
 $ make
 ```
 the build result will be `edge-orchestration.tar` archive that can be found `bin/edge-orchestration.tar`

@@ -27,5 +27,5 @@ jobs:
       - name: Build the container
         run: |
           make distclean
-          make create_context CONFIGURATION_FILE_NAME=${{ matrix.arch }}
+          make create_context CONFIGFILE=${{ matrix.arch }}
           make

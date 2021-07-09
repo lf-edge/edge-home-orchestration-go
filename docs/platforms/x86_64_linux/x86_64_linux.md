@@ -53,13 +53,13 @@ $ sudo apt-get install tree jq
 For build of edge-orchestration project you should run the `make create_context` and specify the configuration file name for example: `x86_64c` and `make` (in the case of building in protected mode, use add `x86_64ns`), see examples below:
 ```
 $ make distclean
-$ make create_context CONFIGURATION_FILE_NAME=x86_64c
+$ make create_context CONFIGFILE=x86_64c
 $ make
 ```
 or for protected mode:
 ```shell
 $ make distclean
-$ make create_context CONFIGURATION_FILE_NAME=x86_64cs
+$ make create_context CONFIGFILE=x86_64cs
 $ make
 ```
 > To easy change the configuration, you can use the kconfig-frontends. For Ubuntu 20.04 you can execute next command `sudo apt-get install kconfig-frontends`.

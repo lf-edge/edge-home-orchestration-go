@@ -193,6 +193,7 @@ clean:
 distclean: clean
 	$(Q) rm -f .config
 	$(Q) rm -f .config.old
+	$(Q) rm -f Dockerfile
 
 ## check go style and static analysis
 lint:
@@ -236,6 +237,7 @@ all:
 	make clean
 	$(call go-vendor)
 ifeq ($(CONFIG_CONTAINER),y)
+	$(Q) cp configs/defdockerfiles/$(CONFIG_DOCKERFILE) Dockerfile
 	$(call build_binary)
 	make build_docker_container
 else ifeq ($(CONFIG_NATIVE),y)
@@ -249,7 +251,7 @@ else ifeq ($(CONFIG_ANDROID),y)
 endif
 
 .config:
-	$(Q) cp configs/defconfigs/$(CONFIGURATION_FILE_NAME) .config
+	$(Q) cp configs/defconfigs/$(CONFIGFILE) .config
 
 create_context: .config
 
@@ -280,6 +282,6 @@ do_menuconfig:
 menuconfig: do_menuconfig
 
 do_savedefconfig:
-	$(Q) cp -f .config configs/defconfigs/$(CONFIG_CONFIGURATION_FILE_NAME)
+	$(Q) cp -f .config configs/defconfigs/$(CONFIG_CONFIGFILE)
 
 savedefconfig: do_savedefconfig
