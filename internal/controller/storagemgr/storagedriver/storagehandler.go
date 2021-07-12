@@ -68,7 +68,7 @@ func (handler StorageHandler) Start() error {
 		return fmt.Errorf("unable to add required route: %s: %s", apiResourceRoute, err.Error())
 	}
 
-	handler.logger.Info(fmt.Sprintf("Route %s added.", apiResourceRoute))
+	log.Info(fmt.Sprintf("Route %s added.", apiResourceRoute))
 
 	return nil
 }
@@ -87,17 +87,17 @@ func (handler StorageHandler) processAsyncGetRequest(writer http.ResponseWriter,
 	deviceName := vars[deviceNameKey]
 	resourceName := vars[resourceNameKey]
 
-	handler.logger.Debug(fmt.Sprintf("Received POST for Device=%s Resource=%s", deviceName, resourceName))
+	log.Debug(fmt.Sprintf("Received POST for Device=%s Resource=%s", deviceName, resourceName))
 
 	_, err := handler.service.GetDeviceByName(deviceName)
 	if err != nil {
-		handler.logger.Error(fmt.Sprintf("Incoming reading ignored. Device '%s' not found", deviceName))
+		log.Error(fmt.Sprintf("Incoming reading ignored. Device '%s' not found", deviceName))
 		http.Error(writer, fmt.Sprintf("Device not found"), http.StatusNotFound)
 		return
 	}
 	_, ok := handler.service.DeviceResource(deviceName, resourceName, "get")
 	if !ok {
-		handler.logger.Error(fmt.Sprintf("Incoming reading ignored. Resource '%s' not found", resourceName))
+		log.Error(fmt.Sprintf("Incoming reading ignored. Resource '%s' not found", resourceName))
 		http.Error(writer, fmt.Sprintf("Resource not found"), http.StatusNotFound)
 		return
 	}
@@ -126,18 +126,18 @@ func (handler StorageHandler) processAsyncPostRequest(writer http.ResponseWriter
 	deviceName := vars[deviceNameKey]
 	resourceName := vars[resourceNameKey]
 
-	handler.logger.Debug(fmt.Sprintf("Received POST for Device=%s Resource=%s", deviceName, resourceName))
+	log.Debug(fmt.Sprintf("Received POST for Device=%s Resource=%s", deviceName, resourceName))
 
 	_, err := handler.service.GetDeviceByName(deviceName)
 	if err != nil {
-		handler.logger.Error(fmt.Sprintf("Incoming reading ignored. Device '%s' not found", deviceName))
+		log.Error(fmt.Sprintf("Incoming reading ignored. Device '%s' not found", deviceName))
 		http.Error(writer, fmt.Sprintf("Device not found"), http.StatusNotFound)
 		return
 	}
 
 	deviceResource, ok := handler.service.DeviceResource(deviceName, resourceName, "get")
 	if !ok {
-		handler.logger.Error(fmt.Sprintf("Incoming reading ignored. Resource '%s' not found", resourceName))
+		log.Error(fmt.Sprintf("Incoming reading ignored. Resource '%s' not found", resourceName))
 		http.Error(writer, fmt.Sprintf("Resource not found"), http.StatusNotFound)
 		return
 	}
@@ -149,11 +149,11 @@ func (handler StorageHandler) processAsyncPostRequest(writer http.ResponseWriter
 			return
 		}
 
-		handler.logger.Debug(fmt.Sprintf("Content Type is '%s' & Media Type is '%s' and Type is '%s'",
+		log.Debug(fmt.Sprintf("Content Type is '%s' & Media Type is '%s' and Type is '%s'",
 			contentType, deviceResource.Properties.Value.MediaType, deviceResource.Properties.Value.Type))
 
 		if contentType != deviceResource.Properties.Value.MediaType {
-			handler.logger.Error(fmt.Sprintf("Incoming reading ignored. Content Type '%s' doesn't match %s resource's Media Type '%s'",
+			log.Error(fmt.Sprintf("Incoming reading ignored. Content Type '%s' doesn't match %s resource's Media Type '%s'",
 				contentType, resourceName, deviceResource.Properties.Value.MediaType))
 
 			http.Error(writer, "Wrong Content-Type", http.StatusBadRequest)
@@ -171,14 +171,14 @@ func (handler StorageHandler) processAsyncPostRequest(writer http.ResponseWriter
 	}
 
 	if err != nil {
-		handler.logger.Error(fmt.Sprintf("Incoming reading ignored. Unable to read request body: %s", err.Error()))
+		log.Error(fmt.Sprintf("Incoming reading ignored. Unable to read request body: %s", err.Error()))
 		http.Error(writer, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	value, err := handler.newCommandValue(resourceName, reading, readingType)
 	if err != nil {
-		handler.logger.Error(
+		log.Error(
 			fmt.Sprintf("Incoming reading ignored. Unable to create Command Value for Device=%s Command=%s: %s",
 				deviceName, resourceName, err.Error()))
 		http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -190,7 +190,7 @@ func (handler StorageHandler) processAsyncPostRequest(writer http.ResponseWriter
 		CommandValues: []*models.CommandValue{value},
 	}
 
-	handler.logger.Debug(fmt.Sprintf("Incoming reading received: Device=%s Resource=%s", deviceName, resourceName))
+	log.Debug(fmt.Sprintf("Incoming reading received: Device=%s Resource=%s", deviceName, resourceName))
 
 	handler.asyncValues <- asyncValues
 }
@@ -261,7 +261,7 @@ func (handler StorageHandler) newCommandValue(resourceName string, reading inter
 
 	if !checkValueInRange(valueType, reading) {
 		errn = fmt.Errorf("parse reading fail. Reading %v is out of the value type(%v)'s range", reading, valueType)
-		handler.logger.Error(errn.Error())
+		log.Error(errn.Error())
 		return result, errn
 	}
 
