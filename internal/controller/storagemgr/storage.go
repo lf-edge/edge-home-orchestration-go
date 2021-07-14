@@ -54,7 +54,7 @@ var (
 
 func init() {
 	deviceID, _ := getDeviceID()
-	deviceName = dataStorageService + "-" + deviceID
+	deviceName = "edge-orchestration-" + deviceID
 	storageIns = &StorageImpl{
 		sd:     storagedriver.StorageDriver{},
 		status: 0,
