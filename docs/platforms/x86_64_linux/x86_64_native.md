@@ -8,13 +8,13 @@ To build an с-object (liborchestration.a), you must run commands depending on c
 Run the `make create_context` and specify the configuration file name `x86_64n` and `make` (in the case of building in protected mode, use add `x86_64ns`), see examples below:
 ```
 $ make distclean
-$ make create_context CONFIGURATION_FILE_NAME=x86_64n
+$ make create_context CONFIGFILE=x86_64n
 $ make
 ```
 or for protected mode:
 ```shell
 $ make distclean
-$ make create_context CONFIGURATION_FILE_NAME=x86_64ns
+$ make create_context CONFIGFILE=x86_64ns
 $ make
 ```
 ```

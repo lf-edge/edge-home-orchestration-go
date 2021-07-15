@@ -2,7 +2,8 @@
 # Automatically generated file; DO NOT EDIT.
 # Edge-Home-Orchstration Configuration
 #
-CONFIG_CONFIGURATION_FILE_NAME="x86_64cms"
+CONFIG_CONFIGFILE="x86_64cms"
+CONFIG_DOCKERFILE="ubuntu"
 CONFIG_X86_64=y
 # CONFIG_X86 is not set
 # CONFIG_ARM is not set

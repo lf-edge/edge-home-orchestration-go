@@ -31,13 +31,13 @@ To build an java-object (`liborchestration.aar/liborchestration-sources.jar`), y
 Run the `make create_context` and specify the configuration file name `x86_64a` and `make` (in the case of building in protected mode, use add `x86_64as`), see examples below:
 ```
 $ make distclean
-$ make create_context CONFIGURATION_FILE_NAME=x86_64a
+$ make create_context CONFIGFILE=x86_64a
 $ make
 ```
 or for protected mode:
 ```shell
 $ make distclean
-$ make create_context CONFIGURATION_FILE_NAME=x86_64as
+$ make create_context CONFIGFILE=x86_64as
 $ make
 ```
 ```

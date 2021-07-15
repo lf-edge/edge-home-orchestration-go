@@ -5,8 +5,15 @@
 
 mainmenu "Edge-Home-Orchstration Configuration"
 
-config CONFIGURATION_FILE_NAME
+config CONFIGFILE
 	string "Configuration file name"
+	help
+		Configuration file name
+
+config DOCKERFILE
+	string "Dockerfile name"
+	default "ubuntu"
+	depends on CONTAINER
 	help
 		Configuration file name
 
