@@ -62,6 +62,9 @@ $ make distclean
 $ make create_context CONFIGFILE=x86_64cs
 $ make
 ```
+
+> To change the configuration file, you must execute the command `make distclean`
+
 > To easy change the configuration, you can use the kconfig-frontends. For Ubuntu 20.04 you can execute next command `sudo apt-get install kconfig-frontends`.
 
 After successfully build you can run edge-orchestration by execute next command:
