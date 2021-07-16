@@ -1,4 +1,5 @@
 BASE_DIR := ${shell pwd | sed -e 's/ /\\ /g'}
+CUR_HW_PLATFORM := $(shell uname -m)
 
 # Control build verbosity
 #  V=1,2: Enable echo of commands
@@ -56,11 +57,11 @@ BIN_FILE	:= $(PKG_NAME)
 
 # Go Library for C-archive
 LIBRARY_NAME		:= liborchestration
-HEADER_FILE			:= orchestration.h
+HEADER_FILE		:= orchestration.h
 LIBRARY_FILE		:= liborchestration.a
 CUR_HEADER_FILE 	:= $(LIBRARY_NAME).h
 CUR_LIBRARY_FILE 	:= $(LIBRARY_NAME).a
-OBJ_SRC_DIR			:= $(CMD_DIR)/edge-orchestration/capi
+OBJ_SRC_DIR		:= $(CMD_DIR)/edge-orchestration/capi
 INTERFACE_OUT_DIR	:= $(BIN_DIR)/capi/output
 
 ifeq ($(CONFIG_ARM),y)
@@ -251,7 +252,29 @@ else ifeq ($(CONFIG_ANDROID),y)
 endif
 
 .config:
+ifndef CONFIGFILE
+ifeq ($(CUR_HW_PLATFORM),x86_64)
+	$(Q) echo "Configure based on "x86_64c
+	$(Q) cp configs/defconfigs/x86_64c .config
+else ifeq ($(CUR_HW_PLATFORM),i386)
+	$(Q) echo "Configure based on "x86c
+	$(Q) cp configs/defconfigs/x86c .config
+else ifeq ($(CUR_HW_PLATFORM),i686)
+	$(Q) echo "Configure based on "x86c
+	$(Q) cp configs/defconfigs/x86c .config
+else ifeq ($(CUR_HW_PLATFORM),aarch64)
+	$(Q) echo "Configure based on "arm64c
+	$(Q) cp configs/defconfigs/arm64c .config
+else ifeq ($(CUR_HW_PLATFORM),armv7l)
+	$(Q) echo "Configure based on "armc
+	$(Q) cp configs/defconfigs/armc .config
+else
+	$(Q) echo "Please create configuration with make create_context CONFIGFILE="
+endif
+else
+	$(Q) echo "Configure based on "$(CONFIGFILE)
 	$(Q) cp configs/defconfigs/$(CONFIGFILE) .config
+endif
 
 create_context: .config
 

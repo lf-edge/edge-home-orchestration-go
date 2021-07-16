@@ -40,6 +40,8 @@ $ make distclean
 $ make create_context CONFIGFILE=armc
 $ make
 ```
+> If you don't specify CONFIGFILE, it will configure automatically as `armc`.
+
 or for protected mode:
 ```shell
 $ make distclean

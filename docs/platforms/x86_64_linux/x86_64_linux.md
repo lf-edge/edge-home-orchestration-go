@@ -56,6 +56,8 @@ $ make distclean
 $ make create_context CONFIGFILE=x86_64c
 $ make
 ```
+> If you don't specify CONFIGFILE, it will configure automatically as `x86_64c`.
+
 or for protected mode:
 ```shell
 $ make distclean
