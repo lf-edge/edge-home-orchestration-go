@@ -163,10 +163,14 @@ build_docker_container:
 	-docker rmi -f $(DOCKER_IMAGE):$(CONTAINER_VERSION)
 	$(Q) mkdir -p $(BASE_DIR)/bin/qemu
 ifeq ($(CONFIG_ARM),y)
+ifneq ($(shell uname -m),armv7l)
 	$(Q) cp /usr/bin/qemu-arm-static $(BASE_DIR)/bin/qemu
 endif
+endif
 ifeq ($(CONFIG_ARM64),y)
+ifneq ($(shell uname -m),aarch64)
 	$(Q) cp /usr/bin/qemu-aarch64-static $(BASE_DIR)/bin/qemu
+endif
 endif
 	$(DOCKER) build --tag $(PKG_NAME):$(CONTAINER_VERSION) --file $(BASE_DIR)/Dockerfile --build-arg PLATFORM=$(CONTAINER_ARCH) .
 	-docker save -o $(BASE_DIR)/bin/edge-orchestration.tar edge-orchestration
