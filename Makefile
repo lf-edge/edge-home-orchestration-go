@@ -180,7 +180,7 @@ test-go:
 	$(Q) firefox coverage.html &
 
 ## build clean
-clean:
+clean: go.sum
 	$(call print_header, "Build clean")
 	$(Q) $(GOCLEAN)
 	$(Q) -rm -rf $(BUILD_VENDOR_DIR)
@@ -255,6 +255,9 @@ endif
 
 create_context: .config
 
+go.sum:
+	$(Q) $(GOCMD) mod tidy
+
 run:
 	$(call print_header, "Run Docker container ")
 	docker run -it -d \
@@ -267,7 +270,7 @@ run:
                 $(DOCKER_IMAGE):$(CONTAINER_VERSION)
 	$(Q) docker container ls
 
-test:
+test: go.sum
 	$(call print_header, "Build test to calculate Coverage")
 	$(Q) -sudo systemctl stop ${SERVICE_FILE}
 	$(Q) -sudo systemctl status ${SERVICE_FILE}
