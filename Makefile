@@ -163,10 +163,14 @@ build_docker_container:
 	-docker rmi -f $(DOCKER_IMAGE):$(CONTAINER_VERSION)
 	$(Q) mkdir -p $(BASE_DIR)/bin/qemu
 ifeq ($(CONFIG_ARM),y)
+ifneq ($(shell uname -m),armv7l)
 	$(Q) cp /usr/bin/qemu-arm-static $(BASE_DIR)/bin/qemu
 endif
+endif
 ifeq ($(CONFIG_ARM64),y)
+ifneq ($(shell uname -m),aarch64)
 	$(Q) cp /usr/bin/qemu-aarch64-static $(BASE_DIR)/bin/qemu
+endif
 endif
 	$(DOCKER) build --tag $(PKG_NAME):$(CONTAINER_VERSION) --file $(BASE_DIR)/Dockerfile --build-arg PLATFORM=$(CONTAINER_ARCH) .
 	-docker save -o $(BASE_DIR)/bin/edge-orchestration.tar edge-orchestration
@@ -180,7 +184,7 @@ test-go:
 	$(Q) firefox coverage.html &
 
 ## build clean
-clean:
+clean: go.sum
 	$(call print_header, "Build clean")
 	$(Q) $(GOCLEAN)
 	$(Q) -rm -rf $(BUILD_VENDOR_DIR)
@@ -266,6 +270,9 @@ check_context:
 		exit 1 ; \
 	fi
 
+go.sum:
+	$(Q) $(GOCMD) mod tidy
+
 run:
 	$(call print_header, "Run Docker container ")
 	docker run -it -d \
@@ -278,7 +285,7 @@ run:
                 $(DOCKER_IMAGE):$(CONTAINER_VERSION)
 	$(Q) docker container ls
 
-test:
+test: go.sum
 	$(call print_header, "Build test to calculate Coverage")
 	$(Q) -sudo systemctl stop ${SERVICE_FILE}
 	$(Q) -sudo systemctl status ${SERVICE_FILE}

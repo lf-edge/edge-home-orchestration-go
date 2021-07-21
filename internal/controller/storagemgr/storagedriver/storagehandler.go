@@ -21,6 +21,7 @@ import (
 	"context"
 	b64 "encoding/base64"
 	"fmt"
+	dbhelper "github.com/lf-edge/edge-home-orchestration-go/internal/db/helper"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/resthelper"
 	"io/ioutil"
 	"math"
@@ -40,9 +41,15 @@ import (
 const (
 	deviceNameKey     = "deviceName"
 	resourceNameKey   = "resourceName"
-	apiResourceRoute  = clients.ApiBase + "/resource/{" + deviceNameKey + "}/{" + resourceNameKey + "}"
 	handlerContextKey = "StorageHandler"
 	configPath        = "res/configuration.toml"
+
+	apiResourceRoute   = clients.ApiBase + "/resource/{" + deviceNameKey + "}/{" + resourceNameKey + "}"
+	apiWithoutResRoute = clients.ApiBase + "/resource/{" + resourceNameKey + "}"
+)
+
+var (
+	dbIns = dbhelper.GetInstance()
 )
 
 type StorageHandler struct {
@@ -67,6 +74,9 @@ func (handler StorageHandler) Start() error {
 	if err := handler.service.AddRoute(apiResourceRoute, handler.addContext(deviceHandler), http.MethodPost, http.MethodGet); err != nil {
 		return fmt.Errorf("unable to add required route: %s: %s", apiResourceRoute, err.Error())
 	}
+	if err := handler.service.AddRoute(apiWithoutResRoute, handler.addContext(deviceHandler), http.MethodPost, http.MethodGet); err != nil {
+		return fmt.Errorf("unable to add required route: %s: %s", apiWithoutResRoute, err.Error())
+	}
 
 	log.Info(fmt.Sprintf("Route %s added.", apiResourceRoute))
 
@@ -85,11 +95,20 @@ func (handler StorageHandler) addContext(next func(http.ResponseWriter, *http.Re
 func (handler StorageHandler) processAsyncGetRequest(writer http.ResponseWriter, request *http.Request) {
 	vars := mux.Vars(request)
 	deviceName := vars[deviceNameKey]
+	var err error
+	if deviceName == "" {
+		deviceName, err = dbIns.GetDeviceID()
+		if err != nil {
+			log.Error(fmt.Sprint("Fail to get deviceName"))
+			http.Error(writer, fmt.Sprintf("Device not found"), http.StatusNotFound)
+			return
+		}
+	}
 	resourceName := vars[resourceNameKey]
 
 	log.Debug(fmt.Sprintf("Received POST for Device=%s Resource=%s", deviceName, resourceName))
 
-	_, err := handler.service.GetDeviceByName(deviceName)
+	_, err = handler.service.GetDeviceByName(deviceName)
 	if err != nil {
 		log.Error(fmt.Sprintf("Incoming reading ignored. Device '%s' not found", deviceName))
 		http.Error(writer, fmt.Sprintf("Device not found"), http.StatusNotFound)
@@ -124,11 +143,19 @@ func (handler StorageHandler) processAsyncGetRequest(writer http.ResponseWriter,
 func (handler StorageHandler) processAsyncPostRequest(writer http.ResponseWriter, request *http.Request) {
 	vars := mux.Vars(request)
 	deviceName := vars[deviceNameKey]
+	var err error
+	if deviceName == "" {
+		deviceName, err = dbIns.GetDeviceID()
+		if err != nil {
+			log.Error(fmt.Sprint("Fail to get deviceName"))
+			http.Error(writer, fmt.Sprintf("Device not found"), http.StatusNotFound)
+		}
+	}
 	resourceName := vars[resourceNameKey]
 
 	log.Debug(fmt.Sprintf("Received POST for Device=%s Resource=%s", deviceName, resourceName))
 
-	_, err := handler.service.GetDeviceByName(deviceName)
+	_, err = handler.service.GetDeviceByName(deviceName)
 	if err != nil {
 		log.Error(fmt.Sprintf("Incoming reading ignored. Device '%s' not found", deviceName))
 		http.Error(writer, fmt.Sprintf("Device not found"), http.StatusNotFound)
