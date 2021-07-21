@@ -43,9 +43,11 @@ const (
 	resourceNameKey   = "resourceName"
 	handlerContextKey = "StorageHandler"
 	configPath        = "res/configuration.toml"
+	numberOfReadings  = "readingCount"
 
-	apiResourceRoute   = clients.ApiBase + "/resource/{" + deviceNameKey + "}/{" + resourceNameKey + "}"
-	apiWithoutResRoute = clients.ApiBase + "/resource/{" + resourceNameKey + "}"
+	apiResourceRoute         = clients.ApiBase + "/device/{" + deviceNameKey + "}/resource/{" + resourceNameKey + "}"
+	apiResourceRouteMultiple = clients.ApiBase + "/device/{" + deviceNameKey + "}/resource/{" + resourceNameKey + "}/{" + numberOfReadings + "}"
+	apiWithoutResRoute       = clients.ApiBase + "/resource/{" + resourceNameKey + "}"
 )
 
 var (
@@ -78,7 +80,12 @@ func (handler StorageHandler) Start() error {
 		return fmt.Errorf("unable to add required route: %s: %s", apiWithoutResRoute, err.Error())
 	}
 
+	if err := handler.service.AddRoute(apiResourceRouteMultiple, handler.addContext(deviceHandler), http.MethodGet); err != nil {
+		return fmt.Errorf("unable to add required route: %s: %s", apiResourceRouteMultiple, err.Error())
+	}
+
 	log.Info(fmt.Sprintf("Route %s added.", apiResourceRoute))
+	log.Info(fmt.Sprintf("Route %s added.", apiResourceRouteMultiple))
 
 	return nil
 }
@@ -105,6 +112,11 @@ func (handler StorageHandler) processAsyncGetRequest(writer http.ResponseWriter,
 		}
 	}
 	resourceName := vars[resourceNameKey]
+	readingCount := vars[numberOfReadings]
+
+	if readingCount == "" {
+		readingCount = "1"
+	}
 
 	log.Debug(fmt.Sprintf("Received POST for Device=%s Resource=%s", deviceName, resourceName))
 
@@ -128,7 +140,7 @@ func (handler StorageHandler) processAsyncGetRequest(writer http.ResponseWriter,
 		return
 	}
 
-	readingAPI := "/api/v1/reading/name/" + resourceName + "/device/" + deviceName + "/1"
+	readingAPI := "/api/v1/reading/name/" + resourceName + "/device/" + deviceName + "/" + readingCount
 
 	requestUrl := handler.helper.MakeTargetURL(serverIP, readingPort, readingAPI)
 	resp, _, err := handler.helper.DoGet(requestUrl)
