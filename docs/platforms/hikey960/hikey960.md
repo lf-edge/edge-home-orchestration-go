@@ -59,7 +59,10 @@ $ make distclean
 $ make create_context CONFIGFILE=arm64cs
 $ make
 ```
-the build result will be `edge-orchestration.tar` archive that can be found `bin/edge-orchestration.tar`
+
+> To change the configuration file, you must execute the command `make distclean`
+
+The build result will be `edge-orchestration.tar` archive that can be found `bin/edge-orchestration.tar`
 
 Next, need to copy `edge-orchestration.tar` archive to the HiKey960 board and load the image using the command:
 ```shell

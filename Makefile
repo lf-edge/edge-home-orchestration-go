@@ -237,7 +237,7 @@ define stop_docker_container
 endef
 
 ##
-all:
+all: check_context
 	make clean
 	$(call go-vendor)
 ifeq ($(CONFIG_CONTAINER),y)
@@ -255,9 +255,20 @@ else ifeq ($(CONFIG_ANDROID),y)
 endif
 
 .config:
+ifeq ($(CONFIGFILE),)
+	$(Q) echo "" ; echo "CONFIGFILE not been specified:"
+	$(Q) echo "  make create_context CONFIGFILE=<configfile>" ; echo "" ; exit 1
+endif
 	$(Q) cp configs/defconfigs/$(CONFIGFILE) .config
 
 create_context: .config
+
+check_context:
+	$(Q) if [ ! -e ${BASE_DIR}/.config ]; then \
+		echo "" ; echo "Edge-Orchestration has not been configured:" ; \
+		echo "  make create_context CONFIGFILE=<configfile>" ; echo "" ; \
+		exit 1 ; \
+	fi
 
 go.sum:
 	$(Q) $(GOCMD) mod tidy
