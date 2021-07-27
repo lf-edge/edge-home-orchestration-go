@@ -45,9 +45,10 @@ const (
 	configPath        = "res/configuration.toml"
 	numberOfReadings  = "readingCount"
 
-	apiResourceRoute         = clients.ApiBase + "/device/{" + deviceNameKey + "}/resource/{" + resourceNameKey + "}"
-	apiResourceRouteMultiple = clients.ApiBase + "/device/{" + deviceNameKey + "}/resource/{" + resourceNameKey + "}/{" + numberOfReadings + "}"
-	apiWithoutResRoute       = clients.ApiBase + "/resource/{" + resourceNameKey + "}"
+	apiResourceRoute           = clients.ApiBase + "/device/{" + deviceNameKey + "}/resource/{" + resourceNameKey + "}"
+	apiResourceRouteMultiple   = clients.ApiBase + "/device/{" + deviceNameKey + "}/resource/{" + resourceNameKey + "}/{" + numberOfReadings + "}"
+	apiWithoutResRoute         = clients.ApiBase + "/resource/{" + resourceNameKey + "}"
+	apiWithoutResRouteMultiple = clients.ApiBase + "/resource/{" + resourceNameKey + "}/{" + numberOfReadings + "}"
 )
 
 var (
@@ -72,6 +73,7 @@ func NewStorageHandler(service *sdk.DeviceService, logger logger.LoggingClient, 
 	return &handler
 }
 
+// Start adds routes to DataStorage
 func (handler StorageHandler) Start() error {
 	if err := handler.service.AddRoute(apiResourceRoute, handler.addContext(deviceHandler), http.MethodPost, http.MethodGet); err != nil {
 		return fmt.Errorf("unable to add required route: %s: %s", apiResourceRoute, err.Error())
@@ -83,10 +85,9 @@ func (handler StorageHandler) Start() error {
 	if err := handler.service.AddRoute(apiResourceRouteMultiple, handler.addContext(deviceHandler), http.MethodGet); err != nil {
 		return fmt.Errorf("unable to add required route: %s: %s", apiResourceRouteMultiple, err.Error())
 	}
-
-	log.Info(fmt.Sprintf("Route %s added.", apiResourceRoute))
-	log.Info(fmt.Sprintf("Route %s added.", apiResourceRouteMultiple))
-
+	if err := handler.service.AddRoute(apiWithoutResRouteMultiple, handler.addContext(deviceHandler), http.MethodGet); err != nil {
+		return fmt.Errorf("unable to add required route: %s: %s", apiWithoutResRouteMultiple, err.Error())
+	}
 	return nil
 }
 
@@ -152,6 +153,7 @@ func (handler StorageHandler) processAsyncGetRequest(writer http.ResponseWriter,
 	handler.helper.Response(writer, resp, http.StatusOK)
 }
 
+// processGetAsyncRequest is used to handle Async POST Requests
 func (handler StorageHandler) processAsyncPostRequest(writer http.ResponseWriter, request *http.Request) {
 	vars := mux.Vars(request)
 	deviceName := vars[deviceNameKey]
