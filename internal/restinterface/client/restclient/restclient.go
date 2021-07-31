@@ -65,7 +65,7 @@ func GetRestClient() client.Clienter {
 // DoExecuteRemoteDevice sends request to remote orchestration (APIV1ServicemgrServicesPost) to execute service
 func (c restClientImpl) DoExecuteRemoteDevice(appInfo map[string]interface{}, target string) (err error) {
 	log.Printf("%s DoExecuteRemoteDevice : endpoint[%v]", logPrefix, target)
-	if c.IsSetKey == false {
+	if !c.IsSetKey {
 		return errors.New(logPrefix + " does not set key")
 	}
 
@@ -100,7 +100,7 @@ func (c restClientImpl) DoExecuteRemoteDevice(appInfo map[string]interface{}, ta
 // DoNotifyAppStatusRemoteDevice sends request to remote orchestration (APIV1ServicemgrServicesNotificationServiceIDPost) to notify status
 func (c restClientImpl) DoNotifyAppStatusRemoteDevice(statusNotificationInfo map[string]interface{}, appID uint64, target string) error {
 	log.Printf("%s DoNotifyAppStatusRemoteDevice : endpoint[%v]", logPrefix, target)
-	if c.IsSetKey == false {
+	if !c.IsSetKey {
 		return errors.New(logPrefix + " does not set key")
 	}
 
@@ -124,7 +124,7 @@ func (c restClientImpl) DoNotifyAppStatusRemoteDevice(statusNotificationInfo map
 // DoGetScoreRemoteDevice  sends request to remote orchestration (APIV1ScoringmgrScoreLibnameGet) to get score
 func (c restClientImpl) DoGetScoreRemoteDevice(devID string, endpoint string) (scoreValue float64, err error) {
 	log.Printf("%s DoGetScoreRemoteDevice : endpoint[%v]", logPrefix, endpoint)
-	if c.IsSetKey == false {
+	if !c.IsSetKey {
 		return scoreValue, errors.New(logPrefix + " does not set key")
 	}
 
@@ -160,7 +160,7 @@ func (c restClientImpl) DoGetScoreRemoteDevice(devID string, endpoint string) (s
 // DoGetResourceRemoteDevice sends request to remote orchestration (APIV1ScoringmgrResourceGet) to get resource values
 func (c restClientImpl) DoGetResourceRemoteDevice(devID string, endpoint string) (respMsg map[string]interface{}, err error) {
 	log.Printf("%s DoGetResourceRemoteDevice : endpoint[%v]", logPrefix, endpoint)
-	if c.IsSetKey == false {
+	if !c.IsSetKey {
 		return respMsg, errors.New(logPrefix + " does not set key")
 	}
 
@@ -195,7 +195,7 @@ func (c restClientImpl) DoGetResourceRemoteDevice(devID string, endpoint string)
 
 //DoGetOrchestrationInfo requests for orchestration info from endpoint
 func (c restClientImpl) DoGetOrchestrationInfo(endpoint string) (string, string, []string, error) {
-	if c.IsSetKey == false {
+	if !c.IsSetKey {
 		return "", "", []string{}, errors.New("[" + logPrefix + "] does not set key")
 	}
 
@@ -241,7 +241,7 @@ func (c restClientImpl) DoGetOrchestrationInfo(endpoint string) (string, string,
 
 //DoNotifyMNEDCBroadcastServer sends the device details to MNEDC server
 func (c restClientImpl) DoNotifyMNEDCBroadcastServer(endpoint string, port int, deviceID string, privateIP string, virtualIP string) error {
-	if c.IsSetKey == false {
+	if !c.IsSetKey {
 		return errors.New("[" + logPrefix + "] does not set key")
 	}
 

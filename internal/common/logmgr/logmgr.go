@@ -52,7 +52,7 @@ func init() {
 	logIns.Out = os.Stdout
 }
 
-// Sets the environments for a log file
+// InitLogfile sets the environments for a log file
 func InitLogfile(logFilePath string) {
 	if _, err := os.Stat(logFilePath); err != nil {
 		err := os.MkdirAll(logFilePath, os.ModePerm)
@@ -75,6 +75,7 @@ func InitLogfile(logFilePath string) {
 	logIns.Out = logFile
 }
 
+// GetInstance returns an instance of the logmgr
 func GetInstance() *logrus.Logger {
 	return logIns
 }

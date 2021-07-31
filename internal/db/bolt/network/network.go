@@ -90,7 +90,7 @@ func (q Query) GetIDWithIP(IP string) (string, error) {
 	}
 
 	for _, info := range netInfo {
-		if common.HasElem(info.IPv4, IP) == true {
+		if common.HasElem(info.IPv4, IP) {
 			return info.ID, nil
 		}
 	}

@@ -14,6 +14,7 @@
 * limitations under the License.
 *
 *******************************************************************************/
+
 package commandvalidator
 
 import (
@@ -35,18 +36,22 @@ const (
 	alreadyRegisteredServiceName    = "already registered service name"
 )
 
+// ICommandValidator provides interfaces for the commandvalidator
 type ICommandValidator interface {
 	AddWhiteCommand(configuremgrtypes.ServiceInfo) error
 	GetCommand(serviceName string) (string, error)
 	CheckCommand(command []string) error
 }
 
+// CommandValidator structure
 type CommandValidator struct{}
 
+// GetCommand gets a service name
 func (CommandValidator) GetCommand(serviceName string) (string, error) {
 	return commands.GetInstance().GetServiceFileName(serviceName)
 }
 
+// AddWhiteCommand adds a command to support servicelist
 func (CommandValidator) AddWhiteCommand(serviceInfo configuremgrtypes.ServiceInfo) error {
 	command, err := getExecutableName(serviceInfo.ExecutableFileName)
 	if err != nil {
@@ -66,6 +71,7 @@ func (CommandValidator) AddWhiteCommand(serviceInfo configuremgrtypes.ServiceInf
 	return nil
 }
 
+// CheckCommand checks the formatting of the command, the presence of injection operators and in servicelist
 func (CommandValidator) CheckCommand(serviceName string, command []string) error {
 	fullCommand := strings.Join(command, " ")
 	if injectionchecker.HasInjectionOperator(fullCommand) {

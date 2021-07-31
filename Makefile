@@ -205,6 +205,9 @@ lint:
 	$(GOLINT) ./internal/...
 	$(GOVET) -v ./internal/...
 
+staticcheck:
+	$(Q) -staticcheck ./...
+
 ## format go files
 fmt:
 	$(Q) make clean
@@ -222,13 +225,14 @@ help:
 	@echo '    clean              Remove binaries, artifacts.'
 	@echo '    test               Run unit tests.'
 	@echo '    lint               Run golint and go vet.'
+	@echo '    staticcheck        Run staticcheck.'
 	@echo '    fmt                Run: gofmt -s -w ./ .'
 	@echo '    all                Build project for current platform.'
 	@echo '    menuconfig         Change configuration by kconfig-frontends.'
 	@echo ''
 
 ## define build target not a file
-.PHONY: all build test clean lint fmt help
+.PHONY: all build test clean lint fmt help staticcheck
 
 define stop_docker_container
 	$(call print_header, "Stop Docker container")

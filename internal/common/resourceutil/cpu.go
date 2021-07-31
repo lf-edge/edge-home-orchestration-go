@@ -72,7 +72,6 @@ func checkCPUUsage() {
 	if err != nil {
 		log.Println(logPrefix, "DB error : ", err.Error())
 	}
-	return
 }
 
 func checkCPUFreq() (out float64, err error) {
@@ -108,5 +107,4 @@ func checkCPUCount() {
 	if err != nil {
 		log.Println(logPrefix, "DB error : ", err.Error())
 	}
-	return
 }

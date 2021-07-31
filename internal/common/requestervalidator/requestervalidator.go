@@ -24,6 +24,7 @@ import (
 	"github.com/lf-edge/edge-home-orchestration-go/internal/db/bolt/common"
 )
 
+// IRequesterValidator provides interfaces for the requestervalidator
 type IRequesterValidator interface {
 	GetRequester(serviceName string) ([]string, error)
 	StoreRequesterInfo(serviceName string, requesters []string)
@@ -32,8 +33,10 @@ type IRequesterValidator interface {
 
 const notAllowedServiceExecution = "not allowed service execution"
 
+// RequesterValidator structure
 type RequesterValidator struct{}
 
+// CheckRequester checks the requester's ability to execute the service
 func (r RequesterValidator) CheckRequester(serviceName, requester string) error {
 	stored, err := r.GetRequester(serviceName)
 	if err != nil {
@@ -46,10 +49,12 @@ func (r RequesterValidator) CheckRequester(serviceName, requester string) error 
 	return errors.New(notAllowedServiceExecution)
 }
 
+// GetRequester gets servicename requester relation
 func (RequesterValidator) GetRequester(serviceName string) ([]string, error) {
 	return requesterstore.GetInstance().GetRequester(serviceName)
 }
 
+// StoreRequesterInfo stores info about requesters' servicename
 func (RequesterValidator) StoreRequesterInfo(serviceName string, requesters []string) {
 	requesterstore.GetInstance().StoreRequesterInfo(serviceName, requesters)
 }

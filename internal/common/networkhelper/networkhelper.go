@@ -179,7 +179,7 @@ func setAddrInfo(ifaces []net.Interface) (err error) {
 		addrs, _ := i.Addrs()
 		for _, addr := range addrs {
 			ipnet, isPresent := addr.(*net.IPNet)
-			if isPresent == false {
+			if !isPresent {
 				continue
 			}
 
@@ -213,7 +213,7 @@ func subAddrChange(isNewConnection chan bool) {
 		select {
 		// @Note : If network status is changed, need to update network information
 		case connectionDetected := <-isNewConnection:
-			if connectionDetected == true {
+			if connectionDetected {
 				getNetworkInformationFP()
 				netInfo.Notify(netInfo.GetIPs())
 			}

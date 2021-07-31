@@ -131,11 +131,11 @@ func (h *Handler) APIV1Ping(w http.ResponseWriter, r *http.Request) {
 // APIV1ServicemgrServicesPost handles service execution request from remote orchestration
 func (h *Handler) APIV1ServicemgrServicesPost(w http.ResponseWriter, r *http.Request) {
 	log.Printf("[%s] APIV1ServicemgrServicesPost", logPrefix)
-	if h.isSetAPI == false {
+	if !h.isSetAPI {
 		log.Printf("[%s] does not set api", logPrefix)
 		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
-	} else if h.IsSetKey == false {
+	} else if !h.IsSetKey {
 		log.Printf("[%s] does not set key", logPrefix)
 		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
@@ -203,11 +203,11 @@ func (h *Handler) APIV1ServicemgrServicesPost(w http.ResponseWriter, r *http.Req
 // APIV1ServicemgrServicesNotificationServiceIDPost handles service notification request from remote orchestration
 func (h *Handler) APIV1ServicemgrServicesNotificationServiceIDPost(w http.ResponseWriter, r *http.Request) {
 	log.Printf("[%s] APIV1ServicemgrServicesNotificationServiceIDPost", logPrefix)
-	if h.isSetAPI == false {
+	if !h.isSetAPI {
 		log.Printf("[%s] does not set api", logPrefix)
 		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
-	} else if h.IsSetKey == false {
+	} else if !h.IsSetKey {
 		log.Printf("[%s] does not set key", logPrefix)
 		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
@@ -237,11 +237,11 @@ func (h *Handler) APIV1ServicemgrServicesNotificationServiceIDPost(w http.Respon
 // APIV1ScoringmgrScoreLibnameGet handles scoring request from remote orchestration
 func (h *Handler) APIV1ScoringmgrScoreLibnameGet(w http.ResponseWriter, r *http.Request) {
 	log.Printf("[%s] APIV1ScoringmgrScoreLibnameGet", logPrefix)
-	if h.isSetAPI == false {
+	if !h.isSetAPI {
 		log.Printf("[%s] does not set api", logPrefix)
 		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
-	} else if h.IsSetKey == false {
+	} else if !h.IsSetKey {
 		log.Printf("[%s] does not set key", logPrefix)
 		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
@@ -280,11 +280,11 @@ func (h *Handler) APIV1ScoringmgrScoreLibnameGet(w http.ResponseWriter, r *http.
 // APIV1ScoringmgrResourceGet handles Resource request from remote orchestration
 func (h *Handler) APIV1ScoringmgrResourceGet(w http.ResponseWriter, r *http.Request) {
 	log.Printf("[%s] APIV1ScoringmgrResourceGet", logPrefix)
-	if h.isSetAPI == false {
+	if !h.isSetAPI {
 		log.Printf("[%s] does not set api", logPrefix)
 		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
-	} else if h.IsSetKey == false {
+	} else if !h.IsSetKey {
 		log.Printf("[%s] does not set key", logPrefix)
 		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
@@ -320,11 +320,11 @@ func (h *Handler) APIV1ScoringmgrResourceGet(w http.ResponseWriter, r *http.Requ
 //APIV1DiscoverymgrMNEDCDeviceInfoPost handles device info from MNEDC server
 func (h *Handler) APIV1DiscoverymgrMNEDCDeviceInfoPost(w http.ResponseWriter, r *http.Request) {
 	log.Printf("[%s] APIV1DiscoveryFromMNEDCServer", logPrefix)
-	if h.isSetAPI == false {
+	if !h.isSetAPI {
 		log.Printf("[%s] does not set api", logPrefix)
 		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
-	} else if h.IsSetKey == false {
+	} else if !h.IsSetKey {
 		log.Printf("[%s] does not set key", logPrefix)
 		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
@@ -355,11 +355,11 @@ func (h *Handler) APIV1DiscoverymgrMNEDCDeviceInfoPost(w http.ResponseWriter, r 
 //APIV1DiscoverymgrOrchestrationInfoGet handles device info requests from peers
 func (h *Handler) APIV1DiscoverymgrOrchestrationInfoGet(w http.ResponseWriter, r *http.Request) {
 	log.Printf("[%s] APIV1DiscoverymgrOrchestrationInfoGet", logPrefix)
-	if h.isSetAPI == false {
+	if !h.isSetAPI {
 		log.Printf("[%s] does not set api", logPrefix)
 		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
-	} else if h.IsSetKey == false {
+	} else if !h.IsSetKey {
 		log.Printf("[%s] does not set key", logPrefix)
 		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return

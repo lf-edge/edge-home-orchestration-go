@@ -91,11 +91,11 @@ func (h *Handler) SetOrchestrationAPI(o orchestrationapi.OrcheExternalAPI) {
 // APIV1RequestServicePost handles service request from service application
 func (h *Handler) APIV1RequestServicePost(w http.ResponseWriter, r *http.Request) {
 	log.Printf("[%s] APIV1RequestServicePost", logPrefix)
-	if h.isSetAPI == false {
+	if !h.isSetAPI {
 		log.Printf("[%s] does not set api", logPrefix)
 		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
-	} else if h.IsSetKey == false {
+	} else if !h.IsSetKey {
 		log.Printf("[%s] does not set key", logPrefix)
 		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
@@ -116,7 +116,7 @@ func (h *Handler) APIV1RequestServicePost(w http.ResponseWriter, r *http.Request
 	if err != nil {
 		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
-	} else if addr != "localhost" && addr != "127.0.0.1" && common.HasElem(ips, addr) == false {
+	} else if addr != "localhost" && addr != "127.0.0.1" && !common.HasElem(ips, addr) {
 		h.helper.Response(w, nil, http.StatusNotAcceptable)
 		return
 	}
@@ -167,7 +167,7 @@ func (h *Handler) APIV1RequestServicePost(w http.ResponseWriter, r *http.Request
 		}
 	}
 
-	if isParseRequesterFromPort != true {
+	if !isParseRequesterFromPort {
 		serviceRequester, ok := appCommand["ServiceRequester"].(string)
 		if !ok {
 			responseMsg = orchestrationapi.InvalidParameter
@@ -249,11 +249,11 @@ SEND_RESP:
 // APIV1RequestSecuremgrPost handles securemgr request from securemgr configure application
 func (h *Handler) APIV1RequestSecuremgrPost(w http.ResponseWriter, r *http.Request) {
 	log.Printf("[%s] APIV1RequestSecuremgrPost", logPrefix)
-	if h.isSetAPI == false {
+	if !h.isSetAPI {
 		log.Printf("[%s] does not set api", logPrefix)
 		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
-	} else if h.IsSetKey == false {
+	} else if !h.IsSetKey {
 		log.Printf("[%s] does not set key", logPrefix)
 		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
@@ -271,7 +271,7 @@ func (h *Handler) APIV1RequestSecuremgrPost(w http.ResponseWriter, r *http.Reque
 	if err != nil {
 		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
-	} else if addr != "localhost" && addr != "127.0.0.1" && common.HasElem(ips, addr) == false {
+	} else if addr != "localhost" && addr != "127.0.0.1" && !common.HasElem(ips, addr) {
 		h.helper.Response(w, nil, http.StatusNotAcceptable)
 		return
 	}

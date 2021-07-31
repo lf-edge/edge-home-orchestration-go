@@ -84,8 +84,6 @@ func checkNetworkMBps() {
 	if err != nil {
 		log.Println(logPrefix, "DB error : ", err.Error())
 	}
-
-	return
 }
 
 func checkNetworkBandwidth() {
@@ -119,6 +117,4 @@ func checkNetworkBandwidth() {
 	if err != nil {
 		log.Println(logPrefix, "DB error : ", err.Error())
 	}
-
-	return
 }

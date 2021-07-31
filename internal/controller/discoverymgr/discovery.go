@@ -459,8 +459,6 @@ func startServer(deviceUUID string, platform string, executionType string) {
 	setConfigurationDB(confInfo)
 	setNetworkDB(netInfo)
 	setServiceDB(serviceInfo)
-
-	return
 }
 
 //NotifyMNEDCBroadcastServer registers to MNEDC

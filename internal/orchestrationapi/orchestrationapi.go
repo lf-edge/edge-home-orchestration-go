@@ -121,7 +121,7 @@ func init() {
 func (orcheEngine *orcheImpl) RequestService(serviceInfo ReqeustService) ResponseService {
 	log.Printf("[RequestService] %v: %v\n", serviceInfo.ServiceName, serviceInfo.ServiceInfo)
 
-	if orcheEngine.Ready == false {
+	if !orcheEngine.Ready {
 		return ResponseService{
 			Message:          InternalServerError,
 			ServiceName:      serviceInfo.ServiceName,
@@ -254,7 +254,7 @@ func getExecCmds(execType string, requestServiceInfos []RequestServiceInfo) ([]s
 		}
 	}
 
-	return nil, errors.New("Not Found")
+	return nil, errors.New("not found")
 }
 
 func (orcheEngine orcheImpl) getCandidate(appName string, execType []string) (deviceList []dbhelper.ExecutionCandidate, err error) {

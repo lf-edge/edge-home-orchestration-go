@@ -31,7 +31,7 @@ func TestInit(t *testing.T) {
 		defer os.RemoveAll(fakejwtPath)
 
 		if _, err := os.Stat(fakejwtPath); err != nil {
-			err := os.MkdirAll(fakejwtPath, 444)
+			err := os.MkdirAll(fakejwtPath, 0444)
 			if err != nil {
 				t.Error(err.Error())
 				return

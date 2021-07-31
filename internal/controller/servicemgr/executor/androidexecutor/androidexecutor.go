@@ -105,7 +105,7 @@ func (t AndroidExecutor) setService() (result int, err error) {
 
 	if nil == t.executeCB {
 		log.Println(logPrefix, "Java callback is nil")
-		err = errors.New("Failed to execute: Java Callback is nil")
+		err = errors.New("failed to execute: Java Callback is nil")
 		return
 	}
 	log.Println(logPrefix, "Invoke java callback with packageName: ", t.ParamStr[0])
@@ -120,7 +120,7 @@ func (t AndroidExecutor) setService() (result int, err error) {
 
 	if result < 0 {
 		log.Println(logPrefix, "Failed to execute in java layer")
-		err = errors.New("Failed to execute in java layer")
+		err = errors.New("failed to execute in java layer")
 		return
 	}
 	log.Println(logPrefix, "Successfully executed in java layer")

@@ -22,6 +22,7 @@ import (
 	"sync"
 )
 
+// RequesterStore provides interfaces for the requesterstore
 type RequesterStore interface {
 	GetRequester(serviceName string) ([]string, error)
 	StoreRequesterInfo(serviceName string, requesters []string)
@@ -36,6 +37,7 @@ const notFoundRegisteredService = "not found registered service"
 
 var requesterList requesters
 
+// GetInstance returns an instance of the requesterList
 func GetInstance() RequesterStore {
 	return &requesterList
 }

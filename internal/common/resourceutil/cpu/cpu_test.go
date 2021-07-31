@@ -144,7 +144,7 @@ func removeFakeCPUMaxFreq() {
 	os.Remove("./fakecpumaxfreq")
 }
 
-func TestGetCPUFreqCpuInfo(t *testing.T) {
+func TestGetCPUFreqCPUInfo(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		originFileOpen = fileOpen
 		fileOpen = fakeFileOpenCPUInfo
@@ -153,7 +153,7 @@ func TestGetCPUFreqCpuInfo(t *testing.T) {
 			removeFakeCPUInfo()
 		}()
 
-		ret, err := getCPUFreqCpuInfo()
+		ret, err := getCPUFreqCPUInfo()
 		if err != nil {
 			t.Error("unexpected error")
 		} else if ret != 3300.0 {
@@ -167,7 +167,7 @@ func TestGetCPUFreqCpuInfo(t *testing.T) {
 			fileOpen = originFileOpen
 		}()
 
-		_, err := getCPUFreqCpuInfo()
+		_, err := getCPUFreqCPUInfo()
 		if err == nil {
 			t.Error("unexpected success")
 		}
