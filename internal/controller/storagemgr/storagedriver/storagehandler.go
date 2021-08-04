@@ -21,6 +21,7 @@ import (
 	"context"
 	b64 "encoding/base64"
 	"fmt"
+	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/storagemgr/config"
 	dbhelper "github.com/lf-edge/edge-home-orchestration-go/internal/db/helper"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/resthelper"
 	"io/ioutil"
@@ -35,7 +36,6 @@ import (
 	sdk "github.com/edgexfoundry/device-sdk-go/pkg/service"
 	"github.com/edgexfoundry/go-mod-core-contracts/clients"
 	"github.com/edgexfoundry/go-mod-core-contracts/clients/logger"
-	"github.com/pelletier/go-toml"
 )
 
 const (
@@ -134,7 +134,7 @@ func (handler StorageHandler) processAsyncGetRequest(writer http.ResponseWriter,
 		return
 	}
 
-	serverIP, readingPort, err := getServerIP(configPath)
+	serverIP, readingPort, err := config.GetServerIP(configPath)
 
 	if err != nil {
 		http.Error(writer, fmt.Sprintf("Configuration File Not Found"), http.StatusNotFound)
@@ -498,12 +498,4 @@ func checkFloatValueRange(valueType models.ValueType, val float64) bool {
 		}
 	}
 	return isValid
-}
-
-func getServerIP(ConfigPath string) (string, int, error) {
-	config, err := toml.LoadFile(ConfigPath)
-	if err != nil {
-		return "", 0, err
-	}
-	return config.Get("Clients.Data.Host").(string), (int)(config.Get("Clients.Data.Port").(int64)), nil
 }
