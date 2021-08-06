@@ -22,6 +22,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"strconv"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -29,6 +30,11 @@ import (
 	"github.com/edgexfoundry/device-sdk-go/pkg/models"
 	sdk "github.com/edgexfoundry/device-sdk-go/pkg/service"
 	"github.com/edgexfoundry/go-mod-core-contracts/clients/logger"
+)
+
+const (
+	unexpectedSuccess = "unexpected success"
+	unexpectedFail    = "unexpected fail"
 )
 
 var handler *StorageHandler
@@ -40,15 +46,6 @@ func TestMain(m *testing.M) {
 
 	handler = NewStorageHandler(service, logger, asyncValues)
 	os.Exit(m.Run())
-}
-
-func TestReadasBinary(t *testing.T) {
-
-	req := httptest.NewRequest(http.MethodPost, "http://0.0.0.0:12345", nil)
-
-	handler.readBodyAsString(nil, req)
-
-	handler.readBodyAsBinary(nil, req)
 }
 
 func TestNewCommandValue(t *testing.T) {
@@ -201,4 +198,48 @@ func TestStorageDriver(t *testing.T) {
 	sd.HandleWriteCommands("TestDeviuce", nil, nil, nil)
 	sd.RemoveDevice("TestingDevice", nil)
 	sd.Stop(true)
+}
+
+func TestReadBodyAsString(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodPost, "http://0.0.0.0:12345", strings.NewReader("test"))
+		_, err := handler.readBodyAsString(req)
+		if err != nil {
+			t.Error(unexpectedFail)
+		}
+	})
+	t.Run("Fail", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodPost, "http://0.0.0.0:12345", nil)
+		_, err := handler.readBodyAsString(req)
+		if err == nil {
+			t.Error(unexpectedSuccess)
+		}
+		req.Body = nil
+		_, err = handler.readBodyAsString(req)
+		if err == nil {
+			t.Error(unexpectedSuccess)
+		}
+	})
+}
+
+func TestReadBodyAsBinary(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodPost, "http://0.0.0.0:12345", strings.NewReader("test"))
+		_, err := handler.readBodyAsBinary(req)
+		if err != nil {
+			t.Error(unexpectedFail)
+		}
+	})
+	t.Run("Fail", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodPost, "http://0.0.0.0:12345", nil)
+		_, err := handler.readBodyAsBinary(req)
+		if err == nil {
+			t.Error(unexpectedSuccess)
+		}
+		req.Body = nil
+		_, err = handler.readBodyAsBinary(req)
+		if err == nil {
+			t.Error(unexpectedSuccess)
+		}
+	})
 }
