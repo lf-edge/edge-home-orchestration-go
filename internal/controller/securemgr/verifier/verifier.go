@@ -116,7 +116,7 @@ func containerHashIsInWhiteList(hash string) error {
 func getIndexHashInContainerName(containerName string) (int, error) {
 	digestIndex := strings.Index(containerName, "@sha256:")
 	if digestIndex == -1 {
-		return -1, errors.New("Container name does not contain a digest")
+		return -1, errors.New("container name does not contain a digest")
 	}
 	digestIndex = digestIndex + len("@sha256:")
 	return digestIndex, nil
@@ -137,7 +137,7 @@ func Init(cwlPath string) {
 
 // ContainerIsInWhiteList checks if the containerName is in containerWhiteList
 func (VerifierImpl) ContainerIsInWhiteList(containerName string) error {
-	if initialized == false {
+	if !initialized {
 		return nil
 	}
 	index, err := getIndexHashInContainerName(containerName)

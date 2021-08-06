@@ -78,7 +78,7 @@ func init() {
 
 // GetExternalAPI registers the orchestration external API
 func GetExternalAPI() (OrcheExternalAPI, error) {
-	if orcheIns.Ready == false {
+	if !orcheIns.Ready {
 		return orcheIns, errors.New("orchestration engine does not ready")
 	}
 	return orcheIns, nil
@@ -86,7 +86,7 @@ func GetExternalAPI() (OrcheExternalAPI, error) {
 
 // GetInternalAPI registers the orchestration internal API
 func GetInternalAPI() (OrcheInternalAPI, error) {
-	if orcheIns.Ready == false {
+	if !orcheIns.Ready {
 		return orcheIns, errors.New("orchestration engine does not ready")
 	}
 	return orcheIns, nil

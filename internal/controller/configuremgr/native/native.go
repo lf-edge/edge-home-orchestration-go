@@ -105,7 +105,7 @@ func (cfgMgr ConfigureMgr) Watch(notifier configuremgr.Notifier) {
 						}
 						time.Sleep(time.Second * 1)
 					}
-					if isConfExist != true {
+					if !isConfExist {
 						log.Println(confFileName, "does not exist")
 						continue
 					}

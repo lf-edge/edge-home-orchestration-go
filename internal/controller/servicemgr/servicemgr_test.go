@@ -65,9 +65,7 @@ func TestExecuteAppOnLocal(t *testing.T) {
 	notiChan := make(chan string)
 
 	ifArgs := make([]interface{}, len(paramStrWithArgs))
-	for i, v := range paramStrWithArgs {
-		ifArgs[i] = v
-	}
+	copy(ifArgs, paramStrWithArgs)
 
 	err := serviceIns.Execute(targetLocalAddr, serviceName, requester, ifArgs, notiChan)
 	checkError(t, err)

@@ -26,11 +26,13 @@ func init() {
 	sysQuery = systemdb.Query{}
 }
 
+// MultipleBucketQuery provides interfaces for the helper
 type MultipleBucketQuery interface {
 	GetDeviceID() (string, error)
 	GetDeviceInfoWithService(serviceName string, executionTypes []string) ([]ExecutionCandidate, error)
 }
 
+// ExecutionCandidate structure
 type ExecutionCandidate struct {
 	Id       string
 	ExecType string
@@ -41,6 +43,7 @@ type multipleBucketQuery struct{}
 
 var query multipleBucketQuery
 
+// GetInstance returns an instance of the MultipleBucketQuery
 func GetInstance() MultipleBucketQuery {
 	return query
 }
@@ -64,7 +67,7 @@ func (multipleBucketQuery) GetDeviceInfoWithService(serviceName string, executio
 
 	for _, confItem := range confItems {
 		hasExecType := common.HasElem(executionTypes, confItem.ExecType)
-		if hasExecType == false {
+		if !hasExecType {
 			continue
 		}
 

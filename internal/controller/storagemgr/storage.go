@@ -107,10 +107,7 @@ func (s *StorageImpl) BuildConfiguration(host string) (err error) {
 }
 
 func checkServiceInEnv() bool {
-	if strings.Contains(os.Getenv("SERVICE"), "DataStorage") {
-		return true
-	}
-	return false
+	return strings.Contains(os.Getenv("SERVICE"), "DataStorage")
 }
 
 func saveToml(host string) (err error) {

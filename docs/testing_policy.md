@@ -24,14 +24,14 @@ The Edge Orchestration team strongly recommends adhering to the [Test-driven dev
 ## 2. How to start Test Suite (Local)
 There are two ways to test:
 
-### 2.1 Using the system build script
+### 2.1 Using the makefile
 To start testing all packages:
 ```
-$ ./buils.sh test
+$ make test
 ```
 To start testing a specific package:
 ```
-$ ./buils.sh test [PKG_NAME]
+$ make test [PKG_NAME]
 ```
 
 ### 2.2 Using standard Go language facilities

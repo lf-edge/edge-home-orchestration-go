@@ -54,7 +54,8 @@ func TestAdd(t *testing.T) {
 
 	router := NewRestRouter()
 	if router == nil {
-		t.Error("unexpected return value")
+		t.Error("unexpected return nil")
+		return
 	}
 
 	type fakeRouter struct {

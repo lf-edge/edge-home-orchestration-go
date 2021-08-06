@@ -132,8 +132,6 @@ func checkPresence(t *testing.T, deviceID string) {
 	if err != nil {
 		t.Error(err.Error())
 	}
-
-	return
 }
 
 func checkNotPresence(t *testing.T, deviceID string) {
@@ -153,8 +151,6 @@ func checkNotPresence(t *testing.T, deviceID string) {
 	if err == nil {
 		t.Error()
 	}
-
-	return
 }
 
 func checkClearMap(t *testing.T) {

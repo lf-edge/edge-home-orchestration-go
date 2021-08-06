@@ -63,8 +63,6 @@ func checkMemoryAvailable() {
 	if err != nil {
 		log.Println(logPrefix, "DB error : ", err.Error())
 	}
-
-	return
 }
 
 func checkMemoryFree() {
@@ -82,6 +80,4 @@ func checkMemoryFree() {
 	if err != nil {
 		log.Println(logPrefix, "DB error : ", err.Error())
 	}
-
-	return
 }

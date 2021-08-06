@@ -32,6 +32,7 @@ var injectionOperators = []string{
 	"#",
 }
 
+// HasInjectionOperator checks the presence of injection operators in the string
 func HasInjectionOperator(str string) bool {
 	for _, injection := range injectionOperators {
 		if strings.Contains(str, injection) {

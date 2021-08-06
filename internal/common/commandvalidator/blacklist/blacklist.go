@@ -49,6 +49,7 @@ var blackList = []string{
 	"dzdo",
 }
 
+// IsBlack checks the presence of a command in the blacklist
 func IsBlack(command string) bool {
 	return common.HasElem(blackList, command)
 }

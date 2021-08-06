@@ -93,7 +93,7 @@ func checkRTT(ip string) (rtt float64) {
 		return -1
 	}
 
-	return time.Now().Sub(reqTime).Seconds()
+	return time.Since(reqTime).Seconds()
 }
 
 func selectMinRTT(ch chan float64, totalCount int) (minRTT float64) {

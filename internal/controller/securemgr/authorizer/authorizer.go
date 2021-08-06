@@ -142,5 +142,5 @@ func Authorizer(name string, r *http.Request) error {
 		return nil
 	}
 	log.Println(logPrefix, "Unauthorized request")
-	return errors.New("Unauthorized request")
+	return errors.New("unauthorized request")
 }

@@ -111,7 +111,7 @@ func (ScoringImpl) GetResource(ID string) (resource map[string]interface{}, err 
 // GetScoreWithResource provides score value of an edge device
 func (ScoringImpl) GetScoreWithResource(resource map[string]interface{}) (scoreValue float64, err error) {
 	if _, found := resource["error"]; found {
-		return InvalidScore, errors.New("Resource Not Found")
+		return InvalidScore, errors.New("resource Not Found")
 	}
 
 	cpuScore := cpuScore(resource["cpuUsage"].(float64), resource["cpuCount"].(float64), resource["cpuFreq"].(float64))

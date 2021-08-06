@@ -128,7 +128,7 @@ func (networkUtilImpl) WriteTo(conn net.Conn, data []byte) error {
 		_, err := conn.Write(data)
 		return err
 	}
-	return errors.New("Connection is nil")
+	return errors.New("connection is nil")
 }
 
 //ReadFrom reads from a connection
@@ -138,7 +138,7 @@ func (networkUtilImpl) ReadFrom(conn net.Conn) (int, []byte, error) {
 		n, err := conn.Read(buf)
 		return n, buf, err
 	}
-	return -1, []byte(""), errors.New("Connection is nil")
+	return -1, []byte(""), errors.New("connection is nil")
 }
 
 //ListenIP starts tcp server at given address

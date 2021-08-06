@@ -109,7 +109,7 @@ func Init(passPhraseJWTPath string) {
 var IsAuthorizedRequest = func(next http.Handler) http.Handler {
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if initialized == false {
+		if !initialized {
 			next.ServeHTTP(w, r) // pass control to the next handler
 			return
 		}
@@ -136,19 +136,19 @@ var IsAuthorizedRequest = func(next http.Handler) http.Handler {
 				switch token.Header["alg"] {
 				case "HS256":
 					if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-						return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+						return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 					}
 					return passphrase, nil
 				case "RS256":
 					if rsaKeyInitialized {
 						if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
-							return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+							return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 						}
 						return verifyKey, nil
 					}
 					return nil, errors.New("RSA keys are not initialized")
 				}
-				return nil, errors.New("Unsupported algo")
+				return nil, errors.New("unsupported algo")
 			})
 
 			if err != nil {

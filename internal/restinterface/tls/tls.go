@@ -25,6 +25,7 @@ import (
 	"github.com/satori/go.uuid"
 )
 
+// File names of certificate and private key
 const (
 	CertificateFileName = "edge-orchestration.crt"
 	KeyFileName         = "edge-orchestration.key"
@@ -41,20 +42,24 @@ func init() {
 	handler = defaultIdentifier{}
 }
 
+// SetCertFilePath stores a certificate file path
 func SetCertFilePath(path string) {
 	log.Println("SetCertFilePath: ", path)
 	certFilePath.Store(path)
 }
 
+// GetCertFilePath gets a certificate file path
 func GetCertFilePath() string {
 	return certFilePath.Load().(string)
 }
 
+// Handler provides interfaces for the tls
 type Handler interface {
 	GetIdentity() string
 	GetKey(identity string) ([]byte, error)
 }
 
+// CertificateSetter interface provides setting the certificate file path
 type CertificateSetter interface {
 	SetCertificateFilePath(path string)
 }
@@ -63,19 +68,23 @@ type certificateGetter interface {
 	GetCertificateFilePath() string
 }
 
+// HasCertificate indicates presence of the certificate
 type HasCertificate struct {
 	IsSetCert bool
 }
 
+// SetHandler sets handler
 func SetHandler(h Handler) {
 	handler = h
 }
 
+// SetCertificateFilePath stores a certificate via handler
 func (h *HasCertificate) SetCertificateFilePath(path string) {
 	SetCertFilePath(path)
 	h.IsSetCert = true
 }
 
+// GetCertificateFilePath gets a certificate via handler
 func (h *HasCertificate) GetCertificateFilePath() string {
 	if h.IsSetCert {
 		return GetCertFilePath()
@@ -83,10 +92,12 @@ func (h *HasCertificate) GetCertificateFilePath() string {
 	return ""
 }
 
+// GetIdentity gets identity
 func GetIdentity() string {
 	return handler.GetIdentity()
 }
 
+// GetKey gets key using id
 func GetKey(id string) ([]byte, error) {
 	return handler.GetKey(id)
 }

@@ -44,11 +44,11 @@ func init() {
 
 func readCPUUsage() ([]float64, error) {
 	f, err := fileOpen("/proc/stat")
-	defer f.Close()
 	if err != nil {
 		log.Println(err.Error())
 		return nil, err
 	}
+	defer f.Close()
 
 	r := bufio.NewReader(f)
 	line, err := r.ReadString('\n')
@@ -119,7 +119,7 @@ func Info() ([]InfoStat, error) {
 
 	feq, err := getCPUMaxFreq()
 	if err != nil {
-		feq, err = getCPUFreqCpuInfo()
+		feq, err = getCPUFreqCPUInfo()
 		if err != nil {
 			return nil, err
 		}
@@ -132,10 +132,10 @@ func Info() ([]InfoStat, error) {
 
 func getCPUMaxFreq() (float64, error) {
 	f, err := fileOpen("/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq")
-	defer f.Close()
 	if err != nil {
 		return 0.0, err
 	}
+	defer f.Close()
 
 	strFeq, err := bufio.NewReader(f).ReadString('\n')
 	if err != nil {
@@ -157,12 +157,12 @@ func getCPUMaxFreq() (float64, error) {
 	return feq, nil
 }
 
-func getCPUFreqCpuInfo() (float64, error) {
+func getCPUFreqCPUInfo() (float64, error) {
 	f, err := fileOpen("/proc/cpuinfo")
-	defer f.Close()
 	if err != nil {
 		return 0.0, err
 	}
+	defer f.Close()
 
 	r := bufio.NewReader(f)
 	for {
@@ -204,10 +204,10 @@ func getCPUFreqCpuInfo() (float64, error) {
 
 func getCPUs() ([]InfoStat, error) {
 	f, err := fileOpen("/proc/cpuinfo")
-	defer f.Close()
 	if err != nil {
 		return nil, err
 	}
+	defer f.Close()
 
 	r := bufio.NewReader(f)
 	ret := make([]InfoStat, 0)

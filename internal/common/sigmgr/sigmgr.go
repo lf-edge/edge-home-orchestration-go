@@ -38,7 +38,7 @@ var (
 // Watch operating system signals
 func Watch() {
 	sig := make(chan os.Signal, 1)
-	signal.Notify(sig, syscall.SIGINT, syscall.SIGKILL, syscall.SIGTERM)
+	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)
 	s := <-sig
 	log.Println(logPrefix, "Received Signal:", s)
 	err := server.GetInstance().Close()

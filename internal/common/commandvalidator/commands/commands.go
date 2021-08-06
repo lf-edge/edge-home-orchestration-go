@@ -22,6 +22,7 @@ import (
 	"sync"
 )
 
+// CommandStore provides interfaces for the commands
 type CommandStore interface {
 	GetServiceFileName(serviceName string) (string, error)
 	StoreServiceInfo(serviceName, command string)
@@ -36,6 +37,7 @@ const notFoundRegisteredService = "not found registered service"
 
 var commandList commands
 
+// GetInstance returns an instance of the commandlist
 func GetInstance() CommandStore {
 	return &commandList
 }

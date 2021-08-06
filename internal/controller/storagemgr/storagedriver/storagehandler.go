@@ -107,8 +107,8 @@ func (handler StorageHandler) processAsyncGetRequest(writer http.ResponseWriter,
 	if deviceName == "" {
 		deviceName, err = dbIns.GetDeviceID()
 		if err != nil {
-			log.Error(fmt.Sprint("Fail to get deviceName"))
-			http.Error(writer, fmt.Sprintf("Device not found"), http.StatusNotFound)
+			log.Error("Fail to get deviceName")
+			http.Error(writer, "Device not found", http.StatusNotFound)
 			return
 		}
 	}
@@ -124,20 +124,20 @@ func (handler StorageHandler) processAsyncGetRequest(writer http.ResponseWriter,
 	_, err = handler.service.GetDeviceByName(deviceName)
 	if err != nil {
 		log.Error(fmt.Sprintf("Incoming reading ignored. Device '%s' not found", deviceName))
-		http.Error(writer, fmt.Sprintf("Device not found"), http.StatusNotFound)
+		http.Error(writer, "Device not found", http.StatusNotFound)
 		return
 	}
 	_, ok := handler.service.DeviceResource(deviceName, resourceName, "get")
 	if !ok {
 		log.Error(fmt.Sprintf("Incoming reading ignored. Resource '%s' not found", resourceName))
-		http.Error(writer, fmt.Sprintf("Resource not found"), http.StatusNotFound)
+		http.Error(writer, "Resource not found", http.StatusNotFound)
 		return
 	}
 
 	serverIP, readingPort, err := getServerIP(configPath)
 
 	if err != nil {
-		http.Error(writer, fmt.Sprintf("Configuration File Not Found"), http.StatusNotFound)
+		http.Error(writer, "Configuration File Not Found", http.StatusNotFound)
 		return
 	}
 
@@ -146,7 +146,7 @@ func (handler StorageHandler) processAsyncGetRequest(writer http.ResponseWriter,
 	requestUrl := handler.helper.MakeTargetURL(serverIP, readingPort, readingAPI)
 	resp, _, err := handler.helper.DoGet(requestUrl)
 	if err != nil {
-		http.Error(writer, fmt.Sprintf("Resource not found"), http.StatusNotFound)
+		http.Error(writer, "Resource not found", http.StatusNotFound)
 		return
 	}
 
@@ -161,8 +161,8 @@ func (handler StorageHandler) processAsyncPostRequest(writer http.ResponseWriter
 	if deviceName == "" {
 		deviceName, err = dbIns.GetDeviceID()
 		if err != nil {
-			log.Error(fmt.Sprint("Fail to get deviceName"))
-			http.Error(writer, fmt.Sprintf("Device not found"), http.StatusNotFound)
+			log.Error("Fail to get deviceName")
+			http.Error(writer, "Device not found", http.StatusNotFound)
 		}
 	}
 	resourceName := vars[resourceNameKey]
@@ -172,14 +172,14 @@ func (handler StorageHandler) processAsyncPostRequest(writer http.ResponseWriter
 	_, err = handler.service.GetDeviceByName(deviceName)
 	if err != nil {
 		log.Error(fmt.Sprintf("Incoming reading ignored. Device '%s' not found", deviceName))
-		http.Error(writer, fmt.Sprintf("Device not found"), http.StatusNotFound)
+		http.Error(writer, "Device not found", http.StatusNotFound)
 		return
 	}
 
 	deviceResource, ok := handler.service.DeviceResource(deviceName, resourceName, "get")
 	if !ok {
 		log.Error(fmt.Sprintf("Incoming reading ignored. Resource '%s' not found", resourceName))
-		http.Error(writer, fmt.Sprintf("Resource not found"), http.StatusNotFound)
+		http.Error(writer, "Resource not found", http.StatusNotFound)
 		return
 	}
 
@@ -442,20 +442,20 @@ func checkUintValueRange(valueType models.ValueType, val uint64) bool {
 	var isValid = false
 	switch valueType {
 	case models.Uint8:
-		if val >= 0 && val <= math.MaxUint8 {
+		if val <= math.MaxUint8 {
 			isValid = true
 		}
 	case models.Uint16:
-		if val >= 0 && val <= math.MaxUint16 {
+		if val <= math.MaxUint16 {
 			isValid = true
 		}
 	case models.Uint32:
-		if val >= 0 && val <= math.MaxUint32 {
+		if val <= math.MaxUint32 {
 			isValid = true
 		}
 	case models.Uint64:
 		maxiMum := uint64(math.MaxUint64)
-		if val >= 0 && val <= maxiMum {
+		if val <= maxiMum {
 			isValid = true
 		}
 	}
@@ -478,9 +478,7 @@ func checkIntValueRange(valueType models.ValueType, val int64) bool {
 			isValid = true
 		}
 	case models.Int64:
-		if val >= math.MinInt64 && val <= math.MaxInt64 {
-			isValid = true
-		}
+		isValid = true
 	}
 	return isValid
 }

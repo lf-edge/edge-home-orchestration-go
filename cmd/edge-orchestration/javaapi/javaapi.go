@@ -90,11 +90,13 @@ func initPlatformPath(edgeDir string) {
 	deviceIDFilePath = edgeDir + deviceIDFile
 }
 
+// RequestServiceInfo structure
 type RequestServiceInfo struct {
 	ExecutionType string
 	ExeCmd        []string
 }
 
+// ReqeustService structure
 type ReqeustService struct {
 	ServiceName      string
 	SelfSelection    bool
@@ -138,21 +140,25 @@ func (r ReqeustService) GetExecutionCommand(execType string) string {
 	return ""
 }
 
+// TargetInfo structure
 type TargetInfo struct {
 	ExecutionType string
 	Target        string
 }
 
+// ResponseService structure
 type ResponseService struct {
 	Message          string
 	ServiceName      string
 	RemoteTargetInfo *TargetInfo
 }
 
+// GetExecutedType returns execution type ("native", "android", "container")
 func (r ResponseService) GetExecutedType() string {
 	return r.RemoteTargetInfo.ExecutionType
 }
 
+// GetTarget returns target
 func (r ResponseService) GetTarget() string {
 	return r.RemoteTargetInfo.Target
 }
