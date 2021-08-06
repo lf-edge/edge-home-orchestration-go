@@ -9,6 +9,7 @@ require (
 	github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1 // indirect
 	github.com/Microsoft/go-winio v0.4.16 // indirect
 	github.com/StackExchange/wmi v0.0.0-20190523213315-cbe66965904d // indirect
+	github.com/axw/gocov v1.0.0 // indirect
 	github.com/casbin/casbin v1.9.1
 	github.com/containerd/containerd v1.4.1-0.20201117152358-0edc412565dc // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
@@ -28,6 +29,7 @@ require (
 	github.com/grandcat/zeroconf v1.0.0
 	github.com/imdario/mergo v0.3.11 // indirect
 	github.com/leemcloughlin/logfile v0.0.0-20201123203928-cff1c8a30a10
+	github.com/matm/gocov-html v0.0.0-20200509184451-71874e2e203b // indirect
 	github.com/mattn/go-shellwords v1.0.10 // indirect
 	github.com/morikuni/aec v1.0.0 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect

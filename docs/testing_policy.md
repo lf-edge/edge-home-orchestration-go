@@ -2,7 +2,7 @@
 ## Contents
 1. [Introduction](#1-introduction)
 2. [How to start Test Suite (Local)](#2-how-to-start-test-suite-local)  
-    2.1 [Using the system build script](#21-using-the-system-build-script)  
+    2.1 [Using the makefile](#21-using-the-makefile)  
     2.2 [Using standard Go language facilities](#22-using-standard-go-language-facilities)  
 3. [Automated Run Test Suite (Remote)](#3-automated-run-test-suite-remote)  
 
@@ -22,8 +22,10 @@ The Edge Orchestration team strongly recommends adhering to the [Test-driven dev
 ---
 
 ## 2. How to start Test Suite (Local)
-There are two ways to test:
 
+> Make sure the `gocov` and `gocov-html` packages are installed [(How to install)](https://github.com/matm/gocov-html#installation)
+
+There are two ways to test:
 ### 2.1 Using the makefile
 To start testing all packages:
 ```
@@ -43,7 +45,8 @@ To start testing a specific package:
 ```
 $ go test -v [PKG_NAME]
 ```
-    
+
+
 ---
 
 ## 3. Automated Run Test Suite (Remote)
