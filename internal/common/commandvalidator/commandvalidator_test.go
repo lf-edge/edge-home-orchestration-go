@@ -26,6 +26,7 @@ import (
 )
 
 func TestCheckCommand(t *testing.T) {
+	execType := "native"
 	t.Run("Error", func(t *testing.T) {
 		t.Run("HasInjectionOperator", func(t *testing.T) {
 			serviceName := "test"
@@ -47,7 +48,7 @@ func TestCheckCommand(t *testing.T) {
 			serviceName := "test"
 			command := []string{"ls"}
 			validator := CommandValidator{}
-			info := configuremgrtypes.ServiceInfo{ServiceName: serviceName, ExecutableFileName: "dir"}
+			info := configuremgrtypes.ServiceInfo{ServiceName: serviceName, ExecutableFileName: "dir", ExecType: execType}
 			err := validator.AddWhiteCommand(info)
 			if err != nil {
 				t.Error("unexpected error: ", err.Error())
@@ -71,7 +72,7 @@ func TestCheckCommand(t *testing.T) {
 		serviceName := "TestCheckCommand/Success"
 		command := []string{"ls"}
 		validator := CommandValidator{}
-		info := configuremgrtypes.ServiceInfo{ServiceName: serviceName, ExecutableFileName: command[0]}
+		info := configuremgrtypes.ServiceInfo{ServiceName: serviceName, ExecutableFileName: command[0], ExecType: execType}
 		err := validator.AddWhiteCommand(info)
 		if err != nil {
 			t.Error("unexpected error: ", err.Error())
@@ -87,12 +88,13 @@ func TestCheckCommand(t *testing.T) {
 func TestStoreServiceInfo(t *testing.T) {
 	serviceName := "TestStoreServiceInfo"
 	executableName := "testExecutable"
+	execType := "native"
 
 	validator := CommandValidator{}
 
 	t.Run("Success", func(t *testing.T) {
 		t.Run("StoreOnce", func(t *testing.T) {
-			info := configuremgrtypes.ServiceInfo{ServiceName: serviceName, ExecutableFileName: executableName}
+			info := configuremgrtypes.ServiceInfo{ServiceName: serviceName, ExecutableFileName: executableName, ExecType: execType}
 			if err := validator.AddWhiteCommand(info); err != nil {
 				t.Error("unexpected error: " + err.Error())
 			}
@@ -121,6 +123,7 @@ func TestStoreServiceInfo(t *testing.T) {
 					if err := validator.AddWhiteCommand(configuremgrtypes.ServiceInfo{
 						ServiceName:        k,
 						ExecutableFileName: v,
+						ExecType:           execType,
 					}); err != nil {
 						t.Error("unexpected error: " + err.Error())
 					}
@@ -142,7 +145,7 @@ func TestStoreServiceInfo(t *testing.T) {
 	t.Run("Error", func(t *testing.T) {
 		t.Run("StoreBlackList", func(t *testing.T) {
 			for _, black := range blackList {
-				info := configuremgrtypes.ServiceInfo{ServiceName: serviceName, ExecutableFileName: black}
+				info := configuremgrtypes.ServiceInfo{ServiceName: serviceName, ExecutableFileName: black, ExecType: execType}
 				if err := validator.AddWhiteCommand(info); err == nil {
 					t.Error("unexpected succeed, " + black)
 				}
@@ -154,11 +157,12 @@ func TestStoreServiceInfo(t *testing.T) {
 func TestGetServiceFileName(t *testing.T) {
 	serviceName := "TestGetServiceFileName"
 	executableName := "testExecutable"
+	execType := "native"
 
 	validator := CommandValidator{}
 
 	t.Run("Success", func(t *testing.T) {
-		info := configuremgrtypes.ServiceInfo{ServiceName: serviceName, ExecutableFileName: executableName}
+		info := configuremgrtypes.ServiceInfo{ServiceName: serviceName, ExecutableFileName: executableName, ExecType: execType}
 		validator.AddWhiteCommand(info)
 
 		expected, err := validator.GetCommand(serviceName)
@@ -181,7 +185,8 @@ func TestAddWhiteCommand(t *testing.T) {
 	t.Run("Error", func(t *testing.T) {
 		serviceName := "test"
 		executableName := ""
-		info := configuremgrtypes.ServiceInfo{ServiceName: serviceName, ExecutableFileName: executableName}
+		execType := "native"
+		info := configuremgrtypes.ServiceInfo{ServiceName: serviceName, ExecutableFileName: executableName, ExecType: execType}
 		err := CommandValidator{}.AddWhiteCommand(info)
 		if err == nil {
 			t.Error("unexpected success")

@@ -20,4 +20,5 @@ type ServiceInfo struct {
 	ServiceName        string
 	ExecutableFileName string
 	AllowedRequester   []string
+	ExecType           string
 }

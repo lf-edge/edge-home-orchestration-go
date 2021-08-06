@@ -28,7 +28,7 @@ import (
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/sigmgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/storagemgr"
 
-	configuremgr "github.com/lf-edge/edge-home-orchestration-go/internal/controller/configuremgr/container"
+	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/configuremgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/discoverymgr"
 	mnedcmgr "github.com/lf-edge/edge-home-orchestration-go/internal/controller/discoverymgr/mnedc"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/scoringmgr"
@@ -130,7 +130,7 @@ func orchestrationInit() error {
 	mnedcmgr.GetClientInstance().SetClient(restIns)
 
 	builder := orchestrationapi.OrchestrationBuilder{}
-	builder.SetWatcher(configuremgr.GetInstance(configPath))
+	builder.SetWatcher(configuremgr.GetInstance(configPath, executionType))
 	builder.SetDiscovery(discoverymgr.GetInstance())
 	builder.SetStorage(storagemgr.GetInstance())
 	builder.SetVerifierConf(verifier.GetInstance())
