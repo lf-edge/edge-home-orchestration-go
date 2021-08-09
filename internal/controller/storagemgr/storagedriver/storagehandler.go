@@ -206,9 +206,9 @@ func (handler StorageHandler) processAsyncPostRequest(writer http.ResponseWriter
 	readingType := models.ParseValueType(deviceResource.Properties.Value.Type)
 
 	if readingType == models.Binary {
-		reading, err = handler.readBodyAsBinary(writer, request)
+		reading, err = handler.readBodyAsBinary(request)
 	} else {
-		reading, err = handler.readBodyAsString(writer, request)
+		reading, err = handler.readBodyAsString(request)
 	}
 
 	if err != nil {
@@ -236,7 +236,7 @@ func (handler StorageHandler) processAsyncPostRequest(writer http.ResponseWriter
 	handler.asyncValues <- asyncValues
 }
 
-func (handler StorageHandler) readBodyAsString(writer http.ResponseWriter, request *http.Request) (string, error) {
+func (handler StorageHandler) readBodyAsString(request *http.Request) (string, error) {
 	if request.Body == nil {
 		return "", fmt.Errorf("no request body provided")
 	}
@@ -254,7 +254,7 @@ func (handler StorageHandler) readBodyAsString(writer http.ResponseWriter, reque
 	return string(body), nil
 }
 
-func (handler StorageHandler) readBodyAsBinary(writer http.ResponseWriter, request *http.Request) ([]byte, error) {
+func (handler StorageHandler) readBodyAsBinary(request *http.Request) ([]byte, error) {
 	if request.Body == nil {
 		return nil, fmt.Errorf("no request body provided")
 	}
