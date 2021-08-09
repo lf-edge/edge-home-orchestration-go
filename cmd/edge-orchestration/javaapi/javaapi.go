@@ -31,7 +31,7 @@ import (
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/networkhelper"
 
-	configuremgr "github.com/lf-edge/edge-home-orchestration-go/internal/controller/configuremgr/native"
+	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/configuremgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/discoverymgr"
 	scoringmgr "github.com/lf-edge/edge-home-orchestration-go/internal/controller/scoringmgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/securemgr/authenticator"
@@ -197,7 +197,7 @@ func OrchestrationInit(executeCallback ExecuteCallback, edgeDir string, isSecure
 	discoverymgr.GetInstance().SetClient(restIns)
 
 	builder := orchestrationapi.OrchestrationBuilder{}
-	builder.SetWatcher(configuremgr.GetInstance(configPath))
+	builder.SetWatcher(configuremgr.GetInstance(configPath, executionType))
 	builder.SetDiscovery(discoverymgr.GetInstance())
 	builder.SetVerifierConf(verifier.GetInstance())
 	builder.SetScoring(scoringmgr.GetInstance())

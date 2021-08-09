@@ -101,6 +101,7 @@ func TestAPIV1ServicemgrServicesPost(t *testing.T) {
 		ServiceName:        "test_service",
 		ExecutableFileName: "test_execute",
 		AllowedRequester:   []string{"test_requester"},
+		ExecType:           "native",
 	}
 
 	commandvalidator.CommandValidator{}.AddWhiteCommand(serviceInfo)

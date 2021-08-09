@@ -53,21 +53,23 @@ func (CommandValidator) GetCommand(serviceName string) (string, error) {
 
 // AddWhiteCommand adds a command to support servicelist
 func (CommandValidator) AddWhiteCommand(serviceInfo configuremgrtypes.ServiceInfo) error {
-	command, err := getExecutableName(serviceInfo.ExecutableFileName)
-	if err != nil {
-		return err
+	if serviceInfo.ExecType == "native" {
+		command, err := getExecutableName(serviceInfo.ExecutableFileName)
+		if err != nil {
+			return err
+		}
+
+		if blacklist.IsBlack(command) {
+			return errors.New(notAllowedExecutableService)
+		}
+
+		_, err = commands.GetInstance().GetServiceFileName(serviceInfo.ServiceName)
+		if err == nil {
+			return errors.New(alreadyRegisteredServiceName)
+		}
+		commands.GetInstance().StoreServiceInfo(serviceInfo.ServiceName, command)
 	}
 
-	if blacklist.IsBlack(command) {
-		return errors.New(notAllowedExecutableService)
-	}
-
-	_, err = commands.GetInstance().GetServiceFileName(serviceInfo.ServiceName)
-	if err == nil {
-		return errors.New(alreadyRegisteredServiceName)
-	}
-
-	commands.GetInstance().StoreServiceInfo(serviceInfo.ServiceName, command)
 	return nil
 }
 

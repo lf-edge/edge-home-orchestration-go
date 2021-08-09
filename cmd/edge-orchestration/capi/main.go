@@ -85,7 +85,7 @@ import (
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/storagemgr"
 
-	configuremgr "github.com/lf-edge/edge-home-orchestration-go/internal/controller/configuremgr/native"
+	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/configuremgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/discoverymgr"
 	mnedcmgr "github.com/lf-edge/edge-home-orchestration-go/internal/controller/discoverymgr/mnedc"
 	scoringmgr "github.com/lf-edge/edge-home-orchestration-go/internal/controller/scoringmgr"
@@ -179,7 +179,7 @@ func OrchestrationInit() C.int {
 	discoverymgr.GetInstance().SetClient(restIns)
 
 	builder := orchestrationapi.OrchestrationBuilder{}
-	builder.SetWatcher(configuremgr.GetInstance(configPath))
+	builder.SetWatcher(configuremgr.GetInstance(configPath, executionType))
 	builder.SetDiscovery(discoverymgr.GetInstance())
 	builder.SetStorage(storagemgr.GetInstance())
 	builder.SetVerifierConf(verifier.GetInstance())

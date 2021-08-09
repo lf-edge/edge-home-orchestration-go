@@ -15,7 +15,7 @@
  *
  *******************************************************************************/
 
-package native
+package configuremgr
 
 import (
 	"io/ioutil"
@@ -26,7 +26,6 @@ import (
 	"time"
 
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/types/configuremgrtypes"
-	contextmgr "github.com/lf-edge/edge-home-orchestration-go/internal/controller/configuremgr"
 )
 
 var name string
@@ -35,6 +34,7 @@ const (
 	expectedName    = "HelloWorldService"
 	defaultConfPath = "testdata/apps"
 	fakeConfPath    = "fake"
+	fakeExecType    = "native"
 )
 
 type dummyNoti struct{}
@@ -76,12 +76,12 @@ func TestBasicMockConfigureMgr(t *testing.T) {
 	os.Mkdir(defaultConfPath, 0775)
 	defer os.RemoveAll(defaultConfPath)
 
-	var contextNoti contextmgr.Notifier
+	var contextNoti Notifier
 	contextNoti = new(dummyNoti)
 	src := "testdata/mysum"
 
 	t.Run("Success", func(t *testing.T) {
-		testConfigObj := GetInstance(defaultConfPath)
+		testConfigObj := GetInstance(defaultConfPath, fakeExecType)
 
 		go testConfigObj.Watch(contextNoti)
 		time.Sleep(time.Duration(1) * time.Second)
