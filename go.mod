@@ -1,6 +1,6 @@
 module github.com/lf-edge/edge-home-orchestration-go
 
-go 1.15
+go 1.16
 
 // Temporary measure to avoid crash in Hanoi release of EdgeX, Will be removed post Ireland release.
 replace github.com/edgexfoundry/device-sdk-go v1.4.0 => github.com/hahattan/device-sdk-go v1.4.1
@@ -11,7 +11,6 @@ require (
 	github.com/StackExchange/wmi v0.0.0-20190523213315-cbe66965904d // indirect
 	github.com/casbin/casbin v1.9.1
 	github.com/containerd/containerd v1.4.1-0.20201117152358-0edc412565dc // indirect
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/docker/cli v0.0.0-20201024074417-fd3371eb7df1
 	github.com/docker/distribution v2.7.1-0.20190205005809-0d3efadf0154+incompatible // indirect
 	github.com/docker/docker v17.12.0-ce-rc1.0.20201201034508-7d75c1d40d88+incompatible
@@ -22,6 +21,7 @@ require (
 	github.com/fsnotify/fsnotify v1.4.9
 	github.com/go-ole/go-ole v1.2.5 // indirect
 	github.com/gogo/protobuf v1.3.1 // indirect
+	github.com/golang-jwt/jwt/v4 v4.0.0
 	github.com/golang/mock v1.4.4
 	github.com/gomodule/redigo v1.8.3
 	github.com/gorilla/mux v1.8.0

@@ -31,7 +31,7 @@ import (
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/securemgr/authorizer"
 
-	jwt "github.com/dgrijalva/jwt-go"
+	jwt "github.com/golang-jwt/jwt/v4"
 )
 
 // AuthenticatorImpl structure

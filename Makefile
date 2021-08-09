@@ -186,8 +186,9 @@ test-go:
 ## build clean
 clean: go.sum
 	$(call print_header, "Build clean")
-	$(Q) $(GOCLEAN)
 	$(Q) -rm -rf $(BUILD_VENDOR_DIR)
+	$(Q) $(GOCMD) mod tidy
+	$(Q) $(GOCLEAN)
 	$(Q) -rm -rf $(INTERFACE_OUT_DIR)
 	$(Q) -rm -rf $(ANDROID_LIBRARY_OUT_DIR)
 	$(Q) -rm -rf $(BASE_DIR)/bin/$(PKG_NAME)*

@@ -6,7 +6,7 @@ FILEPUBKEY=/var/edge-orchestration/data/jwt/app_rsa.key
 device_id=`cat /var/edge-orchestration/device/orchestration_deviceID.txt`
 
 payload="{
-	\"exp\": $(($(date +%s)+60)),
+	\"exp\": $(($(date +%s)+600)),
 	\"iat\": $(date +%s),
 	\"deviceid\": \"${device_id}\",
 	\"aud\": \"$2\"
