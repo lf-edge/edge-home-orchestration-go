@@ -38,12 +38,14 @@ import (
 	"github.com/pelletier/go-toml"
 )
 
+type ctxKey string
+
 const (
-	deviceNameKey     = "deviceName"
-	resourceNameKey   = "resourceName"
-	handlerContextKey = "StorageHandler"
-	configPath        = "res/configuration.toml"
-	numberOfReadings  = "readingCount"
+	deviceNameKey            = "deviceName"
+	resourceNameKey          = "resourceName"
+	handlerContextKey ctxKey = "StorageHandler"
+	configPath               = "res/configuration.toml"
+	numberOfReadings         = "readingCount"
 
 	apiResourceRoute           = clients.ApiBase + "/device/{" + deviceNameKey + "}/resource/{" + resourceNameKey + "}"
 	apiResourceRouteMultiple   = clients.ApiBase + "/device/{" + deviceNameKey + "}/resource/{" + resourceNameKey + "}/{" + numberOfReadings + "}"
@@ -55,6 +57,7 @@ var (
 	dbIns = dbhelper.GetInstance()
 )
 
+// StorageHandler provides necessary struct for running DataStorage.
 type StorageHandler struct {
 	service     *sdk.DeviceService
 	logger      logger.LoggingClient
@@ -62,6 +65,7 @@ type StorageHandler struct {
 	helper      resthelper.RestHelper
 }
 
+// NewStorageHandler creates and returns a handler for DataStorage.
 func NewStorageHandler(service *sdk.DeviceService, logger logger.LoggingClient, asyncValues chan<- *models.AsyncValues) *StorageHandler {
 	handler := StorageHandler{
 		service:     service,
@@ -143,8 +147,8 @@ func (handler StorageHandler) processAsyncGetRequest(writer http.ResponseWriter,
 
 	readingAPI := "/api/v1/reading/name/" + resourceName + "/device/" + deviceName + "/" + readingCount
 
-	requestUrl := handler.helper.MakeTargetURL(serverIP, readingPort, readingAPI)
-	resp, _, err := handler.helper.DoGet(requestUrl)
+	requestURL := handler.helper.MakeTargetURL(serverIP, readingPort, readingAPI)
+	resp, _, err := handler.helper.DoGet(requestURL)
 	if err != nil {
 		http.Error(writer, "Resource not found", http.StatusNotFound)
 		return

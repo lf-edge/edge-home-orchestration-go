@@ -29,6 +29,7 @@ import (
 
 const logPrefix = "[storagedriver]"
 
+// StorageDriver has a logger and a channel for the device service.
 type StorageDriver struct {
 	logger      logger.LoggingClient
 	asyncValues chan<- *dsModels.AsyncValues
@@ -38,7 +39,7 @@ var (
 	log = logmgr.GetInstance()
 )
 
-// Initialize performs protocol-specific initialization for the device
+// Initialize performs protocol-specific initialization for the device service.
 func (driver *StorageDriver) Initialize(logger logger.LoggingClient, asyncValues chan<- *dsModels.AsyncValues, deviceCh chan<- []dsModels.DiscoveredDevice) error {
 	log.Println(logPrefix, "Device service intialize started")
 	driver.logger = logger
@@ -65,6 +66,7 @@ func (driver *StorageDriver) Stop(force bool) error {
 	return nil
 }
 
+// AddDevice is a callback function that is invoked
 // when a new Device associated with this Device Service is added
 func (driver *StorageDriver) AddDevice(deviceName string, protocols map[string]contract.ProtocolProperties, adminState contract.AdminState) error {
 
@@ -73,6 +75,7 @@ func (driver *StorageDriver) AddDevice(deviceName string, protocols map[string]c
 	return nil
 }
 
+// UpdateDevice is a callback function that is invoked
 // when a Device associated with this Device Service is updated
 func (driver *StorageDriver) UpdateDevice(deviceName string, protocols map[string]contract.ProtocolProperties, adminState contract.AdminState) error {
 
@@ -80,6 +83,7 @@ func (driver *StorageDriver) UpdateDevice(deviceName string, protocols map[strin
 	return nil
 }
 
+// RemoveDevice is a callback function that is invoked
 // when a Device associated with this Device Service is removed
 func (driver *StorageDriver) RemoveDevice(deviceName string, protocols map[string]contract.ProtocolProperties) error {
 
