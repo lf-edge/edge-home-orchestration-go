@@ -21,6 +21,7 @@ import (
 	"net/http"
 )
 
+// Requester interface
 type Requester interface {
 	Do(req *http.Request) (*http.Response, error)
 }

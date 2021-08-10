@@ -117,6 +117,7 @@ func (h *Handler) SetOrchestrationAPI(o orchestrationapi.OrcheInternalAPI) {
 	h.isSetAPI = true
 }
 
+// SetCertificateFilePath sets the file path for certificate
 func (h *Handler) SetCertificateFilePath(path string) {
 	rh := resthelper.GetHelperWithCertificate()
 	rh.SetCertificateFilePath(path)

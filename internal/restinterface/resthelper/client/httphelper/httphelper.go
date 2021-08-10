@@ -25,7 +25,8 @@ import (
 
 var client *http.Client
 
-type HttpHelper struct{}
+// HTTPHelper struct
+type HTTPHelper struct{}
 
 func init() {
 	client = &http.Client{
@@ -39,6 +40,7 @@ func init() {
 	}
 }
 
-func (HttpHelper) Do(req *http.Request) (*http.Response, error) {
+// Do calls the Do method of requester interface
+func (HTTPHelper) Do(req *http.Request) (*http.Response, error) {
 	return client.Do(req)
 }

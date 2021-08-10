@@ -10,24 +10,38 @@ import (
 )
 
 const (
+	// USER is the key for user. Value set to 0
 	USER = iota
+	// NICE is the key for Nice, Value set to 1
 	NICE
+	// SYSTEM  is the key for system, Value set to 2
 	SYSTEM
+	// IDLE is the key for idle, Value set to 3
 	IDLE
+	// IOWAIT is the key for IO wait, Value set to 4
 	IOWAIT
+	// IRQ is the key for IRQ, Value set to 5
 	IRQ
+	// SOFTIRQ is the key for SOFTIRQ, Value set to 6
 	SOFTIRQ
+	// STEAL is the key for steal, Value set to 7
 	STEAL
+	// GEUST is the key for guest, Value set to 8
 	GEUST
+	// GESTNICE is the key for guest nice, Value set to 9
 	GESTNICE
 )
 
 const (
-	CPU_IDLE = iota
-	CPU_NONIDLE
-	CPU_TOTAL
+	// CPUIdle is the key idle cpu. value set to 0
+	CPUIdle = iota
+	// CPUNonidle is key for non idle cpu
+	CPUNonidle
+	// CPUTotal is the key for total cpu value
+	CPUTotal
 )
 
+//InfoStat struct
 type InfoStat struct {
 	Mhz  float64
 	core int
@@ -65,18 +79,19 @@ func readCPUUsage() ([]float64, error) {
 
 		switch index {
 		case USER, NICE, SYSTEM, IRQ, SOFTIRQ, STEAL:
-			cpuUsage[CPU_NONIDLE] += item
+			cpuUsage[CPUNonidle] += item
 		case IDLE, IOWAIT:
-			cpuUsage[CPU_IDLE] += item
+			cpuUsage[CPUIdle] += item
 		}
 
 	}
 
-	cpuUsage[CPU_TOTAL] = cpuUsage[CPU_IDLE] + cpuUsage[CPU_NONIDLE]
+	cpuUsage[CPUTotal] = cpuUsage[CPUIdle] + cpuUsage[CPUNonidle]
 
 	return cpuUsage, err
 }
 
+// Percent is used to return the cpu usage in percentage
 func Percent(interval time.Duration, percpu bool) ([]float64, error) {
 	preUsage, err := readCPUUsage()
 	if err != nil {
@@ -91,8 +106,8 @@ func Percent(interval time.Duration, percpu bool) ([]float64, error) {
 		return nil, err
 	}
 
-	totald := curUsage[CPU_TOTAL] - preUsage[CPU_TOTAL]
-	idled := curUsage[CPU_IDLE] - preUsage[CPU_IDLE]
+	totald := curUsage[CPUTotal] - preUsage[CPUTotal]
+	idled := curUsage[CPUIdle] - preUsage[CPUIdle]
 
 	cpuUsage := (totald - idled) / totald
 	if cpuUsage < 0.0 {
@@ -111,6 +126,7 @@ func Percent(interval time.Duration, percpu bool) ([]float64, error) {
 	return cpuUsages, nil
 }
 
+// Info is used to return the frequency and core info in InfoStat structure
 func Info() ([]InfoStat, error) {
 	ret, err := getCPUs()
 	if err != nil {

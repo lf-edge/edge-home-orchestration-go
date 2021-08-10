@@ -38,7 +38,8 @@ import (
 const (
 	// ConstWellknownPort is the common port for REST API
 	ConstWellknownPort = 56001
-	ConstInternalPort  = 56002
+	// ConstInternalPort is the port used for TLS connection
+	ConstInternalPort = 56002
 )
 
 var (
@@ -64,7 +65,7 @@ func NewRestRouter() *RestRouter {
 	return edgeRouter
 }
 
-// NewRestRouter constructs RestRouter instance with Certificate file path
+// NewRestRouterWithCerti constructs RestRouter instance with Certificate file path
 func NewRestRouterWithCerti(path string) *RestRouter {
 	edgeRouter := NewRestRouter()
 	edgeRouter.SetCertificateFilePath(path)

@@ -529,6 +529,7 @@ func setDeviceArgument(deviceUUID string, platform string, executionType string)
 	return
 }
 
+// SetNetwotkArgument is used to set the IP address and interface of host
 func SetNetwotkArgument() (hostIPAddr []string, netIface []net.Interface) {
 	for {
 		hostIPAddr, _ = networkIns.GetIPs()

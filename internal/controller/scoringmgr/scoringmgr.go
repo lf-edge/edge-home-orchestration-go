@@ -26,7 +26,8 @@ import (
 )
 
 const (
-	logPrefix    = "scoringmgr"
+	logPrefix = "scoringmgr"
+	// InvalidScore is used to indicate 0.0 in case of error
 	InvalidScore = 0.0
 )
 

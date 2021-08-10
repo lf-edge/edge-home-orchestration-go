@@ -39,6 +39,7 @@ var (
 	log             = logmgr.GetInstance()
 )
 
+// GetNameByPort returns the process from the port number
 func GetNameByPort(port int64) (string, error) {
 	lines, err := getData()
 	if err != nil {
