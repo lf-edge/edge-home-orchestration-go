@@ -27,7 +27,7 @@ var (
 	testModel        = "Home Edge"
 	testLabel        = []string{"rest", "json", "numeric", "float", "int"}
 	testDescription  = "REST Device"
-	testPropertyJson = Property{
+	testPropertyJSON = Property{
 		Value: PropertyDetail{
 			Type:      "String",
 			ReadWrite: "RW",
@@ -79,7 +79,7 @@ var (
 		{
 			Name:        "json",
 			Description: "json",
-			Properties:  testPropertyJson},
+			Properties:  testPropertyJSON},
 		{
 			Name:       "int",
 			Properties: testPropertyInt},

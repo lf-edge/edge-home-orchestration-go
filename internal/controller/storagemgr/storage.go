@@ -14,6 +14,7 @@
  * limitations under the License.
  *
  *******************************************************************************/
+
 package storagemgr
 
 import (
@@ -33,12 +34,14 @@ const (
 	deviceIDFilePath      = "/var/edge-orchestration/device/orchestration_deviceID.txt"
 )
 
+// Storage is the interface for starting DataStorage.
 type Storage interface {
 	GetStatus() int
 	StartStorage(host string) error
 	BuildConfiguration(host string) error
 }
 
+// StorageImpl has DataStorage's driver and status data.
 // status = 0 : No action
 // status = 1 : Completed to build configuration files
 // status = 2 : Running DataStorage
@@ -130,7 +133,7 @@ func saveYaml() (err error) {
 	model := "Home Edge"
 	label := []string{"rest", "json", "int", "float", "jpeg", "png", "string"}
 	description := "REST Device"
-	propertyJson := config.Property{
+	propertyJSON := config.Property{
 		Value: config.PropertyDetail{
 			Type:      "String",
 			ReadWrite: "RW",
@@ -181,7 +184,7 @@ func saveYaml() (err error) {
 	resource := []config.DeviceResource{
 		{
 			Name:       "json",
-			Properties: propertyJson},
+			Properties: propertyJSON},
 		{
 			Name:       "int",
 			Properties: propertyInt},

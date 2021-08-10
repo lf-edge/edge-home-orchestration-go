@@ -21,6 +21,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+// Yaml contains the struct for building the DataStorage Device Resources configuration.
 type Yaml struct {
 	Name            string           `yaml:"name"`
 	Manufacturer    string           `yaml:"manufacturer"`
@@ -30,17 +31,22 @@ type Yaml struct {
 	DeviceResources []DeviceResource `yaml:"deviceResources,omitempty"`
 }
 
+// DeviceResource contains the resource information.
 type DeviceResource struct {
 	Name        string   `yaml:"name"`
 	Description string   `yaml:"description,omitempty"`
 	Properties  Property `yaml:"properties"`
 }
 
+// Property has the value and units properties.
 type Property struct {
 	Value PropertyDetail `yaml:"value,flow"`
 	Units PropertyDetail `yaml:"units,flow"`
 }
 
+// PropertyDetail contains the specific property(Value and Units) information.
+// Type : bool, int8 - int64, uint8 - uint64, float32, float64, string, binary types are supported.
+// ReadWrite : R, RW, or W
 type PropertyDetail struct {
 	Type      string `yaml:"type"`
 	ReadWrite string `yaml:"readWrite"`
@@ -51,6 +57,7 @@ var (
 	yamlInfo Yaml
 )
 
+// SetYaml configures the device resource information.
 func SetYaml(name, manufac, model, desc string, labels []string, resources []DeviceResource) {
 	yamlInfo = Yaml{
 		Name:            name,
@@ -61,6 +68,7 @@ func SetYaml(name, manufac, model, desc string, labels []string, resources []Dev
 		DeviceResources: resources}
 }
 
+// YamlMarshal returns bytes for DataStorage device resource configuration.
 func YamlMarshal() (b []byte, err error) {
 	return yaml.Marshal(yamlInfo)
 }

@@ -21,10 +21,12 @@ import (
 	toml "github.com/pelletier/go-toml"
 )
 
+// Writable contains the configuration for the DataStorage log.
 type Writable struct {
 	LogLevel string `toml:"LogLevel,omitempty"`
 }
 
+// Service contains the configuration for the DataStorage service.
 type Service struct {
 	Host                string   `toml:"Host"`
 	Port                int      `toml:"Port"`
@@ -36,6 +38,7 @@ type Service struct {
 	AsyncBufferSize     int      `toml:"AsyncBufferSize,omitempty"`
 }
 
+// Registry contains the configuration for the DataStorage in terms of the Registry server.
 type Registry struct {
 	Host          string `toml:"Host"`
 	Port          int    `toml:"Port"`
@@ -45,6 +48,7 @@ type Registry struct {
 	FailWaitTime  int    `toml:"FailWaitTime,omitempty"`
 }
 
+// Device contains the configuration for the DataStorage device.
 type Device struct {
 	DataTransform  bool   `toml:"DataTransform,omitempty"`
 	InitCmd        string `toml:"InitCmd"`
@@ -56,8 +60,10 @@ type Device struct {
 	ProfilesDir    string `toml:"ProfilesDir,omitempty"`
 }
 
+// ProtocolProperties is a map of device protocols.
 type ProtocolProperties map[string]string
 
+// DeviceProperties contains the configuration for a specific device.
 type DeviceProperties struct {
 	Name        string                        `toml:"Name"`
 	Profile     string                        `toml:"Profile"`
@@ -66,8 +72,10 @@ type DeviceProperties struct {
 	Protocols   map[string]ProtocolProperties `toml:"Protocols,omitempty"`
 }
 
+// DeviceList is a list of the DevicesPropertieses.
 type DeviceList []DeviceProperties
 
+// Client contains other service information for DataStroage.
 type Client struct {
 	Host     string `toml:"Host"`
 	Port     int    `toml:"Port"`
@@ -75,8 +83,10 @@ type Client struct {
 	Timeout  int    `toml:"Timeout,omitempty"`
 }
 
+// Clients is a map of Clients.
 type Clients map[string]Client
 
+// Toml contains the struct for building the DataStorage configuration file.
 type Toml struct {
 	Writable
 	Service
@@ -90,10 +100,12 @@ var (
 	tomlInfo Toml
 )
 
+// SetWritable configures the Writable information.
 func SetWritable(level string) {
 	tomlInfo.Writable = Writable{LogLevel: level}
 }
 
+// SetService configures the Service information.
 func SetService(host string, port int, label []string) {
 	tomlInfo.Service = Service{
 		Host:                host,
@@ -106,6 +118,7 @@ func SetService(host string, port int, label []string) {
 		AsyncBufferSize:     16}
 }
 
+// SetRegistry configures the Registry information.
 func SetRegistry(host string, port int) {
 	tomlInfo.Registry = Registry{
 		Host:          host,
@@ -116,6 +129,7 @@ func SetRegistry(host string, port int) {
 		FailWaitTime:  10}
 }
 
+// SetDevice configures the Device's common information.
 func SetDevice(dataTransform bool, initCmd string, initCmdArgs string, maxCmdOps int,
 	maxCmdValueLen int, removeCmd string, removeCmdArgs string, profilesDir string) {
 	tomlInfo.Device = Device{
@@ -129,6 +143,7 @@ func SetDevice(dataTransform bool, initCmd string, initCmdArgs string, maxCmdOps
 		ProfilesDir:    profilesDir}
 }
 
+// SetDeviceList configures the specific Device information
 func SetDeviceList(name string, profile string, description string, label []string) {
 	tomlInfo.DeviceList = DeviceList{DeviceProperties{
 		Name:        name,
@@ -138,6 +153,7 @@ func SetDeviceList(name string, profile string, description string, label []stri
 		Protocols:   map[string]ProtocolProperties{"other": {}}}}
 }
 
+// SetClients configures the service information in terms of Data and Metadata.
 func SetClients(host string, protocol string, timeout int) {
 	tomlInfo.Clients = Clients{
 		"Data": Client{Host: host,
@@ -150,6 +166,7 @@ func SetClients(host string, protocol string, timeout int) {
 			Timeout:  timeout}}
 }
 
+// TomlMarshal returns bytes for DataStorage configuration.
 func TomlMarshal() (b []byte, err error) {
 	return toml.Marshal(tomlInfo)
 }
