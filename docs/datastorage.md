@@ -3,7 +3,10 @@
 1. [Introduction](#1-introduction)
 2. [System Description](#2-system-description)
 3. [Limitations and Assumptions](#3-limitations-and-assumptions)
-4. [How to Setup](#4-how-to-setup)
+4. [How to Run](#4-how-to-run)  
+    4.1 [Configuration](#41-configuration)  
+    4.2 [Run EdgeX Foundry Containers](#42-run-edgex-foundry-containers)  
+    4.3 [Run Edge Orchestration](#43-run-edge-orchestration)
 
 ## 1. Introduction
 This module to be developed would be responsible for storing the data (can be sensor data or any reading or image/video data, etc.) from different devices in the home environment. Any device registered to this module can also request for data to different device. The databases used to store the data is Redis DB/Mongo DB (as a choice from a user, with repect to its parent EdgeX recommendation). At regular intervals this data would also be synced up with the cloud to remove the data from the device and free the device space for new incoming data.
@@ -26,54 +29,31 @@ The current development assumes the data storage module to have one single Data 
 
 The following architecture assumes that data stored at data controller would be uploaded to the cloud at some scheduled intervals to free up the space at the device level. Hence the Data Storage device will be dependent on the cloud connectivity at those intervals.
 
-## 4. How to Setup
-1. Placement the [`configs/datastorage/configuration.toml`](../configs/datastorage/configuration.toml) and [`configs/datastorage/sample-json-device.yaml`](../configs/datastorage/sample-json-device.yaml) files into `/var/edge-orchestration/datastorage/` in your **Home Edge** with Data Storage (**Device A**).
+## 4. How to Run
 
->>> When placing the `configuration.toml` file, please change _Host_ attribute from 'localhost' to the IP configurations of your **Device B** _(the detail description of Device B is defined in the step 2 in this document)_.
+### 4.1 Configuration
 
+- Placement the [`test/container/datastorage/`](../test/container/datastorage/) folder into `/var/edge-orchestration/apps/` in your **Home Edge** with Data Storage (**Device A**).
 ```sh
-[Service]
-Host = 'localhost'
-Port = 49986
-ConnectRetries = 20
-Labels = []
-OpenMsg = "REST device started"
-Timeout = 5000
-EnableAsyncReadings = true
-AsyncBufferSize = 16
-
-[Registry]
-Host = 'localhost'
-Port = 8500
-Type = "consul"
-CheckInterval = "10s"
-FailLimit = 3
-FailWaitTime = 10
-
-[Clients]
-  [Clients.Data]
-  Protocol = "http"
-  Host = "localhost"
-  Port = 48080
-  Timeout = 5000
-
-  [Clients.Metadata]
-  Protocol = "http"
-  Host = "localhost"
-  Port = 48081
-  Timeout = 5000
-
-  [Clients.Logging]
-  Protocol = "http"
-  Host = "localhost"
-  Port = 48061
+$ sudo cp -rf test/container/datastorage/ /var/edge-orchestration/apps/
 ```
 
-2. Run the EdgeX Docker containers on your Linux machine (**Device B**) with respect to the guidance from [EdgeX Foundry Services](https://github.com/edgexfoundry/edgex-go#get-started), or the _simplest way_ that you can follow using follows;
+### 4.2 Run EdgeX Foundry containers
+- Run the Hanoi version of EdgeX Docker containers on your Linux machine (**Device A**) with respect to the guidance from [EdgeX Foundry Services](https://github.com/edgexfoundry/edgex-go#get-started), or the _simplest way_ that you can follow using follows;
 
 ```sh
 $ cd deployments/datastorage
 $ docker-compose up -d
 ```
 
-3. Run `edge-home-orchestration-go` with DataStorage on **Device A**, referring to "How to work" in [link](./platforms/x86_64_linux/x86_64_linux.md#how-to-work).
+### 4.3 Run Edge Orchestration
+- Run `edge-home-orchestration-go` with DataStorage on **Device A**, referring to "How to work" in [link](./platforms/x86_64_linux/x86_64_linux.md#how-to-work).
+- You can see the **Device A** has the `DataStorage` service as follows:
+```
+$ docker logs -f edge-orchestration
+INFO[2021-08-10T04:28:20Z]discovery.go:572 func1 [deviceDetectionRoutine] edge-orchestration-c1b23cc6-0767-400a-9cf0-36e1b3902da2
+INFO[2021-08-10T04:28:20Z]discovery.go:573 func1 [deviceDetectionRoutine] confInfo    : ExecType(container), Platform(docker)
+INFO[2021-08-10T04:28:20Z]discovery.go:574 func1 [deviceDetectionRoutine] netInfo     : IPv4([10.113.70.227]), RTT(0)
+INFO[2021-08-10T04:28:20Z]discovery.go:575 func1 [deviceDetectionRoutine] serviceInfo : Services([DataStorage])
+```
+- Other devices running with **Home Edge** will connect automatically.

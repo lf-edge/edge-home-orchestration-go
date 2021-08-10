@@ -131,6 +131,7 @@ Note that you can visit [Swagger Editor](https://editor.swagger.io/) to graphica
   - Edge Orchestration Docker image
     - Please see the above [How to build](#how-to-build) to know how to build Edge Orchestration Docker image
   - If you use in secure mode, you must [deploy the key infrastructure](../../secure_manager.md#53-generation-key-infrastructure). 
+  - If you use Data Storage, you must [setup the Data Storage configuration and run the EdgeX Foundry containers](../../datastorage.md#4-how-to-run)
 
 #### 1. Run Edge Orchestration container
 
