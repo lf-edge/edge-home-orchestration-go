@@ -45,7 +45,21 @@ Please see the below [How to work](#how-to-work) to know how to run Edge Orchest
 `$ export GOPATH=$HOME/go`  
 `$ export PATH=$PATH:$GOPATH/bin`
 
-- extra linux utilities
+- extra Go utilities: (optional)
+  - [gocov](https://pkg.go.dev/github.com/axw/gocov)
+  ```
+  $ go get github.com/axw/gocov/gocov
+  ```
+   - [gocov-html](https://github.com/matm/gocov-html#gocov-html-export)
+  ```
+  $ go get github.com/matm/gocov-html
+  ```
+  - [staticcheck](https://staticcheck.io)
+  ```
+  $ go install honnef.co/go/tools/cmd/staticcheck@latest
+  ```
+
+- extra linux utilities:
 ```
 $ sudo apt-get install tree jq
 ```
