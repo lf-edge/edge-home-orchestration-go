@@ -14,8 +14,10 @@
 * limitations under the License.
 *
 *******************************************************************************/
+
 package configuremgrtypes
 
+// ServiceInfo struct
 type ServiceInfo struct {
 	ServiceName        string
 	ExecutableFileName string

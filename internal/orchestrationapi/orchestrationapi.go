@@ -69,12 +69,14 @@ type orcheClient struct {
 	endSignal chan bool
 }
 
+// RequestServiceInfo struct
 type RequestServiceInfo struct {
 	ExecutionType string
 	ExeCmd        []string
 	ExeOption     map[string]interface{}
 }
 
+// ReqeustService struct
 type ReqeustService struct {
 	SelfSelection    bool
 	ServiceName      string
@@ -83,11 +85,13 @@ type ReqeustService struct {
 	// TODO add status callback
 }
 
+// TargetInfo struct
 type TargetInfo struct {
 	ExecutionType string
 	Target        string
 }
 
+// ResponseService struct
 type ResponseService struct {
 	Message          string
 	ServiceName      string
@@ -95,11 +99,16 @@ type ResponseService struct {
 }
 
 const (
-	ErrorNone           = "ERROR_NONE"
-	InvalidParameter    = "INVALID_PARAMETER"
-	ServiceNotFound     = "SERVICE_NOT_FOUND"
+	// ErrorNone is key no error
+	ErrorNone = "ERROR_NONE"
+	// InvalidParameter is key for invalid parameter
+	InvalidParameter = "INVALID_PARAMETER"
+	//ServiceNotFound is key for service not found
+	ServiceNotFound = "SERVICE_NOT_FOUND"
+	//InternalServerError is key for internal server error
 	InternalServerError = "INTERNAL_SERVER_ERROR"
-	NotAllowedCommand   = "NOT_ALLOWED_COMMAND"
+	// NotAllowedCommand is key for not allowed command
+	NotAllowedCommand = "NOT_ALLOWED_COMMAND"
 )
 
 var (

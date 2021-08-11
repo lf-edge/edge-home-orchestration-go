@@ -35,6 +35,7 @@ var (
 	wellKnownPort map[string]string
 )
 
+// TLSHelper struct
 type TLSHelper struct{}
 
 func init() {
@@ -72,6 +73,7 @@ func createClientConfig() (*tls.Config, error) {
 	}, nil
 }
 
+// Do is used to initiate TLS connection
 func (TLSHelper) Do(req *http.Request) (*http.Response, error) {
 	if _, err := strconv.Atoi(req.URL.Port()); err != nil {
 		return nil, fmt.Errorf("invalid URL port %q", req.URL.Port())

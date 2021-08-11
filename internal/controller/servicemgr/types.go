@@ -41,6 +41,7 @@ const (
 	// ConstKeyUserArgs is key of user argument
 	ConstKeyUserArgs = "UserArgs"
 
+	// ConstKeyRequester is key for requester
 	ConstKeyRequester = "Requester"
 
 	// ConstKeyNotiTargetURL is key of notification target URL

@@ -36,7 +36,7 @@ var (
 	androidexecutor = &AndroidExecutor{}
 )
 
-// Execute callback
+// ExecuteCallback callback
 type ExecuteCallback interface {
 	Execute(packageName string, args string) int
 }
@@ -57,6 +57,7 @@ func GetInstance() *AndroidExecutor {
 	return androidexecutor
 }
 
+// SetExecuteCallback executes the callback send in the paramter
 func (t *AndroidExecutor) SetExecuteCallback(executeCallback ExecuteCallback) {
 	t.executeCB = executeCallback
 }

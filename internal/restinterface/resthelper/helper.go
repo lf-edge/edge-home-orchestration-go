@@ -39,7 +39,8 @@ type RestHelper interface {
 	responseHelper
 }
 
-type RestHelperWithCertificateSetter interface {
+// WithCertificateSetter interface
+type WithCertificateSetter interface {
 	urlHelper
 	requestHelper
 	responseHelper
@@ -81,12 +82,13 @@ func GetHelper() RestHelper {
 	case true:
 		helper.c = tlshelper.TLSHelper{}
 	default:
-		helper.c = httphelper.HttpHelper{}
+		helper.c = httphelper.HTTPHelper{}
 	}
 	return helper
 }
 
-func GetHelperWithCertificate() RestHelperWithCertificateSetter {
+// GetHelperWithCertificate returns the helper
+func GetHelperWithCertificate() WithCertificateSetter {
 	return helper
 }
 
