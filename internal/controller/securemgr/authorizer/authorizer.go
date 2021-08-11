@@ -29,8 +29,8 @@ import (
 	"github.com/casbin/casbin"
 )
 
-// AuthorizerImpl structure
-type AuthorizerImpl struct{}
+// AuthorizationImpl structure
+type AuthorizationImpl struct{}
 
 const (
 	rbacPolicyFileName = "policy.csv"
@@ -52,14 +52,14 @@ var (
 	log                   = logmgr.GetInstance()
 	rbacPolicyFilePath    = ""
 	rbacAuthModelFilePath = ""
-	authorizerIns         *AuthorizerImpl
+	authorizerIns         *AuthorizationImpl
 	initialized           = false
 	users                 Users
 	enf                   *casbin.Enforcer
 )
 
 func init() {
-	authorizerIns = new(AuthorizerImpl)
+	authorizerIns = new(AuthorizationImpl)
 }
 
 // User structure describes user properties

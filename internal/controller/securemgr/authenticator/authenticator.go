@@ -34,8 +34,8 @@ import (
 	jwt "github.com/golang-jwt/jwt/v4"
 )
 
-// AuthenticatorImpl structure
-type AuthenticatorImpl struct{}
+// AuthenticationImpl structure
+type AuthenticationImpl struct{}
 
 const (
 	passPhraseJWTFileName = "passPhraseJWT.txt"
@@ -45,7 +45,7 @@ const (
 var (
 	logPrefix             = "[securemgr: authenticator]"
 	log                   = logmgr.GetInstance()
-	authenticatorIns      *AuthenticatorImpl
+	authenticatorIns      *AuthenticationImpl
 	passphrase            = []byte{}
 	passPhraseJWTFilePath = ""
 	initialized           = false
@@ -54,7 +54,7 @@ var (
 )
 
 func init() {
-	authenticatorIns = new(AuthenticatorImpl)
+	authenticatorIns = new(AuthenticationImpl)
 }
 
 var alphabet = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
