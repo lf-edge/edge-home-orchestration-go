@@ -37,14 +37,14 @@ const (
 	NotAllowedCommand = "NOT_ALLOWED_COMMAND"
 )
 
-// VerifierImpl structure
-type VerifierImpl struct{}
+// VerificationImpl structure
+type VerificationImpl struct{}
 
 var (
 	containerWhiteList []string
 	logPrefix          = "[securemgr: verifier]"
 	log                = logmgr.GetInstance()
-	verifierIns        *VerifierImpl
+	verifierIns        *VerificationImpl
 	initialized        = false
 	cwlFilePath        = ""
 )
@@ -74,7 +74,7 @@ type VerifierConf interface {
 }
 
 func init() {
-	verifierIns = new(VerifierImpl)
+	verifierIns = new(VerificationImpl)
 }
 
 // initContainerWhiteList fills the containerWhiteList by reading the information
@@ -99,8 +99,8 @@ func initContainerWhiteList() error {
 	return err
 }
 
-// GetInstance gives the VerifierImpl singletone instance
-func GetInstance() *VerifierImpl {
+// GetInstance gives the VerificationImpl singletone instance
+func GetInstance() *VerificationImpl {
 	return verifierIns
 }
 
@@ -136,7 +136,7 @@ func Init(cwlPath string) {
 }
 
 // ContainerIsInWhiteList checks if the containerName is in containerWhiteList
-func (VerifierImpl) ContainerIsInWhiteList(containerName string) error {
+func (VerificationImpl) ContainerIsInWhiteList(containerName string) error {
 	if !initialized {
 		return nil
 	}
@@ -239,7 +239,7 @@ func printAllHashFromContainerWhiteList() {
 }
 
 // RequestVerifierConf is Verifier configuration request handler
-func (verifier *VerifierImpl) RequestVerifierConf(containerInfo RequestVerifierConf) ResponseVerifierConf {
+func (verifier *VerificationImpl) RequestVerifierConf(containerInfo RequestVerifierConf) ResponseVerifierConf {
 	log.Printf("%s command type: %s\n", logPrefix, containerInfo.CmdType)
 	switch containerInfo.CmdType {
 	case "addHashCWL":

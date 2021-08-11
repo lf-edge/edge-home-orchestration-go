@@ -30,10 +30,12 @@ var (
 	log = logmgr.GetInstance()
 )
 
-type TLSServerListener interface {
+// TLSListenerServer provides insterface for tlsserver
+type TLSListenerServer interface {
 	ListenAndServe(addr string, handler http.Handler)
 }
 
+// TLSServer structure
 type TLSServer struct{}
 
 func createServerConfig() (*tls.Config, error) {
@@ -64,6 +66,7 @@ func createServerConfig() (*tls.Config, error) {
 	}, nil
 }
 
+// ListenAndServe listens HTTPS connection and calls Serve with handler to handle requests on incoming connections.
 func (TLSServer) ListenAndServe(addr string, handler http.Handler) {
 
 	config, err := createServerConfig()
