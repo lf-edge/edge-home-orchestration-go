@@ -84,19 +84,19 @@ func TestGetDeviceInfoWithService(t *testing.T) {
 					ExecType: "container",
 				},
 			}, nil),
-			mockService.EXPECT().Get(gomock.Eq("test")).Return(service.ServiceInfo{
+			mockService.EXPECT().Get(gomock.Eq("test")).Return(service.Info{
 				ID: "test",
 				Services: []string{
 					"testService1",
 					"testService2",
 				},
 			}, nil),
-			mockNet.EXPECT().Get(gomock.Eq("test")).Return(network.NetworkInfo{
+			mockNet.EXPECT().Get(gomock.Eq("test")).Return(network.Info{
 				ID:   "test",
 				IPv4: []string{"1.1.2.1", "1.1.2.2"},
 				RTT:  0.0,
 			}, nil),
-			mockNet.EXPECT().Get(gomock.Eq("test")).Return(network.NetworkInfo{
+			mockNet.EXPECT().Get(gomock.Eq("test")).Return(network.Info{
 				ID:   "test",
 				IPv4: []string{"1.1.1.1", "1.1.1.2"},
 				RTT:  0.0,
@@ -111,7 +111,7 @@ func TestGetDeviceInfoWithService(t *testing.T) {
 		}
 
 		for _, candidate := range ret {
-			if candidate.Id != "test" {
+			if candidate.ID != "test" {
 				t.Error("unexpected service id")
 			}
 			if candidate.ExecType == "container" {
@@ -161,7 +161,7 @@ func TestGetDeviceInfoWithService(t *testing.T) {
 						ExecType: "container",
 					},
 				}, nil),
-				mockNet.EXPECT().Get(gomock.Eq("test")).Return(network.NetworkInfo{}, errors.New("")),
+				mockNet.EXPECT().Get(gomock.Eq("test")).Return(network.Info{}, errors.New("")),
 			)
 
 			ret, err := GetInstance().GetDeviceInfoWithService("", []string{"container"})
@@ -180,7 +180,7 @@ func TestGetDeviceInfoWithService(t *testing.T) {
 						ExecType: "native",
 					},
 				}, nil),
-				mockService.EXPECT().Get(gomock.Eq("test")).Return(service.ServiceInfo{}, errors.New("")),
+				mockService.EXPECT().Get(gomock.Eq("test")).Return(service.Info{}, errors.New("")),
 			)
 
 			ret, err := GetInstance().GetDeviceInfoWithService("", []string{"native"})
@@ -199,7 +199,7 @@ func TestGetDeviceInfoWithService(t *testing.T) {
 						ExecType: "native",
 					},
 				}, nil),
-				mockService.EXPECT().Get(gomock.Eq("test")).Return(service.ServiceInfo{
+				mockService.EXPECT().Get(gomock.Eq("test")).Return(service.Info{
 					ID: "test1",
 					Services: []string{
 						"testService1",
@@ -224,14 +224,14 @@ func TestGetDeviceInfoWithService(t *testing.T) {
 						ExecType: "native",
 					},
 				}, nil),
-				mockService.EXPECT().Get(gomock.Eq("test")).Return(service.ServiceInfo{
+				mockService.EXPECT().Get(gomock.Eq("test")).Return(service.Info{
 					ID: "test",
 					Services: []string{
 						"testService1",
 						"testService2",
 					},
 				}, nil),
-				mockNet.EXPECT().Get(gomock.Eq("test")).Return(network.NetworkInfo{}, errors.New("")),
+				mockNet.EXPECT().Get(gomock.Eq("test")).Return(network.Info{}, errors.New("")),
 			)
 
 			ret, err := GetInstance().GetDeviceInfoWithService("testService1", []string{"native"})
@@ -251,7 +251,7 @@ func TestGetDeviceID(t *testing.T) {
 	defer f()
 
 	t.Run("Success", func(t *testing.T) {
-		mockSys.EXPECT().Get(gomock.Eq("id")).Return(system.SystemInfo{
+		mockSys.EXPECT().Get(gomock.Eq("id")).Return(system.Info{
 			Name:  "id",
 			Value: "testID",
 		}, nil)
@@ -261,7 +261,7 @@ func TestGetDeviceID(t *testing.T) {
 		}
 	})
 	t.Run("Fail", func(t *testing.T) {
-		mockSys.EXPECT().Get(gomock.Eq("id")).Return(system.SystemInfo{
+		mockSys.EXPECT().Get(gomock.Eq("id")).Return(system.Info{
 			Name:  "id",
 			Value: "testID",
 		}, errors.New(""))

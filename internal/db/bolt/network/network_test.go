@@ -43,13 +43,13 @@ var (
 	notFoundErr = errors.NotFound{Message: invalidID + " does not exist"}
 	dbOPErr     = errors.DBOperationError{}
 
-	netStruct = NetworkInfo{
+	netStruct = Info{
 		ID:   validID,
 		IPv4: ipv4List,
 		RTT:  rtt,
 	}
 
-	netStruct2 = NetworkInfo{
+	netStruct2 = Info{
 		ID:   validID,
 		IPv4: ipv4List2,
 		RTT:  rtt2,
@@ -119,7 +119,7 @@ func TestGetList_ExpectedSuccess(t *testing.T) {
 	netInfoMap := map[string]interface{}{
 		validID: netJSON,
 	}
-	netInfoStructList := []NetworkInfo{netStruct}
+	netInfoStructList := []Info{netStruct}
 
 	gomock.InOrder(
 		wrapperMockObj.EXPECT().List().Return(netInfoMap, nil),
@@ -197,7 +197,7 @@ func TestSet_WhenDBReturnError_ExpectedErrorReturn(t *testing.T) {
 	db = wrapperMockObj
 	query := Query{}
 
-	err := query.Set(NetworkInfo{})
+	err := query.Set(Info{})
 	if err == nil {
 		t.Errorf("Unexpected err: %s", err.Error())
 	}

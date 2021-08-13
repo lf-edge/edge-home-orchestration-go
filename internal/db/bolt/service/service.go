@@ -27,19 +27,22 @@ import (
 
 const bucketName = "service"
 
-type ServiceInfo struct {
+// Info struct
+type Info struct {
 	ID       string   `json:"id"`
 	Services []string `json:"services"`
 }
 
+// DBInterface interface
 type DBInterface interface {
-	Get(id string) (ServiceInfo, error)
-	GetList() ([]ServiceInfo, error)
-	Set(info ServiceInfo) error
-	Update(info ServiceInfo) error
+	Get(id string) (Info, error)
+	GetList() ([]Info, error)
+	Set(info Info) error
+	Update(info Info) error
 	Delete(name string) error
 }
 
+// Query struct
 type Query struct {
 }
 
@@ -49,8 +52,9 @@ func init() {
 	db = bolt.NewBoltDB(bucketName)
 }
 
-func (Query) Get(id string) (ServiceInfo, error) {
-	var info ServiceInfo
+// Get returns service info that matches id
+func (Query) Get(id string) (Info, error) {
+	var info Info
 
 	value, err := db.Get([]byte(id))
 	if err != nil {
@@ -65,13 +69,14 @@ func (Query) Get(id string) (ServiceInfo, error) {
 	return info, nil
 }
 
-func (Query) GetList() ([]ServiceInfo, error) {
+// GetList returns the list of service info
+func (Query) GetList() ([]Info, error) {
 	infos, err := db.List()
 	if err != nil {
 		return nil, err
 	}
 
-	list := make([]ServiceInfo, 0)
+	list := make([]Info, 0)
 	for _, data := range infos {
 		info, err := decode([]byte(data.(string)))
 		if err != nil {
@@ -82,7 +87,8 @@ func (Query) GetList() ([]ServiceInfo, error) {
 	return list, nil
 }
 
-func (Query) Set(info ServiceInfo) error {
+// Set sets the service info
+func (Query) Set(info Info) error {
 	encoded, err := info.encode()
 	if err != nil {
 		return err
@@ -95,7 +101,8 @@ func (Query) Set(info ServiceInfo) error {
 	return nil
 }
 
-func (Query) Update(info ServiceInfo) error {
+// Update updates the service info that matches id
+func (Query) Update(info Info) error {
 	data, err := db.Get([]byte(info.ID))
 	if err != nil {
 		return errors.DBOperationError{Message: err.Error()}
@@ -120,18 +127,19 @@ func (Query) Update(info ServiceInfo) error {
 	return db.Put([]byte(info.ID), encoded)
 }
 
+// Delete deletes the service info that matches id
 func (Query) Delete(id string) error {
 	return db.Delete([]byte(id))
 }
 
-func (info ServiceInfo) convertToMap() map[string]interface{} {
+func (info Info) convertToMap() map[string]interface{} {
 	return map[string]interface{}{
 		"id":       info.ID,
 		"services": info.Services,
 	}
 }
 
-func (info ServiceInfo) encode() ([]byte, error) {
+func (info Info) encode() ([]byte, error) {
 	encoded, err := json.Marshal(info)
 	if err != nil {
 		return nil, errors.InvalidJSON{Message: err.Error()}
@@ -139,8 +147,8 @@ func (info ServiceInfo) encode() ([]byte, error) {
 	return encoded, nil
 }
 
-func decode(data []byte) (ServiceInfo, error) {
-	var info ServiceInfo
+func decode(data []byte) (Info, error) {
+	var info Info
 	err := json.Unmarshal(data, &info)
 	if err != nil {
 		return info, errors.InvalidJSON{Message: err.Error()}

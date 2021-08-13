@@ -26,23 +26,28 @@ import (
 
 const (
 	bucketName = "system"
-
-	ID       = "id"
+	// ID is the key for Id
+	ID = "id"
+	// Platform is the key for platform
 	Platform = "platform"
+	// ExecType is key for execution type
 	ExecType = "execType"
 )
 
-type SystemInfo struct {
+// Info struct
+type Info struct {
 	Name  string `json:"name"`
 	Value string `json:"value"`
 }
 
+// DBInterface interface
 type DBInterface interface {
-	Get(name string) (SystemInfo, error)
-	Set(info SystemInfo) error
+	Get(name string) (Info, error)
+	Set(info Info) error
 	Delete(name string) error
 }
 
+// Query struct
 type Query struct {
 }
 
@@ -52,8 +57,9 @@ func init() {
 	db = bolt.NewBoltDB(bucketName)
 }
 
-func (Query) Get(name string) (SystemInfo, error) {
-	var info SystemInfo
+// Get returns the system info for given name
+func (Query) Get(name string) (Info, error) {
+	var info Info
 
 	value, err := db.Get([]byte(name))
 	if err != nil {
@@ -68,7 +74,8 @@ func (Query) Get(name string) (SystemInfo, error) {
 	return info, nil
 }
 
-func (Query) Set(info SystemInfo) error {
+// Set sets the system info
+func (Query) Set(info Info) error {
 	encoded, err := info.encode()
 	if err != nil {
 		return err
@@ -81,11 +88,12 @@ func (Query) Set(info SystemInfo) error {
 	return nil
 }
 
+// Delete delets the system info that matches name
 func (Query) Delete(name string) error {
 	return db.Delete([]byte(name))
 }
 
-func (info SystemInfo) encode() ([]byte, error) {
+func (info Info) encode() ([]byte, error) {
 	encoded, err := json.Marshal(info)
 	if err != nil {
 		return nil, errors.InvalidJSON{Message: err.Error()}
@@ -93,8 +101,8 @@ func (info SystemInfo) encode() ([]byte, error) {
 	return encoded, nil
 }
 
-func decode(data []byte) (SystemInfo, error) {
-	var info SystemInfo
+func decode(data []byte) (Info, error) {
+	var info Info
 	err := json.Unmarshal(data, &info)
 	if err != nil {
 		return info, errors.InvalidJSON{Message: err.Error()}

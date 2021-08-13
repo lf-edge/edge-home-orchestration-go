@@ -14,6 +14,7 @@
  * limitations under the License.
  *
  *******************************************************************************/
+
 package configuration
 
 import (
@@ -25,12 +26,14 @@ import (
 
 const bucketName = "configuration"
 
+// Configuration struct
 type Configuration struct {
 	ID       string `json:"id"`
 	Platform string `json:"platform"`
 	ExecType string `json:"executionType"`
 }
 
+// DBInterface interface
 type DBInterface interface {
 	Get(id string) (Configuration, error)
 	GetList() ([]Configuration, error)
@@ -39,6 +42,7 @@ type DBInterface interface {
 	Delete(id string) error
 }
 
+// Query struct
 type Query struct {
 }
 
@@ -48,6 +52,7 @@ func init() {
 	db = bolt.NewBoltDB(bucketName)
 }
 
+// Get returns configuration that matches id
 func (Query) Get(id string) (Configuration, error) {
 	var conf Configuration
 
@@ -64,6 +69,7 @@ func (Query) Get(id string) (Configuration, error) {
 	return conf, nil
 }
 
+// GetList returns the list of configuration
 func (Query) GetList() ([]Configuration, error) {
 	infos, err := db.List()
 	if err != nil {
@@ -81,6 +87,7 @@ func (Query) GetList() ([]Configuration, error) {
 	return list, nil
 }
 
+// Set sets the configuration for given id
 func (Query) Set(conf Configuration) error {
 	encoded, err := conf.encode()
 	if err != nil {
@@ -94,6 +101,7 @@ func (Query) Set(conf Configuration) error {
 	return nil
 }
 
+// Update updates the configuration that matches id
 func (Query) Update(conf Configuration) error {
 	data, err := db.Get([]byte(conf.ID))
 	if err != nil {
@@ -116,6 +124,7 @@ func (Query) Update(conf Configuration) error {
 	return db.Put([]byte(conf.ID), encoded)
 }
 
+// Delete deletes configuration that matches id
 func (Query) Delete(id string) error {
 	return db.Delete([]byte(id))
 }

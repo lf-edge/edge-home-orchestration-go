@@ -50,7 +50,7 @@ type Orche interface {
 // OrcheExternalAPI is the interface implemented by external REST API
 type OrcheExternalAPI interface {
 	RequestService(serviceInfo ReqeustService) ResponseService
-	verifier.VerifierConf
+	verifier.Conf
 }
 
 // OrcheInternalAPI is the interface implemented by internal REST API
@@ -102,7 +102,7 @@ type OrchestrationBuilder struct {
 	scoringIns   scoringmgr.Scoring
 
 	isSetVerifierConf bool
-	verifierIns       verifier.VerifierConf
+	verifierIns       verifier.Conf
 
 	isSetDiscovery bool
 	discoveryIns   discoverymgr.Discovery
@@ -124,7 +124,7 @@ type OrchestrationBuilder struct {
 }
 
 // SetVerifierConf registers the interface to setting up verifier configuration
-func (o *OrchestrationBuilder) SetVerifierConf(d verifier.VerifierConf) {
+func (o *OrchestrationBuilder) SetVerifierConf(d verifier.Conf) {
 	o.isSetVerifierConf = true
 	o.verifierIns = d
 }

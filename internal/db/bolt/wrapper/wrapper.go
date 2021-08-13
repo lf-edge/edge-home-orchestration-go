@@ -14,6 +14,7 @@
  * limitations under the License.
  *
  *******************************************************************************/
+
 package wrapper
 
 import (
@@ -105,6 +106,7 @@ func (db *BoltDB) Get(key []byte) ([]byte, error) {
 	return data, err
 }
 
+// Put updates the value that matches key
 func (db *BoltDB) Put(key []byte, value []byte) error {
 	err := db.dbOpen()
 	if err != nil {
@@ -121,6 +123,7 @@ func (db *BoltDB) Put(key []byte, value []byte) error {
 	})
 }
 
+// List returns the list of values in map
 func (db BoltDB) List() (map[string]interface{}, error) {
 	err := db.dbOpen()
 	if err != nil {
@@ -143,6 +146,7 @@ func (db BoltDB) List() (map[string]interface{}, error) {
 	return data, err
 }
 
+// Delete deletes the value that matches key
 func (db *BoltDB) Delete(key []byte) error {
 	err := db.dbOpen()
 	if err != nil {

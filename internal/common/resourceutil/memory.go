@@ -55,7 +55,7 @@ func checkMemoryAvailable() {
 		return
 	}
 
-	info := resourceDB.ResourceInfo{}
+	info := resourceDB.Info{}
 	info.Name = MemAvailable
 	info.Value = float64(memStat.Available) / 1024
 
@@ -72,7 +72,7 @@ func checkMemoryFree() {
 		return
 	}
 
-	info := resourceDB.ResourceInfo{}
+	info := resourceDB.Info{}
 	info.Name = MemFree
 	info.Value = float64(memStat.Free) / 1024
 

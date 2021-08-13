@@ -39,7 +39,7 @@ var (
 	notFoundErr = errors.NotFound{Message: invalidKey + " does not exist"}
 	dbOPErr     = errors.DBOperationError{}
 
-	idInfo = SystemInfo{
+	idInfo = Info{
 		Name:  ID,
 		Value: defaultID,
 	}
@@ -130,7 +130,7 @@ func TestSet_WhenDBReturnError_ExpectedErrorReturn(t *testing.T) {
 	db = wrapperMockObj
 	query := Query{}
 
-	err := query.Set(SystemInfo{})
+	err := query.Set(Info{})
 	if err == nil {
 		t.Errorf("Unexpected err: %s", err.Error())
 	}

@@ -19,6 +19,7 @@ package common
 
 import "reflect"
 
+// HasElem returns bool value depending if interface has element
 func HasElem(s interface{}, elem interface{}) bool {
 	arrV := reflect.ValueOf(s)
 

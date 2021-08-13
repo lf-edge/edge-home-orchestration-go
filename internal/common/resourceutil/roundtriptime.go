@@ -59,7 +59,7 @@ func processRTT() {
 						ch <- checkRTT(targetIP)
 					}(ip)
 				}
-				go func(info netDB.NetworkInfo) {
+				go func(info netDB.Info) {
 					result := selectMinRTT(ch, totalCount)
 					if info.RTT < 0 && result < 0 {
 						if info.RTT == -1*tryLimit {

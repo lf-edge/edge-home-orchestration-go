@@ -51,10 +51,10 @@ func (m *MockDBInterface) EXPECT() *MockDBInterfaceMockRecorder {
 }
 
 // Get mocks base method
-func (m *MockDBInterface) Get(id string) (network.NetworkInfo, error) {
+func (m *MockDBInterface) Get(id string) (network.Info, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Get", id)
-	ret0, _ := ret[0].(network.NetworkInfo)
+	ret0, _ := ret[0].(network.Info)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -66,10 +66,10 @@ func (mr *MockDBInterfaceMockRecorder) Get(id interface{}) *gomock.Call {
 }
 
 // GetList mocks base method
-func (m *MockDBInterface) GetList() ([]network.NetworkInfo, error) {
+func (m *MockDBInterface) GetList() ([]network.Info, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetList")
-	ret0, _ := ret[0].([]network.NetworkInfo)
+	ret0, _ := ret[0].([]network.Info)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -96,7 +96,7 @@ func (mr *MockDBInterfaceMockRecorder) GetIDWithIP(IPv4 interface{}) *gomock.Cal
 }
 
 // Set mocks base method
-func (m *MockDBInterface) Set(conf network.NetworkInfo) error {
+func (m *MockDBInterface) Set(conf network.Info) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Set", conf)
 	ret0, _ := ret[0].(error)
@@ -110,7 +110,7 @@ func (mr *MockDBInterfaceMockRecorder) Set(conf interface{}) *gomock.Call {
 }
 
 // Update mocks base method
-func (m *MockDBInterface) Update(conf network.NetworkInfo) error {
+func (m *MockDBInterface) Update(conf network.Info) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Update", conf)
 	ret0, _ := ret[0].(error)

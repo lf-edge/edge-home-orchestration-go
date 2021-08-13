@@ -14,6 +14,7 @@
  * limitations under the License.
  *
  *******************************************************************************/
+
 package network
 
 import (
@@ -26,21 +27,24 @@ import (
 
 const bucketName = "network"
 
-type NetworkInfo struct {
+// Info struct
+type Info struct {
 	ID   string   `json:"id"`
 	IPv4 []string `json:"IPv4"`
 	RTT  float64  `json:"RTT"`
 }
 
+// DBInterface interface
 type DBInterface interface {
-	Get(id string) (NetworkInfo, error)
-	GetList() ([]NetworkInfo, error)
+	Get(id string) (Info, error)
+	GetList() ([]Info, error)
 	GetIDWithIP(IPv4 string) (string, error)
-	Set(conf NetworkInfo) error
-	Update(conf NetworkInfo) error
+	Set(conf Info) error
+	Update(conf Info) error
 	Delete(id string) error
 }
 
+// Query struct
 type Query struct {
 }
 
@@ -50,8 +54,9 @@ func init() {
 	db = bolt.NewBoltDB(bucketName)
 }
 
-func (Query) Get(id string) (NetworkInfo, error) {
-	var info NetworkInfo
+// Get returns network info that matches the id
+func (Query) Get(id string) (Info, error) {
+	var info Info
 
 	value, err := db.Get([]byte(id))
 	if err != nil {
@@ -66,13 +71,14 @@ func (Query) Get(id string) (NetworkInfo, error) {
 	return info, nil
 }
 
-func (Query) GetList() ([]NetworkInfo, error) {
+// GetList returns the list of network info
+func (Query) GetList() ([]Info, error) {
 	infos, err := db.List()
 	if err != nil {
 		return nil, err
 	}
 
-	list := make([]NetworkInfo, 0)
+	list := make([]Info, 0)
 	for _, data := range infos {
 		info, err := decode([]byte(data.(string)))
 		if err != nil {
@@ -83,6 +89,7 @@ func (Query) GetList() ([]NetworkInfo, error) {
 	return list, nil
 }
 
+// GetIDWithIP returns the ID that matches the IP
 func (q Query) GetIDWithIP(IP string) (string, error) {
 	netInfo, err := q.GetList()
 	if err != nil {
@@ -98,7 +105,8 @@ func (q Query) GetIDWithIP(IP string) (string, error) {
 	return "", errors.NotFound{Message: "Not Found ID"}
 }
 
-func (Query) Set(info NetworkInfo) error {
+// Set sets the network info for id
+func (Query) Set(info Info) error {
 	encoded, err := info.encode()
 	if err != nil {
 		return err
@@ -111,7 +119,8 @@ func (Query) Set(info NetworkInfo) error {
 	return nil
 }
 
-func (Query) Update(info NetworkInfo) error {
+//Update updates the network info for id
+func (Query) Update(info Info) error {
 	data, err := db.Get([]byte(info.ID))
 	if err != nil {
 		return errors.DBOperationError{Message: err.Error()}
@@ -139,11 +148,12 @@ func (Query) Update(info NetworkInfo) error {
 	return db.Put([]byte(info.ID), encoded)
 }
 
+// Delete deletes the network info for id
 func (Query) Delete(id string) error {
 	return db.Delete([]byte(id))
 }
 
-func (info NetworkInfo) convertToMap() map[string]interface{} {
+func (info Info) convertToMap() map[string]interface{} {
 	return map[string]interface{}{
 		"id":   info.ID,
 		"IPv4": info.IPv4,
@@ -151,7 +161,7 @@ func (info NetworkInfo) convertToMap() map[string]interface{} {
 	}
 }
 
-func (info NetworkInfo) encode() ([]byte, error) {
+func (info Info) encode() ([]byte, error) {
 	encoded, err := json.Marshal(info)
 	if err != nil {
 		return nil, errors.InvalidJSON{Message: err.Error()}
@@ -159,8 +169,8 @@ func (info NetworkInfo) encode() ([]byte, error) {
 	return encoded, nil
 }
 
-func decode(data []byte) (NetworkInfo, error) {
-	var info NetworkInfo
+func decode(data []byte) (Info, error) {
+	var info Info
 	err := json.Unmarshal(data, &info)
 	if err != nil {
 		return info, errors.InvalidJSON{Message: err.Error()}

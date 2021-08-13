@@ -76,7 +76,7 @@ func checkNetworkMBps() {
 		nextTotalBytes += link.Attrs().Statistics.TxBytes
 	}
 
-	info := resourceDB.ResourceInfo{}
+	info := resourceDB.Info{}
 	info.Name = NetMBps
 	info.Value = float64((nextTotalBytes - prevTotalBytes)) / 1024 / 1024
 
@@ -109,7 +109,7 @@ func checkNetworkBandwidth() {
 		return
 	}
 
-	info := resourceDB.ResourceInfo{}
+	info := resourceDB.Info{}
 	info.Name = NetBandwidth
 	info.Value = float64(total / count)
 

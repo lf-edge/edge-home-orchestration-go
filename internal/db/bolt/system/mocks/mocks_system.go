@@ -51,10 +51,10 @@ func (m *MockDBInterface) EXPECT() *MockDBInterfaceMockRecorder {
 }
 
 // Get mocks base method
-func (m *MockDBInterface) Get(name string) (system.SystemInfo, error) {
+func (m *MockDBInterface) Get(name string) (system.Info, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Get", name)
-	ret0, _ := ret[0].(system.SystemInfo)
+	ret0, _ := ret[0].(system.Info)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -66,7 +66,7 @@ func (mr *MockDBInterfaceMockRecorder) Get(name interface{}) *gomock.Call {
 }
 
 // Set mocks base method
-func (m *MockDBInterface) Set(info system.SystemInfo) error {
+func (m *MockDBInterface) Set(info system.Info) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Set", info)
 	ret0, _ := ret[0].(error)
