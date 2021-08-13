@@ -26,17 +26,20 @@ import (
 
 const bucketName = "resource"
 
-type ResourceInfo struct {
+// Info struct
+type Info struct {
 	Name  string  `json:"name"`
 	Value float64 `json:"value"`
 }
 
+// DBInterface interface
 type DBInterface interface {
-	Get(id string) (ResourceInfo, error)
-	Set(info ResourceInfo) error
+	Get(id string) (Info, error)
+	Set(info Info) error
 	Delete(name string) error
 }
 
+// Query struct
 type Query struct {
 }
 
@@ -46,8 +49,9 @@ func init() {
 	db = bolt.NewBoltDB(bucketName)
 }
 
-func (Query) Get(name string) (ResourceInfo, error) {
-	var info ResourceInfo
+// Get returns the resource info that matches name
+func (Query) Get(name string) (Info, error) {
+	var info Info
 
 	value, err := db.Get([]byte(name))
 	if err != nil {
@@ -62,7 +66,8 @@ func (Query) Get(name string) (ResourceInfo, error) {
 	return info, nil
 }
 
-func (Query) Set(info ResourceInfo) error {
+// Set sets the resource info
+func (Query) Set(info Info) error {
 	encoded, err := info.encode()
 	if err != nil {
 		return err
@@ -75,11 +80,12 @@ func (Query) Set(info ResourceInfo) error {
 	return nil
 }
 
+// Delete deletes the resource name that matches name
 func (Query) Delete(name string) error {
 	return db.Delete([]byte(name))
 }
 
-func (info ResourceInfo) encode() ([]byte, error) {
+func (info Info) encode() ([]byte, error) {
 	encoded, err := json.Marshal(info)
 	if err != nil {
 		return nil, errors.InvalidJSON{Message: err.Error()}
@@ -87,8 +93,8 @@ func (info ResourceInfo) encode() ([]byte, error) {
 	return encoded, nil
 }
 
-func decode(data []byte) (ResourceInfo, error) {
-	var info ResourceInfo
+func decode(data []byte) (Info, error) {
+	var info Info
 	err := json.Unmarshal(data, &info)
 	if err != nil {
 		return info, errors.InvalidJSON{Message: err.Error()}

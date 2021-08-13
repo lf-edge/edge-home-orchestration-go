@@ -43,12 +43,12 @@ var (
 	notFoundErr = errors.NotFound{Message: invalidName + " does not exist"}
 	dbOPErr     = errors.DBOperationError{}
 
-	resourceStruct = ResourceInfo{
+	resourceStruct = Info{
 		Name:  validName,
 		Value: value,
 	}
 
-	resourceStruct2 = ResourceInfo{
+	resourceStruct2 = Info{
 		Name:  validName,
 		Value: value2,
 	}
@@ -141,7 +141,7 @@ func TestSet_WhenDBReturnError_ExpectedErrorReturn(t *testing.T) {
 	db = wrapperMockObj
 	query := Query{}
 
-	err := query.Set(ResourceInfo{})
+	err := query.Set(Info{})
 	if err == nil {
 		t.Errorf("Unexpected err: %s", err.Error())
 	}

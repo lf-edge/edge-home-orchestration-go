@@ -41,12 +41,12 @@ var (
 	notFoundErr  = errors.NotFound{Message: invalidID + " does not exist"}
 	dbOPErr      = errors.DBOperationError{}
 
-	serviceStruct = ServiceInfo{
+	serviceStruct = Info{
 		ID:       validID,
 		Services: serviceList,
 	}
 
-	serviceStruct2 = ServiceInfo{
+	serviceStruct2 = Info{
 		ID:       validID,
 		Services: serviceList2,
 	}
@@ -114,7 +114,7 @@ func TestGetList_ExpectedSuccess(t *testing.T) {
 	serviceInfoMap := map[string]interface{}{
 		validID: serviceJSON,
 	}
-	serviceInfoStructList := []ServiceInfo{serviceStruct}
+	serviceInfoStructList := []Info{serviceStruct}
 
 	gomock.InOrder(
 		wrapperMockObj.EXPECT().List().Return(serviceInfoMap, nil),
@@ -192,7 +192,7 @@ func TestSet_WhenDBReturnError_ExpectedErrorReturn(t *testing.T) {
 	db = wrapperMockObj
 	query := Query{}
 
-	err := query.Set(ServiceInfo{})
+	err := query.Set(Info{})
 	if err == nil {
 		t.Errorf("Unexpected err: %s", err.Error())
 	}

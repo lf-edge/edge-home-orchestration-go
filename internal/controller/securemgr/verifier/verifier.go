@@ -68,8 +68,8 @@ type ResponseVerifierConf struct {
 	SecureCmpName string
 }
 
-// VerifierConf is the interface implemented by external REST API
-type VerifierConf interface {
+// Conf is the interface implemented by external REST API
+type Conf interface {
 	RequestVerifierConf(containerInfo RequestVerifierConf) ResponseVerifierConf
 }
 

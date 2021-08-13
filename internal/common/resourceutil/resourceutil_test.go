@@ -235,7 +235,7 @@ func TestGetCPUUsage_ExpectedSuccess(t *testing.T) {
 
 	resourceDBMockObj := resourceDBMock.NewMockDBInterface(ctrl)
 
-	info := resourceDB.ResourceInfo{}
+	info := resourceDB.Info{}
 	info.Name = CPUUsage
 	info.Value = dummyCPUPercentResult
 
@@ -266,7 +266,7 @@ func TestGetCPUFreq_ExpectedSuccess(t *testing.T) {
 
 	resourceDBMockObj := resourceDBMock.NewMockDBInterface(ctrl)
 
-	info := resourceDB.ResourceInfo{}
+	info := resourceDB.Info{}
 	info.Name = CPUFreq
 	info.Value = dummyCPUFreqResult
 
@@ -297,7 +297,7 @@ func TestGetCPUCount_ExpectedSuccess(t *testing.T) {
 
 	resourceDBMockObj := resourceDBMock.NewMockDBInterface(ctrl)
 
-	info := resourceDB.ResourceInfo{}
+	info := resourceDB.Info{}
 	info.Name = CPUCount
 	info.Value = dummyCPUCountResult
 
@@ -328,7 +328,7 @@ func TestGetMemAvailable_ExpectedSuccess(t *testing.T) {
 
 	resourceDBMockObj := resourceDBMock.NewMockDBInterface(ctrl)
 
-	info := resourceDB.ResourceInfo{}
+	info := resourceDB.Info{}
 	info.Name = MemAvailable
 	info.Value = dummyMemAvailableResult
 
@@ -359,7 +359,7 @@ func TestGetMemFree_ExpectedSuccess(t *testing.T) {
 
 	resourceDBMockObj := resourceDBMock.NewMockDBInterface(ctrl)
 
-	info := resourceDB.ResourceInfo{}
+	info := resourceDB.Info{}
 	info.Name = MemFree
 	info.Value = dummyMemFreeResult
 
@@ -390,7 +390,7 @@ func TestGetNetMBps_ExpectedSuccess(t *testing.T) {
 
 	resourceDBMockObj := resourceDBMock.NewMockDBInterface(ctrl)
 
-	info := resourceDB.ResourceInfo{}
+	info := resourceDB.Info{}
 	info.Name = NetMBps
 	info.Value = dummyNetMBpsResult
 
@@ -421,7 +421,7 @@ func TestGetNetBandwidth_ExpectedSuccess(t *testing.T) {
 
 	resourceDBMockObj := resourceDBMock.NewMockDBInterface(ctrl)
 
-	info := resourceDB.ResourceInfo{}
+	info := resourceDB.Info{}
 	info.Name = NetBandwidth
 	info.Value = dummyNetBandwidthResult
 

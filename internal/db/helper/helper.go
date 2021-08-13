@@ -34,7 +34,7 @@ type MultipleBucketQuery interface {
 
 // ExecutionCandidate structure
 type ExecutionCandidate struct {
-	Id       string
+	ID       string
 	ExecType string
 	Endpoint []string
 }
@@ -78,7 +78,7 @@ func (multipleBucketQuery) GetDeviceInfoWithService(serviceName string, executio
 			}
 
 			info := ExecutionCandidate{
-				Id:       confItem.ID,
+				ID:       confItem.ID,
 				ExecType: confItem.ExecType,
 				Endpoint: endpoints,
 			}
@@ -100,7 +100,7 @@ func (multipleBucketQuery) GetDeviceInfoWithService(serviceName string, executio
 				}
 
 				info := ExecutionCandidate{
-					Id:       serviceItem.ID,
+					ID:       serviceItem.ID,
 					ExecType: confItem.ExecType,
 					Endpoint: endpoints,
 				}

@@ -228,7 +228,7 @@ func (d *DiscoveryImpl) ResetServiceName() {
 		return
 	}
 
-	serviceInfo := servicedb.ServiceInfo{ID: deviceID, Services: nil}
+	serviceInfo := servicedb.Info{ID: deviceID, Services: nil}
 	setServiceDB(serviceInfo)
 
 	confItem, err := confQuery.Get(deviceID)
@@ -365,7 +365,7 @@ func detectNetworkChgRoutine() {
 				strIPs = append(strIPs, ip.To4().String())
 			}
 
-			netInfo := networkdb.NetworkInfo{ID: id, IPv4: strIPs}
+			netInfo := networkdb.Info{ID: id, IPv4: strIPs}
 			setNetworkDB(netInfo)
 
 			err = serverPresenceChecker()
@@ -576,7 +576,7 @@ func deviceDetectionRoutine() {
 				log.Printf("[deviceDetectionRoutine] serviceInfo : Services(%v)", serviceInfo.Services)
 				log.Printf("")
 
-				var info networkdb.NetworkInfo
+				var info networkdb.Info
 				info, err = getNetworkDB(netInfo.ID)
 
 				if err != nil || !reflect.DeepEqual(netInfo.IPv4, info.IPv4) {
@@ -675,7 +675,7 @@ func (d *DiscoveryImpl) setNewServiceList(serverTXT []string) {
 		return
 	}
 
-	serviceInfo := servicedb.ServiceInfo{ID: deviceID, Services: newServiceList}
+	serviceInfo := servicedb.Info{ID: deviceID, Services: newServiceList}
 
 	setServiceDB(serviceInfo)
 
@@ -754,12 +754,12 @@ func clearAllDeviceInfo() {
 	}
 }
 
-func convertToDBInfo(entity wrapper.Entity) (string, configurationdb.Configuration, networkdb.NetworkInfo, servicedb.ServiceInfo) {
+func convertToDBInfo(entity wrapper.Entity) (string, configurationdb.Configuration, networkdb.Info, servicedb.Info) {
 	data := entity.OrchestrationInfo
 
 	confInfo := configurationdb.Configuration{}
-	netInfo := networkdb.NetworkInfo{}
-	serviceInfo := servicedb.ServiceInfo{}
+	netInfo := networkdb.Info{}
+	serviceInfo := servicedb.Info{}
 
 	confInfo.ID = entity.DeviceID
 	confInfo.ExecType = data.ExecutionType
@@ -775,19 +775,19 @@ func convertToDBInfo(entity wrapper.Entity) (string, configurationdb.Configurati
 }
 
 func setSystemDB(id string, platform string, execType string) {
-	sysInfo := systemdb.SystemInfo{Name: systemdb.ID, Value: id}
+	sysInfo := systemdb.Info{Name: systemdb.ID, Value: id}
 	err := sysQuery.Set(sysInfo)
 	if err != nil {
 		log.Println(logPrefix, err.Error())
 	}
 
-	sysInfo = systemdb.SystemInfo{Name: systemdb.Platform, Value: platform}
+	sysInfo = systemdb.Info{Name: systemdb.Platform, Value: platform}
 	err = sysQuery.Set(sysInfo)
 	if err != nil {
 		log.Println(logPrefix, err.Error())
 	}
 
-	sysInfo = systemdb.SystemInfo{Name: systemdb.ExecType, Value: execType}
+	sysInfo = systemdb.Info{Name: systemdb.ExecType, Value: execType}
 	err = sysQuery.Set(sysInfo)
 	if err != nil {
 		log.Println(logPrefix, err.Error())
@@ -801,14 +801,14 @@ func setConfigurationDB(confInfo configurationdb.Configuration) {
 	}
 }
 
-func setNetworkDB(netInfo networkdb.NetworkInfo) {
+func setNetworkDB(netInfo networkdb.Info) {
 	err := netQuery.Set(netInfo)
 	if err != nil {
 		log.Println(logPrefix, err.Error())
 	}
 }
 
-func setServiceDB(serviceInfo servicedb.ServiceInfo) {
+func setServiceDB(serviceInfo servicedb.Info) {
 	err := serviceQuery.Set(serviceInfo)
 	if err != nil {
 		log.Println(logPrefix, err.Error())
@@ -825,7 +825,7 @@ func getSystemDB(name string) (string, error) {
 	return sysInfo.Value, err
 }
 
-func getNetworkDB(id string) (networkdb.NetworkInfo, error) {
+func getNetworkDB(id string) (networkdb.Info, error) {
 	netInfo, err := netQuery.Get(id)
 	if err != nil {
 		log.Println(logPrefix, err.Error())

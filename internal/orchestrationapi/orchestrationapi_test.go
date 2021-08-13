@@ -57,22 +57,22 @@ func TestRequestService(t *testing.T) {
 
 	candidateInfos := make([]dbhelper.ExecutionCandidate, 0)
 	candidateInfos = append(candidateInfos, dbhelper.ExecutionCandidate{
-		Id:       "ID1",
+		ID:       "ID1",
 		ExecType: "platform",
 		Endpoint: []string{"endpoint1"},
 	})
 	candidateInfos = append(candidateInfos, dbhelper.ExecutionCandidate{
-		Id:       "ID2",
+		ID:       "ID2",
 		ExecType: "platform",
 		Endpoint: []string{"endpoint2"},
 	})
 	candidateInfos = append(candidateInfos, dbhelper.ExecutionCandidate{
-		Id:       "ID3",
+		ID:       "ID3",
 		ExecType: "platform",
 		Endpoint: []string{"endpoint3"},
 	})
 
-	sysInfo := sysDB.SystemInfo{
+	sysInfo := sysDB.Info{
 		Name:  "ID",
 		Value: "ID",
 	}

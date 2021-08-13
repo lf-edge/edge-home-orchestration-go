@@ -43,7 +43,7 @@ import (
 type orcheImpl struct {
 	Ready bool
 
-	verifierIns     verifier.VerifierConf
+	verifierIns     verifier.Conf
 	serviceIns      servicemgr.ServiceMgr
 	scoringIns      scoringmgr.Scoring
 	discoverIns     discoverymgr.Discovery
@@ -156,7 +156,7 @@ func (orcheEngine *orcheImpl) RequestService(serviceInfo ReqeustService) Respons
 
 	log.Printf("[RequestService] getCandidate")
 	for index, candidate := range candidates {
-		log.Printf("[%d] Id       : %v", index, candidate.Id)
+		log.Printf("[%d] ID       : %v", index, candidate.ID)
 		log.Printf("[%d] ExecType : %v", index, candidate.ExecType)
 		log.Printf("[%d] Endpoint : %v", index, candidate.Endpoint)
 		log.Printf("")
@@ -319,7 +319,7 @@ func (orcheEngine orcheImpl) gatherDevicesScore(candidates []dbhelper.ExecutionC
 
 			if len(cand.Endpoint) == 0 {
 				log.Println("[orchestrationapi] cannot getting score, cause by ip list is empty")
-				scores <- deviceInfo{endpoint: "", score: float64(0.0), id: cand.Id}
+				scores <- deviceInfo{endpoint: "", score: float64(0.0), id: cand.ID}
 				return
 			}
 
@@ -334,15 +334,15 @@ func (orcheEngine orcheImpl) gatherDevicesScore(candidates []dbhelper.ExecutionC
 
 			if err != nil {
 				log.Println("[orchestrationapi] cannot getting score from :", cand.Endpoint[0], "cause by", err.Error())
-				scores <- deviceInfo{endpoint: cand.Endpoint[0], score: float64(0.0), id: cand.Id}
+				scores <- deviceInfo{endpoint: cand.Endpoint[0], score: float64(0.0), id: cand.ID}
 				return
 			}
 			log.Printf("[orchestrationapi] deviceScore")
-			log.Printf("candidate Id       : %v", cand.Id)
+			log.Printf("candidate ID       : %v", cand.ID)
 			log.Printf("candidate ExecType : %v", cand.ExecType)
 			log.Printf("candidate Endpoint : %v", cand.Endpoint[0])
 			log.Printf("candidate score    : %v", score)
-			scores <- deviceInfo{endpoint: cand.Endpoint[0], score: score, id: cand.Id, execType: cand.ExecType}
+			scores <- deviceInfo{endpoint: cand.Endpoint[0], score: score, id: cand.ID, execType: cand.ExecType}
 		}(candidate)
 	}
 
@@ -401,7 +401,7 @@ func (orcheEngine orcheImpl) gatherDevicesResource(candidates []dbhelper.Executi
 
 			if len(cand.Endpoint) == 0 {
 				log.Println("[orchestrationapi] cannot getting score, cause by ip list is empty")
-				resources <- deviceInfo{endpoint: "", resource: resource, id: cand.Id, execType: cand.ExecType}
+				resources <- deviceInfo{endpoint: "", resource: resource, id: cand.ID, execType: cand.ExecType}
 				return
 			}
 
@@ -416,15 +416,15 @@ func (orcheEngine orcheImpl) gatherDevicesResource(candidates []dbhelper.Executi
 
 			if err != nil {
 				log.Println("[orchestrationapi] cannot getting msgs from :", cand.Endpoint[0], "cause by", err.Error())
-				resources <- deviceInfo{endpoint: cand.Endpoint[0], resource: resource, id: cand.Id, execType: cand.ExecType}
+				resources <- deviceInfo{endpoint: cand.Endpoint[0], resource: resource, id: cand.ID, execType: cand.ExecType}
 				return
 			}
 			log.Printf("[orchestrationapi] deviceResource")
-			log.Printf("candidate Id       : %v", cand.Id)
+			log.Printf("candidate ID       : %v", cand.ID)
 			log.Printf("candidate ExecType : %v", cand.ExecType)
 			log.Printf("candidate Endpoint : %v", cand.Endpoint[0])
 			log.Printf("candidate resource : %v", resource)
-			resources <- deviceInfo{endpoint: cand.Endpoint[0], resource: resource, id: cand.Id, execType: cand.ExecType}
+			resources <- deviceInfo{endpoint: cand.Endpoint[0], resource: resource, id: cand.ID, execType: cand.ExecType}
 		}(candidate)
 	}
 

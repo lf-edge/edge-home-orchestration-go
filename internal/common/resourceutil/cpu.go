@@ -64,7 +64,7 @@ func checkCPUUsage() {
 	}
 	usage /= float64(len(cpus))
 
-	info := resourceDB.ResourceInfo{}
+	info := resourceDB.Info{}
 	info.Name = CPUUsage
 	info.Value = usage
 
@@ -81,7 +81,7 @@ func checkCPUFreq() (out float64, err error) {
 		return
 	}
 
-	info := resourceDB.ResourceInfo{}
+	info := resourceDB.Info{}
 	info.Name = CPUFreq
 	info.Value = infos[0].Mhz
 
@@ -99,7 +99,7 @@ func checkCPUCount() {
 		return
 	}
 
-	info := resourceDB.ResourceInfo{}
+	info := resourceDB.Info{}
 	info.Name = CPUCount
 	info.Value = float64(len(infos))
 
