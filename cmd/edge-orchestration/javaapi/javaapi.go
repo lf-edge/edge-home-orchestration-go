@@ -104,6 +104,7 @@ type ReqeustService struct {
 	ServiceInfo      []RequestServiceInfo
 }
 
+// SetExecutionCommand sets execution command for specific S/W platform
 func (r *ReqeustService) SetExecutionCommand(execType string, command string) {
 	switch execType {
 	case "native", "android", "container":
@@ -128,6 +129,7 @@ func (r *ReqeustService) SetExecutionCommand(execType string, command string) {
 	r.ServiceInfo = append(r.ServiceInfo, info)
 }
 
+// GetExecutionCommand gets execution command for specific S/W platform
 func (r ReqeustService) GetExecutionCommand(execType string) string {
 	switch execType {
 	case "native", "android", "container":
@@ -281,7 +283,7 @@ func OrchestrationRequestService(request *ReqeustService) *ResponseService {
 	return ret
 }
 
-//RegisterToBroadcastServer registers to the discovery server
+// RegisterToBroadcastServer registers to the discovery server
 func RegisterToBroadcastServer() int {
 	log.Println(logPrefix, "Initiating Registration to Broadcast server")
 	for {
@@ -299,7 +301,7 @@ func RegisterToBroadcastServer() int {
 	return 1
 }
 
-//EncryptToByteAndPost encryps json data to byte array
+// EncryptToByteAndPost encryps json data to byte array
 func EncryptToByteAndPost(data string, target string) int {
 	splitted := strings.Split(data, ",")
 	jsonMap := make(map[string]interface{})
@@ -343,7 +345,7 @@ func EncryptToByteAndPost(data string, target string) int {
 	return 0
 }
 
-//MNEDCConnectionClosed notifies discovery manager that MNEDC connection is closed
+// MNEDCConnectionClosed notifies discovery manager that MNEDC connection is closed
 func MNEDCConnectionClosed() {
 	if discoverymgr.GetInstance() != nil {
 		discoverymgr.GetInstance().MNEDCClosedCallback()
@@ -352,7 +354,7 @@ func MNEDCConnectionClosed() {
 	log.Println(logPrefix, "discoverymgr instance is nil")
 }
 
-//MNEDCConnectionReEstablished notifies discovery manager that MNEDC connection is re-established
+// MNEDCConnectionReEstablished notifies discovery manager that MNEDC connection is re-established
 func MNEDCConnectionReEstablished() {
 	if discoverymgr.GetInstance() != nil {
 		discoverymgr.GetInstance().MNEDCReconciledCallback()
@@ -361,7 +363,7 @@ func MNEDCConnectionReEstablished() {
 	log.Println(logPrefix, "discoverymgr instance is nil")
 }
 
-//GetPrivateIP returns private IP of the device
+// GetPrivateIP returns private IP of the device
 func GetPrivateIP() string {
 	networkIns := networkhelper.GetInstance()
 	if networkIns != nil {
@@ -375,10 +377,12 @@ func GetPrivateIP() string {
 
 }
 
+// Handler interface
 type Handler interface {
 	tls.Handler
 }
 
+// OrchestrationSetHandler sets tls handler
 func OrchestrationSetHandler(handler Handler) {
 	tls.SetHandler(handler)
 }
