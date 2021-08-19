@@ -57,7 +57,7 @@ func GetInstance() *AndroidExecutor {
 	return androidexecutor
 }
 
-// SetExecuteCallback executes the callback send in the paramter
+// SetExecuteCallback executes the callback send in the parameter
 func (t *AndroidExecutor) SetExecuteCallback(executeCallback ExecuteCallback) {
 	t.executeCB = executeCallback
 }
