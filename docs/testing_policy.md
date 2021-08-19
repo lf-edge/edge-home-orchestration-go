@@ -23,7 +23,7 @@ The Edge Orchestration team strongly recommends adhering to the [Test-driven dev
 
 ## 2. How to start Test Suite (Local)
 
-> Make sure the `gocov` and `gocov-html` packages are installed [(How to install)](https://github.com/matm/gocov-html#installation)
+> Make sure the `gocov` and `gocov-html` packages are installed [(How to install)](https://github.com/matm/gocov-html#installation). Recommendation: Do not install these utilities from the `edge-home-orchestration-go` folder.
 
 There are two ways to test:
 ### 2.1 Using the makefile

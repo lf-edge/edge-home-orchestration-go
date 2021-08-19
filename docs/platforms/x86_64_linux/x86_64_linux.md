@@ -46,6 +46,7 @@ Please see the below [How to work](#how-to-work) to know how to run Edge Orchest
 `$ export PATH=$PATH:$GOPATH/bin`
 
 - extra Go utilities: (optional)
+> Recommendation: Do not install the `gocov` and `gocov-html` utilities from the `edge-home-orchestration-go` folder.
   - [gocov](https://pkg.go.dev/github.com/axw/gocov)
   ```
   $ go get github.com/axw/gocov/gocov
