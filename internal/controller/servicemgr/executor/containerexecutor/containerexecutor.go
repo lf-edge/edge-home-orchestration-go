@@ -65,26 +65,26 @@ func GetInstance() *ContainerExecutor {
 
 // Execute executes container service application
 func (c *ContainerExecutor) Execute(s executor.ServiceExecutionInfo) error {
-	c.ServiceExecutionInfo = s
+	c.ServiceExecutionInfo = addRequestEnv(s)
 
 	log.Println(logPrefix, c.ServiceName, c.ParamStr)
 	log.Println(logPrefix, "parameter length :", len(c.ParamStr))
 	paramLen := len(c.ParamStr)
 
-	err := verifier.GetInstance().ContainerIsInWhiteList(s.ParamStr[paramLen-1])
+	err := verifier.GetInstance().ContainerIsInWhiteList(c.ParamStr[paramLen-1])
 	if err != nil {
 		log.Println(logPrefix, err.Error())
 		return err
 	}
 
 	// @Note : Pull docker image
-	err = c.ceImplIns.ImagePull(s.ParamStr[paramLen-1])
+	err = c.ceImplIns.ImagePull(c.ParamStr[paramLen-1])
 	if err != nil {
 		log.Println(logPrefix, err.Error())
 	}
 
 	// @Note : Create containers with converting configuration
-	resp, err := c.ceImplIns.Create(convertConfig(s.ParamStr))
+	resp, err := c.ceImplIns.Create(convertConfig(c.ParamStr))
 	if err != nil {
 		log.Println(logPrefix, err.Error())
 	} else {
@@ -152,4 +152,11 @@ func convertConfig(paramStr []string) (
 	conf.Config.Image = paramStr[paramLen-1]
 
 	return conf.Config, conf.HostConfig, conf.NetworkingConfig
+}
+
+func addRequestEnv(s executor.ServiceExecutionInfo) executor.ServiceExecutionInfo {
+	s.ParamStr = append(s.ParamStr[:4], s.ParamStr[2:]...)
+	s.ParamStr[2] = "-e"
+	s.ParamStr[3] = "REQUEST=" + s.NotificationTargetURL
+	return s
 }
