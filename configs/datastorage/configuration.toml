@@ -2,7 +2,7 @@
 LogLevel = 'DEBUG'
 
 [Service]
-Host = 'localhost'
+Host = '172.17.0.1'
 Port = 49986
 ConnectRetries = 20
 Labels = []
@@ -22,13 +22,13 @@ FailWaitTime = 10
 [Clients]
   [Clients.Data]
   Protocol = "http"
-  Host = "localhost"
+  Host = "172.17.0.1"
   Port = 48080
   Timeout = 5000
 
   [Clients.Metadata]
   Protocol = "http"
-  Host = "localhost"
+  Host = "172.17.0.1"
   Port = 48081
   Timeout = 5000
 

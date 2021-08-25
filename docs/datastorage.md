@@ -34,6 +34,8 @@ The following architecture assumes that data stored at data controller would be 
 ### 4.1 Configuration
 
 - Placement the [`test/container/datastorage/`](../test/container/datastorage/) folder into `/var/edge-orchestration/apps/` in your **Home Edge** with Data Storage (**Device A**).
+
+- For running service in dockers, replace the Host IP of metadata, coredata, service to docker0 IP. For example here it is 172.17.0.1
 ```sh
 $ sudo cp -rf test/container/datastorage/ /var/edge-orchestration/apps/
 ```
