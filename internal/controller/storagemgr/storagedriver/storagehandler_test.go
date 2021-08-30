@@ -243,3 +243,12 @@ func TestReadBodyAsBinary(t *testing.T) {
 		}
 	})
 }
+
+func TestConvertToBase64(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
+		b64 := convertToBase64([]byte("test"))
+		if b64 != "dGVzdA==" {
+			t.Error(unexpectedFail)
+		}
+	})
+}
