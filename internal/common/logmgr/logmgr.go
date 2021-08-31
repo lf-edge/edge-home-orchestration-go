@@ -48,7 +48,7 @@ func init() {
 			return function, filenline
 		},
 	}
-	logIns.Level = logrus.InfoLevel
+	logIns.Level = GetLogLevel()
 	logIns.Out = os.Stdout
 }
 
@@ -78,4 +78,14 @@ func InitLogfile(logFilePath string) {
 // GetInstance returns an instance of the logmgr
 func GetInstance() *logrus.Logger {
 	return logIns
+}
+
+// GetLogLevel returns the logging level
+func GetLogLevel() logrus.Level {
+	level, err := logrus.ParseLevel(os.Getenv("LOGLEVEL"))
+	if err != nil {
+		logIns.Warn(err.Error())
+		level = logrus.InfoLevel
+	}
+	return level
 }
