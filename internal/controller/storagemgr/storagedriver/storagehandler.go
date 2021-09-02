@@ -43,14 +43,17 @@ type ctxKey string
 const (
 	deviceNameKey            = "deviceName"
 	resourceNameKey          = "resourceName"
+	startKey                 = "start"
+	endKey                   = "end"
 	handlerContextKey ctxKey = "StorageHandler"
 	configPath               = "res/configuration.toml"
 	numberOfReadings         = "readingCount"
 
-	apiResourceRoute           = clients.ApiBase + "/device/{" + deviceNameKey + "}/resource/{" + resourceNameKey + "}"
-	apiResourceRouteMultiple   = clients.ApiBase + "/device/{" + deviceNameKey + "}/resource/{" + resourceNameKey + "}/{" + numberOfReadings + "}"
-	apiWithoutResRoute         = clients.ApiBase + "/resource/{" + resourceNameKey + "}"
-	apiWithoutResRouteMultiple = clients.ApiBase + "/resource/{" + resourceNameKey + "}/{" + numberOfReadings + "}"
+	apiResourceRoute               = clients.ApiBase + "/device/{" + deviceNameKey + "}/resource/{" + resourceNameKey + "}"
+	apiResourceRouteMultiple       = clients.ApiBase + "/device/{" + deviceNameKey + "}/resource/{" + resourceNameKey + "}/{" + numberOfReadings + "}"
+	apiWithoutResRoute             = clients.ApiBase + "/resource/{" + resourceNameKey + "}"
+	apiWithoutResRouteMultiple     = clients.ApiBase + "/resource/{" + resourceNameKey + "}/{" + numberOfReadings + "}"
+	apiWithoutResRouteTimeMultiple = clients.ApiBase + "/start/{" + startKey + "}/end/{" + endKey + "}/{" + numberOfReadings + "}"
 )
 
 var (
@@ -92,6 +95,9 @@ func (handler StorageHandler) Start() error {
 	if err := handler.service.AddRoute(apiWithoutResRouteMultiple, handler.addContext(deviceHandler), http.MethodGet); err != nil {
 		return fmt.Errorf("unable to add required route: %s: %s", apiWithoutResRouteMultiple, err.Error())
 	}
+	if err := handler.service.AddRoute(apiWithoutResRouteTimeMultiple, handler.addContext(deviceHandler), http.MethodGet); err != nil {
+		return fmt.Errorf("unable to add required route: %s: %s", apiWithoutResRouteTimeMultiple, err.Error())
+	}
 	return nil
 }
 
@@ -107,45 +113,51 @@ func (handler StorageHandler) addContext(next func(http.ResponseWriter, *http.Re
 func (handler StorageHandler) processAsyncGetRequest(writer http.ResponseWriter, request *http.Request) {
 	vars := mux.Vars(request)
 	deviceName := vars[deviceNameKey]
-	var err error
-	if deviceName == "" {
-		deviceName, err = dbIns.GetDeviceID()
-		if err != nil {
-			log.Error("Fail to get deviceName")
-			http.Error(writer, "Device not found", http.StatusNotFound)
-			return
-		}
-	}
 	resourceName := vars[resourceNameKey]
 	readingCount := vars[numberOfReadings]
+	start := vars[startKey]
+	end := vars[endKey]
 
+	var readingAPI string
 	if readingCount == "" {
 		readingCount = "1"
 	}
+	var err error
+	if start != "" && end != "" {
+		log.Debug(fmt.Sprintf("Received GET for start=%s end=%s", start, end))
+		readingAPI = "/api/v1/reading/" + start + "/" + end + "/" + readingCount
+	} else {
+		if deviceName == "" {
+			deviceName, err = dbIns.GetDeviceID()
+			if err != nil {
+				log.Error("Fail to get deviceName")
+				http.Error(writer, "Device not found", http.StatusNotFound)
+				return
+			}
+		}
 
-	log.Debug(fmt.Sprintf("Received POST for Device=%s Resource=%s", deviceName, resourceName))
+		log.Debug(fmt.Sprintf("Received POST for Device=%s Resource=%s", deviceName, resourceName))
 
-	_, err = handler.service.GetDeviceByName(deviceName)
-	if err != nil {
-		log.Error(fmt.Sprintf("Incoming reading ignored. Device '%s' not found", deviceName))
-		http.Error(writer, "Device not found", http.StatusNotFound)
-		return
+		_, err = handler.service.GetDeviceByName(deviceName)
+		if err != nil {
+			log.Error(fmt.Sprintf("Incoming reading ignored. Device '%s' not found", deviceName))
+			http.Error(writer, "Device not found", http.StatusNotFound)
+			return
+		}
+		_, ok := handler.service.DeviceResource(deviceName, resourceName, "get")
+		if !ok {
+			log.Error(fmt.Sprintf("Incoming reading ignored. Resource '%s' not found", resourceName))
+			http.Error(writer, "Resource not found", http.StatusNotFound)
+			return
+		}
+		readingAPI = "/api/v1/reading/name/" + resourceName + "/device/" + deviceName + "/" + readingCount
 	}
-	_, ok := handler.service.DeviceResource(deviceName, resourceName, "get")
-	if !ok {
-		log.Error(fmt.Sprintf("Incoming reading ignored. Resource '%s' not found", resourceName))
-		http.Error(writer, "Resource not found", http.StatusNotFound)
-		return
-	}
-
 	serverIP, readingPort, err := config.GetServerIP(configPath)
 
 	if err != nil {
 		http.Error(writer, "Configuration File Not Found", http.StatusNotFound)
 		return
 	}
-
-	readingAPI := "/api/v1/reading/name/" + resourceName + "/device/" + deviceName + "/" + readingCount
 
 	requestURL := handler.helper.MakeTargetURL(serverIP, readingPort, readingAPI)
 	resp, _, err := handler.helper.DoGet(requestURL)
