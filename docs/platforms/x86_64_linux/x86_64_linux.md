@@ -155,6 +155,12 @@ $ docker run -it -d --privileged --network="host" --name edge-orchestration -v /
     $ docker run -it -d --privileged --network="host" --name edge-orchestration -e MNEDC=server -v /var/edge-orchestration/:/var/edge-orchestration/:rw -v /var/run/docker.sock:/var/run/docker.sock:rw -v /proc/:/process/:ro edge-orchestration:coconut
     ```
 
+  - LOGLEVEL
+
+    You can set the log level(Debug, Info, Warn and others) by `LOGLEVEL`. (Default level is `Info`.)
+    ```shell
+    $ docker run -it -d --privileged --network="host" --name edge-orchestration -e LOGLEVEL=Warn -v /var/edge-orchestration/:/var/edge-orchestration/:rw -v /var/run/docker.sock:/var/run/docker.sock:rw -v /proc/:/process/:ro edge-orchestration:coconut
+
 - Result
 
 ```shell

@@ -19,6 +19,7 @@ package logmgr
 
 import (
 	"fmt"
+	"github.com/sirupsen/logrus"
 	"os"
 	"testing"
 )
@@ -41,6 +42,13 @@ func TestInit(t *testing.T) {
 	err := os.Remove(TestFile)
 	if err != nil {
 		t.Error(err.Error())
+	}
+}
+
+func TestGetLogLevel(t *testing.T) {
+	level := GetLogLevel()
+	if level != logrus.InfoLevel {
+		t.Error("unexpected level")
 	}
 }
 
