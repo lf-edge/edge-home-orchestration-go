@@ -1,0 +1,403 @@
+openapi: 3.0.0
+info:
+  title: Data Storage API
+  version: v1-20210831
+  description: >-
+  
+    This provides functionality for storing the data from different devices in the home environment.
+    
+        Limitations and Assumptions:
+          1. Centralized Storage Architecture.
+          2. Data controller uploads data to the cloud at regular intervals (storage device depends on being connected to the cloud at these intervals).
+paths:
+  '/api/v1/device/{deviceNameKey}/resource/{resourceNameKey}':
+    post:
+      tags:
+        - Data Storage
+      summary:  ""
+      description: ""
+      parameters:
+        - in:     "path"
+          name:   "deviceNameKey"
+          description:  "Device name of datastorage (Ex.: datastorage)"
+          required: true
+          schema:
+            type: "string"
+        - in:     "path"
+          name:   "resourceNameKey"
+          description:  "Type of stored value (Ex.: int, float, string, jpeg, png)"
+          required: true
+          schema:
+            type:   "string"
+      responses:
+        200: 
+          description:  "OK"
+        400:
+          description:  "Bad Request"
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                $ref:  '#/components/schemas/ApiResponseNameError'
+              examples:
+                NoContentType:
+                  $ref:  '#/components/examples/NoContentType'
+                WrongContentType:
+                  $ref:  '#/components/examples/WrongContentType'
+                NoRequestBodyProvided:
+                  $ref:  '#/components/examples/NoRequestBodyProvided'
+                NoneSupportedValueTypeError:
+                  $ref:  '#/components/examples/NoneSupportedValueTypeError'
+                FailToParse:
+                  $ref:  '#/components/examples/FailToParse'
+        404:
+          description:  "Not Found"
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                $ref:  '#/components/schemas/ApiResponseNameError'
+              examples:
+                DeviceNotFound:
+                  $ref:  '#/components/examples/DeviceNotFound'
+                ResourceNotFound:
+                  $ref:  '#/components/examples/ResourceNotFound'
+    get:
+      tags:
+        - Data Storage
+      summary:  ""
+      description: ""
+      parameters:
+        - in:     "path"
+          name:   "deviceNameKey"
+          description:  "Device name of datastorage (Ex.: datastorage)"
+          required: true
+          schema:
+            type: "string"
+        - in:     "path"
+          name:   "resourceNameKey"
+          description:  "Type of stored value (Ex.: int, float, string, jpeg, png)"
+          required: true
+          schema:
+            type:   "string"
+      responses:
+        200: 
+          description:  "OK"
+          content:
+            application/json:
+              schema:  
+                $ref:  '#/components/schemas/ApiResourceNameOk'
+              examples:
+                SuccessOneItem:
+                  $ref:  '#/components/examples/SuccessOneItem'
+        404:
+          description:  "Not Found"
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                $ref:  '#/components/schemas/ApiResponseNameError'
+              examples:
+                DeviceNotFound:
+                  $ref:  '#/components/examples/DeviceNotFound'
+                ResourceNotFound:
+                  $ref:  '#/components/examples/ResourceNotFound'
+                ConfigurationFileNotFound:
+                  $ref:  '#/components/examples/ConfigurationFileNotFound'
+  '/api/v1/device/{deviceNameKey}/resource/{resourceNameKey}/{numberOfReadings}':
+    get:
+      tags:
+        - Data Storage
+      summary:  ""
+      description: ""
+      parameters:
+        - in:     "path"
+          name:   "deviceNameKey"
+          description:  "Device name of datastorage (Ex.: datastorage)"
+          required: true
+          schema:
+            type: "string"
+        - in:     "path"
+          name:   "resourceNameKey"
+          description:  "Type of stored value (Ex.: int, float, string, jpeg, png)"
+          required: true
+          schema:
+            type:   "string"
+        - in:     "path"
+          name:   "numberOfReadings"
+          description:  "The number of data that should be read"
+          required: true
+          schema:
+            type:   "integer"
+      responses:
+        200: 
+          description:  "OK"
+          content:
+            application/json:
+              schema:  
+                  $ref:  '#/components/schemas/ApiResourceNameOk2'
+              examples:
+                SuccessTwoItems:
+                  $ref:  '#/components/examples/SuccessTwoItems'
+                SuccessThreeItems:
+                  $ref:  '#/components/examples/SuccessThreeItems'
+        404:
+          description:  "Not Found"
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                $ref:  '#/components/schemas/ApiResponseNameError'
+              examples:
+                DeviceNotFound:
+                  $ref:  '#/components/examples/DeviceNotFound'
+                ResourceNotFound:
+                  $ref:  '#/components/examples/ResourceNotFound'
+                ConfigurationFileNotFound:
+                  $ref:  '#/components/examples/ConfigurationFileNotFound'
+
+  '/api/v1/resource/{resourceNameKey}':
+    post:
+      tags:
+        - Data Storage
+      summary:  ""
+      description: ""
+      parameters:
+        - in:     "path"
+          name:   "resourceNameKey"
+          description:  "Type of stored value (Ex.: int, float, string, jpeg, png)"
+          required: true
+          schema:
+            type:   "string"
+      responses:
+        200: 
+          description:  "OK"
+        400:
+          description:  "Bad Request"
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                $ref:  '#/components/schemas/ApiResponseNameError'
+              examples:
+                NoContentType:
+                  $ref:  '#/components/examples/NoContentType'
+                WrongContentType:
+                  $ref:  '#/components/examples/WrongContentType'
+                NoRequestBodyProvided:
+                  $ref:  '#/components/examples/NoRequestBodyProvided'
+                NoneSupportedValueTypeError:
+                  $ref:  '#/components/examples/NoneSupportedValueTypeError'
+                FailToParse:
+                  $ref:  '#/components/examples/FailToParse'
+        404:
+          description:  "Not Found"
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                $ref:  '#/components/schemas/ApiResponseNameError'
+              examples:
+                DeviceNotFound:
+                  $ref:  '#/components/examples/DeviceNotFound'
+                ResourceNotFound:
+                  $ref:  '#/components/examples/ResourceNotFound'
+
+    get:
+      tags:
+        - Data Storage
+      summary:  ""
+      description: ""
+      parameters:
+        - in:     "path"
+          name:   "resourceNameKey"
+          description:  "Type of stored value (Ex.: int, float, string, jpeg, png)"
+          required: true
+          schema:
+            type:   "string"
+      responses:
+        200: 
+          description:  "OK"
+          content:
+            application/json:
+              schema:  
+                $ref:  '#/components/schemas/ApiResourceNameOk'
+              examples:
+                SuccessOneItem:
+                  $ref:  '#/components/examples/SuccessOneItem'
+        404:
+          description:  "Not Found"
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                $ref:  '#/components/schemas/ApiResponseNameError'
+              examples:
+                DeviceNotFound:
+                  $ref:  '#/components/examples/DeviceNotFound'
+                ResourceNotFound:
+                  $ref:  '#/components/examples/ResourceNotFound'
+                ConfigurationFileNotFound:
+                  $ref:  '#/components/examples/ConfigurationFileNotFound'
+
+  '/api/v1/resource/{resourceNameKey}/{numberOfReadings}':
+    get:
+      tags:
+        - Data Storage
+      summary:  ""
+      description: ""
+      parameters:
+        - in:     "path"
+          name:   "resourceNameKey"
+          description:  "Type of stored value (Ex.: int, float, string, jpeg, png)"
+          required: true
+          schema:
+            type:   "string"
+        - in:     "path"
+          name:   "numberOfReadings"
+          description:  "The number of data that should be read"
+          required: true
+          schema:
+            type:   "integer"
+      responses:
+        200: 
+          description:  "OK"
+          content:
+            application/json:
+              schema:  
+                  $ref:  '#/components/schemas/ApiResourceNameOk2'
+              examples:
+                SuccessTwoItems:
+                  $ref:  '#/components/examples/SuccessTwoItems'
+                SuccessThreeItems:
+                  $ref:  '#/components/examples/SuccessThreeItems'
+        404:
+          description:  "Not Found"
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                $ref:  '#/components/schemas/ApiResponseNameError'
+              examples:
+                DeviceNotFound:
+                  $ref:  '#/components/examples/DeviceNotFound'
+                ResourceNotFound:
+                  $ref:  '#/components/examples/ResourceNotFound'
+                ConfigurationFileNotFound:
+                  $ref:  '#/components/examples/ConfigurationFileNotFound'
+components:
+  schemas:
+    ApiResourceNameOk:
+      type: object
+      properties:
+        id:
+          type: string
+        created:
+          type: string
+        origin:
+          type: string
+        device:
+          type: string
+        name:
+          type: string
+        value:
+          type: string
+        valueType:
+          type: string
+
+    ApiResourceNameOk2:
+      type: array
+      items:
+        type: object
+        properties:
+          id:
+            type: object
+          created:
+            type: string
+          origin:
+            type: string
+          device:
+            type: string
+          name:
+            type: string
+          value:
+            type: string
+          valueType:
+            type: string
+
+    ApiResponseNameError:
+      type: object
+      properties:
+          error: 
+            type: string
+
+  examples:
+    NoContentType:
+      summary: "Example of an error response: No Content-Type"
+      value: "No Content-Type"
+    WrongContentType:
+      summary: "Example of an error response: Wrong Content-Type"
+      value:  "Wrong Content-Type"
+    NoRequestBodyProvided:
+      summary: "Example of an error response: no request body provided"
+      value:  "no request body provided"
+    NoneSupportedValueTypeError:
+      summary: "Example of an error response: none supported value type"
+      value:  "return result fail, none supported value type: "
+    FailToParse:
+      summary: "Example of an error response: fail to parse int reading, unable to cast \"3.5\" of type string to int64"
+      value:  "fail to parse int reading, unable to cast \"3.5\" of type string to int64"
+    DeviceNotFound:
+      summary: "Example of an error response: Device not found"
+      value:  "Device not found"
+    ResourceNotFound:
+      summary: "Example of an error response: Resource not found"
+      value:  "Resource not found"
+    ConfigurationFileNotFound:
+      summary: "Example of an error response: Configuration File Not Found"
+      value:  "Configuration File Not Found"
+
+    SuccessOneItem:
+      summary: "Example of a successful response: OK"
+      value:
+        id: "fff6bcf6-1173-432c-bfd7-1251d6ca00d1"
+        created: "1626939648581"
+        device: "edge-orchestration-c1b23cc6-0767-400a-9cf0-36e1b3902da2"
+        name: "int"
+        value: "789"
+        valueType: "Int64"
+
+    SuccessTwoItems:
+      summary: "Example of a successful response: OK {numberOfReadings} = 2"
+      value:
+      - id: "fff6bcf6-1173-432c-bfd7-1251d6ca00d1"
+        created: "1626939648581"
+        origin: "1626939648581591800"
+        device: "edge-orchestration-c1b23cc6-0767-400a-9cf0-36e1b3902da2"
+        name: "int"
+        value: "789"
+        valueType: "Int64"
+      - id: "32ce1379-c0ff-4db3-a4e9-c7d8ad9206c5"
+        created: "1626939648576"
+        origin: "1626939648574651100"
+        device: "edge-orchestration-c1b23cc6-0767-400a-9cf0-36e1b3902da2"
+        name: "int"
+        value: "456"
+        valueType: "Int64"
+
+    SuccessThreeItems:
+        summary: "Example of a successful response: OK {numberOfReadings} = 3"
+        value:
+        - id: "fff6bcf6-1173-432c-bfd7-1251d6ca00d1"
+          created: "1626939648581"
+          origin: "1626939648581591800"
+          device: "edge-orchestration-c1b23cc6-0767-400a-9cf0-36e1b3902da2"
+          name: "int"
+          value: "789"
+          valueType: "Int64"
+        - id: "32ce1379-c0ff-4db3-a4e9-c7d8ad9206c5"
+          created: "1626939648576"
+          origin: "1626939648574651100"
+          device: "edge-orchestration-c1b23cc6-0767-400a-9cf0-36e1b3902da2"
+          name: "int"
+          value: "456"
+          valueType: "Int64"
+        - id: "420c717e-d2d4-402b-a2fa-b7fc7f4de7cd"
+          created: "1626939648569"
+          origin: "1626939648568198100"
+          device: "edge-orchestration-c1b23cc6-0767-400a-9cf0-36e1b3902da2"
+          name: "int"
+          value: "123"
+          valueType: "Int64"
