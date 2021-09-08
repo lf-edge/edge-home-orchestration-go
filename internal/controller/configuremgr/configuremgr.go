@@ -29,6 +29,7 @@ import (
 	"time"
 
 	types "github.com/lf-edge/edge-home-orchestration-go/internal/common/types/configuremgrtypes"
+	appDB "github.com/lf-edge/edge-home-orchestration-go/internal/db/bolt/application"
 
 	"github.com/fsnotify/fsnotify"
 	"gopkg.in/ini.v1"
@@ -53,11 +54,13 @@ type ConfigureMgr struct {
 }
 
 var (
+	appQuery        appDB.DBInterface
 	configuremgrObj *ConfigureMgr
 	log             = logmgr.GetInstance()
 )
 
 func init() {
+	appQuery = appDB.Query{}
 	configuremgrObj = new(ConfigureMgr)
 }
 
@@ -74,7 +77,7 @@ func (cfgMgr ConfigureMgr) SetConfigPath(configPath string) error {
 	if err == nil {
 		configuremgrObj.confpath = configPath
 	} else {
-		log.Println("no config file path")
+		log.Warn("no config file path")
 	}
 	return err
 }
@@ -103,12 +106,12 @@ func (cfgMgr ConfigureMgr) Watch(notifier Notifier) {
 		for {
 			select {
 			case event := <-watcher.Events:
-				log.Println("event:", event)
+				log.Debug("event:", event)
 				switch event.Op {
 				case fsnotify.Create, fsnotify.Write:
 					_, dirName := filepath.Split(event.Name)
 					confFileName := fmt.Sprint(event.Name, "/", dirName, ".conf")
-					log.Println("IsConfExist:", confFileName)
+					log.Debug("IsConfExist:", confFileName)
 
 					// Should check file is exist on file system really,
 					// even though CREATE event of directory received
@@ -121,7 +124,7 @@ func (cfgMgr ConfigureMgr) Watch(notifier Notifier) {
 						time.Sleep(time.Second * 1)
 					}
 					if !isConfExist {
-						log.Println(confFileName, "does not exist")
+						log.Warn(confFileName, "does not exist")
 						continue
 					}
 					info, err := getServiceInfo(event.Name)
@@ -133,7 +136,7 @@ func (cfgMgr ConfigureMgr) Watch(notifier Notifier) {
 				}
 			case err := <-watcher.Errors:
 				if err != nil {
-					log.Println("error:", err)
+					log.Warn("error:", err)
 				}
 			} //select end
 		} //for end
@@ -143,8 +146,8 @@ func (cfgMgr ConfigureMgr) Watch(notifier Notifier) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Println("start watching for", cfgMgr.confpath)
-	log.Println("configuremgr watcher register end")
+	log.Info("start watching for", cfgMgr.confpath)
+	log.Debug("configuremgr watcher register end")
 }
 
 func getServiceInfo(path string) (types.ServiceInfo, error) {
@@ -164,11 +167,13 @@ func getServiceInfo(path string) (types.ServiceInfo, error) {
 	executableName := cfg.Section("ServiceInfo").Key("ExecutableFileName").String()
 	allowedRequesterName := cfg.Section("ServiceInfo").Key("AllowedRequester").Strings(",")
 	execType := cfg.Section("ServiceInfo").Key("ExecType").String()
+	execCmd := cfg.Section("ServiceInfo").Key("ExecCmd").Strings(" ")
 
-	log.Println("[configuremgr] ServiceName:", serviceName)
-	log.Println("[configuremgr] ExecutableFileName:", executableName)
-	log.Println("[configuremgr] AllowedRequester:", allowedRequesterName)
-	log.Println("[configuremgr] ExecType:", execType)
+	log.Debug("[configuremgr] ServiceName:", serviceName)
+	log.Debug("[configuremgr] ExecutableFileName:", executableName)
+	log.Debug("[configuremgr] AllowedRequester:", allowedRequesterName)
+	log.Debug("[configuremgr] ExecType:", execType)
+	log.Debug("[configuremgr] ExecCmd:", execCmd)
 
 	if execType != configuremgrObj.execType {
 		log.Warn("Type of ", serviceName, " is not ", configuremgrObj.execType)
@@ -180,7 +185,18 @@ func getServiceInfo(path string) (types.ServiceInfo, error) {
 		ExecutableFileName: executableName,
 		AllowedRequester:   allowedRequesterName,
 		ExecType:           execType,
+		ExecCmd:            execCmd,
 	}
+
+	appInfo := appDB.Info{
+		ServiceName:        serviceName,
+		ExecutableFileName: executableName,
+		AllowedRequester:   allowedRequesterName,
+		ExecType:           execType,
+		ExecCmd:            execCmd,
+	}
+
+	setAppDB(appInfo)
 
 	return ret, nil
 }
@@ -204,4 +220,21 @@ func getdirname(path string) (confPath string, err error) {
 		time.Sleep(time.Second * 1)
 	}
 	return "", err
+}
+
+func setAppDB(appInfo appDB.Info) {
+	err := appQuery.Set(appInfo)
+	if err != nil {
+		log.Warn(err.Error())
+	}
+}
+
+// GetAppDB returns information corresponding to the service application name
+func GetAppDB(name string) (appDB.Info, error) {
+	info, err := appQuery.Get(name)
+	if err != nil {
+		log.Warn(err.Error())
+	}
+
+	return info, err
 }
