@@ -277,6 +277,57 @@ paths:
                   $ref:  '#/components/examples/ResourceNotFound'
                 ConfigurationFileNotFound:
                   $ref:  '#/components/examples/ConfigurationFileNotFound'
+  '/api/v1/start/{start}/end/{end}/{ReadingCount}':
+    get:
+      tags:
+        - Data Storage
+      summary:  ""
+      description: "Multiple readings from a device at once based on start and end timestamps"
+      parameters:
+        - in:     "path"
+          name:   "start"
+          description:  "Start timestamp (Unix timestamp)"
+          required: true
+          schema:
+            type:   "string"
+        - in:     "path"
+          name:   "end"
+          description:  "End timestamp (Unix timestamp)"
+          required: true
+          schema:
+            type:   "string"
+        - in:     "path"
+          name:   "ReadingCount"
+          description:  "The number of data that should be read from this time interval"
+          required: true
+          schema:
+            type:   "integer"
+      responses:
+        200:
+          description:  "OK"
+          content:
+            application/json:
+              schema:
+                  $ref:  '#/components/schemas/ApiResourceNameOk2'
+              examples:
+                SuccessTwoItems:
+                  $ref:  '#/components/examples/SuccessTwoItems'
+                SuccessThreeItems:
+                  $ref:  '#/components/examples/SuccessThreeItems'
+        404:
+          description:  "Not Found"
+          content:
+            text/plain; charset=utf-8:
+              schema:
+                $ref:  '#/components/schemas/ApiResponseNameError'
+              examples:
+                DeviceNotFound:
+                  $ref:  '#/components/examples/DeviceNotFound'
+                ResourceNotFound:
+                  $ref:  '#/components/examples/ResourceNotFound'
+                ConfigurationFileNotFound:
+                  $ref:  '#/components/examples/ConfigurationFileNotFound'
+
 components:
   schemas:
     ApiResourceNameOk:
