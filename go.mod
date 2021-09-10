@@ -10,7 +10,7 @@ require (
 	github.com/Microsoft/go-winio v0.4.16 // indirect
 	github.com/StackExchange/wmi v0.0.0-20190523213315-cbe66965904d // indirect
 	github.com/casbin/casbin v1.9.1
-	github.com/containerd/containerd v1.4.1-0.20201117152358-0edc412565dc // indirect
+	github.com/containerd/containerd v1.4.8 // indirect
 	github.com/docker/cli v0.0.0-20201024074417-fd3371eb7df1
 	github.com/docker/distribution v2.7.1-0.20190205005809-0d3efadf0154+incompatible // indirect
 	github.com/docker/docker v17.12.0-ce-rc1.0.20201201034508-7d75c1d40d88+incompatible
