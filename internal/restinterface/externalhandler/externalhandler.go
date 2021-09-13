@@ -204,15 +204,11 @@ func (h *Handler) APIV1RequestServicePost(w http.ResponseWriter, r *http.Request
 		serviceInfos.ServiceInfo[idx].ExecutionType = exeType
 
 		exeCmd, ok := tmp["ExecCmd"].([]interface{})
-		if !ok {
-			responseMsg = orchestrationapi.InvalidParameter
-			responseName = name
-			goto SEND_RESP
-		}
-
-		serviceInfos.ServiceInfo[idx].ExeCmd = make([]string, len(exeCmd))
-		for idy, cmd := range exeCmd {
-			serviceInfos.ServiceInfo[idx].ExeCmd[idy] = cmd.(string)
+		if ok {
+			serviceInfos.ServiceInfo[idx].ExeCmd = make([]string, len(exeCmd))
+			for idy, cmd := range exeCmd {
+				serviceInfos.ServiceInfo[idx].ExeCmd[idy] = cmd.(string)
+			}
 		}
 
 		exeOption, ok := tmp["ExecOption"].(interface{})

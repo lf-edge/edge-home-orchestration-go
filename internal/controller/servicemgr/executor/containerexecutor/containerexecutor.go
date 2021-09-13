@@ -155,8 +155,8 @@ func convertConfig(paramStr []string) (
 }
 
 func addRequestEnv(s executor.ServiceExecutionInfo) executor.ServiceExecutionInfo {
-	s.ParamStr = append(s.ParamStr[:4], s.ParamStr[2:]...)
-	s.ParamStr[2] = "-e"
-	s.ParamStr[3] = "REQUEST=" + s.NotificationTargetURL
+	s.ParamStr = append(s.ParamStr, s.ParamStr[len(s.ParamStr)-2:]...)
+	s.ParamStr[len(s.ParamStr)-3] = "-e"
+	s.ParamStr[len(s.ParamStr)-2] = "REQUEST=" + s.NotificationTargetURL
 	return s
 }

@@ -147,12 +147,16 @@ func (orcheEngine *orcheImpl) RequestService(serviceInfo ReqeustService) Respons
 
 	executionTypes := make([]string, 0)
 	var scoringType string
+	installed := true
 	for _, info := range serviceInfo.ServiceInfo {
 		executionTypes = append(executionTypes, info.ExecutionType)
 		scoringType, _ = info.ExeOption["scoringType"].(string)
+		if len(info.ExeCmd) > 0 {
+			installed = false
+		}
 	}
 
-	candidates, err := orcheEngine.getCandidate(serviceInfo.ServiceName, executionTypes)
+	candidates, err := orcheEngine.getCandidate(serviceInfo.ServiceName, executionTypes, installed)
 
 	log.Printf("[RequestService] getCandidate")
 	for index, candidate := range candidates {
@@ -266,8 +270,8 @@ func getExecCmds(execType string, requestServiceInfos []RequestServiceInfo) ([]s
 	return nil, errors.New("not found")
 }
 
-func (orcheEngine orcheImpl) getCandidate(appName string, execType []string) (deviceList []dbhelper.ExecutionCandidate, err error) {
-	return helper.GetDeviceInfoWithService(appName, execType)
+func (orcheEngine orcheImpl) getCandidate(appName string, execType []string, installed bool) (deviceList []dbhelper.ExecutionCandidate, err error) {
+	return helper.GetDeviceInfoWithService(appName, execType, installed)
 }
 
 func (orcheEngine orcheImpl) gatherDevicesScore(candidates []dbhelper.ExecutionCandidate, selfSelection bool) (deviceScores []deviceInfo) {

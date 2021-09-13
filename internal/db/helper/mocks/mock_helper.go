@@ -67,16 +67,16 @@ func (mr *MockMultipleBucketQueryMockRecorder) GetDeviceID() *gomock.Call {
 }
 
 // GetDeviceInfoWithService mocks base method.
-func (m *MockMultipleBucketQuery) GetDeviceInfoWithService(serviceName string, executionTypes []string) ([]helper.ExecutionCandidate, error) {
+func (m *MockMultipleBucketQuery) GetDeviceInfoWithService(serviceName string, executionTypes []string, installed bool) ([]helper.ExecutionCandidate, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetDeviceInfoWithService", serviceName, executionTypes)
+	ret := m.ctrl.Call(m, "GetDeviceInfoWithService", serviceName, executionTypes, installed)
 	ret0, _ := ret[0].([]helper.ExecutionCandidate)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetDeviceInfoWithService indicates an expected call of GetDeviceInfoWithService.
-func (mr *MockMultipleBucketQueryMockRecorder) GetDeviceInfoWithService(serviceName, executionTypes interface{}) *gomock.Call {
+func (mr *MockMultipleBucketQueryMockRecorder) GetDeviceInfoWithService(serviceName, executionTypes, installed interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDeviceInfoWithService", reflect.TypeOf((*MockMultipleBucketQuery)(nil).GetDeviceInfoWithService), serviceName, executionTypes)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDeviceInfoWithService", reflect.TypeOf((*MockMultipleBucketQuery)(nil).GetDeviceInfoWithService), serviceName, executionTypes, installed)
 }
