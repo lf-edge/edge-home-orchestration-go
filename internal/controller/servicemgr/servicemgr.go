@@ -21,7 +21,9 @@ package servicemgr
 import (
 	"strings"
 
+	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/networkhelper"
+	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/configuremgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/servicemgr/executor"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/servicemgr/notification"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/client"
@@ -47,12 +49,12 @@ type SMMgrImpl struct {
 
 var (
 	serviceMgr *SMMgrImpl
+	log        = logmgr.GetInstance()
 )
 
 func init() {
 	ServiceMap = ConcurrentMap{items: make(map[uint64]interface{})}
 	serviceMgr = &SMMgrImpl{}
-
 }
 
 // GetInstance returns the singletone SMMgrImpl instance
@@ -92,8 +94,15 @@ func (sm SMMgrImpl) ExecuteAppOnLocal(appInfo map[string]interface{}) {
 	var serviceExecutionInfo executor.ServiceExecutionInfo
 
 	serviceID, serviceName, args, notitargetURL := parseAppInfo(appInfo)
-	args = args[:len(args)-1]
-
+	if len(args) < 2 {
+		info, err := configuremgr.GetAppDB(serviceName)
+		if err != nil {
+			log.Warn(err.Error())
+		}
+		args = info.ExecCmd
+	} else {
+		args = args[:len(args)-1]
+	}
 	serviceExecutionInfo = executor.ServiceExecutionInfo{
 		ServiceID:             serviceID,
 		ServiceName:           serviceName,

@@ -103,7 +103,7 @@ func TestGetDeviceInfoWithService(t *testing.T) {
 			}, nil),
 		)
 
-		ret, err := GetInstance().GetDeviceInfoWithService("testService1", []string{"native", "container"})
+		ret, err := GetInstance().GetDeviceInfoWithService("testService1", []string{"native", "container"}, false)
 		if err != nil {
 			t.Error("unexpected error")
 		} else if len(ret) != 2 {
@@ -129,7 +129,7 @@ func TestGetDeviceInfoWithService(t *testing.T) {
 		t.Run("confQueryGetList", func(t *testing.T) {
 			mockConf.EXPECT().GetList().Return(nil, errors.New(""))
 
-			ret, err := GetInstance().GetDeviceInfoWithService("", nil)
+			ret, err := GetInstance().GetDeviceInfoWithService("", nil, false)
 			if err == nil {
 				t.Error("unexpected success")
 			} else if ret != nil {
@@ -145,7 +145,7 @@ func TestGetDeviceInfoWithService(t *testing.T) {
 				},
 			}, nil)
 
-			ret, err := GetInstance().GetDeviceInfoWithService("", []string{"container"})
+			ret, err := GetInstance().GetDeviceInfoWithService("", []string{"container"}, false)
 			if err == nil {
 				t.Error("unexpected success")
 			} else if ret != nil {
@@ -164,7 +164,7 @@ func TestGetDeviceInfoWithService(t *testing.T) {
 				mockNet.EXPECT().Get(gomock.Eq("test")).Return(network.Info{}, errors.New("")),
 			)
 
-			ret, err := GetInstance().GetDeviceInfoWithService("", []string{"container"})
+			ret, err := GetInstance().GetDeviceInfoWithService("", []string{"container"}, false)
 			if err == nil {
 				t.Error("unexpected success")
 			} else if ret != nil {
@@ -183,7 +183,7 @@ func TestGetDeviceInfoWithService(t *testing.T) {
 				mockService.EXPECT().Get(gomock.Eq("test")).Return(service.Info{}, errors.New("")),
 			)
 
-			ret, err := GetInstance().GetDeviceInfoWithService("", []string{"native"})
+			ret, err := GetInstance().GetDeviceInfoWithService("", []string{"native"}, false)
 			if err == nil {
 				t.Error("unexpected success")
 			} else if ret != nil {
@@ -208,7 +208,7 @@ func TestGetDeviceInfoWithService(t *testing.T) {
 				}, nil),
 			)
 
-			ret, err := GetInstance().GetDeviceInfoWithService("", []string{"native"})
+			ret, err := GetInstance().GetDeviceInfoWithService("", []string{"native"}, false)
 			if err == nil {
 				t.Error("unexpected success")
 			} else if ret != nil {
@@ -234,7 +234,7 @@ func TestGetDeviceInfoWithService(t *testing.T) {
 				mockNet.EXPECT().Get(gomock.Eq("test")).Return(network.Info{}, errors.New("")),
 			)
 
-			ret, err := GetInstance().GetDeviceInfoWithService("testService1", []string{"native"})
+			ret, err := GetInstance().GetDeviceInfoWithService("testService1", []string{"native"}, false)
 			if err == nil {
 				t.Error("unexpected success")
 			} else if ret != nil {

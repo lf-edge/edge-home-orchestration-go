@@ -83,7 +83,7 @@ func TestRequestService(t *testing.T) {
 		gomock.InOrder(
 			mockService.EXPECT().SetLocalServiceExecutor(mockExecutor),
 			mockDiscovery.EXPECT().SetRestResource(),
-			mockDBHelper.EXPECT().GetDeviceInfoWithService(gomock.Eq(appName), gomock.Any()).Return(candidateInfos, nil),
+			mockDBHelper.EXPECT().GetDeviceInfoWithService(gomock.Eq(appName), gomock.Any(), gomock.Any()).Return(candidateInfos, nil),
 			mockSystemDBExecutor.EXPECT().Get("id").Return(sysInfo, nil),
 			mockNetwork.EXPECT().GetIPs().Return([]string{""}, nil),
 			mockClient.EXPECT().DoGetScoreRemoteDevice(gomock.Any(), gomock.Any()).Return(scores[0], nil),
@@ -127,7 +127,7 @@ func TestRequestService(t *testing.T) {
 			gomock.InOrder(
 				mockService.EXPECT().SetLocalServiceExecutor(mockExecutor),
 				mockDiscovery.EXPECT().SetRestResource(),
-				mockDBHelper.EXPECT().GetDeviceInfoWithService(gomock.Eq(appName), gomock.Any()).Return(nil, errors.New("-3")),
+				mockDBHelper.EXPECT().GetDeviceInfoWithService(gomock.Eq(appName), gomock.Any(), gomock.Any()).Return(nil, errors.New("-3")),
 			)
 			o := getOcheIns(ctrl)
 			if o == nil {

@@ -29,7 +29,7 @@ func init() {
 // MultipleBucketQuery provides interfaces for the helper
 type MultipleBucketQuery interface {
 	GetDeviceID() (string, error)
-	GetDeviceInfoWithService(serviceName string, executionTypes []string) ([]ExecutionCandidate, error)
+	GetDeviceInfoWithService(serviceName string, executionTypes []string, installed bool) ([]ExecutionCandidate, error)
 }
 
 // ExecutionCandidate structure
@@ -57,7 +57,7 @@ func (multipleBucketQuery) GetDeviceID() (string, error) {
 	return id.Value, err
 }
 
-func (multipleBucketQuery) GetDeviceInfoWithService(serviceName string, executionTypes []string) ([]ExecutionCandidate, error) {
+func (multipleBucketQuery) GetDeviceInfoWithService(serviceName string, executionTypes []string, installed bool) ([]ExecutionCandidate, error) {
 	ret := make([]ExecutionCandidate, 0)
 
 	confItems, err := confQuery.GetList()
@@ -71,7 +71,7 @@ func (multipleBucketQuery) GetDeviceInfoWithService(serviceName string, executio
 			continue
 		}
 
-		if confItem.ExecType == "container" {
+		if confItem.ExecType == "container" && !installed {
 			endpoints, err := getEndpoints(confItem.ID)
 			if err != nil {
 				continue

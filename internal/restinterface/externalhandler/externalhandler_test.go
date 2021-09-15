@@ -255,30 +255,6 @@ func TestAPIV1RequestServicePost(t *testing.T) {
 
 				handler.APIV1RequestServicePost(w, r)
 			})
-			t.Run("ExecCmd", func(t *testing.T) {
-				handler.SetCipher(mockCipher)
-				handler.SetOrchestrationAPI(mockOrchestration)
-				handler.setHelper(mockHelper)
-				handler.netHelper = mockNetHelper
-
-				_, appCommand := getReqeustArgs()
-				tmp := appCommand["ServiceInfo"].([]interface{})
-				serviceInfo := tmp[0].(map[string]interface{})
-				delete(serviceInfo, "ExecCmd")
-
-				gomock.InOrder(
-					mockNetHelper.EXPECT().GetIPs().Return([]string{addr}, nil),
-					mockCipher.EXPECT().DecryptByteToJSON(gomock.Any()).Return(appCommand, nil),
-					mockCipher.EXPECT().EncryptJSONToByte(gomock.Any()).Do(func(resp map[string]interface{}) {
-						if resp["Message"] != orchestrationapi.InvalidParameter {
-							t.Error("unexpected response")
-						}
-					}).Return(nil, nil),
-					mockHelper.EXPECT().Response(gomock.Any(), gomock.Any(), gomock.Eq(http.StatusOK)),
-				)
-
-				handler.APIV1RequestServicePost(w, r)
-			})
 		})
 	})
 
