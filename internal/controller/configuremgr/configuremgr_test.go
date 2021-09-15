@@ -78,7 +78,7 @@ func TestBasicMockConfigureMgr(t *testing.T) {
 
 	var contextNoti Notifier
 	contextNoti = new(dummyNoti)
-	src := "testdata/mysum"
+	src := "testdata/score"
 
 	t.Run("Success", func(t *testing.T) {
 		testConfigObj := GetInstance(defaultConfPath, fakeExecType)
@@ -86,7 +86,7 @@ func TestBasicMockConfigureMgr(t *testing.T) {
 		go testConfigObj.Watch(contextNoti)
 		time.Sleep(time.Duration(1) * time.Second)
 
-		dir := defaultConfPath + "/mysum"
+		dir := defaultConfPath + "/score"
 		os.RemoveAll(dir)
 		err := os.Mkdir(dir, 0775)
 		if err != nil {

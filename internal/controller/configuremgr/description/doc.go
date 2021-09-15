@@ -28,10 +28,11 @@ type Doc struct {
 		ExecutableFileName string
 		AllowedRequester   []string
 	}
-	ScoringMethod struct {
-		LibFile      string
-		FunctionName string
-	}
+	// Using this structure is an interesting idea that could be used in the future. See PRs: #20, #383 for quick recovery.
+	// ScoringMethod struct {
+	// 	LibFile      string
+	// 	FunctionName string
+	// }
 	ResourceType struct {
 		IntervalTimeMs int
 		MaxCount       int
