@@ -7,7 +7,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        arch: [x86c, x86_64c, armc, arm64c, x86_64n]
+        arch: [x86c, x86_64c, armc, arm64c, x86_64n, x86_64a]
         os: [ubuntu-18.04, ubuntu-20.04]
     runs-on: ${{ matrix.os }}
     steps:
@@ -19,11 +19,37 @@ jobs:
           go-version: '1.16.6'
 
       - name: Install Qemu
-        if:  ${{ matrix.arch != 'x86_64c' }}
+        if:  ${{ matrix.arch != 'x86_64c' && matrix.arch != 'x86_64a' && matrix.arch != 'x86_64n'}}
         run: |
           sudo apt-get update
           sudo apt-get install -y qemu binfmt-support qemu-user-static
-  
+
+      - name: Install Android SDK & NDK  
+        if:  ${{ matrix.arch == 'x86_64a' }}
+        run: |
+          mkdir android_sdk; cd android_sdk
+          wget https://dl.google.com/android/repository/commandlinetools-linux-7583922_latest.zip
+          unzip commandlinetools-linux-7583922_latest.zip
+          cd cmdline-tools; mkdir tools; mv bin/ tools/bin; mv lib/ tools/lib; cd tools/bin
+          echo y | ./sdkmanager "platform-tools" "platforms;android-28"
+          ./sdkmanager --install "ndk;21.3.6528147"
+          cd ../../../
+          echo "$HOME/go/bin" >> $GITHUB_PATH
+          go mod download github.com/Azure/go-ansiterm
+          go get golang.org/x/mobile/cmd/gomobile
+          export ANDROID_SDK=`pwd`
+          export ANDROID_HOME=`pwd`
+          echo "$ANDROID_SDK/cmdline-tools/tools:$ANDROID_SDK/platform-tools" >> $GITHUB_PATH
+          cd ndk/21.3.6528147
+          export ANDROID_NDK_HOME=`pwd`
+          export PATH=$PATH:$ANDROID_NDK_HOME
+          echo "$ANDROID_NDK_HOME" >> $GITHUB_PATH
+      
+      - name: Init "gomobile"
+        if:  ${{ matrix.arch == 'x86_64a' }}
+        run: |
+          gomobile init
+
       - name: Build
         run: |
           make distclean
