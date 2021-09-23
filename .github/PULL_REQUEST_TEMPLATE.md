@@ -14,6 +14,7 @@ Please delete options that are not relevant.
 - [ ] Code cleanup/refactoring
 - [ ] Documentation update
 - [ ] This change requires a documentation update
+- [ ] CI system update
 
 # How Has This Been Tested?
 Please describe the tests that you ran to verify your changes. Provide instructions so we can reproduce. Please also list any relevant details for your test configuration. Below is just an example and you can delete it when you contribute.
@@ -21,18 +22,17 @@ Please describe the tests that you ran to verify your changes. Provide instructi
 ```
 Example
 1. Describe the reproduction procedures freely.
-2. Or list up the test description like :
-  - [ ] Unittest
+2. Or list up the test description like:
   - [ ] Execution of Container
   - [ ] Execution on top of Native
   - [ ] Execution on top of Android
 ```
 
 **Test Configuration**:
-* Firmware version: (OS type and version, e.g., Ubuntu 14.04, etc.)
-* Hardware: (e.g., x86-64, ARM, CPU type, RAM size, etc.)
-* Toolchain: (e.g., Docker and Go versions)
-* Edge Orchestration Release: (e.g., Alpha, Baobab, Coconut)
+* OS type & version: (e.g., Ubuntu 18.04)
+* Hardware: (e.g., x86, x86-64, arm, arm64)
+* Toolchain: (e.g., Docker v17.6 and Go v1.16)
+* Edge Orchestration Release: (e.g., v1.0.0)
 
 # Checklist:
 
