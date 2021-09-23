@@ -153,7 +153,9 @@ endef
 build-object-java:
 	$(Q) mkdir -p $(ANDROID_LIBRARY_OUT_DIR)
 	$(Q) rm -rf $(BUILD_VENDOR_DIR)
+	$(Q) go get golang.org/x/mobile@v0.0.0-20201217150744-e6ae53a27f4f
 	$(GOMOBILE) bind $(GO_MOBILE_LDFLAGS) -o $(ANDROID_LIBRARY_OUT_DIR)/$(ANDROID_LIBRARY_FILE) -target=$(ANDROID_TARGET) -androidapi=23 $(ANDROID_SRC_DIR) || exit 1
+	$(Q) go mod tidy
 	$(Q) ls -al $(ANDROID_LIBRARY_OUT_DIR)
 
 ## edge-orchestration container build
