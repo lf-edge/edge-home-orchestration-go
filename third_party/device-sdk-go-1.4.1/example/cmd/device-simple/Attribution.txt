@@ -1,0 +1,130 @@
+The following open source projects are referenced by Device Service SDK Go:
+
+BurntSushi/toml (MIT) https://github.com/BurntSushi/toml
+https://github.com/BurntSushi/toml/blob/master/COPYING
+
+gorilla/mux 1.6.2 (BSD-3) https://github.com/gorilla/mux
+https://github.com/gorilla/mux/blob/master/LICENSE
+
+hashicorp/consul 1.1.0 (Mozilla Public License 2.0) https://github.com/hashicorp/consul
+https://github.com/hashicorp/consul/blob/master/LICENSE
+
+hashicorp/go-cleanhttp (Mozilla Public License 2.0) https://github.com/hashicorp/go-cleanhttp
+https://github.com/hashicorp/go-cleanhttp/blob/master/LICENSE
+
+hashicorp/go-rootcerts (Mozilla Public License 2.0) https://github.com/hashicorp/go-rootcerts
+https://github.com/hashicorp/go-rootcerts/blob/master/LICENSE
+
+mitchellh/go-homedir (MIT) https://github.com/mitchellh/go-homedir
+https://github.com/mitchellh/go-homedir/blob/master/LICENSE
+
+mitchellh/mapstructure (MIT) https://github.com/mitchellh/mapstructure
+https://github.com/mitchellh/mapstructure/blob/master/LICENSE
+
+hashicorp/serf (Mozilla Public License 2.0) https://github.com/hashicorp/serf
+https://github.com/hashicorp/serf/blob/master/LICENSE
+
+armon/go-metrics (MIT) https://github.com/armon/go-metrics
+https://github.com/armon/go-metrics/blob/master/LICENSE
+
+hashicorp/go-immutable-radix (Mozilla Public License 2.0) https://github.com/hashicorp/go-immutable-radix
+https://github.com/hashicorp/go-immutable-radix/blob/master/LICENSE
+
+hashicorp/golang-lru (Mozilla Public License 2.0) https://github.com/hashicorp/golang-lru
+https://github.com/hashicorp/golang-lru/blob/master/LICENSE
+
+robfig/cron (MIT) https://github.com/robfig/cron
+https://github.com/robfig/cron/blob/master/LICENSE
+
+globalsign/mgo (unspecified) https://github.com/globalsign/mgo
+https://github.com/globalsign/mgo/blob/master/LICENSE
+
+gopkg.in/yaml v2 (Apache 2.0) https://github.com/go-yaml/yaml/tree/v2
+https://github.com/go-yaml/yaml/blob/v2/LICENSE
+
+google/uuid (BSD-3) https://github.com/google/uuid
+https://github.com/google/uuid/blob/master/LICENSE
+
+edgexfoundry/edgex-go (Apache 2.0) https://github.com/edgexfoundry/edgex-go
+https://github.com/edgexfoundry/edgex-go/blob/master/LICENSE
+
+jessevdk/go-flags (BSD-3) https://github.com/jessevdk/go-flags
+https://github.com/jessevdk/go-flags/blob/master/LICENSE
+
+OneOfOne/xxhash (Apache 2.0) https://github.com/OneOfOne/xxhash
+https://github.com/OneOfOne/xxhash/blob/master/LICENSE
+
+cenkalti/backoff (MIT) https://github.com/cenkalti/backoff
+https://github.com/cenkalti/backoff/blob/v3/LICENSE
+
+davecgh/go-spew (ISC) https://github.com/davecgh/go-spew
+https://github.com/davecgh/go-spew/blob/master/LICENSE
+
+edgexfoundry/go-mod-core-contracts (Apache 2.0) https://github.com/edgexfoundry/go-mod-core-contracts
+https://github.com/edgexfoundry/go-mod-core-contracts/blob/master/LICENSE
+
+edgexfoundry/go-mod-registry (Apache 2.0) https://github.com/edgexfoundry/go-mod-registry
+https://github.com/edgexfoundry/go-mod-registry/blob/master/LICENSE
+
+go-kit/kit (MIT) https://github.com/go-kit/kit
+https://github.com/go-kit/kit/blob/master/LICENSE
+
+go-logfmt/logfmt (MIT) https://github.com/go-logfmt/logfmt
+https://github.com/go-logfmt/logfmt/blob/master/LICENSE
+
+gorilla/context (BSD-3) https://github.com/gorilla/context
+https://github.com/gorilla/context/blob/master/LICENSE
+
+mitchellh/consulstructure (MIT) https://github.com/mitchellh/consulstructure
+https://github.com/mitchellh/consulstructure/blob/master/LICENSE
+
+mitchellh/copystructure (MIT) https://github.com/mitchellh/copystructure
+https://github.com/mitchellh/copystructure/blob/master/LICENSE
+
+mitchellh/reflectwalk (MIT) https://github.com/mitchellh/reflectwalk
+https://github.com/mitchellh/reflectwalk/blob/master/LICENSE
+
+pelletier/go-toml (MIT) https://github.com/pelletier/go-toml
+https://github.com/pelletier/go-toml/blob/master/LICENSE
+
+pmezard/go-difflib (View) https://github.com/pmezard/go-difflib
+https://github.com/pmezard/go-difflib/blob/master/LICENSE
+
+stretchr/testify (MIT) https://github.com/stretchr/testify
+https://github.com/stretchr/testify/blob/master/LICENSE
+
+kr/logfmt (MIT) https://github.com/kr/logfmt
+https://github.com/kr/logfmt/blob/master/Readme
+
+hashicorp/consul/api (Mozilla Public License 2.0) https://github.com/hashicorp/consul/api
+https://github.com/hashicorp/consul/blob/master/LICENSE
+
+edgexfoundry/go-mod-bootstrap (Apache 2.0) https://github.com/edgexfoundry/go-mod-bootstrap
+https://github.com/edgexfoundry/go-mod-bootstrap/blob/master/LICENSE
+
+edgexfoundry/go-mod-secrets (Apache 2.0) https://github.com/edgexfoundry/go-mod-secrets
+https://github.com/edgexfoundry/go-mod-secrets/blob/master/LICENSE
+
+edgexfoundry/go-mod-configuration (Apache 2.0) https://github.com/edgexfoundry/go-mod-configuration
+https://github.com/edgexfoundry/go-mod-configuration/blob/master/LICENSE
+
+fxamacker/cbor (MIT) https://github.com/fxamacker/cbor/v2
+https://github.com/fxamacker/cbor/blob/master/LICENSE
+
+x448/float16 (MIT) https://github.com/x448/float16
+https://github.com/x448/float16/blob/master/LICENSE
+
+bertimus9/systemstat (MIT) https://bitbucket.org/bertimus9/systemstat/src/master/
+https://bitbucket.org/bertimus9/systemstat/src/master/LICENSE
+
+go-playground/locales (MIT) https://github.com/go-playground/locales
+https://github.com/go-playground/locales/blob/master/LICENSE
+
+go-playground/universal-translator (MIT) https://github.com/go-playground/universal-translator
+https://github.com/go-playground/universal-translator/blob/master/LICENSE
+
+go-playground/validator/v10 (MIT) https://github.com/go-playground/validator/v10
+https://github.com/go-playground/validator/blob/master/LICENSE
+
+leodido/go-urn (MIT) https://github.com/leodido/go-urn
+https://github.com/leodido/go-urn/blob/master/LICENSE

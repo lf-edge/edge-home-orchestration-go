@@ -1,0 +1,74 @@
+[Writable]
+LogLevel = 'INFO'
+
+[Service]
+BootTimeout = 30000
+CheckInterval = '10s'
+Host = 'localhost'
+ServerBindAddr = ''  # blank value defaults to Service.Host value
+Port = 49990
+Protocol = 'http'
+StartupMsg = 'device simple started'
+Timeout = 20000
+Labels = []
+EnableAsyncReadings = true
+AsyncBufferSize = 1
+
+[Registry]
+Host = 'localhost'
+Port = 8500
+Type = 'consul'
+
+[Clients]
+  [Clients.Data]
+  Protocol = 'http'
+  Host = 'localhost'
+  Port = 48080
+
+  [Clients.Metadata]
+  Protocol = 'http'
+  Host = 'localhost'
+  Port = 48081
+
+  [Clients.Logging]
+  Protocol = 'http'
+  Host = 'localhost'
+  Port = 48061
+
+[Device]
+  DataTransform = true
+  InitCmd = ''
+  InitCmdArgs = ''
+  MaxCmdOps = 128
+  MaxCmdValueLen = 256
+  RemoveCmd = ''
+  RemoveCmdArgs = ''
+  ProfilesDir = './res'
+  UpdateLastConnected = false
+  [Device.Discovery]
+    Enabled = false
+    Interval = '30s'
+
+# Remote and file logging disabled so only stdout logging is used
+[Logging]
+EnableRemote = false
+File = ''
+
+# Pre-define Devices
+[[DeviceList]]
+  Name = 'Simple-Device01'
+  Profile = 'Simple-Device'
+  Description = 'Example of Simple Device'
+  Labels = [ 'industrial' ]
+  [DeviceList.Protocols]
+    [DeviceList.Protocols.other]
+      Address = 'simple01'
+      Port = '300'
+  [[DeviceList.AutoEvents]]
+    Frequency = '10s'
+    OnChange = false
+    Resource = 'Switch'
+  [[DeviceList.AutoEvents]]
+    Frequency = '30s'
+    OnChange = false
+    Resource = 'Image'

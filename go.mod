@@ -2,9 +2,6 @@ module github.com/lf-edge/edge-home-orchestration-go
 
 go 1.16
 
-// Temporary measure to avoid crash in Hanoi release of EdgeX, Will be removed post Ireland release.
-replace github.com/edgexfoundry/device-sdk-go v1.4.0 => github.com/hahattan/device-sdk-go v1.4.1
-
 require (
 	github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1 // indirect
 	github.com/Microsoft/go-winio v0.4.16 // indirect
@@ -16,7 +13,7 @@ require (
 	github.com/docker/docker v17.12.0-ce-rc1.0.20201201034508-7d75c1d40d88+incompatible
 	github.com/docker/go-connections v0.4.0
 	github.com/docker/go-units v0.4.0
-	github.com/edgexfoundry/device-sdk-go v1.4.0
+	github.com/edgexfoundry/device-sdk-go v1.4.1
 	github.com/edgexfoundry/go-mod-core-contracts v0.1.115
 	github.com/fsnotify/fsnotify v1.4.9
 	github.com/go-ole/go-ole v1.2.5 // indirect
@@ -54,5 +51,7 @@ require (
 	gotest.tools v2.2.0+incompatible // indirect
 	gotest.tools/v3 v3.0.3
 )
+
+replace github.com/edgexfoundry/device-sdk-go v1.4.1 => ./third_party/device-sdk-go-1.4.1
 
 replace github.com/grandcat/zeroconf v1.0.0 => ./third_party/zeroconf

@@ -1,0 +1,13 @@
+*~
+*.log
+example/cmd/device-simple/device-simple
+glide.lock
+vendor
+.idea
+.vscode
+go.sum
+coverage.out
+*.snap
+prime/
+squashfs-root/
+VERSION
