@@ -179,3 +179,12 @@ func GetServerIP(ConfigPath string) (string, int, error) {
 	}
 	return config.Get("Clients.Data.Host").(string), (int)(config.Get("Clients.Data.Port").(int64)), nil
 }
+
+// GetMetadataServerIP is used to obtain the IP and port number of Metadata
+func GetMetadataServerIP(ConfigPath string) (string, int, error) {
+	config, err := toml.LoadFile(ConfigPath)
+	if err != nil {
+		return "", 0, err
+	}
+	return config.Get("Clients.Metadata.Host").(string), (int)(config.Get("Clients.Metadata.Port").(int64)), nil
+}
