@@ -2,9 +2,6 @@ module github.com/lf-edge/edge-home-orchestration-go
 
 go 1.16
 
-// Temporary measure to avoid crash in Hanoi release of EdgeX, Will be removed post Ireland release.
-replace github.com/edgexfoundry/device-sdk-go v1.4.0 => github.com/hahattan/device-sdk-go v1.4.1
-
 require (
 	github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1 // indirect
 	github.com/Microsoft/go-winio v0.4.16 // indirect

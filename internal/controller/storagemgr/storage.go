@@ -19,19 +19,24 @@ package storagemgr
 
 import (
 	"errors"
-	"github.com/edgexfoundry/device-sdk-go"
-	"github.com/edgexfoundry/device-sdk-go/pkg/startup"
-	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/storagemgr/config"
-	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/storagemgr/storagedriver"
 	"io/ioutil"
 	"os"
 	"strings"
+
+	"github.com/edgexfoundry/device-sdk-go"
+	"github.com/edgexfoundry/device-sdk-go/pkg/startup"
+	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
+	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/storagemgr/config"
+	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/storagemgr/storagedriver"
+	"github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/resthelper"
 )
 
 const (
 	dataStorageService    = "datastorage"
 	dataStorageConfFolder = "res"
 	deviceIDFilePath      = "/var/edge-orchestration/device/orchestration_deviceID.txt"
+	pingAPI               = "/api/v1/ping"
+	logPrefix             = "[storagemgr]"
 )
 
 // Storage is the interface for starting DataStorage.
@@ -53,6 +58,8 @@ type StorageImpl struct {
 var (
 	deviceName string
 	storageIns *StorageImpl
+	helper     resthelper.RestHelper
+	log        = logmgr.GetInstance()
 )
 
 func init() {
@@ -62,6 +69,7 @@ func init() {
 		sd:     storagedriver.StorageDriver{},
 		status: 0,
 	}
+	helper = resthelper.GetHelper()
 }
 
 // GetInstance returns the instance of DataStorage
@@ -72,6 +80,22 @@ func GetInstance() Storage {
 // GetStatus returns the status value in StorageImpl
 func (s *StorageImpl) GetStatus() int {
 	return s.status
+}
+
+// checkMetadataStatus checks for metadata running to start DataStorage
+func checkMetadataStatus() bool {
+	metadataIP, metadataPort, err := config.GetMetadataServerIP(dataStorageConfFolder + "/configuration.toml")
+	if err != nil {
+		log.Warn("Error", err)
+		return false
+	}
+	targetURL := helper.MakeTargetURL(metadataIP, metadataPort, pingAPI)
+	_, statusCode, err := helper.DoGet(targetURL)
+	if err == nil && statusCode == 200 {
+		return true
+	}
+	log.Warn("Metadata is not running!!")
+	return false
 }
 
 // StartStorage starts a server in terms of DataStorage
@@ -87,7 +111,7 @@ func (s *StorageImpl) StartStorage(host string) (err error) {
 	}
 
 	if _, err := os.Stat(dataStorageConfFolder + "/configuration.toml"); err == nil {
-		if s.status < 2 {
+		if s.status < 2 && checkMetadataStatus() {
 			go startup.Bootstrap(dataStorageService, device.Version, &storageIns.sd)
 			s.status = 2
 			return nil
