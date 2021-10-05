@@ -85,6 +85,19 @@ $ export PATH=$PATH:$GOPATH/bin:/usr/local/go/bin
 $ git clone https://github.com/lf-edge/edge-home-orchestration-go.git
 
 ```
-The build is described [here](../x86_64_linux/x86_64_linux.md#how-to-build).
+Run the `make create_context` and specify the configuration file name `armc` and `make` (in the case of building in protected mode, use add `armcs`), see examples below:
+```
+$ make distclean
+$ make create_context CONFIGFILE=armc
+$ make
+```
+or for protected mode:
+```shell
+$ make distclean
+$ make create_context CONFIGFILE=armcs
+$ make
+```
+
+> To change the configuration file, you must execute the command `make distclean`
 
 The build is finished, how to run see [here](../x86_64_linux/x86_64_linux.md#how-to-work).
