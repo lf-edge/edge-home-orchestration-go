@@ -26,6 +26,7 @@ import (
 	"github.com/edgexfoundry/device-sdk-go"
 	"github.com/edgexfoundry/device-sdk-go/pkg/startup"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
+	networkhelper "github.com/lf-edge/edge-home-orchestration-go/internal/common/networkhelper"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/storagemgr/config"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/storagemgr/storagedriver"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/resthelper"
@@ -57,6 +58,7 @@ type StorageImpl struct {
 
 var (
 	deviceName string
+	ipv4       string
 	storageIns *StorageImpl
 	helper     resthelper.RestHelper
 	log        = logmgr.GetInstance()
@@ -100,8 +102,13 @@ func checkMetadataStatus() bool {
 
 // StartStorage starts a server in terms of DataStorage
 func (s *StorageImpl) StartStorage(host string) (err error) {
+	//Getting the Edge-Orchestration IP
+	ipv4, err = networkhelper.GetInstance().GetOutboundIP()
+	if err != nil {
+		return errors.New("could not initiate storageManager,err=" + err.Error())
+	}
 	if checkServiceInEnv() {
-		if err = s.BuildConfiguration("127.0.0.1"); err != nil {
+		if err = s.BuildConfiguration(ipv4); err != nil {
 			return
 		}
 	} else if len(host) > 0 {
@@ -139,7 +146,7 @@ func checkServiceInEnv() bool {
 
 func saveToml(host string) (err error) {
 	config.SetWritable("DEBUG")
-	config.SetService("", 49986, nil)
+	config.SetService(ipv4, 49986, nil)
 	config.SetRegistry(host, 8500)
 	config.SetDevice(true, "", "", 128, 256, "", "", "./res")
 	config.SetDeviceList(deviceName, deviceName, "RESTful Device", []string{"rest", "json"})
