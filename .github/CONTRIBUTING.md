@@ -16,14 +16,14 @@ help.
 
 #### 1. [Fork](http://help.github.com/fork-a-repo/) the Edge Orchestration repository on github and clone your fork to your development environment
 ```sh
-$ git clone https://github.com/YOUR-GITHUB-USERNAME/edge-home-orchestration-go.git
+git clone https://github.com/YOUR-GITHUB-USERNAME/edge-home-orchestration-go.git
 ```
 If you have trouble setting up GIT with GitHub in Linux, or are getting errors like "Permission Denied (publickey)", then you must [setup your GIT installation to work with GitHub](http://help.github.com/linux-set-up-git/)
 
 #### 2. Add the main Edge Orchestration repository as an additional git remote called "upstream"
 Change to the directory where you cloned Edge Orchestration, normally, "Edge Orchestration". Then enter the following command:
 ```sh
-$ git remote add upstream https://github.com/lf-edge/edge-home-orchestration-go
+git remote add upstream https://github.com/lf-edge/edge-home-orchestration-go
 ```
 
 #### 3. Make sure there is an issue created for the thing you are working on.
@@ -34,7 +34,7 @@ All new features and bug fixes should have an associated issue to provide a sing
 
 #### 4. Fetch the latest code from the main Edge Orchestration branch
 ```sh
-$ git fetch upstream
+git fetch upstream
 ```
 You should start at this point for every new contribution to make sure you are working on the latest code.
 
@@ -44,8 +44,8 @@ You should start at this point for every new contribution to make sure you are w
 
 Each separate bug fix or change should go in its own branch. Branch names should be descriptive and start with the number of the issue that your code relates to. If you aren't fixing any particular issue, just skip number. For example:
 ```sh
-$ git checkout upstream/<NAMED_RELEASE>
-$ git checkout -b 999-name-of-your-branch-goes-here
+git checkout upstream/<NAMED_RELEASE>
+git checkout -b 999-name-of-your-branch-goes-here
 ```
 Above, <NAMED_RELEASE> can be 'Alpha', 'Baobab', 'Coconut', etc. - see list of releases.
 
@@ -67,28 +67,28 @@ For very small fixes, e.g. typos and documentation changes, there is no need to 
 
 Before creating the Commit, format the source code using GOFMT. This can be done by following command:
 ```sh
-$ make fmt
+make fmt
 ```
 
 add the files/changes you want to commit to the staging area with
 ```sh
-$ git add path/to/my/file.go
+git add path/to/my/file.go
 ```
 
 Commit your changes with a descriptive commit message. Make sure to mention the ticket number with #XXX so github will automatically link your commit with the ticket:
 ```sh
-$ git commit -m "A brief description of this change which fixes #42 goes here" --signoff
+git commit -m "A brief description of this change which fixes #42 goes here" --signoff
 ```
 
 #### 9. Pull the latest Edge Orchestration code from upstream into your branch
 ```sh
-$ git pull upstream <NAMED_RELEASE>
+git pull upstream <NAMED_RELEASE>
 ```
 This ensures you have the latest code in your branch before you open your pull request. If there are any merge conflicts, you should fix them now and commit the changes again. This ensures that it's easy for the Edge Orchestration team to merge your changes with one click.
 
 #### 10. Having resolved any conflicts, push your code to github
 ```sh
-$ git push -u origin 999-name-of-your-branch-goes-here
+git push -u origin 999-name-of-your-branch-goes-here
 ```
 
 The `-u` parameter ensures that your branch will now automatically push and pull from the github branch. That means if you type `git push` the next time it will know where to push to.
@@ -106,7 +106,7 @@ Someone will review your code, and you might be asked to make some changes, if s
 
 After your code was either accepted or declined you can delete branches you've worked with from your local repository and `origin`.
 ```sh
-$ git checkout <NAMED_RELEASE>
-$ git branch -D 999-name-of-your-branch-goes-here
-$ git push origin --delete 999-name-of-your-branch-goes-here
+git checkout <NAMED_RELEASE>
+git branch -D 999-name-of-your-branch-goes-here
+git push origin --delete 999-name-of-your-branch-goes-here
 ```

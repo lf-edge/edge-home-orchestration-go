@@ -29,23 +29,22 @@ There are two ways to test:
 ### 2.1 Using the makefile
 To start testing all packages:
 ```
-$ make test
+make test
 ```
 To start testing a specific package:
 ```
-$ make test [PKG_NAME]
+make test [PKG_NAME]
 ```
 
 ### 2.2 Using standard Go language facilities
 To start testing all packages:
 ```
-$ gocov test $(go list ./internal/... | grep -v mock) -coverprofile=/dev/null
+gocov test $(go list ./internal/... | grep -v mock) -coverprofile=/dev/null
 ```
 To start testing a specific package:
 ```
-$ go test -v [PKG_NAME]
+go test -v [PKG_NAME]
 ```
-
 
 ---
 
@@ -55,4 +54,3 @@ Code testing occurs remotely using a [github->Actions->workflow (Build)](https:/
 
 > [More information on github->actions](https://docs.github.com/en/actions) 
 ---
- 

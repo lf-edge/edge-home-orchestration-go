@@ -59,7 +59,7 @@ We hope that you already have SSH setup to access all your Raspberry Pi 3s and s
 
 1. Install pssh on your PC
 ```
-$ sudo apt-get install pssh
+sudo apt-get install pssh
 ```
 2. Setting the ip addresses of your Raspberry Pi 3 boards.
 
@@ -77,7 +77,9 @@ Format that we use: `$ parallel-ssh -i -h hosts "<your command>"`
 
 Example:
 ```
-$ parallel-ssh -i -h hosts "date"
+parallel-ssh -i -h hosts "date"
+```
+```
 [1] 16:47:47 [SUCCESS] pi@192.168.0.111:22
 Fri 12 Feb 2021 04:47:48 PM EET
 [2] 16:47:47 [SUCCESS] pi@192.168.0.110:22
@@ -94,7 +96,7 @@ Fri 12 Feb 2021 04:47:48 PM EET
 #### [Fabric](http://www.fabfile.org/index.html) (w/o using RSA-keys)
 1. Install fabric on your PC
 ```
-$ sudo apt-get install fabric
+sudo apt-get install fabric
 ```
 
 2. Setting the ip addresses of your Raspberry Pi 3 boards.
@@ -124,7 +126,9 @@ Format that we use: `$ fab cmd:"<your command>"`
 
 Example:
 ```
-$ fab cmd:"date"
+fab cmd:"date"
+```
+```
 [pi@192.168.0.104] Executing task 'cmd'
 [pi@192.168.0.110] Executing task 'cmd'
 [pi@192.168.0.111] Executing task 'cmd'
@@ -190,12 +194,12 @@ done
 
 Next, need to copy `edge-orchestration.tar` archive to the Paspberry Pi 3 boards
 ```
-$ scp edge-orchestration.tar pi@192.168.0.104:.
+scp edge-orchestration.tar pi@192.168.0.104:.
 ```
 
 Install the docker container (see [here](../raspberry_pi3/raspberry_pi3.md#Build-Prerequisites) only docker part) and load the image using the command:
 ```shell
-$ parallel-ssh -i -h hosts "docker load -i edge-orchestration.tar"
+parallel-ssh -i -h hosts "docker load -i edge-orchestration.tar"
 ```
 
 How to run see [here](../x86_64_linux/x86_64_linux.md#how-to-work).

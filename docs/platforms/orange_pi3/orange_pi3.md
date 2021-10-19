@@ -31,20 +31,16 @@ There are two options for building a edge-orchestration container:
 
 Prerequisites: install the qemu packages
 ```shell
-$ sudo apt-get install qemu binfmt-support qemu-user-static
+sudo apt-get install qemu binfmt-support qemu-user-static
 ```
 
 Run the `make create_context` and specify the configuration file name `arm64c` and `make` (in the case of building in protected mode, use add `arm64cs`), see examples below:
 ```
-$ make distclean
-$ make create_context CONFIGFILE=arm64c
-$ make
+make distclean ; make create_context CONFIGFILE=arm64c ; make
 ```
 or for protected mode:
 ```shell
-$ make distclean
-$ make create_context CONFIGFILE=arm64cs
-$ make
+make distclean ; make create_context CONFIGFILE=arm64cs ; make
 ```
 
 > To change the configuration file, you must execute the command `make distclean`
@@ -53,7 +49,7 @@ The build result will be `edge-orchestration.tar` archive that can be found `bin
 
 Next, need to copy `edge-orchestration.tar` archive to the Paspberry Pi 3 board, install the docker container (see [here](../x86_64_linux/x86_64_linux.md#Build-Prerequisites) only docker part) and load the image using the command:
 ```shell
-$ docker load -i edge-orchestration.tar
+docker load -i edge-orchestration.tar
 ```
 The build is finished, how to run see [here](../x86_64_linux/x86_64_linux.md#how-to-work). If you find the issue with Curl Example then please reboot board and run Edge Orchestration container again.
 
@@ -62,11 +58,11 @@ The build is finished, how to run see [here](../x86_64_linux/x86_64_linux.md#how
 - docker
 
 ```sh
-$ sudo update-alternatives --set iptables /usr/sbin/iptables-legacy
-$ sudo update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy
-$ curl -sSL https://get.docker.com | sh
-$ sudo usermod -aG docker $USER
-$ newgrp docker
+sudo update-alternatives --set iptables /usr/sbin/iptables-legacy
+sudo update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy
+curl -sSL https://get.docker.com | sh
+sudo usermod -aG docker $USER
+newgrp docker
 ```
 
 > For [execution of docker commands with non-root privileges](https://docs.docker.com/install/linux/linux-postinstall/#manage-docker-as-a-non-root-user) you need to add `$USER` to docker group.  
@@ -75,18 +71,18 @@ $ newgrp docker
 - go compiler (install a version not lower than 1.16.2, recommended v1.16.6))
 
 ```sh
-$ wget https://dl.google.com/go/go1.16.6.linux-arm64.tar.gz
-$ tar -C $HOME -xvf go1.16.6.linux-arm64.tar.gz
-$ export GOPATH=$HOME/go
-$ export PATH=$PATH:$GOPATH/bin
+wget https://dl.google.com/go/go1.16.6.linux-arm64.tar.gz
+tar -C $HOME -xvf go1.16.6.linux-arm64.tar.gz
+export GOPATH=$HOME/go
+export PATH=$PATH:$GOPATH/bin
 ```
 
 - edge-orchestration source code
 
 ```sh
-$ git clone https://github.com/lf-edge/edge-home-orchestration-go.git
-
+git clone https://github.com/lf-edge/edge-home-orchestration-go.git
 ```
+
 The build is described [here](../x86_64_linux/x86_64_linux.md#how-to-build).
 
 The build is finished, how to run see [here](../x86_64_linux/x86_64_linux.md#how-to-work).
