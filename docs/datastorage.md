@@ -35,22 +35,24 @@ The following architecture assumes that data stored at data controller would be 
 
 - Placement the [`test/container/datastorage/`](../test/container/datastorage/) folder into `/var/edge-orchestration/apps/` in your **Home Edge** with Data Storage (**Device A**).
 ```sh
-$ sudo cp -rf test/container/datastorage/ /var/edge-orchestration/apps/
+sudo cp -rf test/container/datastorage/ /var/edge-orchestration/apps/
 ```
 
 ### 4.2 Run EdgeX Foundry containers
 - Run the Hanoi version of EdgeX Docker containers on your Linux machine (**Device A**) with respect to the guidance from [EdgeX Foundry Services](https://github.com/edgexfoundry/edgex-go#get-started), or the _simplest way_ that you can follow using follows;
 
 ```sh
-$ cd deployments/datastorage
-$ docker-compose up -d
+cd deployments/datastorage
+docker-compose up -d
 ```
 
 ### 4.3 Run Edge Orchestration
 - Run `edge-home-orchestration-go` with DataStorage on **Device A**, referring to "How to work" in [link](./platforms/x86_64_linux/x86_64_linux.md#how-to-work).
 - You can see the **Device A** has the `DataStorage` service as follows:
 ```
-$ docker logs -f edge-orchestration
+docker logs -f edge-orchestration
+```
+```
 INFO[2021-08-10T04:28:20Z]discovery.go:572 func1 [deviceDetectionRoutine] edge-orchestration-c1b23cc6-0767-400a-9cf0-36e1b3902da2
 INFO[2021-08-10T04:28:20Z]discovery.go:573 func1 [deviceDetectionRoutine] confInfo    : ExecType(container), Platform(docker)
 INFO[2021-08-10T04:28:20Z]discovery.go:574 func1 [deviceDetectionRoutine] netInfo     : IPv4([10.113.70.227]), RTT(0)

@@ -138,7 +138,7 @@ Example: _how to add hash by command line_
 ### 2.4 Usage Edge-Orchestration with Verifier
 To run **Edge Orchestration** container you need to add a digest (sha256) to the last parameter. For example:  `"hello-world@sha256:fc6a51919cfeb2e6763f62b6d9e8815acbf7cd2e476ea353743570610737b752"`
 ```
-$ curl -X POST "IP:56001/api/v1/orchestration/services" -H "accept: application/json" -H "Content-Type: application/json" -H "Authorization: $EDGE_ORCHESTRATION_TOKEN" -d "{ \"ServiceName\": \"hello-world\", \"ServiceInfo\": [{ \"ExecutionType\": \"container\", \"ExecCmd\": [ \"docker\", \"run\", \"-v\", \"/var/run:/var/run:rw\", \"hello-world@sha256:fc6a51919cfeb2e6763f62b6d9e8815acbf7cd2e476ea353743570610737b752\"]}], \"StatusCallbackURI\": \"http://localhost:8888/api/v1/services/notification\"}"
+curl -X POST "IP:56001/api/v1/orchestration/services" -H "accept: application/json" -H "Content-Type: application/json" -H "Authorization: $EDGE_ORCHESTRATION_TOKEN" -d "{ \"ServiceName\": \"hello-world\", \"ServiceInfo\": [{ \"ExecutionType\": \"container\", \"ExecCmd\": [ \"docker\", \"run\", \"-v\", \"/var/run:/var/run:rw\", \"hello-world@sha256:fc6a51919cfeb2e6763f62b6d9e8815acbf7cd2e476ea353743570610737b752\"]}], \"StatusCallbackURI\": \"http://localhost:8888/api/v1/services/notification\"}"
 ```  
 If the `"fc6a51919cfeb2e6763f62b6d9e8815acbf7cd2e476ea353743570610737b752"` hash is written to the `/var/edge-orchestration/data/cwl/containerwhitelist.txt` file, the container will be launched successfully.
 
@@ -185,24 +185,24 @@ node "Home Edge Node #1" {
 To create a JWT, you can use the script [tools/jwt_gen.sh](../tools/jwt_gen.sh) by running it as shown below:
 For `HMAC`
 ```shell
-$ . tools/jwt_gen.sh HS256 Admin
+. tools/jwt_gen.sh HS256 Admin
 ```
 or for `RSA256`
 ```shell
-$ . tools/jwt_gen.sh RS256 Admin
+. tools/jwt_gen.sh RS256 Admin
 ```
 
 The generated token is exported to the shell environment variable: `EDGE_ORCHESTRATION_TOKEN`.
 Enter the following command to display the token:
 ```shell
-$ echo $EDGE_ORCHESTRATION_TOKEN
+echo $EDGE_ORCHESTRATION_TOKEN
 ```
 
 > If you want to use the `RSA256` algorithm, you need to generate keys using the commands:
 ```
-$ cd /var/edge-orchestration/data/jwt
-$ openssl genrsa -out app_rsa.key keysize
-$ openssl rsa -in app_rsa.key -pubout > app_rsa.pub
+cd /var/edge-orchestration/data/jwt
+openssl genrsa -out app_rsa.key keysize
+openssl rsa -in app_rsa.key -pubout > app_rsa.pub
 ```
 
 ---
@@ -210,7 +210,7 @@ $ openssl rsa -in app_rsa.key -pubout > app_rsa.pub
 To use a JWT, you must include it in the header of the request: `Authorization: {token}`.
 Example below:
 ```shell
-$ curl -X POST "127.0.0.1:56001/api/v1/orchestration/securemgr" -H "accept: applicationnt-Type: application/json" -H "Authorization: $EDGE_ORCHESTRATION_TOKEN" -d "{ \"SecureMgr\": \"Verifier\", \"CmdType\": \"printAllHashCWL\", \"StatusCallbackURI\": \"http://localhost:8888/api/v1/services/notification\"}"
+curl -X POST "127.0.0.1:56001/api/v1/orchestration/securemgr" -H "accept: applicationnt-Type: application/json" -H "Authorization: $EDGE_ORCHESTRATION_TOKEN" -d "{ \"SecureMgr\": \"Verifier\", \"CmdType\": \"printAllHashCWL\", \"StatusCallbackURI\": \"http://localhost:8888/api/v1/services/notification\"}"
 ```
 ---
 
@@ -259,17 +259,17 @@ p, member, /api/v1/orchestration/services, *
 To create a JWT, you can use the script [tools/jwt_gen.sh](../tools/jwt_gen.sh) by running it as shown below:
 common rules
 ```shell
-$ . tools/jwt_gen.sh [Algo] [User]
+. tools/jwt_gen.sh [Algo] [User]
 ```
 where: Algo {}; User {Admin, Member}.
 Examples:
 For `HMAC` and `Admin`
 ```shell
-$ . tools/jwt_gen.sh HS256 Admin
+. tools/jwt_gen.sh HS256 Admin
 ```
 or for `RSA256` and `Member`
 ```shell
-$ . tools/jwt_gen.sh RS256 Member
+. tools/jwt_gen.sh RS256 Member
 ```
 > It should be noted that the user's `name` and `role` are currently hardcoded in [authorizer.go](../internal/controller/securemgr/authorizer/authorizer.go),
  but this will change when the ability to register users in the system is added.  
@@ -314,7 +314,7 @@ There are two scripts:
 #### CA Root Certificate
 Generating a CA Root Certificate only needs to be done once for _Home Edge Network_ by running command:
 ```shell
-$ tools/gen_ca_cert.sh
+tools/gen_ca_cert.sh
 ```
 As a result, we get the private key `cert/ca.key` and self-signed root certificate `cert/ca.crt`. The certificate must be saved on all nodes in the `/var/edge-orchestration/data/cert/` folder.
 
@@ -323,7 +323,7 @@ Generate HEN Certificate private key : hen.key
 
 For each node, need to create a private key `hen.key` and a certificate `hen.crt`. To do this, need to start the script and specify the node IP address. 
 ```shell
-$ tools/gen_hen_cert.sh 192.168.0.100
+tools/gen_hen_cert.sh 192.168.0.100
 ```
 As a result, the key and certificate will be created in the `cert/<IP>/`. They must be copied into the `/var/edge-orchestration/data/cert/` folder on a node with the specified IP address
 

@@ -7,15 +7,11 @@ To build an с-object (liborchestration.a), you must run commands depending on c
 
 Run the `make create_context` and specify the configuration file name `x86_64n` and `make` (in the case of building in protected mode, use add `x86_64ns`), see examples below:
 ```
-$ make distclean
-$ make create_context CONFIGFILE=x86_64n
-$ make
+make distclean ; make create_context CONFIGFILE=x86_64n ; make
 ```
 or for protected mode:
 ```shell
-$ make distclean
-$ make create_context CONFIGFILE=x86_64ns
-$ make
+make distclean ; make create_context CONFIGFILE=x86_64ns ; make
 ```
 ```
 ...
@@ -53,15 +49,17 @@ test
 
 1. Copy the folder with the service configuration file from `services` to `/var/edge-orchestration/apps` or use `copy_srvs.sh` to copy all service folders to `/var/edge-orchestration/apps`.
  ```
- $ cd test/native
- $ sudo ./copy_srvs.sh
+cd test/native
+sudo ./copy_srvs.sh
 ```
 > The structure of the [configuration file](../../../internal/controller/configuremgr/native/description/doc.go) and example can be found [ls_srv.conf](../../../test/native/ls_srv/ls_srv.conf).
 
 2. To build the native edge-orchestration, run the following commands:
 ```
-$ cd examples/native
-$ make
+cd examples/native
+make
+```
+```
 CC: main.c
 gcc -c -I../../bin/capi/output/inc/linux_x86-64 main.c -o main.o
 gcc   main.o -L../../bin/capi/output/lib/linux_x86-64 -pthread -lorchestration -o edge-orchestration
@@ -69,7 +67,9 @@ gcc   main.o -L../../bin/capi/output/lib/linux_x86-64 -pthread -lorchestration -
 ```
 3. Run native edge-orchestration
 ```
-$ sudo ./edge-orchestration 
+sudo ./edge-orchestration 
+```
+```
 2020/07/20 09:24:10 main.go:158: [interface] OrchestrationInit
 2020/07/20 09:24:10 main.go:159: >>> commitID  :  094ca91
 2020/07/20 09:24:10 main.go:160: >>> version   :  
@@ -161,7 +161,7 @@ REST API
     ```
 - Curl Example:
 ```json
-$ curl -X POST "IP:56001/api/v1/orchestration/services" -H "accept: application/json" -H "Content-Type: application/json" -d "{ \"ServiceRequester\": \"curl\", \"ServiceName\": \"ls\", \"ServiceInfo\": [{ \"ExecutionType\": \"native\", \"ExecCmd\": [ \"ls\"]}], \"StatusCallbackURI\": \"http://localhost:8888/api/v1/services/notification\"}"
+curl -X POST "IP:56001/api/v1/orchestration/services" -H "accept: application/json" -H "Content-Type: application/json" -d "{ \"ServiceRequester\": \"curl\", \"ServiceName\": \"ls\", \"ServiceInfo\": [{ \"ExecutionType\": \"native\", \"ExecCmd\": [ \"ls\"]}], \"StatusCallbackURI\": \"http://localhost:8888/api/v1/services/notification\"}"
 ```
 Response:
 ```
@@ -201,11 +201,11 @@ You need to add a JSON Web Token into request header `Authorization: {token}`. M
 
 > To add the `EDGE_ORCHESTRATION_TOKEN` variable to the environment execute the next command:
 ```
-$ . tools/jwt_gen.sh HS256 Admin
+. tools/jwt_gen.sh HS256 Admin
 ```
 
 ```
-$ curl -X POST "127.0.0.1:56001/api/v1/orchestration/services" -H "accept: application/json" -H "Content-Type: application/json" -H "Authorization: $EDGE_ORCHESTRATION_TOKEN" -d "{ \"ServiceRequester\": \"curl\", \"ServiceName\": \"ls\", \"ServiceInfo\": [{ \"ExecutionType\": \"native\", \"ExecCmd\": [ \"ls\"]}], \"StatusCallbackURI\": \"http://localhost:8888/api/v1/services/notification\"}"
+curl -X POST "127.0.0.1:56001/api/v1/orchestration/services" -H "accept: application/json" -H "Content-Type: application/json" -H "Authorization: $EDGE_ORCHESTRATION_TOKEN" -d "{ \"ServiceRequester\": \"curl\", \"ServiceName\": \"ls\", \"ServiceInfo\": [{ \"ExecutionType\": \"native\", \"ExecCmd\": [ \"ls\"]}], \"StatusCallbackURI\": \"http://localhost:8888/api/v1/services/notification\"}"
 ```
 Response:
 ```
