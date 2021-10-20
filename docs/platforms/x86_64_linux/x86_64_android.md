@@ -6,21 +6,21 @@
 2. Wrapping `tools` directory inside `cmdline-tools`
 3. Go to `cmdline-tools/tools/bin` folder and execute following commands: 
 ```
-$ ./sdkmanager "platform-tools" "platforms;android-28"
-$ export ANDROID_SDK=<path to Android SDK directory>
-$ export ANDROID_HOME=<path to Android SDK directory>
-$ export PATH=$PATH:$ANDROID_SDK/cmdline-tools/tools:$ANDROID_SDK/platform-tools
+./sdkmanager "platform-tools" "platforms;android-28"
+export ANDROID_SDK=<path to Android SDK directory>
+export ANDROID_HOME=<path to Android SDK directory>
+export PATH=$PATH:$ANDROID_SDK/cmdline-tools/tools:$ANDROID_SDK/platform-tools
 ```
 - Android NDK
 1. Go to `cmdline-tools/tools/bin` folder and execute following commands:
 ```
-$ ./sdkmanager --list
+./sdkmanager --list
 ```
-Select NDK version from the list (recommended `ndk;21.3.6528147`)
+2. Select NDK version from the list (recommended `ndk;21.3.6528147`) and install it:
 ```
-$ ./sdkmanager --install "ndk;21.3.6528147"
-$ export ANDROID_NDK_HOME=<path to Android NDK directory> 
-$ export PATH=$PATH:$ANDROID_NDK_HOME
+./sdkmanager --install "ndk;21.3.6528147"
+export ANDROID_NDK_HOME=<path to Android NDK directory> 
+export PATH=$PATH:$ANDROID_NDK_HOME
 ```
 > `ndk;22.x` is temporarily not supported.
 
@@ -30,15 +30,11 @@ To build an java-object (`liborchestration.aar/liborchestration-sources.jar`), y
 
 Run the `make create_context` and specify the configuration file name `x86_64a` and `make` (in the case of building in protected mode, use add `x86_64as`), see examples below:
 ```
-$ make distclean
-$ make create_context CONFIGFILE=x86_64a
-$ make
+make distclean ; make create_context CONFIGFILE=x86_64a ; make
 ```
 or for protected mode:
 ```shell
-$ make distclean
-$ make create_context CONFIGFILE=x86_64as
-$ make
+make distclean ; make create_context CONFIGFILE=x86_64as ; make
 ```
 ```
 -----------------------------------

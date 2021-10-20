@@ -25,10 +25,10 @@ This document describes the sequence of actions when the vulnerability is founde
 
 We are releasing patches to eliminate vulnerabilities, you can see below:
 
-| Version     | Supported by |
-| ----------- | ------------ |
-| 1.0.x       | N/A          |
-
+| Version     | Supported by | Edge-Orchestration | 3-rd party component                           |
+| ----------- | ------------ | ------------------ | ---------------------------------------------- |
+| 1.0.0       | N/A          |                    |                                                |
+| 1.1.0       | Fixed        |                    | CVE-2020-15257, CVE-2021-32760, CVE-2021-41103 |
 
 ### 2.2 Vulnerability Report
 

@@ -25,9 +25,9 @@ After starting Linux, you need to run the `nmtui` to configure the Wi-Fi.
 
 Docker installation:
 ```sh
-$ curl -sSL https://get.docker.com | sh
-$ sudo usermod -aG docker $USER
-$ newgrp docker
+curl -sSL https://get.docker.com | sh
+sudo usermod -aG docker $USER
+newgrp docker
 ```
 Everything is now ready to deploy Edge-Orchestration
 
@@ -44,20 +44,16 @@ This section provides how to download and run pre-built Docker image without bui
 
 Prerequisites: install the qemu packages
 ```shell
-$ sudo apt-get install qemu binfmt-support qemu-user-static
+sudo apt-get install qemu binfmt-support qemu-user-static
 ```
 
 Run the `make create_context` and specify the configuration file name `arm64c` and `make` (in the case of building in protected mode, use add `arm64cs`), see examples below:
 ```
-$ make distclean
-$ make create_context CONFIGFILE=arm64c
-$ make
+make distclean ; make create_context CONFIGFILE=arm64c ; make
 ```
 or for protected mode:
 ```shell
-$ make distclean
-$ make create_context CONFIGFILE=arm64cs
-$ make
+make distclean; make create_context CONFIGFILE=arm64cs ; make
 ```
 
 > To change the configuration file, you must execute the command `make distclean`
@@ -66,7 +62,7 @@ The build result will be `edge-orchestration.tar` archive that can be found `bin
 
 Next, need to copy `edge-orchestration.tar` archive to the HiKey960 board and load the image using the command:
 ```shell
-$ docker load -i edge-orchestration.tar
+docker load -i edge-orchestration.tar
 ```
 The build is finished, how to run see [here](../x86_64_linux/x86_64_linux.md#How-to-work).
 

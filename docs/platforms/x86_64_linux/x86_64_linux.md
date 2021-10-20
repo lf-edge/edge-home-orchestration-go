@@ -13,11 +13,13 @@ Please download [edge-orchestration docker container](https://github.com/lf-edge
 
 #### 3. Load Docker image from tar file
 ```shell
-$ docker load -i edge-orchestration.tar
+docker load -i edge-orchestration.tar
 ```
 If it succeeds, you can see the Docker image as follows:
 ```shell
-$ docker images
+docker images
+```
+```
 REPOSITORY                 TAG                 IMAGE ID            CREATED             SIZE
 edge-orchestration         coconut             502e3c07b01f        3 minutes ago       185MB
 ```
@@ -49,33 +51,29 @@ Please see the below [How to work](#how-to-work) to know how to run Edge Orchest
 > Recommendation: Do not install the `gocov` and `gocov-html` utilities from the `edge-home-orchestration-go` folder.
   - [gocov](https://pkg.go.dev/github.com/axw/gocov)
   ```
-  $ go get github.com/axw/gocov/gocov
+  go get github.com/axw/gocov/gocov
   ```
    - [gocov-html](https://github.com/matm/gocov-html#gocov-html-export)
   ```
-  $ go get github.com/matm/gocov-html
+  go get github.com/matm/gocov-html
   ```
   - [staticcheck](https://staticcheck.io)
   ```
-  $ go install honnef.co/go/tools/cmd/staticcheck@latest
+  go install honnef.co/go/tools/cmd/staticcheck@latest
   ```
 
 - extra linux utilities:
 ```
-$ sudo apt-get install tree jq
+sudo apt-get install tree jq
 ```
 
 For build of edge-orchestration project you should run the `make create_context` and specify the configuration file name for example: `x86_64c` and `make` (in the case of building in protected mode, use add `x86_64ns`), see examples below:
 ```
-$ make distclean
-$ make create_context CONFIGFILE=x86_64c
-$ make
+make distclean ; make create_context CONFIGFILE=x86_64c ; make
 ```
 or for protected mode:
 ```shell
-$ make distclean
-$ make create_context CONFIGFILE=x86_64cs
-$ make
+make distclean ; make create_context CONFIGFILE=x86_64cs ; make
 ```
 
 > To change the configuration file, you must execute the command `make distclean`
@@ -84,7 +82,7 @@ $ make
 
 After successfully build you can run edge-orchestration by execute next command:
 ```
-$ make run
+make run
 ```
 
 If it succeeds, you can see the container runs as follows:
@@ -99,14 +97,16 @@ CONTAINER ID        IMAGE                      COMMAND             CREATED      
 
 and the built image as follows:
 ```shell
-$ docker images
+docker images
+```
+```
 REPOSITORY                 TAG                 IMAGE ID            CREATED             SIZE
 edge-orchestration         coconut             502e3c07b01f        3 seconds ago       185MB
 ```
 
 - All Build Options
 ```shell
-$ make help
+make help
 ```
 
 > If you build the edge-orchestration as c-object, then a more detailed description can be found [x86_64_native.md](x86_64_native.md)
@@ -137,7 +137,7 @@ Note that you can visit [Swagger Editor](https://editor.swagger.io/) to graphica
 #### 1. Run Edge Orchestration container
 
 ```shell
-$ docker run -it -d --privileged --network="host" --name edge-orchestration -v /var/edge-orchestration/:/var/edge-orchestration/:rw -v /var/run/docker.sock:/var/run/docker.sock:rw -v /proc/:/process/:ro edge-orchestration:coconut
+docker run -it -d --privileged --network="host" --name edge-orchestration -v /var/edge-orchestration/:/var/edge-orchestration/:rw -v /var/run/docker.sock:/var/run/docker.sock:rw -v /proc/:/process/:ro edge-orchestration:coconut
 ```
 - Environment Variables
 
@@ -146,26 +146,27 @@ $ docker run -it -d --privileged --network="host" --name edge-orchestration -v /
 
     [Secure](../../secure_manager.md) mode can be enabled by setting SECURE to `true`.
     ```shell
-    $ docker run -it -d --privileged --network="host" --name edge-orchestration -e SECURE=true -v /var/edge-orchestration/:/var/edge-orchestration/:rw -v /var/run/docker.sock:/var/run/docker.sock:rw -v /proc/:/process/:ro edge-orchestration:coconut
+    docker run -it -d --privileged --network="host" --name edge-orchestration -e SECURE=true -v /var/edge-orchestration/:/var/edge-orchestration/:rw -v /var/run/docker.sock:/var/run/docker.sock:rw -v /proc/:/process/:ro edge-orchestration:coconut
     ```
   - MNEDC
 
     [MNEDC](../../mnedc.md) mode can be enabled by setting MNEDC to `server` or `client`.
     ```shell
-    $ docker run -it -d --privileged --network="host" --name edge-orchestration -e MNEDC=server -v /var/edge-orchestration/:/var/edge-orchestration/:rw -v /var/run/docker.sock:/var/run/docker.sock:rw -v /proc/:/process/:ro edge-orchestration:coconut
+    docker run -it -d --privileged --network="host" --name edge-orchestration -e MNEDC=server -v /var/edge-orchestration/:/var/edge-orchestration/:rw -v /var/run/docker.sock:/var/run/docker.sock:rw -v /proc/:/process/:ro edge-orchestration:coconut
     ```
 
   - LOGLEVEL
 
-    You can set the log level(Debug, Info, Warn and others) by `LOGLEVEL`. (Default level is `Info`.)
+    You can set the log level (Debug, Info, Warn and others) by `LOGLEVEL` (Default level is `Info`).
     ```shell
-    $ docker run -it -d --privileged --network="host" --name edge-orchestration -e LOGLEVEL=Warn -v /var/edge-orchestration/:/var/edge-orchestration/:rw -v /var/run/docker.sock:/var/run/docker.sock:rw -v /proc/:/process/:ro edge-orchestration:coconut
+    docker run -it -d --privileged --network="host" --name edge-orchestration -e LOGLEVEL=Warn -v /var/edge-orchestration/:/var/edge-orchestration/:rw -v /var/run/docker.sock:/var/run/docker.sock:rw -v /proc/:/process/:ro edge-orchestration:coconut
 
 - Result
 
 ```shell
-$ docker logs -f edge-orchestration
-
+docker logs -f edge-orchestration
+```
+```
 2019/10/16 07:35:45 main_secured.go:89: [interface] OrchestrationInit
 2019/10/16 07:35:45 main_secured.go:90: >>> commitID  :  c3041ae
 2019/10/16 07:35:45 main_secured.go:91: >>> version   :  
@@ -214,17 +215,17 @@ RESTAPI
     ```
 - Curl Example:
     ```json
-  $ curl -X POST "IP:56001/api/v1/orchestration/services" -H "accept: application/json" -H "Content-Type: application/json" -d "{ \"ServiceName\": \"hello-world\", \"ServiceInfo\": [{ \"ExecutionType\": \"container\", \"ExecCmd\": [ \"docker\", \"run\", \"-v\", \"/var/run:/var/run:rw\", \"hello-world\"]}], \"StatusCallbackURI\": \"http://localhost:8888/api/v1/services/notification\"}"
+  curl -X POST "IP:56001/api/v1/orchestration/services" -H "accept: application/json" -H "Content-Type: application/json" -d "{ \"ServiceName\": \"hello-world\", \"ServiceInfo\": [{ \"ExecutionType\": \"container\", \"ExecCmd\": [ \"docker\", \"run\", \"-v\", \"/var/run:/var/run:rw\", \"hello-world\"]}], \"StatusCallbackURI\": \"http://localhost:8888/api/v1/services/notification\"}"
     ```
   ---
    If the `edge-orchestration` was assembled with `secure` option.
    You need to add a JSON Web Token into request header `Authorization: {token}` and a image digest (sha256) to the last parameter. `"hello-world@sha256:fc6a51919cfeb2e6763f62b6d9e8815acbf7cd2e476ea353743570610737b752"`. More information about it you can find [here](../../secure_manager.md).
    ```
-   $ curl -X POST "IP:56001/api/v1/orchestration/services" -H "accept: application/json" -H "Content-Type: application/json" -H "Authorization: $EDGE_ORCHESTRATION_TOKEN" -d "{ \"ServiceName\": \"hello-world\", \"ServiceInfo\": [{ \"ExecutionType\": \"container\", \"ExecCmd\": [ \"docker\", \"run\", \"-v\", \"/var/run:/var/run:rw\", \"hello-world@sha256:fc6a51919cfeb2e6763f62b6d9e8815acbf7cd2e476ea353743570610737b752\"]}], \"StatusCallbackURI\": \"http://localhost:8888/api/v1/services/notification\"}"
+   curl -X POST "IP:56001/api/v1/orchestration/services" -H "accept: application/json" -H "Content-Type: application/json" -H "Authorization: $EDGE_ORCHESTRATION_TOKEN" -d "{ \"ServiceName\": \"hello-world\", \"ServiceInfo\": [{ \"ExecutionType\": \"container\", \"ExecCmd\": [ \"docker\", \"run\", \"-v\", \"/var/run:/var/run:rw\", \"hello-world@sha256:fc6a51919cfeb2e6763f62b6d9e8815acbf7cd2e476ea353743570610737b752\"]}], \"StatusCallbackURI\": \"http://localhost:8888/api/v1/services/notification\"}"
    ```  
    To add the `EDGE_ORCHESTRATION_TOKEN` variable to the environment execute the next command:
    ```
-   $ . tools/jwt_gen.sh HS256 Admin
+   . tools/jwt_gen.sh HS256 Admin
    ```
    To add your container hash to the container white list `/var/edge-orchestration/data/cwl/containerwhitelist.txt`, you need to add a hash line to the end file.  
    ```
@@ -235,8 +236,9 @@ RESTAPI
 - Result(Execution on itself)
   
   ```shell
-  $ docker logs -f edge-orchestration 
-
+  docker logs -f edge-orchestration 
+  ```
+  ```
   2019/06/07 05:41:03 externalhandler.go:75: [RestExternalInterface] APIV1RequestServicePost
   2019/06/07 05:41:03 orchestration_api.go:70: [RequestService] container_service: [docker run -v /var/run:/var/run:rw hello-world]
   2019/06/07 05:41:03 scoringmgr.go:131: [IN] getScoreLocalEnv
@@ -288,4 +290,3 @@ RESTAPI
    --io-maxbandwidth   (Windows only option)
    --io-maxiops        (Windows only option)
    ```
-
