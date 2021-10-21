@@ -9,7 +9,7 @@
     4.3 [Run Edge Orchestration](#43-run-edge-orchestration)
 
 ## 1. Introduction
-This module to be developed would be responsible for storing the data (can be sensor data or any reading or image/video data, etc.) from different devices in the home environment. Any device registered to this module can also request for data to different device. The databases used to store the data is Redis DB/Mongo DB (as a choice from a user, with repect to its parent EdgeX recommendation). At regular intervals this data would also be synced up with the cloud to remove the data from the device and free the device space for new incoming data.
+DataStorage module is responsible for storing the data (can be sensor data or any reading or image/video data, etc.) from different devices in the home environment. Any device registered to this module can also request for data to different devices. The databases used to store the data is Redis DB. At regular intervals this data is synced up with the cloud using MQTT with respect to its parent feature in EdgeX Foundry. By defualt sync is disabled; In order to enable the sync please refer the documentation [Cloud Setup MQTT](https://github.com/lf-edge/edge-home-orchestration-go/blob/master/docs/cloud_setup_mqtt.md)
 
 ## 2. System Description
 **Centralized data storage architecture**: A centralized database is stored at a single location such as high computing power device in the home. It is maintained and modified from that location only and usually accessed using REST APIs by the devices connected by LAN/WAN. The centralized database collects the data can be used to train the model and also provide data to the different devices when needed.
