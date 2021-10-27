@@ -28,7 +28,7 @@ The **Secure Manager** is designed to control security components. Currently it 
   3. Authorizer (RBAC)
   4. TLS
  
-In order for the Secure Manager to be allowed, it is necessary to build the **Edge-Orchestration** with the `secure` option.
+In order for the Secure Manager to be allowed, it is necessary to run the **Edge-Orchestration** with the `-e SECURE=true` option.
 
 > Unfortunately the `datastorage` is temporarily not supported in `secure` mode.
 ---

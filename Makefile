@@ -21,15 +21,15 @@ DOCKER_IMAGE="edge-orchestration"
 -include $(BASE_DIR)/.config
 
 ifeq ($(CONFIG_MNEDC_SERVER),y)
-BUILD_TAGS += mnedcserver
+RUN_OPTIONS += -e MNEDC=server
 endif
 
 ifeq ($(CONFIG_MNEDC_CLIENT),y)
-BUILD_TAGS += mnedcclient
+RUN_OPTIONS += -e MNEDC=client
 endif
 
 ifeq ($(CONFIG_SECURE_MODE),y)
-BUILD_TAGS += secure
+RUN_OPTIONS += -e SECURE=true
 endif
 
 # Go parameters
@@ -42,8 +42,8 @@ GOCOVER		:= gocov
 GOMOBILE	:= gomobile
 DOCKER		:= docker
 GO_COMMIT_ID	:= $(shell git rev-parse --short HEAD)
-GO_LDFLAGS		:= -ldflags '-extldflags "-static" -X main.version=$(VERSION) -X main.commitID=$(GO_COMMIT_ID) -X main.buildTime=$(BUILD_DATE) -X main.buildTags=$(BUILD_TAGS)'
-GO_MOBILE_LDFLAGS	:= -ldflags '-X main.version=$(VERSION) -X main.commitID=$(GO_COMMIT_ID) -X main.buildTime=$(BUILD_DATE) -X main.buildTags=$(BUILD_TAGS)'
+GO_LDFLAGS		:= -ldflags '-extldflags "-static" -X main.version=$(VERSION) -X main.commitID=$(GO_COMMIT_ID) -X main.buildTime=$(BUILD_DATE)'
+GO_MOBILE_LDFLAGS	:= -ldflags '-X main.version=$(VERSION) -X main.commitID=$(GO_COMMIT_ID) -X main.buildTime=$(BUILD_DATE)'
 
 # Target parameters
 PKG_NAME	:= edge-orchestration
@@ -286,6 +286,7 @@ run:
                 --privileged \
                 --network="host" \
                 --name $(DOCKER_IMAGE) \
+                $(RUN_OPTIONS) \
                 -v /var/edge-orchestration/:/var/edge-orchestration/:rw \
                 -v /var/run/docker.sock:/var/run/docker.sock:rw \
                 -v /proc/:/process/:ro \
