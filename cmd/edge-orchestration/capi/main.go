@@ -133,7 +133,6 @@ const (
 var (
 	flagVersion                  bool
 	commitID, version, buildTime string
-	buildTags                    string
 	log                          = logmgr.GetInstance()
 
 	orcheEngine orchestrationapi.Orche
@@ -141,7 +140,7 @@ var (
 
 // OrchestrationInit runs orchestration service and discovers remote orchestration services
 //export OrchestrationInit
-func OrchestrationInit() C.int {
+func OrchestrationInit(secure C.int, mndec C.int) C.int {
 	flag.BoolVar(&flagVersion, "v", false, "if true, print version and exit")
 	flag.BoolVar(&flagVersion, "version", false, "if true, print version and exit")
 	flag.Parse()
@@ -151,7 +150,6 @@ func OrchestrationInit() C.int {
 	log.Println(">>> commitID  : ", commitID)
 	log.Println(">>> version   : ", version)
 	log.Println(">>> buildTime : ", buildTime)
-	log.Println(">>> buildTags : ", buildTags)
 	wrapper.SetBoltDBPath(dbPath)
 
 	if err := fscreator.CreateFileSystem(edgeDir); err != nil {
@@ -160,7 +158,7 @@ func OrchestrationInit() C.int {
 	}
 
 	isSecured := false
-	if strings.Contains(buildTags, "secure") {
+	if secure == 1 {
 		log.Println("Orchestration init with secure option")
 		isSecured = true
 	}
@@ -235,10 +233,12 @@ func OrchestrationInit() C.int {
 	}
 	isMNEDCServer := false
 	isMNEDCClient := false
-	if strings.Contains(buildTags, "mnedcserver") {
+	if mndec == 1 {
 		isMNEDCServer = true
-	} else if strings.Contains(buildTags, "mnedcclient") {
+		log.Println("Orchestration init with MNDEC server")
+	} else if mndec == 2 {
 		isMNEDCClient = true
+		log.Println("Orchestration init with MNDEC client")
 	}
 
 	go func() {

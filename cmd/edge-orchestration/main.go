@@ -74,7 +74,6 @@ const (
 
 var (
 	commitID, version, buildTime string
-	buildTags                    string
 	log                          = logmgr.GetInstance()
 )
 
@@ -92,7 +91,6 @@ func orchestrationInit() error {
 	log.Println(">>> commitID  : ", commitID)
 	log.Println(">>> version   : ", version)
 	log.Println(">>> buildTime : ", buildTime)
-	log.Println(">>> buildTags : ", buildTags)
 	wrapper.SetBoltDBPath(dbPath)
 
 	if err := fscreator.CreateFileSystem(edgeDir); err != nil {
@@ -109,9 +107,6 @@ func orchestrationInit() error {
 			log.Println("Orchestration init with secure option")
 			isSecured = true
 		}
-	} else if strings.Contains(buildTags, "secure") {
-		log.Println("Orchestration init with secure option")
-		isSecured = true
 	}
 
 	cipher := dummy.GetCipher(cipherKeyFilePath)
@@ -189,19 +184,6 @@ func orchestrationInit() error {
 			}
 			go discoverymgr.GetInstance().StartMNEDCServer(deviceIDFilePath)
 		} else if strings.Compare(strings.ToLower(mnedc), "client") == 0 {
-			if isSecured {
-				mnedcmgr.GetClientInstance().SetCertificateFilePath(certificateFilePath)
-			}
-			go discoverymgr.GetInstance().StartMNEDCClient(deviceIDFilePath, mnedcServerConfig)
-		}
-	} else {
-		if strings.Contains(buildTags, "mnedcserver") {
-			mnedcmgr.GetServerInstance().SetCipher(cipher)
-			if isSecured {
-				mnedcmgr.GetServerInstance().SetCertificateFilePath(certificateFilePath)
-			}
-			go discoverymgr.GetInstance().StartMNEDCServer(deviceIDFilePath)
-		} else if strings.Contains(buildTags, "mnedcclient") {
 			if isSecured {
 				mnedcmgr.GetClientInstance().SetCertificateFilePath(certificateFilePath)
 			}

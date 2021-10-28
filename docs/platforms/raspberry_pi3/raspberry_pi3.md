@@ -34,13 +34,9 @@ Prerequisites: install the qemu packages
 sudo apt-get install qemu binfmt-support qemu-user-static
 ```
 
-Run the `make create_context` and specify the configuration file name `armc` and `make` (in the case of building in protected mode, use add `armcs`), see examples below:
+Run the `make create_context` and specify the configuration file name `armc` and `make`, see example below:
 ```
 make distclean ; make create_context CONFIGFILE=armc ; make
-```
-or for protected mode:
-```shell
-make distclean ; make create_context CONFIGFILE=armcs ; make
 ```
 
 > To change the configuration file, you must execute the command `make distclean`
@@ -81,13 +77,9 @@ export PATH=$PATH:$GOPATH/bin:/usr/local/go/bin
 git clone https://github.com/lf-edge/edge-home-orchestration-go.git
 
 ```
-Run the `make create_context` and specify the configuration file name `armc` and `make` (in the case of building in protected mode, use add `armcs`), see examples below:
+Run the `make create_context` and specify the configuration file name `armc` and `make`, see example below:
 ```
 make distclean ; make create_context CONFIGFILE=armc ; make
-```
-or for protected mode:
-```shell
-make distclean ; make create_context CONFIGFILE=armcs ; make
 ```
 
 > To change the configuration file, you must execute the command `make distclean`

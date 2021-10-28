@@ -5,32 +5,32 @@ The edge-orchestration can be launched as a native Linux application and run ser
 The general preparation steps are described [here](x86_64_linux.md#How-to-build).
 To build an с-object (liborchestration.a), you must run commands depending on configuration file.
 
-Run the `make create_context` and specify the configuration file name `x86_64n` and `make` (in the case of building in protected mode, use add `x86_64ns`), see examples below:
+Run the `make create_context` and specify the configuration file name `x86_64n` and `make`, see example below:
 ```
 make distclean ; make create_context CONFIGFILE=x86_64n ; make
 ```
-or for protected mode:
-```shell
-make distclean ; make create_context CONFIGFILE=x86_64ns ; make
-```
 ```
 ...
-**********************************
- Target Binary arch is amd64 
-**********************************
+--------------------------------------
+  Create Static object of Orchestration for amd64
+--------------------------------------
+CGO_ENABLED=1 GOARM= GOARCH=amd64 CC="gcc" GO111MODULE=on go build -ldflags '-extldflags "-static" -X main.version= -X main.commitID=53f3afa -X main.buildTime=20211027.1228' -o /home/virtual-pc/projects/edge-home-orchestration-go/bin/capi/output/lib/linux_x86-64/liborchestration.a -buildmode=c-archive /home/virtual-pc/projects/edge-home-orchestration-go/cmd/edge-orchestration/capi || exit 1
+total 39772
+drwxrwxr-x 2 virtual-pc virtual-pc     4096 жов 27 12:28 .
+drwxrwxr-x 3 virtual-pc virtual-pc     4096 жов 27 12:28 ..
+-rw-rw-r-- 1 virtual-pc virtual-pc 40717140 жов 27 12:28 liborchestration.a
+tree /home/virtual-pc/projects/edge-home-orchestration-go/bin/capi/output
+/home/virtual-pc/projects/edge-home-orchestration-go/bin/capi/output
+├── inc
+│   └── linux_x86-64
+│       └── orchestration.h
+└── lib
+    └── linux_x86-64
+        └── liborchestration.a
 
-----------------------------------------
- Create Static object of Orchestration
-----------------------------------------
-mkdir -p /home/virtual-pc/projects/edge-home-orchestration-go/bin/capi/output/inc/linux_x86-64 /home/virtual-pc/projects/edge-home-orchestration-go/bin/capi/output/lib/linux_x86-64
-CGO_ENABLED=1 GO111MODULE=on go build -ldflags '-extldflags "-static" -X main.version= -X main.commitID=687e09c -X main.buildTime=20210213.0901 -X main.buildTags=' -o /home/virtual-pc/projects/edge-home-orchestration-go/bin/capi/output/lib/linux_x86-64/liborchestration.a -buildmode=c-archive /home/virtual-pc/projects/edge-home-orchestration-go/cmd/edge-orchestration/capi || exit 1
-mv /home/virtual-pc/projects/edge-home-orchestration-go/bin/capi/output/lib/linux_x86-64/liborchestration.h /home/virtual-pc/projects/edge-home-orchestration-go/bin/capi/output/inc/linux_x86-64/orchestration.h
-ls -al /home/virtual-pc/projects/edge-home-orchestration-go/bin/capi/output/lib/linux_x86-64
-total 37100
-drwxrwxr-x 2 virtual-pc virtual-pc     4096 Feb 13 09:01 .
-drwxrwxr-x 3 virtual-pc virtual-pc     4096 Feb 13 09:01 ..
--rw-rw-r-- 1 virtual-pc virtual-pc 37980926 Feb 13 09:01 liborchestration.a
+4 directories, 2 files
 ```
+
 ## Example of using c-object (liborchestration.c)
 The example uses the `ls` command instead of a service.
 > It should be noted that you must ensure the visibility of your service from any point (for example, by copying it to the `/bin` folder or add to `PATH`)
@@ -74,7 +74,6 @@ sudo ./edge-orchestration
 2020/07/20 09:24:10 main.go:159: >>> commitID  :  094ca91
 2020/07/20 09:24:10 main.go:160: >>> version   :  
 2020/07/20 09:24:10 main.go:161: >>> buildTime :  20200720.0832
-2020/07/20 09:24:10 main.go:162: >>> buildTags :  
 2020/07/20 09:24:10 discovery.go:257: [discoverymgr] UUID :  1da15e3d-09d4-4f80-ad72-6ca943dd5bcf
 2020/07/20 09:24:11 helper.go:99: [http://10.0.2.15:56002/api/v1/ping] reqeust get failed !!, err = Get "http://10.0.2.15:56002/api/v1/ping": dial tcp 10.0.2.15:56002: connect: connection refused
 Get "http://10.0.2.15:56002/api/v1/ping": dial tcp 10.0.2.15:56002: connect: connection refused
@@ -136,6 +135,15 @@ Get "http://10.0.2.15:56002/api/v1/ping": dial tcp 10.0.2.15:56002: connect: con
 2020/07/20 09:24:11 discovery.go:374: 
 ```
 
+For run Edge Orchestration in other modes specify the configuration. Use the `--help` to see them:
+```
+sudo ./edge-orchestration --help
+usage: edge-orchestration [OPTION]
+  -h, --help		    Print this help and exit
+  -s, --secure[=true]	Edge Orchestration will be run in secure mode
+  -m, --mnedc=STRING	Edge Orchestration will be run as MNEDC server/client
+```
+
 ## REST API
 Edge Orchestration provides external REST API for execute service.
 
@@ -160,7 +168,7 @@ REST API
     }
     ```
 - Curl Example:
-```json
+```
 curl -X POST "IP:56001/api/v1/orchestration/services" -H "accept: application/json" -H "Content-Type: application/json" -d "{ \"ServiceRequester\": \"curl\", \"ServiceName\": \"ls\", \"ServiceInfo\": [{ \"ExecutionType\": \"native\", \"ExecCmd\": [ \"ls\"]}], \"StatusCallbackURI\": \"http://localhost:8888/api/v1/services/notification\"}"
 ```
 Response:
@@ -196,7 +204,7 @@ log:
 2020/07/28 17:07:59 orchestration_api.go:342: [orchestrationapi] service status changed [appNames:ls][status:Finished]
 ```
 ---
-If the `edge-orchestration` was assembled with `secure` option.
+If the `edge-orchestration` was built with `secure` option.
 You need to add a JSON Web Token into request header `Authorization: {token}`. More information about it you can find [here](../../secure_manager.md).
 
 > To add the `EDGE_ORCHESTRATION_TOKEN` variable to the environment execute the next command:

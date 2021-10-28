@@ -34,13 +34,9 @@ Prerequisites: install the qemu packages
 sudo apt-get install qemu binfmt-support qemu-user-static
 ```
 
-Run the `make create_context` and specify the configuration file name `arm64c` and `make` (in the case of building in protected mode, use add `arm64cs`), see examples below:
+Run the `make create_context` and specify the configuration file name `arm64c` and `make`, see example below:
 ```
 make distclean ; make create_context CONFIGFILE=arm64c ; make
-```
-or for protected mode:
-```shell
-make distclean ; make create_context CONFIGFILE=arm64cs ; make
 ```
 
 > To change the configuration file, you must execute the command `make distclean`

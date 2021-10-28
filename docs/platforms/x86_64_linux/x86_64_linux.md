@@ -67,13 +67,9 @@ Please see the below [How to work](#how-to-work) to know how to run Edge Orchest
 sudo apt-get install tree jq
 ```
 
-For build of edge-orchestration project you should run the `make create_context` and specify the configuration file name for example: `x86_64c` and `make` (in the case of building in protected mode, use add `x86_64ns`), see examples below:
+For build of edge-orchestration project you should run the `make create_context` and specify the configuration file name for example: `x86_64c` and `make`, see example below:
 ```
 make distclean ; make create_context CONFIGFILE=x86_64c ; make
-```
-or for protected mode:
-```shell
-make distclean ; make create_context CONFIGFILE=x86_64cs ; make
 ```
 
 > To change the configuration file, you must execute the command `make distclean`
@@ -171,7 +167,6 @@ docker logs -f edge-orchestration
 2019/10/16 07:35:45 main_secured.go:90: >>> commitID  :  c3041ae
 2019/10/16 07:35:45 main_secured.go:91: >>> version   :  
 2019/10/16 07:35:45 main_secured.go:92: >>> buildTime :  {build time}
-2019/10/16 07:35:45 main_secured.go:93: >>> buildTags :  secure
 2019/10/16 07:35:45 discovery.go:256: [discoverymgr] UUID :  {$UUID}
 2019/10/16 07:35:45 discovery.go:338: [discoverymgr] [{$discovery_ip_list}]
 2019/10/16 07:35:45 discovery.go:369: [deviceDetectionRoutine] edge-orchestration-{$UUID}
@@ -214,11 +209,11 @@ RESTAPI
     }
     ```
 - Curl Example:
-    ```json
+    ```
   curl -X POST "IP:56001/api/v1/orchestration/services" -H "accept: application/json" -H "Content-Type: application/json" -d "{ \"ServiceName\": \"hello-world\", \"ServiceInfo\": [{ \"ExecutionType\": \"container\", \"ExecCmd\": [ \"docker\", \"run\", \"-v\", \"/var/run:/var/run:rw\", \"hello-world\"]}], \"StatusCallbackURI\": \"http://localhost:8888/api/v1/services/notification\"}"
     ```
   ---
-   If the `edge-orchestration` was assembled with `secure` option.
+   If the `edge-orchestration` was run with `-e SECURE=true` option.
    You need to add a JSON Web Token into request header `Authorization: {token}` and a image digest (sha256) to the last parameter. `"hello-world@sha256:fc6a51919cfeb2e6763f62b6d9e8815acbf7cd2e476ea353743570610737b752"`. More information about it you can find [here](../../secure_manager.md).
    ```
    curl -X POST "IP:56001/api/v1/orchestration/services" -H "accept: application/json" -H "Content-Type: application/json" -H "Authorization: $EDGE_ORCHESTRATION_TOKEN" -d "{ \"ServiceName\": \"hello-world\", \"ServiceInfo\": [{ \"ExecutionType\": \"container\", \"ExecCmd\": [ \"docker\", \"run\", \"-v\", \"/var/run:/var/run:rw\", \"hello-world@sha256:fc6a51919cfeb2e6763f62b6d9e8815acbf7cd2e476ea353743570610737b752\"]}], \"StatusCallbackURI\": \"http://localhost:8888/api/v1/services/notification\"}"
