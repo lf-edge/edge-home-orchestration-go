@@ -241,11 +241,3 @@ func saveYaml() (err error) {
 	}
 	return
 }
-
-func getDeviceID() (string, error) {
-	UUIDv4, err := ioutil.ReadFile(deviceIDFilePath)
-	if err != nil {
-		return "", err
-	}
-	return string(UUIDv4), nil
-}
