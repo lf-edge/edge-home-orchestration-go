@@ -14,9 +14,9 @@ endif
 endif
 
 BUILD_DATE=${shell date +%Y%m%d.%H%M}
-CONTAINER_VERSION="dewberries"
-
-DOCKER_IMAGE="edge-orchestration"
+VERSION=v1.1.0
+CONTAINER_VERSION="latest"
+DOCKER_IMAGE="lfedge/edge-home-orchestration-go"
 
 -include $(BASE_DIR)/.config
 
@@ -161,7 +161,7 @@ build-object-java:
 ## edge-orchestration container build
 build_docker_container:
 	$(call print_header, "Create Docker container $(CONTAINER_ARCH)")
-	-docker rm -f $(DOCKER_IMAGE)
+	-docker rm -f $(PKG_NAME)
 	-docker rmi -f $(DOCKER_IMAGE):$(CONTAINER_VERSION)
 	$(Q) mkdir -p $(BASE_DIR)/bin/qemu
 ifeq ($(CONFIG_ARM),y)
@@ -174,8 +174,8 @@ ifneq ($(shell uname -m),aarch64)
 	$(Q) cp /usr/bin/qemu-aarch64-static $(BASE_DIR)/bin/qemu
 endif
 endif
-	$(DOCKER) build --tag $(PKG_NAME):$(CONTAINER_VERSION) --file $(BASE_DIR)/Dockerfile --build-arg PLATFORM=$(CONTAINER_ARCH) .
-	-docker save -o $(BASE_DIR)/bin/edge-orchestration.tar edge-orchestration
+	$(DOCKER) build --tag $(DOCKER_IMAGE):$(CONTAINER_VERSION) --file $(BASE_DIR)/Dockerfile --build-arg PLATFORM=$(CONTAINER_ARCH) .
+	-docker save -o $(BASE_DIR)/bin/edge-orchestration.tar $(DOCKER_IMAGE)
 
 ## go test and coverage
 test-go:
@@ -239,7 +239,7 @@ help:
 
 define stop_docker_container
 	$(call print_header, "Stop Docker container")
-	-docker stop $(DOCKER_IMAGE)
+	-docker stop $(PKG_NAME)
 	$(Q) docker ps -a
 endef
 
@@ -282,10 +282,10 @@ go.sum:
 
 run:
 	$(call print_header, "Run Docker container ")
-	docker run -it -d \
+	$(Q) docker run -it -d \
                 --privileged \
                 --network="host" \
-                --name $(DOCKER_IMAGE) \
+                --name $(PKG_NAME) \
                 $(RUN_OPTIONS) \
                 -v /var/edge-orchestration/:/var/edge-orchestration/:rw \
                 -v /var/run/docker.sock:/var/run/docker.sock:rw \

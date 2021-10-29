@@ -72,7 +72,7 @@ sudo ./edge-orchestration
 ```
 2020/07/20 09:24:10 main.go:158: [interface] OrchestrationInit
 2020/07/20 09:24:10 main.go:159: >>> commitID  :  094ca91
-2020/07/20 09:24:10 main.go:160: >>> version   :  
+2020/07/20 09:24:10 main.go:160: >>> version   :  v1.1.0
 2020/07/20 09:24:10 main.go:161: >>> buildTime :  20200720.0832
 2020/07/20 09:24:10 discovery.go:257: [discoverymgr] UUID :  1da15e3d-09d4-4f80-ad72-6ca943dd5bcf
 2020/07/20 09:24:11 helper.go:99: [http://10.0.2.15:56002/api/v1/ping] reqeust get failed !!, err = Get "http://10.0.2.15:56002/api/v1/ping": dial tcp 10.0.2.15:56002: connect: connection refused

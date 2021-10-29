@@ -140,7 +140,7 @@ var (
 
 // OrchestrationInit runs orchestration service and discovers remote orchestration services
 //export OrchestrationInit
-func OrchestrationInit(secure C.int, mndec C.int) C.int {
+func OrchestrationInit(secure C.int, mnedc C.int) C.int {
 	flag.BoolVar(&flagVersion, "v", false, "if true, print version and exit")
 	flag.BoolVar(&flagVersion, "version", false, "if true, print version and exit")
 	flag.Parse()
@@ -233,12 +233,12 @@ func OrchestrationInit(secure C.int, mndec C.int) C.int {
 	}
 	isMNEDCServer := false
 	isMNEDCClient := false
-	if mndec == 1 {
+	if mnedc == 1 {
 		isMNEDCServer = true
-		log.Println("Orchestration init with MNDEC server")
-	} else if mndec == 2 {
+		log.Println("Orchestration init with MNEDC server option")
+	} else if mnedc == 2 {
 		isMNEDCClient = true
-		log.Println("Orchestration init with MNDEC client")
+		log.Println("Orchestration init with MNEDC client option")
 	}
 
 	go func() {

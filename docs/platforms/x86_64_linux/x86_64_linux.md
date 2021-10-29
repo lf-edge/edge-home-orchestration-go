@@ -8,7 +8,7 @@ This section provides how to download and run pre-built Docker image without bui
   - Version: 17.09 (or above)
   - [How to install](https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/)
 
-#### 2. Download Docker image
+#### 2. Download Docker image from [Docker Hub](https://hub.docker.com/r/lfedge/edge-home-orchestration-go/tags)
 ```shell
 docker pull lfedge/edge-home-orchestration-go:latest
 ```
@@ -83,9 +83,9 @@ If it succeeds, you can see the container runs as follows:
 **********************************
  Run Docker container 
 **********************************
-5d2efd81057fe56236602acfece0e8f11d447b54627f4f3669b18c85a95b8687
-CONTAINER ID        IMAGE                      COMMAND             CREATED                  STATUS                  PORTS               NAMES
-5d2efd81057f        edge-orchestration:dewberries "sh run.sh"         Less than a second ago   Up Less than a second                       edge-orchestration
+0debbd5d54299b662b2c610e1b232033c1e41c1dce21751fb604c9c6d355b95c
+CONTAINER ID   IMAGE                                      COMMAND       CREATED                  STATUS                  PORTS     NAMES
+0debbd5d5429   lfedge/edge-home-orchestration-go:latest   "sh run.sh"   Less than a second ago   Up Less than a second             edge-orchestration
 ```
 
 and the built image as follows:
@@ -93,8 +93,8 @@ and the built image as follows:
 docker images
 ```
 ```
-REPOSITORY             TAG                 IMAGE ID            CREATED             SIZE
-edge-orchestration     dewberries          6669fd8eac0f        6 hours ago         190MB
+REPOSITORY                                     TAG            IMAGE ID       CREATED         SIZE
+lfedge/edge-home-orchestration-go              latest         5d51fa2bd4e8   4 minutes ago   198MB
 ```
 
 - All Build Options
@@ -135,11 +135,6 @@ Note that you can visit [Swagger Editor](https://editor.swagger.io/) to graphica
 
   - NORMAL
 
-    Image built from source code
-    ```shell
-    docker run -it -d --privileged --network="host" --name edge-orchestration -v /var/edge-orchestration/:/var/edge-orchestration/:rw -v /var/run/docker.sock:/var/run/docker.sock:rw -v /proc/:/process/:ro edge-orchestration:dewberries
-    ```
-    Image from Docker Hub
     ```shell
     docker run -it -d --privileged --network="host" --name edge-orchestration -v /var/edge-orchestration/:/var/edge-orchestration/:rw -v /var/run/docker.sock:/var/run/docker.sock:rw -v /proc/:/process/:ro lfedge/edge-home-orchestration-go:latest
     ```
@@ -148,23 +143,13 @@ Note that you can visit [Swagger Editor](https://editor.swagger.io/) to graphica
 
     [Secure](../../secure_manager.md) mode can be enabled by setting SECURE to `true`.
 
-    Image Built from source code
-    ```shell
-    docker run -it -d --privileged --network="host" --name edge-orchestration -e SECURE=true -v /var/edge-orchestration/:/var/edge-orchestration/:rw -v /var/run/docker.sock:/var/run/docker.sock:rw -v /proc/:/process/:ro edge-orchestration:dewberries
-    ```
-    Image from Docker Hub
     ```shell
     docker run -it -d --privileged --network="host" --name edge-orchestration -e SECURE=true -v /var/edge-orchestration/:/var/edge-orchestration/:rw -v /var/run/docker.sock:/var/run/docker.sock:rw -v /proc/:/process/:ro lfedge/edge-home-orchestration-go:latest
-
+    ```
   - MNEDC
 
     [MNEDC](../../mnedc.md) mode can be enabled by setting MNEDC to `server` or `client`.
 
-    Image built from source code
-    ```shell
-    docker run -it -d --privileged --network="host" --name edge-orchestration -e MNEDC=server -v /var/edge-orchestration/:/var/edge-orchestration/:rw -v /var/run/docker.sock:/var/run/docker.sock:rw -v /proc/:/process/:ro edge-orchestration:dewberries
-    ```
-    Image from Docker Hub
     ```shell
     docker run -it -d --privileged --network="host" --name edge-orchestration -e MNEDC=server -v /var/edge-orchestration/:/var/edge-orchestration/:rw -v /var/run/docker.sock:/var/run/docker.sock:rw -v /proc/:/process/:ro lfedge/edge-home-orchestration-go:latest
     ```
@@ -173,12 +158,6 @@ Note that you can visit [Swagger Editor](https://editor.swagger.io/) to graphica
 
     You can set the log level (Debug, Info, Warn and others) by `LOGLEVEL` (Default level is `Info`).
 
-    Image built from source code
-    ```shell
-    docker run -it -d --privileged --network="host" --name edge-orchestration -e LOGLEVEL=Warn -v /var/edge-orchestration/:/var/edge-orchestration/:rw -v /var/run/docker.sock:/var/run/docker.sock:rw -v /proc/:/process/:ro edge-orchestration:dewberries
-    ```
-
-    Image from Docker Hub
      ```shell
     docker run -it -d --privileged --network="host" --name edge-orchestration -e LOGLEVEL=Warn -v /var/edge-orchestration/:/var/edge-orchestration/:rw -v /var/run/docker.sock:/var/run/docker.sock:rw -v /proc/:/process/:ro lfedge/edge-home-orchestration-go:latest
     ```
@@ -192,7 +171,7 @@ docker logs -f edge-orchestration
 ```
 2019/10/16 07:35:45 main_secured.go:89: [interface] OrchestrationInit
 2019/10/16 07:35:45 main_secured.go:90: >>> commitID  :  c3041ae
-2019/10/16 07:35:45 main_secured.go:91: >>> version   :  
+2019/10/16 07:35:45 main_secured.go:91: >>> version   :  v1.1.0
 2019/10/16 07:35:45 main_secured.go:92: >>> buildTime :  {build time}
 2019/10/16 07:35:45 discovery.go:256: [discoverymgr] UUID :  {$UUID}
 2019/10/16 07:35:45 discovery.go:338: [discoverymgr] [{$discovery_ip_list}]

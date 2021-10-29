@@ -28,7 +28,7 @@ The job of the client is to first create a TCP connection with the MNEDC Server 
 Just run the following commands to run the MNEDC server on the device:
 
 ```
-docker run -it -d --privileged --network="host" --name edge-orchestration -e MNEDC=server -v /var/edge-orchestration/:/var/edge-orchestration/:rw -v /var/run/docker.sock:/var/run/docker.sock:rw -v /proc/:/process/:ro edge-orchestration:coconut
+docker run -it -d --privileged --network="host" --name edge-orchestration -e MNEDC=server -v /var/edge-orchestration/:/var/edge-orchestration/:rw -v /var/run/docker.sock:/var/run/docker.sock:rw -v /proc/:/process/:ro lfedge/edge-home-orchestration-go:latest
 ```
 
 > Note that there should be only one device running the MNEDC Server in the network.
@@ -40,5 +40,5 @@ Steps to run the MNEDC Client:
 2. Copy this client-config.yaml file to /var/edge-orchestration/mnedc folder.
 3. Run the following commands:
 ```
-docker run -it -d --privileged --network="host" --name edge-orchestration -e MNEDC=client -v /var/edge-orchestration/:/var/edge-orchestration/:rw -v /var/run/docker.sock:/var/run/docker.sock:rw -v /proc/:/process/:ro edge-orchestration:coconut
+docker run -it -d --privileged --network="host" --name edge-orchestration -e MNEDC=client -v /var/edge-orchestration/:/var/edge-orchestration/:rw -v /var/run/docker.sock:/var/run/docker.sock:rw -v /proc/:/process/:ro lfedge/edge-home-orchestration-go:latest
 ```
