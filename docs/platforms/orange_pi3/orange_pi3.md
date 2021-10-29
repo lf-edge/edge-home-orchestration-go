@@ -19,7 +19,33 @@ Insert the SD card into the Orange Pi 3 and turn on the power. Make configuratio
 ## Quick start
 This section provides how to download and run pre-built Docker image without building the project.
 
-> TBD
+#### 1. Install docker
+
+- docker
+```
+sudo update-alternatives --set iptables /usr/sbin/iptables-legacy
+sudo update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy
+curl -sSL https://get.docker.com | sh
+sudo usermod -aG docker $USER
+newgrp docker
+```
+#### 2. Download Docker image from [Docker Hub](https://hub.docker.com/r/lfedge/edge-home-orchestration-go/tags)
+
+To download the image, you must execute the command: `docker pull lfedge/edge-home-orchestration-go:{tag}`, where `{tag}` is a release name.
+```shell
+docker pull lfedge/edge-home-orchestration-go:latest
+```
+If it succeeds, you can see the Docker image as follows:
+```shell
+docker images
+
+REPOSITORY                            TAG           IMAGE ID            CREATED             SIZE
+lfedge/edge-home-orchestration-go     latest        740bcf622152        6 hours ago         161MB
+```
+
+#### 3. Run with Docker image
+
+How to run see [here](../x86_64_linux/x86_64_linux.md#how-to-work).
 
 ---
 

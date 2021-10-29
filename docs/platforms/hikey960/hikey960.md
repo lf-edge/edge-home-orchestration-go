@@ -23,26 +23,55 @@ After starting Linux, you need to run the `nmtui` to configure the Wi-Fi.
 
 > login/password - linaro/linaro
 
-Docker installation:
+Everything is now ready to deploy Edge-Orchestration
+
+---
+
+## Quick start
+This section provides how to download and run pre-built Docker image without building the project.
+
+#### 1. Install docker
+
+- docker
+
 ```sh
 curl -sSL https://get.docker.com | sh
 sudo usermod -aG docker $USER
 newgrp docker
 ```
-Everything is now ready to deploy Edge-Orchestration
 
----
+#### 2. Download Docker image from [Docker Hub](https://hub.docker.com/r/lfedge/edge-home-orchestration-go/tags)
 
-## Quick start 
-This section provides how to download and run pre-built Docker image without building the project.
+To download the image, you must execute the command: `docker pull lfedge/edge-home-orchestration-go:{tag}`, where `{tag}` is a release name.
+```shell
+docker pull lfedge/edge-home-orchestration-go:latest
+```
+If it succeeds, you can see the Docker image as follows:
+```shell
+docker images
 
-> TBD
+REPOSITORY                            TAG           IMAGE ID            CREATED             SIZE
+lfedge/edge-home-orchestration-go     latest        740bcf622152        6 hours ago         161MB
+```
+
+#### 3. Run with Docker image
+
+How to run see [here](../x86_64_linux/x86_64_linux.md#how-to-work).
 
 ---
 
 ## How to build Edge-Orchestration
 
-Prerequisites: install the qemu packages
+Prerequisites: install the docker and qemu packages
+
+- Docker
+```sh
+curl -sSL https://get.docker.com | sh
+sudo usermod -aG docker $USER
+newgrp docker
+```
+- Qemu packages
+
 ```shell
 sudo apt-get install qemu binfmt-support qemu-user-static
 ```

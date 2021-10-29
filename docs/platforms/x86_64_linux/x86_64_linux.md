@@ -9,6 +9,7 @@ This section provides how to download and run pre-built Docker image without bui
   - [How to install](https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/)
 
 #### 2. Download Docker image from [Docker Hub](https://hub.docker.com/r/lfedge/edge-home-orchestration-go/tags)
+To download the image, you must execute the command: `docker pull lfedge/edge-home-orchestration-go:{tag}`, where `{tag}` is a release name.
 ```shell
 docker pull lfedge/edge-home-orchestration-go:latest
 ```
