@@ -51,12 +51,12 @@ void usage(const char *path)
 int main(int argc, char *argv[]) {
 
     int secure = 0;
-    int mndec = 0;
+    int mnedc = 0;
     int opt;
 
     struct option longopts[] = {
         { "help", no_argument, NULL, 'h' },
-        { "mndec", required_argument, NULL, 'm' },
+        { "mnedc", required_argument, NULL, 'm' },
         { "secure", optional_argument, NULL, 's' },
         { 0 }
     };
@@ -68,9 +68,9 @@ int main(int argc, char *argv[]) {
                 return 0;
             case 'm':
                 if (strcmp("server", optarg) == 0)
-                    mndec = 1;
+                    mnedc = 1;
                 if (strcmp("client", optarg) == 0)
-                    mndec = 2;
+                    mnedc = 2;
                 break;
             case 's':
                 if (optarg != 0) {
@@ -93,7 +93,7 @@ int main(int argc, char *argv[]) {
     argc = 1;
     argv[1] = 0;
 
-    if (OrchestrationInit(secure, mndec) != 0) {
+    if (OrchestrationInit(secure, mnedc) != 0) {
         return -1;
     }
 

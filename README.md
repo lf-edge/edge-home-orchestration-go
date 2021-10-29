@@ -60,11 +60,11 @@ Please select the target platform in the table below and follow the link.
 
 | Platform                | Maintained  | Maintainer   | Remarks                           |
 |-------------------------|-------------|--------------| ----------------------------------|
-| [x86_64 Linux]          | coconut     | @lf-edge/edge-home-orchestration-go-committers | |
-| [Raspberry Pi3]         | coconut     | @t25kim      |                                   |
-| [HiKey960]              | coconut     | @tdrozdovsky |                                   |
-| [Raspberry Pi3 Cluster] | coconut     | @tdrozdovsky |                                   |
-| [Orange Pi3]            | coconut     | @Vitalii55   |                                   |
+| [x86_64 Linux]          | dewberries  | @lf-edge/edge-home-orchestration-go-committers | |
+| [Raspberry Pi3]         | dewberries  | @t25kim      |                                   |
+| [HiKey960]              | dewberries  | @tdrozdovsky |                                   |
+| [Raspberry Pi3 Cluster] | dewberries  | @tdrozdovsky |                                   |
+| [Orange Pi3]            | dewberries  | @Vitalii55   |                                   |
 ---
 
 ## Documentation
