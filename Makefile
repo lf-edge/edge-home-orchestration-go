@@ -14,7 +14,7 @@ endif
 endif
 
 BUILD_DATE=${shell date +%Y%m%d.%H%M}
-CONTAINER_VERSION="coconut"
+CONTAINER_VERSION="dewberries"
 
 DOCKER_IMAGE="edge-orchestration"
 

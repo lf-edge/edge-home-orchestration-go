@@ -9,22 +9,18 @@ This section provides how to download and run pre-built Docker image without bui
   - [How to install](https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/)
 
 #### 2. Download Docker image
-Please download [edge-orchestration docker container](https://github.com/lf-edge/edge-home-orchestration-go/releases/download/coconut/edge-orchestration.tar)
-
-#### 3. Load Docker image from tar file
 ```shell
-docker load -i edge-orchestration.tar
+docker pull lfedge/edge-home-orchestration-go:latest
 ```
 If it succeeds, you can see the Docker image as follows:
 ```shell
 docker images
-```
-```
-REPOSITORY                 TAG                 IMAGE ID            CREATED             SIZE
-edge-orchestration         coconut             502e3c07b01f        3 minutes ago       185MB
+
+REPOSITORY                            TAG           IMAGE ID            CREATED             SIZE
+lfedge/edge-home-orchestration-go     latest        6669fd8eac0f        6 hours ago         190MB
 ```
 
-#### 4. Run with Docker image
+#### 3. Run with Docker image
 Please see the below [How to work](#how-to-work) to know how to run Edge Orchestration Docker image
 
 ---
@@ -76,7 +72,8 @@ make distclean ; make create_context CONFIGFILE=x86_64c ; make
 
 > To easy change the configuration, you can use the kconfig-frontends. For Ubuntu 20.04 you can execute next command `sudo apt-get install kconfig-frontends`.
 
-After successfully build you can run edge-orchestration by execute next command:
+After successfully build, you can run edge-orchestration  for different configurations :
+1. Run normal mode
 ```
 make run
 ```
@@ -88,7 +85,7 @@ If it succeeds, you can see the container runs as follows:
 **********************************
 5d2efd81057fe56236602acfece0e8f11d447b54627f4f3669b18c85a95b8687
 CONTAINER ID        IMAGE                      COMMAND             CREATED                  STATUS                  PORTS               NAMES
-5d2efd81057f        edge-orchestration:coconut "sh run.sh"         Less than a second ago   Up Less than a second                       edge-orchestration
+5d2efd81057f        edge-orchestration:dewberries "sh run.sh"         Less than a second ago   Up Less than a second                       edge-orchestration
 ```
 
 and the built image as follows:
@@ -96,8 +93,8 @@ and the built image as follows:
 docker images
 ```
 ```
-REPOSITORY                 TAG                 IMAGE ID            CREATED             SIZE
-edge-orchestration         coconut             502e3c07b01f        3 seconds ago       185MB
+REPOSITORY             TAG                 IMAGE ID            CREATED             SIZE
+edge-orchestration     dewberries          6669fd8eac0f        6 hours ago         190MB
 ```
 
 - All Build Options
@@ -132,30 +129,60 @@ Note that you can visit [Swagger Editor](https://editor.swagger.io/) to graphica
 
 #### 1. Run Edge Orchestration container
 
-```shell
-docker run -it -d --privileged --network="host" --name edge-orchestration -v /var/edge-orchestration/:/var/edge-orchestration/:rw -v /var/run/docker.sock:/var/run/docker.sock:rw -v /proc/:/process/:ro edge-orchestration:coconut
-```
 - Environment Variables
 
   You can adjust the configuration of the edge-orchestration container by passing the environment variables below on the docker run command.
+
+  - NORMAL
+
+    Image built from source code
+    ```shell
+    docker run -it -d --privileged --network="host" --name edge-orchestration -v /var/edge-orchestration/:/var/edge-orchestration/:rw -v /var/run/docker.sock:/var/run/docker.sock:rw -v /proc/:/process/:ro edge-orchestration:dewberries
+    ```
+    Image from Docker Hub
+    ```shell
+    docker run -it -d --privileged --network="host" --name edge-orchestration -v /var/edge-orchestration/:/var/edge-orchestration/:rw -v /var/run/docker.sock:/var/run/docker.sock:rw -v /proc/:/process/:ro lfedge/edge-home-orchestration-go:latest
+    ```
+
   - SECURE
 
     [Secure](../../secure_manager.md) mode can be enabled by setting SECURE to `true`.
+
+    Image Built from source code
     ```shell
-    docker run -it -d --privileged --network="host" --name edge-orchestration -e SECURE=true -v /var/edge-orchestration/:/var/edge-orchestration/:rw -v /var/run/docker.sock:/var/run/docker.sock:rw -v /proc/:/process/:ro edge-orchestration:coconut
+    docker run -it -d --privileged --network="host" --name edge-orchestration -e SECURE=true -v /var/edge-orchestration/:/var/edge-orchestration/:rw -v /var/run/docker.sock:/var/run/docker.sock:rw -v /proc/:/process/:ro edge-orchestration:dewberries
     ```
+    Image from Docker Hub
+    ```shell
+    docker run -it -d --privileged --network="host" --name edge-orchestration -e SECURE=true -v /var/edge-orchestration/:/var/edge-orchestration/:rw -v /var/run/docker.sock:/var/run/docker.sock:rw -v /proc/:/process/:ro lfedge/edge-home-orchestration-go:latest
+
   - MNEDC
 
     [MNEDC](../../mnedc.md) mode can be enabled by setting MNEDC to `server` or `client`.
+
+    Image built from source code
     ```shell
-    docker run -it -d --privileged --network="host" --name edge-orchestration -e MNEDC=server -v /var/edge-orchestration/:/var/edge-orchestration/:rw -v /var/run/docker.sock:/var/run/docker.sock:rw -v /proc/:/process/:ro edge-orchestration:coconut
+    docker run -it -d --privileged --network="host" --name edge-orchestration -e MNEDC=server -v /var/edge-orchestration/:/var/edge-orchestration/:rw -v /var/run/docker.sock:/var/run/docker.sock:rw -v /proc/:/process/:ro edge-orchestration:dewberries
+    ```
+    Image from Docker Hub
+    ```shell
+    docker run -it -d --privileged --network="host" --name edge-orchestration -e MNEDC=server -v /var/edge-orchestration/:/var/edge-orchestration/:rw -v /var/run/docker.sock:/var/run/docker.sock:rw -v /proc/:/process/:ro lfedge/edge-home-orchestration-go:latest
     ```
 
   - LOGLEVEL
 
     You can set the log level (Debug, Info, Warn and others) by `LOGLEVEL` (Default level is `Info`).
+
+    Image built from source code
     ```shell
-    docker run -it -d --privileged --network="host" --name edge-orchestration -e LOGLEVEL=Warn -v /var/edge-orchestration/:/var/edge-orchestration/:rw -v /var/run/docker.sock:/var/run/docker.sock:rw -v /proc/:/process/:ro edge-orchestration:coconut
+    docker run -it -d --privileged --network="host" --name edge-orchestration -e LOGLEVEL=Warn -v /var/edge-orchestration/:/var/edge-orchestration/:rw -v /var/run/docker.sock:/var/run/docker.sock:rw -v /proc/:/process/:ro edge-orchestration:dewberries
+    ```
+
+    Image from Docker Hub
+     ```shell
+    docker run -it -d --privileged --network="host" --name edge-orchestration -e LOGLEVEL=Warn -v /var/edge-orchestration/:/var/edge-orchestration/:rw -v /var/run/docker.sock:/var/run/docker.sock:rw -v /proc/:/process/:ro lfedge/edge-home-orchestration-go:latest
+    ```
+
 
 - Result
 
