@@ -29,6 +29,7 @@ import (
 	networkhelper "github.com/lf-edge/edge-home-orchestration-go/internal/common/networkhelper"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/storagemgr/config"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/storagemgr/storagedriver"
+	dbhelper "github.com/lf-edge/edge-home-orchestration-go/internal/db/helper"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/resthelper"
 )
 
@@ -60,13 +61,14 @@ var (
 	deviceName string
 	ipv4       string
 	storageIns *StorageImpl
+	dbIns      dbhelper.MultipleBucketQuery
 	helper     resthelper.RestHelper
 	log        = logmgr.GetInstance()
 )
 
 func init() {
-	deviceID, _ := getDeviceID()
-	deviceName = "edge-orchestration-" + deviceID
+	dbIns = dbhelper.GetInstance()
+	deviceName, _ = dbIns.GetDeviceID()
 	storageIns = &StorageImpl{
 		sd:     storagedriver.StorageDriver{},
 		status: 0,
