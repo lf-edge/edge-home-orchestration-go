@@ -67,8 +67,6 @@ var (
 )
 
 func init() {
-	dbIns = dbhelper.GetInstance()
-	deviceName, _ = dbIns.GetDeviceID()
 	storageIns = &StorageImpl{
 		sd:     storagedriver.StorageDriver{},
 		status: 0,
@@ -104,6 +102,8 @@ func checkMetadataStatus() bool {
 
 // StartStorage starts a server in terms of DataStorage
 func (s *StorageImpl) StartStorage(host string) (err error) {
+	dbIns = dbhelper.GetInstance()
+	deviceName, _ = dbIns.GetDeviceID()
 	//Getting the Edge-Orchestration IP
 	ipv4, err = networkhelper.GetInstance().GetOutboundIP()
 	if err != nil {
