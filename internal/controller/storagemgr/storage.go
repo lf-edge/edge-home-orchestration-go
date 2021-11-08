@@ -29,6 +29,7 @@ import (
 	networkhelper "github.com/lf-edge/edge-home-orchestration-go/internal/common/networkhelper"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/storagemgr/config"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/storagemgr/storagedriver"
+	dbhelper "github.com/lf-edge/edge-home-orchestration-go/internal/db/helper"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/resthelper"
 )
 
@@ -60,13 +61,12 @@ var (
 	deviceName string
 	ipv4       string
 	storageIns *StorageImpl
+	dbIns      dbhelper.MultipleBucketQuery
 	helper     resthelper.RestHelper
 	log        = logmgr.GetInstance()
 )
 
 func init() {
-	deviceID, _ := getDeviceID()
-	deviceName = "edge-orchestration-" + deviceID
 	storageIns = &StorageImpl{
 		sd:     storagedriver.StorageDriver{},
 		status: 0,
@@ -102,6 +102,8 @@ func checkMetadataStatus() bool {
 
 // StartStorage starts a server in terms of DataStorage
 func (s *StorageImpl) StartStorage(host string) (err error) {
+	dbIns = dbhelper.GetInstance()
+	deviceName, _ = dbIns.GetDeviceID()
 	//Getting the Edge-Orchestration IP
 	ipv4, err = networkhelper.GetInstance().GetOutboundIP()
 	if err != nil {
@@ -238,12 +240,4 @@ func saveYaml() (err error) {
 		err = ioutil.WriteFile(dataStorageConfFolder+"/datastorage-device.yaml", b, 0644)
 	}
 	return
-}
-
-func getDeviceID() (string, error) {
-	UUIDv4, err := ioutil.ReadFile(deviceIDFilePath)
-	if err != nil {
-		return "", err
-	}
-	return string(UUIDv4), nil
 }
