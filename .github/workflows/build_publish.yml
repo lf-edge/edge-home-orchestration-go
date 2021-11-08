@@ -1,6 +1,6 @@
 ---
 name: Build and Publish Containers
-on: [push, pull_request]
+on: [push]
 
 jobs:
   build:
