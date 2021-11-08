@@ -311,3 +311,9 @@ do_savedefconfig:
 	$(Q) cp -f .config configs/defconfigs/$(CONFIG_CONFIGFILE)
 
 savedefconfig: do_savedefconfig
+
+# Building binaries through multi-stage build
+buildx_binary:
+	$(call print_header, "Create Executable binary through buildx")
+	$(GOBUILD) -a $(GO_LDFLAGS) -o $(BIN_DIR)/$(BIN_FILE) $(CMD_SRC) || exit 1
+	$(Q) ls -al $(BIN_DIR)
