@@ -1,0 +1,30 @@
+---
+name: Build and Publish Containers
+on: [push]
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [linux/amd64, linux/386, linux/arm64, linux/arm/v7]
+        os: [ubuntu-20.04, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Golang
+        uses: actions/setup-go@v1
+        with:
+          go-version: '1.16.6'
+
+      - name: Install Qemu
+        if:  ${{ matrix.arch != 'x86_64c' }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu binfmt-support qemu-user-static
+
+      - name: Build
+        run: |
+          make distclean
+          docker buildx build --tag lfedge/edge-home-orchestration-go:latest --platform=${{ matrix.arch }} --file configs/defdockerfiles/ubuntu_multistage .
