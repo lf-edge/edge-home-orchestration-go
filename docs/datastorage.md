@@ -6,7 +6,8 @@
 4. [How to Run](#4-how-to-run)  
     4.1 [Configuration](#41-configuration)  
     4.2 [Run EdgeX Foundry Containers](#42-run-edgex-foundry-containers)  
-    4.3 [Run Edge Orchestration](#43-run-edge-orchestration)
+    4.3 [Run Edge Orchestration](#43-run-edge-orchestration)  
+    4.4 [Data Storage REST API](#44-data-storage-rest-api)
 
 ## 1. Introduction
 DataStorage module is responsible for storing the data (can be sensor data or any reading or image/video data, etc.) from different devices in the home environment. Any device registered to this module can also request for data to different devices. The databases used to store the data is Redis DB. At regular intervals this data is synced up with the cloud using MQTT with respect to its parent feature in EdgeX Foundry. By defualt sync is disabled; In order to enable the sync please refer the documentation [Cloud Setup MQTT](https://github.com/lf-edge/edge-home-orchestration-go/blob/master/docs/cloud_setup_mqtt.md)
@@ -33,21 +34,32 @@ The following architecture assumes that data stored at data controller would be 
 
 ### 4.1 Configuration
 
-- Placement the [`test/container/datastorage/`](../test/container/datastorage/) folder into `/var/edge-orchestration/apps/` in your **Home Edge** with Data Storage (**Device A**).
-```sh
+- Copy the [`test/container/datastorage/`](../test/container/datastorage/) folder into `/var/edge-orchestration/apps/` in your **Home Edge** with Data Storage (**Device A**).
+```shell
 sudo cp -rf test/container/datastorage/ /var/edge-orchestration/apps/
 ```
+ - Remove configuration files in `/var/edge-orchestration/datastorage` (if nessesary)
+```shell
+sudo rm -rf /var/edge-orchestration/datastorage/
+```
+
 
 ### 4.2 Run EdgeX Foundry containers
 - Run the Hanoi version of EdgeX Docker containers on your Linux machine (**Device A**) with respect to the guidance from [EdgeX Foundry Services](https://github.com/edgexfoundry/edgex-go#get-started), or the _simplest way_ that you can follow using follows;
 
-```sh
+```shell
 cd deployments/datastorage
 docker-compose up -d
 ```
 
 ### 4.3 Run Edge Orchestration
-- Run `edge-home-orchestration-go` with DataStorage on **Device A**, referring to "How to work" in [link](./platforms/x86_64_linux/x86_64_linux.md#how-to-work).
+- Run `edge-home-orchestration-go` with DataStorage on **Device A**, referring to [How to work](./platforms/x86_64_linux/x86_64_linux.md#how-to-work) or execute the next command:
+
+```shell
+docker run -it -d --rm --privileged --network="host" --name edge-orchestration -e SERVICE=DataStorage -v /var/edge-orchestration/:/var/edge-orchestration/:rw -v /var/run/docker.sock:/var/run/docker.sock:rw -v /proc/:/process/:ro lfedge/edge-home-orchestration-go:latest
+```
+
+
 - You can see the **Device A** has the `DataStorage` service as follows:
 ```
 docker logs -f edge-orchestration
@@ -59,3 +71,75 @@ INFO[2021-08-10T04:28:20Z]discovery.go:574 func1 [deviceDetectionRoutine] netInf
 INFO[2021-08-10T04:28:20Z]discovery.go:575 func1 [deviceDetectionRoutine] serviceInfo : Services([DataStorage])
 ```
 - Other devices running with **Home Edge** will connect automatically.
+
+### 4.4 Data Storage REST API
+#### 4.4.1 Description
+
+Data Storage REST API supports the next functions for datastorage management:  
+  - _**`/api/v1/device/{deviceNameKey}/resource/{resourceNameKey}`** (POST,GET)_  
+  - _**`/api/v1/device/{deviceNameKey}/resource/{resourceNameKey}/{numberOfReadings}`** (GET)_  
+  - _**`/api/v1/resource/{resourceNameKey}`** (POST,GET)_  
+  - _**`/api/v1/resource/{resourceNameKey}/{numberOfReadings}`** (GET)_  
+  - _**`/api/v1/start/{start}/end/{end}/{ReadingCount}`** (GET)_  
+
+Parameters:  
+  _`{deviceNameKey}`_ - Device name of datastorage (Ex.: edge-orchestration-fcc73f4c-1cfc-4bb7-b716-c3555735423b)  
+  _`{resourceNameKey}`_ - Type of stored value (Ex.: int, float, string, jpeg, png)  
+  _`{numberOfReadings}`_ - Number of data that should be read (Ex.: 2)  
+  _`{start}`_ - Start timestamp (Unix timestamp) (Ex.: 1626939648581)  
+  _`{end}`_ - End timestamp (Unix timestamp) (Ex.: 1626939648681)  
+  _`{ReadingCount}`_ - Number of data that should be read from this time interval (Ex.: 2)  
+
+#### 4.4.2 Examples of using these commands are given below:
+
+**`/api/v1/device/{deviceNameKey}/resource/{resourceNameKey}`**
+```shell
+curl -X POST "IP:49986/api/v1/device/edge-orchestration-fcc73f4c-1cfc-4bb7-b716-c3555735423b/resource/int" -H "accept: text/plain" -H "Content-Type: text/plain" -d 123
+```
+
+```shell
+curl -X GET "IP:49986/api/v1/device/edge-orchestration-fcc73f4c-1cfc-4bb7-b716-c3555735423b/resource/int"
+```
+Result:
+```shell
+[{"id":"7483ad68-b783-4042-8436-71ac7f22f21c","created":1637696998270,"origin":1637696998268855611, "device":"edge-orchestration-fcc73f4c-1cfc-4bb7-b716-c3555735423b","name":"int","value":"234","valueType":"Int64"}]
+```
+
+**`/api/v1/device/{deviceNameKey}/resource/{resourceNameKey}/{numberOfReadings}`**
+```shell
+curl -X GET "IP:49986/api/v1/device/edge-orchestration-fcc73f4c-1cfc-4bb7-b716-c3555735423b/resource/int/2"
+```
+Result:
+```shell
+[{"id":"7483ad68-b783-4042-8436-71ac7f22f21c","created":1637696998270,"origin":1637696998268855611,"device":"edge-orchestration-fcc73f4c-1cfc-4bb7-b716-c3555735423b","name":"int","value":"234","valueType":"Int64"},{"id":"2989ad0a-f775-4d90-9277-a308f46d839d","created":1637696955151,"origin":1637696955149540509,"device":"edge-orchestration-fcc73f4c-1cfc-4bb7-b716-c3555735423b","name":"int","value":"456","valueType":"Int64"}]
+```
+
+**`/api/v1/resource/{resourceNameKey}`**
+```shell
+curl -X POST "IP:49986/api/v1/resource/int" -H "accept: text/plain" -H "Content-Type: text/plain" -d 123
+```
+```shell
+curl -X GET "IP:49986/api/v1/resource/int"
+```
+Result:
+```shell
+[{"id":"806f7a3e-23a3-42e0-9f01-f68407b9fb36","created":1637696567735,"origin":1637696567733326877,"device":"edge-orchestration-fcc73f4c-1cfc-4bb7-b716-c3555735423b","name":"int","value":"123","valueType":"Int64"}]
+```
+
+**`/api/v1/resource/{resourceNameKey}/{numberOfReadings}`**
+```shell
+curl -X GET "IP:49986/api/v1/resource/int/2"
+```
+Result:
+```shell
+[{"id":"7483ad68-b783-4042-8436-71ac7f22f21c","created":1637696998270,"origin":1637696998268855611,"device":"edge-orchestration-fcc73f4c-1cfc-4bb7-b716-c3555735423b","name":"int","value":"234","valueType":"Int64"},{"id":"2989ad0a-f775-4d90-9277-a308f46d839d","created":1637696955151,"origin":1637696955149540509,"device":"edge-orchestration-fcc73f4c-1cfc-4bb7-b716-c3555735423b","name":"int","value":"456","valueType":"Int64"}]
+```
+
+**`/api/v1/start/{start}/end/{end}/{ReadingCount}`**
+```shell
+curl -X GET "IP:49986/api/v1/start/1637696955151/end/1637696998270/2"
+```
+Result:
+```shell
+[{"id":"2989ad0a-f775-4d90-9277-a308f46d839d","created":1637696955151,"origin":1637696955149540509,"device":"edge-orchestration-fcc73f4c-1cfc-4bb7-b716-c3555735423b","name":"int","value":"456","valueType":"Int64"},{"id":"7483ad68-b783-4042-8436-71ac7f22f21c","created":1637696998270,"origin":1637696998268855611,"device":"edge-orchestration-fcc73f4c-1cfc-4bb7-b716-c3555735423b","name":"int","value":"234","valueType":"Int64"}]
+```
