@@ -29,6 +29,7 @@ We are releasing patches to eliminate vulnerabilities, you can see below:
 | ----------- | ------------ | ------------------ | ---------------------------------------------- |
 | 1.0.0       | N/A          |                    |                                                |
 | 1.1.0       | Fixed        |                    | CVE-2020-15257, CVE-2021-32760, CVE-2021-41103 |
+| 1.1.1       | Fixed        |                    | CVE-2021-41190                                 |
 
 ### 2.2 Vulnerability Report
 

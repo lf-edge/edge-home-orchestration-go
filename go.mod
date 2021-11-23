@@ -7,7 +7,7 @@ require (
 	github.com/Microsoft/go-winio v0.4.16 // indirect
 	github.com/StackExchange/wmi v0.0.0-20190523213315-cbe66965904d // indirect
 	github.com/casbin/casbin v1.9.1
-	github.com/containerd/containerd v1.4.11 // indirect
+	github.com/containerd/containerd v1.4.12 // indirect
 	github.com/docker/cli v0.0.0-20201024074417-fd3371eb7df1
 	github.com/docker/distribution v2.7.1-0.20190205005809-0d3efadf0154+incompatible // indirect
 	github.com/docker/docker v17.12.0-ce-rc1.0.20201201034508-7d75c1d40d88+incompatible
@@ -28,7 +28,7 @@ require (
 	github.com/mattn/go-shellwords v1.0.10 // indirect
 	github.com/morikuni/aec v1.0.0 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
-	github.com/opencontainers/image-spec v1.0.1 // indirect
+	github.com/opencontainers/image-spec v1.0.2 // indirect
 	github.com/pelletier/go-toml v1.2.0
 	github.com/pkg/errors v0.9.1
 	github.com/satori/go.uuid v1.2.0
