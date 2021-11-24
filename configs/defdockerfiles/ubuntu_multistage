@@ -14,7 +14,7 @@ COPY . .
 
 # install required tools
 RUN apt update
-RUN apt install -y net-tools iproute2 wget build-essential git
+RUN apt install -y wget build-essential git
 RUN script/install-golang.sh
 RUN make buildx_binary
 
@@ -29,7 +29,6 @@ ENV MNEDC_BROADCAST_PORT=3333
 ENV ZEROCONF_PORT=42425
 ENV APP_BIN_DIR=bin
 ENV APP_NAME=edge-orchestration
-ENV APP_QEMU_DIR=$APP_BIN_DIR/qemu
 ENV BUILD_DIR=build
 
 # set the working directory
