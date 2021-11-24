@@ -159,10 +159,16 @@ Note that you can visit [Swagger Editor](https://editor.swagger.io/) to graphica
 
     You can set the log level (Debug, Info, Warn and others) by `LOGLEVEL` (Default level is `Info`).
 
-     ```shell
+    ```shell
     docker run -it -d --privileged --network="host" --name edge-orchestration -e LOGLEVEL=Warn -v /var/edge-orchestration/:/var/edge-orchestration/:rw -v /var/run/docker.sock:/var/run/docker.sock:rw -v /proc/:/process/:ro lfedge/edge-home-orchestration-go:latest
     ```
 
+  - SERVICE (DataStorage)
+
+    [How to use DataStorage](../../datastorage.md).
+    ```shell
+    docker run -it -d --rm --privileged --network="host" --name edge-orchestration -e SERVICE=DataStorage -v /var/edge-orchestration/:/var/edge-orchestration/:rw -v /var/run/docker.sock:/var/run/docker.sock:rw -v /proc/:/process/:ro lfedge/edge-home-orchestration-go:latest
+    ```
 
 - Result
 
