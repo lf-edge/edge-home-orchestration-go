@@ -14,7 +14,7 @@ endif
 endif
 
 BUILD_DATE=${shell date +%Y%m%d.%H%M}
-VERSION=v1.1.0
+VERSION=${shell git describe --tags ${shell git rev-list --tags --max-count=1}}
 CONTAINER_VERSION="latest"
 DOCKER_IMAGE="lfedge/edge-home-orchestration-go"
 
