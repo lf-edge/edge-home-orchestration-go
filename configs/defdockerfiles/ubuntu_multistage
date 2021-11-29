@@ -16,7 +16,8 @@ COPY . .
 RUN apt update
 RUN apt install -y wget build-essential git
 RUN script/install-golang.sh
-RUN make buildx_binary
+ARG TARGETVERSION
+RUN make buildx_binary VERSION=$TARGETVERSION
 
 FROM ubuntu:18.04
 
