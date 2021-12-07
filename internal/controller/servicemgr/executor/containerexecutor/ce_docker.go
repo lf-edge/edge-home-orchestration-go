@@ -51,7 +51,7 @@ type CEDocker struct {
 }
 
 func newCEDocker() (ceDocker *CEDocker) {
-	cli, err := client.NewEnvClient()
+	cli, err := client.NewClientWithOpts(client.FromEnv)
 	if err == nil {
 		ceDocker = &CEDocker{context.Background(), cli}
 	}
