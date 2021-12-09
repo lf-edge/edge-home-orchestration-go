@@ -48,6 +48,7 @@ import (
 	"github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/route"
 
 	"github.com/lf-edge/edge-home-orchestration-go/internal/db/bolt/wrapper"
+	"github.com/lf-edge/edge-home-orchestration-go/internal/webui"
 )
 
 const logPrefix = "interface"
@@ -100,6 +101,7 @@ func orchestrationInit() error {
 
 	secure := os.Getenv("SECURE")
 	mnedc := os.Getenv("MNEDC")
+	ui := os.Getenv("WEBUI")
 
 	isSecured := false
 	if len(secure) > 0 {
@@ -174,8 +176,6 @@ func orchestrationInit() error {
 
 	restEdgeRouter.Start()
 
-	log.Println(logPrefix, "orchestration init done")
-
 	if len(mnedc) > 0 {
 		if strings.Compare(strings.ToLower(mnedc), "server") == 0 {
 			mnedcmgr.GetServerInstance().SetCipher(cipher)
@@ -190,6 +190,11 @@ func orchestrationInit() error {
 			go discoverymgr.GetInstance().StartMNEDCClient(deviceIDFilePath, mnedcServerConfig)
 		}
 	}
+
+	if strings.Compare(strings.ToLower(ui), "true") == 0 {
+		webui.Start()
+	}
+	log.Println(logPrefix, "orchestration init done")
 
 	return nil
 }
