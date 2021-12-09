@@ -26,6 +26,7 @@ import (
 	networkmocks "github.com/lf-edge/edge-home-orchestration-go/internal/common/networkhelper/mocks"
 	resourceutilmocks "github.com/lf-edge/edge-home-orchestration-go/internal/common/resourceutil/mocks"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/types/configuremgrtypes"
+	cloudsyncmocks "github.com/lf-edge/edge-home-orchestration-go/internal/controller/cloudsyncmgr/mocks"
 	contextmgrmocks "github.com/lf-edge/edge-home-orchestration-go/internal/controller/configuremgr/mocks"
 	discoverymocks "github.com/lf-edge/edge-home-orchestration-go/internal/controller/discoverymgr/mocks"
 	scoringmocks "github.com/lf-edge/edge-home-orchestration-go/internal/controller/scoringmgr/mocks"
@@ -47,6 +48,7 @@ var (
 	mockDiscovery    *discoverymocks.MockDiscovery
 	mockScoring      *scoringmocks.MockScoring
 	mockStorage      *storagemocks.MockStorage
+	mockCloudSync    *cloudsyncmocks.MockCloudSync
 	mockService      *servicemocks.MockServiceMgr
 	mockExecutor     *executormocks.MockServiceExecutor
 	mockDBHelper     *dbhelpermocks.MockMultipleBucketQuery
@@ -63,6 +65,7 @@ func createMockIns(ctrl *gomock.Controller) {
 	mockDiscovery = discoverymocks.NewMockDiscovery(ctrl)
 	mockScoring = scoringmocks.NewMockScoring(ctrl)
 	mockStorage = storagemocks.NewMockStorage(ctrl)
+	mockCloudSync = cloudsyncmocks.NewMockCloudSync(ctrl)
 	mockService = servicemocks.NewMockServiceMgr(ctrl)
 	mockExecutor = executormocks.NewMockServiceExecutor(ctrl)
 	mockDBHelper = dbhelpermocks.NewMockMultipleBucketQuery(ctrl)
@@ -80,6 +83,7 @@ func getOcheIns(ctrl *gomock.Controller) Orche {
 	builder.SetExecutor(mockExecutor)
 	builder.SetScoring(mockScoring)
 	builder.SetStorage(mockStorage)
+	builder.SetCloudSync(mockCloudSync)
 	builder.SetService(mockService)
 	builder.SetWatcher(mockWatcher)
 	builder.SetClient(mockClient)
@@ -111,6 +115,7 @@ func TestBuild(t *testing.T) {
 		builder.SetExecutor(mockExecutor)
 		builder.SetScoring(mockScoring)
 		builder.SetStorage(mockStorage)
+		builder.SetCloudSync(mockCloudSync)
 		builder.SetService(mockService)
 		builder.SetWatcher(mockWatcher)
 		builder.SetClient(mockClient)
@@ -219,6 +224,7 @@ func TestStart(t *testing.T) {
 			mockResourceutil.EXPECT().StartMonitoringResource(),
 			mockDiscovery.EXPECT().StartDiscovery(gomock.Eq(deviceIDPath), gomock.Eq(platform), gomock.Eq(executionType)),
 			mockStorage.EXPECT().StartStorage(gomock.Any()),
+			mockCloudSync.EXPECT().StartCloudSync(gomock.Any()),
 			mockWatcher.EXPECT().Watch(gomock.Any()),
 		)
 

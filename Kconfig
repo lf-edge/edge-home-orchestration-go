@@ -89,3 +89,7 @@ config SECURE_MODE
 	default y
 	---help---
 		"Secure mode is enable"
+
+config CLOUD_SYNC
+	bool "CloudSync"
+	default y

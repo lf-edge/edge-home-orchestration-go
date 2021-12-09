@@ -20,9 +20,11 @@ package orchestrationapi
 
 import (
 	"errors"
+	"os"
 	"time"
 
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
+	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/cloudsyncmgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/storagemgr"
 
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/commandvalidator"
@@ -33,6 +35,7 @@ import (
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/configuremgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/discoverymgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/scoringmgr"
+
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/securemgr/verifier"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/servicemgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/servicemgr/executor"
@@ -110,6 +113,9 @@ type OrchestrationBuilder struct {
 	isSetStorage bool
 	storageIns   storagemgr.Storage
 
+	isSetCloudSync bool
+	cloudsyncIns   cloudsyncmgr.CloudSync
+
 	isSetWatcher bool
 	watcherIns   configuremgr.Watcher
 
@@ -145,6 +151,12 @@ func (o *OrchestrationBuilder) SetDiscovery(d discoverymgr.Discovery) {
 func (o *OrchestrationBuilder) SetStorage(d storagemgr.Storage) {
 	o.isSetStorage = true
 	o.storageIns = d
+}
+
+// SetCloudSync registers the interface to handle orchestration CloudSync
+func (o *OrchestrationBuilder) SetCloudSync(d cloudsyncmgr.CloudSync) {
+	o.isSetCloudSync = true
+	o.cloudsyncIns = d
 }
 
 // SetWatcher registers the interface to check if service applications are installed
@@ -183,6 +195,7 @@ func (o OrchestrationBuilder) Build() Orche {
 	orcheIns.scoringIns = o.scoringIns
 	orcheIns.discoverIns = o.discoveryIns
 	orcheIns.storageIns = o.storageIns
+	orcheIns.cloudsyncIns = o.cloudsyncIns
 	orcheIns.verifierIns = o.verifierIns
 	orcheIns.watcher = o.watcherIns
 	orcheIns.serviceIns = o.serviceIns
@@ -202,6 +215,7 @@ func (o *orcheImpl) Start(deviceIDPath string, platform string, executionType st
 	resourceMonitorImpl.StartMonitoringResource()
 	o.discoverIns.StartDiscovery(deviceIDPath, platform, executionType)
 	o.storageIns.StartStorage("")
+	o.cloudsyncIns.StartCloudSync(os.Getenv("CLOUD_SYNC"))
 	o.watcher.Watch(o)
 	o.Ready = true
 	time.Sleep(1000)
