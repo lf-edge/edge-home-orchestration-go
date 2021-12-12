@@ -74,7 +74,6 @@ static char* bridge_kGetter(char* id){
 */
 import "C"
 import (
-	"errors"
 	"flag"
 	"math"
 	"strings"
@@ -306,26 +305,6 @@ func OrchestrationRequestService(cAppName *C.char, cSelfSelection C.int, cReques
 }
 
 type customHandler struct{}
-
-func (cHandler customHandler) GetIdentity() string {
-	var cIdentity *C.char
-	cIdentity = C.bridge_iGetter()
-	identity := C.GoString(cIdentity)
-	return identity
-}
-
-func (cHandler customHandler) GetKey(id string) ([]byte, error) {
-	var cKey *C.char
-	cStr := C.CString(id)
-	defer C.free(unsafe.Pointer(cStr))
-
-	cKey = C.bridge_kGetter(cStr)
-	key := C.GoString(cKey)
-	if len(key) == 0 {
-		return nil, errors.New("key is empty")
-	}
-	return []byte(key), nil
-}
 
 // SetHandler sets handler
 //export SetHandler
