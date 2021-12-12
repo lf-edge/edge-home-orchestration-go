@@ -1,0 +1,39 @@
+##### Labeler ##########################################################################################################
+# Enable "labeler" for your PR that would add labels to PRs based on the paths that are modified in the PR.
+labelPRBasedOnFilePath:
+  # Add 'documentation' to any changes within 'docs' and 'api' folders or any subfolders and any change to *.md files
+  documentation:
+    - '**/*.md'
+    - 'docs/**/*'
+    - 'api/**/*'
+
+  # Add 'CI' to any file changes within '.github' folder or any subfolders
+  CI:
+    - '.github/**/*'
+    - 'staticcheck.conf'
+    - '.sonarcloud.properties'
+
+  # Add 'config' label to any change within the 'configs' and 'deployments' folders and any change to Kconfig, go.mod
+  config:
+    - 'configs/**/*'
+    - 'Kconfig'
+    - 'deployments/**/*'
+    - 'go.mod'
+
+  # Add 'tools' label to any change within the 'tools' and 'script' folders or any subfolders
+  tools:
+    - 'tools/**/*'
+    - 'script/**/*'
+
+##### Greetings ########################################################################################################
+# Comment to be posted to welcome users when they open their first PR
+firstPRWelcomeComment: >
+  Thanks for opening this pull request! Please check out our contributing guidelines.
+
+# Comment to be posted to congratulate user on their first merged PR
+firstPRMergeComment: >
+  Awesome work, congrats on your first merged pull request!
+
+# Comment to be posted to on first time issues
+firstIssueWelcomeComment: >
+  Thanks for opening your first issue here! Be sure to follow the issue template!
