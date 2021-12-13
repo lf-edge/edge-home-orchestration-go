@@ -18,11 +18,9 @@
 package tls
 
 import (
-	"io/ioutil"
 	"sync/atomic"
 
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
-	"github.com/satori/go.uuid"
 )
 
 // File names of certificate and private key
@@ -54,10 +52,7 @@ func GetCertFilePath() string {
 }
 
 // Handler provides interfaces for the tls
-type Handler interface {
-	GetIdentity() string
-	GetKey(identity string) ([]byte, error)
-}
+type Handler interface{}
 
 // CertificateSetter interface provides setting the certificate file path
 type CertificateSetter interface {
@@ -92,26 +87,4 @@ func (h *HasCertificate) GetCertificateFilePath() string {
 	return ""
 }
 
-// GetIdentity gets identity
-func GetIdentity() string {
-	return handler.GetIdentity()
-}
-
-// GetKey gets key using id
-func GetKey(id string) ([]byte, error) {
-	return handler.GetKey(id)
-}
-
 type defaultIdentifier struct{}
-
-func (defaultIdentifier) GetIdentity() string {
-	return uuid.Must(uuid.NewV4(), nil).String()
-}
-
-func (defaultIdentifier) GetKey(id string) ([]byte, error) {
-	key, err := ioutil.ReadFile(GetCertFilePath() + "/" + KeyFileName)
-	if err != nil {
-		return nil, err
-	}
-	return key, nil
-}
