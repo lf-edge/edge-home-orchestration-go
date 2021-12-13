@@ -30,7 +30,7 @@ examples/native/edge-orchestration
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
-*.html
+coverage.html
 internal/controller/discoverymgr/testDB/*
 internal/controller/storagemgr/storagedriver/tests.log
 

@@ -28,9 +28,11 @@ ENV MDNS_PORT=5353
 ENV MNEDC_PORT=3334
 ENV MNEDC_BROADCAST_PORT=3333
 ENV ZEROCONF_PORT=42425
+ENV UI_PORT=49153
 ENV APP_BIN_DIR=bin
 ENV APP_NAME=edge-orchestration
 ENV BUILD_DIR=build
+ENV WEB_DIR=web
 
 # set the working directory
 WORKDIR $TARGET_DIR
@@ -38,6 +40,7 @@ WORKDIR $TARGET_DIR
 # copy files
 COPY --from=builder $TARGET_DIR/$APP_BIN_DIR/$APP_NAME $TARGET_DIR/
 COPY --from=builder $TARGET_DIR/$BUILD_DIR/package/run.sh $TARGET_DIR/
+COPY --from=builder $TARGET_DIR/$WEB_DIR/static $TARGET_DIR/$WEB_DIR/
 RUN mkdir -p $TARGET_DIR/res/
 
 # install required tools
@@ -45,7 +48,7 @@ RUN apt-get update
 RUN apt-get install -y net-tools iproute2
 
 # expose ports
-EXPOSE $HTTP_PORT $MDNS_PORT $ZEROCONF_PORT $MNEDC_PORT $MNEDC_BROADCAST_PORT
+EXPOSE $HTTP_PORT $MDNS_PORT $ZEROCONF_PORT $MNEDC_PORT $MNEDC_BROADCAST_PORT $UI_PORT
 
 # kick off the edge-orchestration container
 CMD ["sh", "run.sh"]
