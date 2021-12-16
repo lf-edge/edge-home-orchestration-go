@@ -14,7 +14,7 @@ endif
 endif
 
 BUILD_DATE=${shell date +%Y%m%d.%H%M}
-VERSION=v1.1.2
+VERSION=v1.1.3
 CONTAINER_VERSION="latest"
 DOCKER_IMAGE="lfedge/edge-home-orchestration-go"
 
