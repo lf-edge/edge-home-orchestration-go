@@ -66,7 +66,7 @@ func (t *AndroidExecutor) SetExecuteCallback(executeCallback ExecuteCallback) {
 func (t *AndroidExecutor) Execute(s executor.ServiceExecutionInfo) (err error) {
 	t.ServiceExecutionInfo = s
 
-	log.Println(logPrefix, t.ServiceName, t.ParamStr)
+	log.Println(logPrefix, logmgr.SanitizeUserInput(t.ServiceName), logmgr.SanitizeUserInput(strings.Join(t.ParamStr, " "))) // lgtm [go/log-injection]
 	log.Println(logPrefix, "parameter length :", len(t.ParamStr))
 
 	result, err := t.setService()
@@ -109,7 +109,7 @@ func (t AndroidExecutor) setService() (result int, err error) {
 		err = errors.New("failed to execute: Java Callback is nil")
 		return
 	}
-	log.Println(logPrefix, "Invoke java callback with packageName: ", t.ParamStr[0])
+	log.Println(logPrefix, "Invoke java callback with packageName: ", logmgr.SanitizeUserInput(t.ParamStr[0])) // lgtm [go/log-injection]
 
 	switch len(t.ParamStr) {
 	case 1:
@@ -138,10 +138,10 @@ func (t AndroidExecutor) waitService(executeCh <-chan error) (status string, e e
 			log.Println(logPrefix, "Success to delete service")
 		} else {
 			status = servicemgr.ConstServiceStatusFailed
-			log.Println(logPrefix, t.ServiceName, "exited with error : ", e)
+			log.Println(logPrefix, logmgr.SanitizeUserInput(t.ServiceName), "exited with error : ", e) // lgtm [go/log-injection]
 		}
 	} else {
-		log.Println(logPrefix, t.ServiceName, "is exited with no error")
+		log.Println(logPrefix, logmgr.SanitizeUserInput(t.ServiceName), "is exited with no error") // lgtm [go/log-injection]
 	}
 
 	return

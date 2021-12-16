@@ -21,6 +21,7 @@ package containerexecutor
 import (
 	"os"
 	"runtime"
+	"strings"
 
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
 
@@ -67,7 +68,7 @@ func GetInstance() *ContainerExecutor {
 func (c *ContainerExecutor) Execute(s executor.ServiceExecutionInfo) error {
 	c.ServiceExecutionInfo = addRequestEnv(s)
 
-	log.Println(logPrefix, c.ServiceName, c.ParamStr)
+	log.Println(logPrefix, logmgr.SanitizeUserInput(c.ServiceName), logmgr.SanitizeUserInput(strings.Join(c.ParamStr, " "))) // lgtm [go/log-injection]
 	log.Println(logPrefix, "parameter length :", len(c.ParamStr))
 	paramLen := len(c.ParamStr)
 

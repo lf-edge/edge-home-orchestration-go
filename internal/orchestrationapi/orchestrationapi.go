@@ -25,6 +25,7 @@ import (
 	"time"
 
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/commandvalidator"
+	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/networkhelper"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/requestervalidator"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/cloudsyncmgr"
@@ -130,7 +131,7 @@ func init() {
 
 // RequestService handles service request (ex. offloading) from service application
 func (orcheEngine *orcheImpl) RequestService(serviceInfo ReqeustService) ResponseService {
-	log.Printf("[RequestService] %v: %v\n", serviceInfo.ServiceName, serviceInfo.ServiceInfo)
+	log.Printf("[RequestService] %s: %v\n", logmgr.SanitizeUserInput(serviceInfo.ServiceName), serviceInfo.ServiceInfo) // lgtm [go/log-injection]
 
 	if !orcheEngine.Ready {
 		return ResponseService{

@@ -251,8 +251,8 @@ func (d *DiscoveryImpl) ResetServiceName() {
 // AddDeviceInfo takes public and private IP from relay and requests for orchestration info from this device
 func (d *DiscoveryImpl) AddDeviceInfo(deviceID string, virtualAddr string, privateAddr string) {
 
-	log.Println(logPrefix, "[AddDeviceInfo]", "private Addr", privateAddr)
-	log.Println(logPrefix, "[AddDeviceInfo]", "Virtual Addr", virtualAddr)
+	log.Println(logPrefix, "[AddDeviceInfo]", "private Addr"+logmgr.SanitizeUserInput(privateAddr)) // lgtm [go/log-injection]
+	log.Println(logPrefix, "[AddDeviceInfo]", "virtual Addr"+logmgr.SanitizeUserInput(virtualAddr)) // lgtm [go/log-injection]
 
 	//Check if the private addr already exists in OrchestrationMap. If exists, dont call requestDeviceInfo()
 	isPresent, err := isIPPresent(deviceID, privateAddr)
@@ -282,7 +282,7 @@ func (DiscoveryImpl) GetOrchestrationInfo() (platform string, executionType stri
 func isIPPresent(deviceID string, privateIP string) (isPresent bool, err error) {
 	networkInfo, err := netQuery.Get(deviceID)
 	if err != nil {
-		log.Println(logPrefix, "Error in getting network info of", deviceID)
+		log.Println(logPrefix, "Error in getting network info of"+logmgr.SanitizeUserInput(deviceID)) // lgtm [go/log-injection]
 		return
 	}
 	ipList := networkInfo.IPv4
@@ -314,7 +314,8 @@ func (d *DiscoveryImpl) requestDeviceInfo(deviceID string, address string) {
 		}
 		//save the info in db
 		log.Println(logPrefix, "Got The Info")
-		log.Println(logPrefix, deviceID, platform, executionType, serviceList)
+		log.Println(logPrefix, logmgr.SanitizeUserInput(deviceID), logmgr.SanitizeUserInput(platform), // lgtm [go/log-injection]
+			logmgr.SanitizeUserInput(executionType), serviceList) // lgtm [go/log-injection]
 		var ip []string
 		ip = append(ip, address)
 		data := wrapper.Entity{
@@ -329,13 +330,13 @@ func (d *DiscoveryImpl) requestDeviceInfo(deviceID string, address string) {
 		}
 		_, confInfo, netInfo, serviceInfo := convertToDBInfo(data)
 
-		log.Println(logPrefix, "netInfoIP:", netInfo.IPv4)
-		log.Println(logPrefix, "netInfoID:", netInfo.ID)
-		log.Println(logPrefix, "confInfoID:", confInfo.ID)
-		log.Println(logPrefix, "confInfoExec:", confInfo.ExecType)
-		log.Println(logPrefix, "confInfoPlatf:", confInfo.Platform)
-		log.Println(logPrefix, "serviceInfoID:", serviceInfo.ID)
-		log.Println(logPrefix, "serviceInfoServices:", serviceInfo.Services)
+		log.Println(logPrefix, "netInfoIP:", logmgr.SanitizeUserInput(strings.Join(netInfo.IPv4, " ")))                   // lgtm [go/log-injection]
+		log.Println(logPrefix, "netInfoID:", logmgr.SanitizeUserInput(netInfo.ID))                                        // lgtm [go/log-injection]
+		log.Println(logPrefix, "confInfoID:", logmgr.SanitizeUserInput(confInfo.ID))                                      // lgtm [go/log-injection]
+		log.Println(logPrefix, "confInfoExec:", logmgr.SanitizeUserInput(confInfo.ExecType))                              // lgtm [go/log-injection]
+		log.Println(logPrefix, "confInfoPlatf:", logmgr.SanitizeUserInput(confInfo.Platform))                             // lgtm [go/log-injection]
+		log.Println(logPrefix, "serviceInfoID:", logmgr.SanitizeUserInput(serviceInfo.ID))                                // lgtm [go/log-injection]
+		log.Println(logPrefix, "serviceInfoServices:", logmgr.SanitizeUserInput(strings.Join(serviceInfo.Services, " "))) // lgtm [go/log-injection]
 
 		if len(netInfo.IPv4) != 0 {
 			setNetworkDB(netInfo)

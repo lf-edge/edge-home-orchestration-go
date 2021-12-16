@@ -23,6 +23,7 @@ import (
 	"fmt"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
 	"net/http"
+	"strings"
 
 	"github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/cipher"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/client"
@@ -99,7 +100,7 @@ func (c restClientImpl) DoExecuteRemoteDevice(appInfo map[string]interface{}, ta
 
 // DoNotifyAppStatusRemoteDevice sends request to remote orchestration (APIV1ServicemgrServicesNotificationServiceIDPost) to notify status
 func (c restClientImpl) DoNotifyAppStatusRemoteDevice(statusNotificationInfo map[string]interface{}, appID uint64, target string) error {
-	log.Printf("%s DoNotifyAppStatusRemoteDevice : endpoint[%v]", logPrefix, target)
+	log.Printf("%s DoNotifyAppStatusRemoteDevice : endpoint[%v]", logPrefix, logmgr.SanitizeUserInput(target)) // lgtm [go/log-injection]
 	if !c.IsSetKey {
 		return errors.New(logPrefix + " does not set key")
 	}
@@ -199,7 +200,7 @@ func (c restClientImpl) DoGetOrchestrationInfo(endpoint string) (string, string,
 		return "", "", []string{}, errors.New("[" + logPrefix + "] does not set key")
 	}
 
-	log.Println(logPrefix, "DoGetOrchestrationInfo", "for", endpoint)
+	log.Println(logPrefix, "DoGetOrchestrationInfo", "for", logmgr.SanitizeUserInput(endpoint)) // lgtm [go/log-injection]
 
 	restapi := "/api/v1/discoverymgr/orchestrationinfo"
 
@@ -222,11 +223,11 @@ func (c restClientImpl) DoGetOrchestrationInfo(endpoint string) (string, string,
 		return "", "", []string{}, errors.New("[" + logPrefix + "] can not decryption " + err.Error())
 	}
 
-	log.Println("[JSON] : ", respMsg)
+	log.Println("[JSON] : ", strings.ReplaceAll(fmt.Sprintf("%#v", respMsg), "\"", "")) // lgtm [go/log-injection]
 	platform := respMsg["Platform"].(string)
-	log.Println(logPrefix, "GetOrchInfoResponse", "Platform:", platform)
+	log.Println(logPrefix, "GetOrchInfoResponse", "Platform:", logmgr.SanitizeUserInput(platform)) // lgtm [go/log-injection]
 	executionType := respMsg["ExecutionType"].(string)
-	log.Println(logPrefix, "GetOrchInfoResponse", "ExecutionType:", executionType)
+	log.Println(logPrefix, "GetOrchInfoResponse", "ExecutionType:", logmgr.SanitizeUserInput(executionType)) // lgtm [go/log-injection]
 	//serviceList := respMsg["ServiceList"].([]string)
 
 	var serviceList []string

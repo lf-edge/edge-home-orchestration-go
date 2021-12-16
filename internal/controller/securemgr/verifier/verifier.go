@@ -20,11 +20,10 @@ package verifier
 
 import (
 	"errors"
+	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
 	"io/ioutil"
 	"os"
 	"strings"
-
-	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
 )
 
 // cwl - Container White List
@@ -240,7 +239,7 @@ func printAllHashFromContainerWhiteList() {
 
 // RequestVerifierConf is Verifier configuration request handler
 func (verifier *VerificationImpl) RequestVerifierConf(containerInfo RequestVerifierConf) ResponseVerifierConf {
-	log.Printf("%s command type: %s\n", logPrefix, containerInfo.CmdType)
+	log.Printf("%s command type: %s\n", logPrefix, logmgr.SanitizeUserInput(containerInfo.CmdType)) // lgtm [go/log-injection]
 	switch containerInfo.CmdType {
 	case "addHashCWL":
 		for _, containerDesc := range containerInfo.Desc {
@@ -273,7 +272,7 @@ func (verifier *VerificationImpl) RequestVerifierConf(containerInfo RequestVerif
 	case "printAllHashCWL":
 		printAllHashFromContainerWhiteList()
 	default:
-		log.Println(logPrefix, "command does not supported: ", containerInfo.CmdType)
+		log.Println(logPrefix, "command does not supported: ", logmgr.SanitizeUserInput(containerInfo.CmdType)) // lgtm [go/log-injection]
 		return ResponseVerifierConf{
 			Message:       NotAllowedCommand,
 			SecureCmpName: "verifier",

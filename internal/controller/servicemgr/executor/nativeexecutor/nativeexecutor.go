@@ -24,6 +24,7 @@ import (
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
 	"os"
 	"os/exec"
+	"strings"
 
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/servicemgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/servicemgr/executor"
@@ -55,7 +56,7 @@ func GetInstance() *NativeExecutor {
 func (t NativeExecutor) Execute(s executor.ServiceExecutionInfo) (err error) {
 	t.ServiceExecutionInfo = s
 
-	log.Println(logPrefix, t.ServiceName, t.ParamStr)
+	log.Println(logPrefix, logmgr.SanitizeUserInput(t.ServiceName), logmgr.SanitizeUserInput(strings.Join(t.ParamStr, " "))) // lgtm [go/log-injection]
 	log.Println(logPrefix, "parameter length :", len(t.ParamStr))
 
 	cmd, pid, err := t.setService()
@@ -137,10 +138,10 @@ func (t NativeExecutor) waitService(executeCh <-chan error) (status string, e er
 			log.Println(logPrefix, "Success to delete service")
 		} else {
 			status = servicemgr.ConstServiceStatusFailed
-			log.Println(logPrefix, t.ServiceName, "exited with error : ", e)
+			log.Println(logPrefix, logmgr.SanitizeUserInput(t.ServiceName), "exited with error : ", e) // lgtm [go/log-injection]
 		}
 	} else {
-		log.Println(logPrefix, t.ServiceName, "is exited with no error")
+		log.Println(logPrefix, logmgr.SanitizeUserInput(t.ServiceName), "is exited with no error") // lgtm [go/log-injection]
 	}
 
 	return
