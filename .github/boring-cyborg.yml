@@ -1,6 +1,11 @@
 ##### Labeler ##########################################################################################################
 # Enable "labeler" for your PR that would add labels to PRs based on the paths that are modified in the PR.
 labelPRBasedOnFilePath:
+
+  # Add 'base code' label to any change within the 'internal' folder or any subfolders
+  base code:
+    - 'internal/**/*'
+
   # Add 'documentation' to any changes within 'docs' and 'api' folders or any subfolders and any change to *.md files
   documentation:
     - '**/*.md'
@@ -24,6 +29,29 @@ labelPRBasedOnFilePath:
   tools:
     - 'tools/**/*'
     - 'script/**/*'
+
+  # Add 'security' label to any change within the 'securemgr' folder or any subfolders and 'SECURITY.md' file
+  security:
+    - 'internal/controller/securemgr/**/*'
+    - '.github/SECURITY.md'
+
+  # Add 'Web UI' label to any change within the 'web' and `webui`folders or any subfolders
+  Web UI:
+    - 'web/**/*'
+    - 'internal/webui/**/*'
+
+  # Add 'examples' label to any change within the 'examples' and 'test' folders or any subfolders
+  examples:
+    - 'examples/**/*'
+    - 'test/**/*'
+
+  # Add 'mqtt' label to any change within the 'mqtt' folder or any subfolders
+  mqtt:
+    - 'internal/common/mqtt/**/*'
+  
+  # Add 'VersionTag' label to any change VERSION file
+  VersionTag:
+    - 'VERSION'
 
 ##### Greetings ########################################################################################################
 # Comment to be posted to welcome users when they open their first PR
