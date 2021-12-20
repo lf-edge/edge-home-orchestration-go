@@ -46,8 +46,22 @@ type Message struct {
 	Payload string
 }
 
+var (
+	mqttClient *Client
+)
+
 // Config represents an attribute config setter for the `Client`.
 type Config func(*Client)
+
+//SetClient sets the client
+func SetClient(client *Client) {
+	mqttClient = client
+}
+
+//GetClient gets the client set
+func GetClient() *Client {
+	return mqttClient
+}
 
 // SetClientID sets the mqtt client id.
 func SetClientID(id string) Config {
@@ -78,7 +92,7 @@ func (c *Client) SetBrokerURL(protocol string) string {
 // NewClient returns a configured `Client`. Is mandatory
 func NewClient(configs ...Config) (*Client, error) {
 	client := &Client{
-		Qos: byte(0),
+		Qos: byte(1),
 	}
 
 	for _, config := range configs {
@@ -86,12 +100,12 @@ func NewClient(configs ...Config) (*Client, error) {
 	}
 
 	copts := MQTT.NewClientOptions()
-	copts.SetClientID(clientID)
 	copts.SetAutoReconnect(true)
 	copts.SetMaxReconnectInterval(1 * time.Second)
 	copts.SetOnConnectHandler(client.onConnect())
 	copts.SetConnectionLostHandler(func(c MQTT.Client, err error) {
 		log.Warn(logPrefix, " disconnected, reason: "+err.Error())
+		mqttClient.Connect()
 	})
 
 	client.ClientOptions = copts
