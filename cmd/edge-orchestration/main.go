@@ -26,6 +26,7 @@ import (
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/fscreator"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/sigmgr"
+	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/cloudsyncmgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/storagemgr"
 
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/configuremgr"
@@ -130,6 +131,7 @@ func orchestrationInit() error {
 	builder.SetWatcher(configuremgr.GetInstance(configPath, executionType))
 	builder.SetDiscovery(discoverymgr.GetInstance())
 	builder.SetStorage(storagemgr.GetInstance())
+	builder.SetCloudSync(cloudsyncmgr.GetInstance())
 	builder.SetVerifierConf(verifier.GetInstance())
 	builder.SetScoring(scoringmgr.GetInstance())
 	builder.SetService(servicemgr.GetInstance())

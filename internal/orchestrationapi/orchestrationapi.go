@@ -27,6 +27,7 @@ import (
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/commandvalidator"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/networkhelper"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/requestervalidator"
+	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/cloudsyncmgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/configuremgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/discoverymgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/scoringmgr"
@@ -50,6 +51,7 @@ type orcheImpl struct {
 	watcher         configuremgr.Watcher
 	notificationIns notification.Notification
 	storageIns      storagemgr.Storage
+	cloudsyncIns    cloudsyncmgr.CloudSync
 	networkhelper   networkhelper.Network
 	clientAPI       client.Clienter
 }

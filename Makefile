@@ -32,6 +32,10 @@ ifeq ($(CONFIG_SECURE_MODE),y)
 RUN_OPTIONS += -e SECURE=true
 endif
 
+ifeq ($CONFIG_CLOUD_SYNC),y)
+RUN_OPTIONS += -e CLOUD_SYNC=""
+endif
+                                                                                                              
 # Go parameters
 GOCMD		:= GO111MODULE=on go
 GOBUILD 	:= $(GOCMD) build
