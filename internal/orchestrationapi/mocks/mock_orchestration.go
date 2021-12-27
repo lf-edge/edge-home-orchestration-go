@@ -22,10 +22,12 @@
 package mocks
 
 import (
+	reflect "reflect"
+
+	"github.com/lf-edge/edge-home-orchestration-go/internal/common/mqtt"
 	configuremgrtypes "github.com/lf-edge/edge-home-orchestration-go/internal/common/types/configuremgrtypes"
 	verifier "github.com/lf-edge/edge-home-orchestration-go/internal/controller/securemgr/verifier"
 	orchestrationapi "github.com/lf-edge/edge-home-orchestration-go/internal/orchestrationapi"
-	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
 )
@@ -100,6 +102,20 @@ func (m *MockOrcheExternalAPI) RequestService(arg0 orchestrationapi.ReqeustServi
 func (mr *MockOrcheExternalAPIMockRecorder) RequestService(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RequestService", reflect.TypeOf((*MockOrcheExternalAPI)(nil).RequestService), arg0)
+}
+
+// RequestCloudSync mocks base method.
+func (m *MockOrcheExternalAPI) RequestCloudSync(arg0 mqtt.Message, arg1 string, arg2 string) string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RequestCloudSync", arg0)
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// RequestCloudSync indicates an expected call of RequestService.
+func (mr *MockOrcheExternalAPIMockRecorder) RequestCloudSync(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RequestCloudSync", reflect.TypeOf((*MockOrcheExternalAPI)(nil).RequestService), arg0)
 }
 
 // RequestVerifierConf mocks base method.

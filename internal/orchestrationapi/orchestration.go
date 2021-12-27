@@ -25,6 +25,7 @@ import (
 
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/commandvalidator"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
+	"github.com/lf-edge/edge-home-orchestration-go/internal/common/mqtt"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/networkhelper"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/requestervalidator"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/resourceutil"
@@ -33,7 +34,6 @@ import (
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/configuremgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/discoverymgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/scoringmgr"
-
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/securemgr/verifier"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/servicemgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/servicemgr/executor"
@@ -53,6 +53,7 @@ type Orche interface {
 type OrcheExternalAPI interface {
 	RequestService(serviceInfo ReqeustService) ResponseService
 	verifier.Conf
+	RequestCloudSync(message mqtt.Message, topic string, clientID string) string
 }
 
 // OrcheInternalAPI is the interface implemented by internal REST API
@@ -214,7 +215,8 @@ func (o *orcheImpl) Start(deviceIDPath string, platform string, executionType st
 	resourceMonitorImpl.StartMonitoringResource()
 	o.discoverIns.StartDiscovery(deviceIDPath, platform, executionType)
 	o.storageIns.StartStorage("")
-	o.cloudsyncIns.StartCloudSync(os.Getenv("CLOUD_SYNC"))
+	cloudSyncState := os.Getenv("CLOUD_SYNC")
+	o.cloudsyncIns.InitiateCloudSync(cloudSyncState)
 	o.watcher.Watch(o)
 	o.Ready = true
 	time.Sleep(1000)

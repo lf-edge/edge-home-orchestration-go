@@ -25,7 +25,9 @@ import (
 	"strings"
 
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
+	mqttmgr "github.com/lf-edge/edge-home-orchestration-go/internal/common/mqtt"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/networkhelper"
+	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/cloudsyncmgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/securemgr/verifier"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/db/bolt/common"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/orchestrationapi"
@@ -71,6 +73,12 @@ func init() {
 			Method:      strings.ToUpper("Post"),
 			Pattern:     "/api/v1/orchestration/securemgr",
 			HandlerFunc: handler.APIV1RequestSecuremgrPost,
+		},
+		restinterface.Route{
+			Name:        "APIV1RequestCloudSyncmgrPost",
+			Method:      strings.ToUpper("Post"),
+			Pattern:     "/api/v1/orchestration/cloudsyncmgr",
+			HandlerFunc: handler.APIV1RequestCloudSyncmgrPost,
 		},
 	}
 	handler.netHelper = networkhelper.GetInstance()
@@ -343,6 +351,101 @@ SEND_RESP:
 	respEncryptBytes, err := h.Key.EncryptJSONToByte(respJSONMsg)
 	if err != nil {
 		log.Printf("[%s] cannot encryption", logPrefix)
+		h.helper.Response(w, nil, http.StatusServiceUnavailable)
+		return
+	}
+
+	h.helper.Response(w, respEncryptBytes, http.StatusOK)
+}
+
+// APIV1RequestCloudSyncmgrPost handles cloudsync publish request from service application
+func (h *Handler) APIV1RequestCloudSyncmgrPost(w http.ResponseWriter, r *http.Request) {
+	log.Printf("[%s] APIV1RequestCloudSyncmgrPost", logPrefix)
+	if !h.isSetAPI {
+		log.Printf("[%s] does not set api", logPrefix)
+		h.helper.Response(w, nil, http.StatusServiceUnavailable)
+		return
+	} else if !h.IsSetKey {
+		log.Printf("[%s] does not set key", logPrefix)
+		h.helper.Response(w, nil, http.StatusServiceUnavailable)
+		return
+	}
+
+	reqAddr := strings.Split(r.RemoteAddr, ":")
+	var addr string
+	if strings.Contains(r.RemoteAddr, "::1") {
+		addr = "localhost"
+	} else {
+		addr = reqAddr[0]
+	}
+	ips, err := h.netHelper.GetIPs()
+	if err != nil {
+		h.helper.Response(w, nil, http.StatusServiceUnavailable)
+		return
+	} else if addr != "localhost" && addr != "127.0.0.1" && !common.HasElem(ips, addr) {
+		h.helper.Response(w, nil, http.StatusNotAcceptable)
+		return
+	}
+
+	var (
+		responseMsg    string
+		topic          string
+		messagePayload string
+		url            string
+	)
+
+	//request
+	encryptBytes, _ := ioutil.ReadAll(r.Body)
+
+	//Decrypt the request in json format
+	appCommand, err := h.Key.DecryptByteToJSON(encryptBytes)
+	if err != nil {
+		log.Printf("[%s] can not decryption", logPrefix)
+		h.helper.Response(w, nil, http.StatusServiceUnavailable)
+		return
+	}
+	publishMessage := mqttmgr.Message{}
+
+	appID, ok := appCommand["appid"].(string)
+	if ok {
+		publishMessage.AppID = appID
+	} else {
+		responseMsg = orchestrationapi.InvalidParameter
+		goto SEND_RESP
+	}
+
+	messagePayload, ok = appCommand["payload"].(string)
+	if ok {
+		publishMessage.Payload = messagePayload
+	} else {
+		responseMsg = orchestrationapi.InvalidParameter
+		goto SEND_RESP
+	}
+	topic, ok = appCommand["topic"].(string)
+	if !ok {
+		responseMsg = orchestrationapi.InvalidParameter
+		goto SEND_RESP
+	}
+	url, ok = appCommand["url"].(string)
+	if !ok {
+		responseMsg = orchestrationapi.InvalidParameter
+		goto SEND_RESP
+	}
+	cloudsyncmgr.GetInstance().StartCloudSync(url)
+	for mqttmgr.GetClient() == nil {
+		//Wait till the client is set
+	}
+	responseMsg = h.api.RequestCloudSync(publishMessage, topic, appID)
+
+SEND_RESP:
+	respJSONMsg := make(map[string]interface{})
+	respJSONMsg["Message"] = responseMsg
+	respJSONMsg["ServiceName"] = ""
+	respJSONMsg["RemoteTargetInfo"] = ""
+
+	respEncryptBytes, err := h.Key.EncryptJSONToByte(respJSONMsg)
+	if err != nil {
+		log.Printf("[%s] can not encryption", logPrefix)
 		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	}

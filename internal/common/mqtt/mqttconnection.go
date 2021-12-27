@@ -56,6 +56,22 @@ func (client *Client) onConnect() MQTT.OnConnectHandler {
 	return nil
 }
 
+// IsConnected checks if the client is connected or not
+func (client *Client) IsConnected() bool {
+	if client.Client == nil {
+		return false
+	}
+
+	return client.Client.IsConnected()
+}
+
+// Disconnect disconnects the connection
+func (client *Client) Disconnect(quiesce uint) {
+	if client.Client != nil {
+		client.Client.Disconnect(quiesce)
+	}
+}
+
 //StartMQTTClient is used to initiate the client and set the configuration
 func StartMQTTClient(brokerURL string) {
 
@@ -75,15 +91,19 @@ func StartMQTTClient(brokerURL string) {
 	if connectErr != nil {
 		log.Warn(logPrefix, connectErr)
 	}
+
+	SetClient(clientConfig)
+
 }
 
 //Publish is used to publish the client data to the cloud
-func Publish(client *Client, message Message, topic string) error {
+func (client *Client) Publish(message Message, topic string) error {
 
 	log.Info(logPrefix, "Publishing the data to cloud")
 	payload, err := json.Marshal(message)
 	if err != nil {
 		log.Warn(logPrefix, "Error in Json Marshalling", err)
+		return err
 	}
 	mqttClient := client.Client
 	for mqttClient == nil {
