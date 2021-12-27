@@ -224,7 +224,7 @@ func TestStart(t *testing.T) {
 			mockResourceutil.EXPECT().StartMonitoringResource(),
 			mockDiscovery.EXPECT().StartDiscovery(gomock.Eq(deviceIDPath), gomock.Eq(platform), gomock.Eq(executionType)),
 			mockStorage.EXPECT().StartStorage(gomock.Any()),
-			mockCloudSync.EXPECT().StartCloudSync(gomock.Any()),
+			mockCloudSync.EXPECT().InitiateCloudSync(gomock.Any()),
 			mockWatcher.EXPECT().Watch(gomock.Any()),
 		)
 

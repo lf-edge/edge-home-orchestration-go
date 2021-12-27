@@ -19,6 +19,9 @@
 package cloudsyncmgr
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
 	mqttmgr "github.com/lf-edge/edge-home-orchestration-go/internal/common/mqtt"
 )
@@ -29,15 +32,20 @@ const (
 
 // CloudSync is the interface for starting Cloud synchronization
 type CloudSync interface {
+	InitiateCloudSync(isCloudSet string) error
 	StartCloudSync(host string) error
+	//implemented by external REST API
+	RequestCloudSyncConf(message mqttmgr.Message, topic string, clientID string) string
 }
 
 //CloudSyncImpl struct
 type CloudSyncImpl struct{}
 
 var (
-	cloudsyncIns *CloudSyncImpl
-	log          = logmgr.GetInstance()
+	cloudsyncIns   *CloudSyncImpl
+	log            = logmgr.GetInstance()
+	mqttClient     *mqttmgr.Client
+	isCloudSyncSet bool
 )
 
 func init() {
@@ -50,12 +58,44 @@ func GetInstance() CloudSync {
 	return cloudsyncIns
 }
 
-// StartCloudSync starts a server in terms of CloudSync
+// InitiateCloudSync initiate CloudSync
+func (c *CloudSyncImpl) InitiateCloudSync(isCloudSet string) (err error) {
+	isCloudSyncSet = false
+	if len(isCloudSet) > 0 {
+		if strings.Compare(strings.ToLower(isCloudSet), "true") == 0 {
+			log.Println("CloudSync init set")
+			isCloudSyncSet = true
+		}
+	}
+	return nil
+}
+
+//StartCloudSync is used to start the sync by connecting to the broker
 func (c *CloudSyncImpl) StartCloudSync(host string) (err error) {
-	if len(host) > 0 {
+	if isCloudSyncSet && len(host) > 0 {
 		log.Info("Starting the CLoudsync Mgr")
 		go mqttmgr.StartMQTTClient(host)
 	}
+	return
+}
 
-	return nil
+// RequestCloudSyncConf is  configuration request handler
+func (c *CloudSyncImpl) RequestCloudSyncConf(message mqttmgr.Message, topic string, clientID string) string {
+	log.Info(logPrefix, "Publishing the data to the cloud")
+	mqttClient = mqttmgr.GetClient()
+	mqttmgr.SetClientID(clientID)
+	resp := ""
+	if mqttClient.IsConnected() {
+		err := mqttClient.Publish(message, topic)
+		if err != nil {
+			errMsg := fmt.Sprintf("Error in publishing the data %s", err)
+			resp = errMsg
+		} else {
+			resp = "Data published successfully to Cloud"
+		}
+	} else {
+		resp = "Client not connected to Broker URL"
+	}
+
+	return resp
 }

@@ -25,6 +25,7 @@ import (
 	"time"
 
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/commandvalidator"
+	"github.com/lf-edge/edge-home-orchestration-go/internal/common/mqtt"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/networkhelper"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/requestervalidator"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/cloudsyncmgr"
@@ -126,6 +127,12 @@ func init() {
 	sysDBExecutor = sysDB.Query{}
 
 	helper = dbhelper.GetInstance()
+}
+
+//RequestCloudSync handles the request for cloud syncing
+func (orcheEngine *orcheImpl) RequestCloudSync(message mqtt.Message, topic string, clientID string) string {
+	log.Info("[RequestCloudSync]", "Requesting cloud sync")
+	return orcheEngine.cloudsyncIns.RequestCloudSyncConf(message, topic, clientID)
 }
 
 // RequestService handles service request (ex. offloading) from service application

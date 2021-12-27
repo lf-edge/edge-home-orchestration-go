@@ -33,7 +33,7 @@ RUN_OPTIONS += -e SECURE=true
 endif
 
 ifeq ($CONFIG_CLOUD_SYNC),y)
-RUN_OPTIONS += -e CLOUD_SYNC=""
+RUN_OPTIONS += -e CLOUD_SYNC=true
 endif
                                                                                                               
 # Go parameters
