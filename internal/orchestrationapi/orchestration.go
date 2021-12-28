@@ -23,24 +23,22 @@ import (
 	"os"
 	"time"
 
+	"github.com/lf-edge/edge-home-orchestration-go/internal/common/commandvalidator"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/mqtt"
-	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/cloudsyncmgr"
-	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/storagemgr"
-
-	"github.com/lf-edge/edge-home-orchestration-go/internal/common/commandvalidator"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/networkhelper"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/requestervalidator"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/resourceutil"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/types/configuremgrtypes"
+	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/cloudsyncmgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/configuremgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/discoverymgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/scoringmgr"
-
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/securemgr/verifier"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/servicemgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/servicemgr/executor"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/servicemgr/notification"
+	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/storagemgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/client"
 )
 

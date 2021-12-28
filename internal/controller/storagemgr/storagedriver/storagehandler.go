@@ -21,6 +21,7 @@ import (
 	"context"
 	b64 "encoding/base64"
 	"fmt"
+	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/storagemgr/config"
 	dbhelper "github.com/lf-edge/edge-home-orchestration-go/internal/db/helper"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/resthelper"
@@ -124,7 +125,7 @@ func (handler StorageHandler) processAsyncGetRequest(writer http.ResponseWriter,
 	}
 	var err error
 	if start != "" && end != "" {
-		log.Debug(fmt.Sprintf("Received GET for start=%s end=%s", start, end))
+		log.Debug(fmt.Sprintf("Received GET for start=%s end=%s", logmgr.SanitizeUserInput(start), logmgr.SanitizeUserInput(end))) // lgtm [go/log-injection]
 		readingAPI = "/api/v1/reading/" + start + "/" + end + "/" + readingCount
 	} else {
 		if deviceName == "" {
@@ -136,17 +137,17 @@ func (handler StorageHandler) processAsyncGetRequest(writer http.ResponseWriter,
 			}
 		}
 
-		log.Debug(fmt.Sprintf("Received POST for Device=%s Resource=%s", deviceName, resourceName))
+		log.Debug(fmt.Sprintf("Received POST for Device=%s Resource=%s", logmgr.SanitizeUserInput(deviceName), logmgr.SanitizeUserInput(resourceName))) // lgtm [go/log-injection]
 
 		_, err = handler.service.GetDeviceByName(deviceName)
 		if err != nil {
-			log.Error(fmt.Sprintf("Incoming reading ignored. Device '%s' not found", deviceName))
+			log.Error(fmt.Sprintf("Incoming reading ignored. Device '%s' not found", logmgr.SanitizeUserInput(deviceName))) // lgtm [go/log-injection]
 			http.Error(writer, "Device not found", http.StatusNotFound)
 			return
 		}
 		_, ok := handler.service.DeviceResource(deviceName, resourceName, "get")
 		if !ok {
-			log.Error(fmt.Sprintf("Incoming reading ignored. Resource '%s' not found", resourceName))
+			log.Error(fmt.Sprintf("Incoming reading ignored. Resource '%s' not found", logmgr.SanitizeUserInput(resourceName))) // lgtm [go/log-injection]
 			http.Error(writer, "Resource not found", http.StatusNotFound)
 			return
 		}
@@ -183,18 +184,18 @@ func (handler StorageHandler) processAsyncPostRequest(writer http.ResponseWriter
 	}
 	resourceName := vars[resourceNameKey]
 
-	log.Debug(fmt.Sprintf("Received POST for Device=%s Resource=%s", deviceName, resourceName))
+	log.Debug(fmt.Sprintf("Received POST for Device=%s Resource=%s", logmgr.SanitizeUserInput(deviceName), logmgr.SanitizeUserInput(resourceName))) // lgtm [go/log-injection]
 
 	_, err = handler.service.GetDeviceByName(deviceName)
 	if err != nil {
-		log.Error(fmt.Sprintf("Incoming reading ignored. Device '%s' not found", deviceName))
+		log.Error(fmt.Sprintf("Incoming reading ignored. Device '%s' not found", logmgr.SanitizeUserInput(deviceName))) // lgtm [go/log-injection]
 		http.Error(writer, "Device not found", http.StatusNotFound)
 		return
 	}
 
 	deviceResource, ok := handler.service.DeviceResource(deviceName, resourceName, "get")
 	if !ok {
-		log.Error(fmt.Sprintf("Incoming reading ignored. Resource '%s' not found", resourceName))
+		log.Error(fmt.Sprintf("Incoming reading ignored. Resource '%s' not found", logmgr.SanitizeUserInput(resourceName))) // lgtm [go/log-injection]
 		http.Error(writer, "Resource not found", http.StatusNotFound)
 		return
 	}
@@ -206,12 +207,12 @@ func (handler StorageHandler) processAsyncPostRequest(writer http.ResponseWriter
 			return
 		}
 
-		log.Debug(fmt.Sprintf("Content Type is '%s' & Media Type is '%s' and Type is '%s'",
-			contentType, deviceResource.Properties.Value.MediaType, deviceResource.Properties.Value.Type))
+		log.Debug(fmt.Sprintf("Content Type is '%s' & Media Type is '%s' and Type is '%s'", logmgr.SanitizeUserInput(contentType), // lgtm [go/log-injection]
+			logmgr.SanitizeUserInput(deviceResource.Properties.Value.MediaType), logmgr.SanitizeUserInput(deviceResource.Properties.Value.Type))) // lgtm [go/log-injection]
 
 		if contentType != deviceResource.Properties.Value.MediaType {
-			log.Error(fmt.Sprintf("Incoming reading ignored. Content Type '%s' doesn't match %s resource's Media Type '%s'",
-				contentType, resourceName, deviceResource.Properties.Value.MediaType))
+			log.Error(fmt.Sprintf("Incoming reading ignored. Content Type '%s' doesn't match %s resource's Media Type '%s'", logmgr.SanitizeUserInput(contentType), // lgtm [go/log-injection]
+				logmgr.SanitizeUserInput(resourceName), logmgr.SanitizeUserInput(deviceResource.Properties.Value.MediaType))) // lgtm [go/log-injection]
 
 			http.Error(writer, "Wrong Content-Type", http.StatusBadRequest)
 			return
@@ -236,8 +237,8 @@ func (handler StorageHandler) processAsyncPostRequest(writer http.ResponseWriter
 	value, err := handler.newCommandValue(resourceName, reading, readingType)
 	if err != nil {
 		log.Error(
-			fmt.Sprintf("Incoming reading ignored. Unable to create Command Value for Device=%s Command=%s: %s",
-				deviceName, resourceName, err.Error()))
+			fmt.Sprintf("Incoming reading ignored. Unable to create Command Value for Device=%s Command=%s: %s", // lgtm [go/log-injection]
+				logmgr.SanitizeUserInput(deviceName), logmgr.SanitizeUserInput(resourceName), err.Error())) // lgtm [go/log-injection]
 		http.Error(writer, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -247,7 +248,7 @@ func (handler StorageHandler) processAsyncPostRequest(writer http.ResponseWriter
 		CommandValues: []*models.CommandValue{value},
 	}
 
-	log.Debug(fmt.Sprintf("Incoming reading received: Device=%s Resource=%s", deviceName, resourceName))
+	log.Debug(fmt.Sprintf("Incoming reading received: Device=%s Resource=%s", logmgr.SanitizeUserInput(deviceName), logmgr.SanitizeUserInput(resourceName))) // lgtm [go/log-injection]
 
 	handler.asyncValues <- asyncValues
 }

@@ -19,11 +19,10 @@
 package route
 
 import (
+	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
 	"net/http"
 	"strconv"
 	"time"
-
-	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
 
 	"github.com/gorilla/mux"
 
@@ -128,14 +127,7 @@ func logger(inner http.Handler, name string) http.Handler {
 		inner.ServeHTTP(w, r)
 
 		if name != "APIV1Ping" {
-			log.Printf(
-				"From [%s] %s %s %s %s",
-				readClientIP(r),
-				r.Method,
-				r.RequestURI,
-				name,
-				time.Since(start),
-			)
+			log.Printf("From [%s] %s %s %s %s", logmgr.SanitizeUserInput(readClientIP(r)), r.Method, r.RequestURI, name, time.Since(start)) // lgtm [go/log-injection]
 		}
 	})
 }

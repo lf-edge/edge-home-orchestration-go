@@ -89,3 +89,13 @@ func GetLogLevel() logrus.Level {
 	}
 	return level
 }
+
+// SanitizeUserInput - countermeasure against the insertion of fake log entries by an attacker
+func SanitizeUserInput(input string) string {
+	output := strings.ReplaceAll(fmt.Sprintf("%#v", input), "\"", "")
+	//output := strings.ReplaceAll(strings.ReplaceAll(input,"\n",""),"\r","")
+	if strings.Compare(input, output) != 0 {
+		logIns.Warn("Possibly the following record contains a malicious injection")
+	}
+	return output
+}

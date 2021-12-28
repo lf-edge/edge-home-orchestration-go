@@ -101,7 +101,7 @@ func (h helperImpl) DoGet(targetURL string) (respBytes []byte, statusCode int, e
 
 	resp, err := h.c.Do(req)
 	if err != nil {
-		log.Printf("[%v] reqeust get failed !!, err = %v", targetURL, err)
+		log.Printf("[%s] reqeust get failed !!, err = %s", logmgr.SanitizeUserInput(targetURL), err) // lgtm [go/log-injection]
 		return
 	}
 
@@ -110,7 +110,7 @@ func (h helperImpl) DoGet(targetURL string) (respBytes []byte, statusCode int, e
 	statusCode = resp.StatusCode
 	respBytes, err = ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Printf("[%v] read resp.Body failed !!, err = %v", targetURL, err)
+		log.Printf("[%s] read resp.Body failed !!, err = %v", logmgr.SanitizeUserInput(targetURL), err) // lgtm [go/log-injection]
 		return
 	}
 
