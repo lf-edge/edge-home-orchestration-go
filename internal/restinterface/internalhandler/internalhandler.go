@@ -19,13 +19,14 @@
 package internalhandler
 
 import (
-	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
+	"fmt"
 	"io/ioutil"
 	"net"
 	"net/http"
 	"strings"
 
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/commandvalidator"
+	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/requestervalidator"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/types/servicemgrtypes"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/orchestrationapi"
@@ -155,11 +156,11 @@ func (h *Handler) APIV1ServicemgrServicesPost(w http.ResponseWriter, r *http.Req
 	appInfo["NotificationTargetURL"] = remoteAddr
 
 	log.Printf("[%s] Requested AppInfo", logPrefix)
-	log.Printf("[%s] Requester    : %v", logPrefix, appInfo["Requester"].(string))
-	log.Printf("[%s] ServiceID    : %v", logPrefix, appInfo["ServiceID"].(float64))
-	log.Printf("[%s] ServiceName  : %v", logPrefix, appInfo["ServiceName"].(string))
-	log.Printf("[%s] NotificationTargetURL : %v", logPrefix, appInfo["NotificationTargetURL"].(string))
-	log.Printf("[%s] ExecutionCmd : %v", logPrefix, appInfo["UserArgs"].([]interface{}))
+	log.Printf("[%s] Requester    : %s", logPrefix, logmgr.SanitizeUserInput(appInfo["Requester"].(string)))                      // lgtm [go/log-injection]
+	log.Printf("[%s] ServiceID    : %s", logPrefix, logmgr.SanitizeUserInput(fmt.Sprintf("%f", appInfo["ServiceID"])))            // lgtm [go/log-injection]
+	log.Printf("[%s] ServiceName  : %s", logPrefix, logmgr.SanitizeUserInput(appInfo["ServiceName"].(string)))                    // lgtm [go/log-injection]
+	log.Printf("[%s] NotificationTargetURL : %s", logPrefix, logmgr.SanitizeUserInput(appInfo["NotificationTargetURL"].(string))) // lgtm [go/log-injection]
+	log.Printf("[%s] ExecutionCmd : %s", logPrefix, logmgr.SanitizeUserInput(fmt.Sprintf("%v", appInfo["UserArgs"])))             // lgtm [go/log-injection]
 
 	args := make([]string, 0)
 	for _, arg := range appInfo["UserArgs"].([]interface{}) {
@@ -341,9 +342,9 @@ func (h *Handler) APIV1DiscoverymgrMNEDCDeviceInfoPost(w http.ResponseWriter, r 
 	}
 
 	log.Println(logPrefix, "Info from MNEDC server received")
-	log.Println(logPrefix, "Device ID:", Info["DeviceID"].(string))
-	log.Println(logPrefix, "Private Add:", Info["PrivateAddr"].(string))
-	log.Println(logPrefix, "Virtual Add:", Info["VirtualAddr"].(string))
+	log.Println(logPrefix, "Device ID:", logmgr.SanitizeUserInput(Info["DeviceID"].(string)))      // lgtm [go/log-injection]
+	log.Println(logPrefix, "Private Add:", logmgr.SanitizeUserInput(Info["PrivateAddr"].(string))) // lgtm [go/log-injection]
+	log.Println(logPrefix, "Virtual Add:", logmgr.SanitizeUserInput(Info["VirtualAddr"].(string))) // lgtm [go/log-injection]
 
 	devID := Info["DeviceID"].(string)
 	privateIP := Info["PrivateAddr"].(string)

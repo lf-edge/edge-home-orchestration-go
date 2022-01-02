@@ -25,7 +25,6 @@ import (
 	"strings"
 
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
-
 	mqttmgr "github.com/lf-edge/edge-home-orchestration-go/internal/common/mqtt"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/networkhelper"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/cloudsyncmgr"
@@ -302,12 +301,12 @@ func (h *Handler) APIV1RequestSecuremgrPost(w http.ResponseWriter, r *http.Reque
 	SecureInsName, ok := appCommand["SecureMgr"].(string)
 	if ok {
 		containerInfos.SecureInsName = SecureInsName
-		log.Println("SecureMgr: ", containerInfos.SecureInsName)
+		log.Println("SecureMgr: ", logmgr.SanitizeUserInput(containerInfos.SecureInsName)) // lgtm [go/log-injection]
 	}
 
 	containerInfos.CmdType, ok = appCommand["CmdType"].(string)
 	if ok {
-		log.Println("CmdType: ", containerInfos.CmdType)
+		log.Println("CmdType: ", logmgr.SanitizeUserInput(containerInfos.CmdType)) // lgtm [go/log-injection]
 	}
 	if containerInfos.CmdType == "addHashCWL" || containerInfos.CmdType == "delHashCWL" {
 		containerDescs, ok = appCommand["Desc"].([]interface{})
