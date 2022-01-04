@@ -218,10 +218,11 @@ curl -X POST "127.0.0.1:56001/api/v1/orchestration/securemgr" -H "accept: applic
 ### 4.1 Description
 The **Authorizer** provides *Role Based Access Control (RBAC)*. Its an approach to restricting system access to authorized users by using a set of permissions and grants. In Edge-Orchestration project was used the open-source access control library [*casbin*](https://github.com/casbin/casbin). "In Casbin, an access control model is abstracted into a CONF file based on the PERM metamodel (Policy, Effect, Request, Matchers). So switching or upgrading the authorization mechanism for a project is just as simple as modifying a configuration" ([description from the official site](https://github.com/casbin/casbin#How-it-works?)). 
 The system is currently configured in the simplest configuration with two roles: `admin` and `member`. The table below demonstrates access to external api for these roles.
-| Resource\Role                   | admin | member |
-| ------------------------------- | ----- | ------ |
-| /api/v1/orchestration/services  | Allow | Allow  |
-| /api/v1/orchestration/securemgr | Allow | Deny   |
+| Resource\Role                      | admin | member |
+| ---------------------------------- | ----- | ------ |
+| /api/v1/orchestration/services     | Allow | Allow  |
+| /api/v1/orchestration/securemgr    | Allow | Deny   |
+| /api/v1/orchestration/cloudsyncmgr | Allow | Allow  |
 
 To change the access model and policy, you need to edit the files:  
 `/var/edge-orchestration/data/rbac/auth_model.conf`
@@ -244,6 +245,7 @@ and `/var/edge-orchestration/data/rbac/policy.csv`
 ```
 p, admin, /*, *
 p, member, /api/v1/orchestration/services, *
+p, member, /api/v1/orchestration/cloudsyncmgr, *
 ```
 ---
 
