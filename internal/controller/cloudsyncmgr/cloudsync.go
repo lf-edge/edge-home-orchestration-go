@@ -21,6 +21,7 @@ package cloudsyncmgr
 import (
 	"fmt"
 	"strings"
+	"sync"
 
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
 	mqttmgr "github.com/lf-edge/edge-home-orchestration-go/internal/common/mqtt"
@@ -33,9 +34,8 @@ const (
 // CloudSync is the interface for starting Cloud synchronization
 type CloudSync interface {
 	InitiateCloudSync(isCloudSet string) error
-	StartCloudSync(host string) error
 	//implemented by external REST API
-	RequestCloudSyncConf(message mqttmgr.Message, topic string, clientID string) string
+	RequestCloudSyncConf(host string, clientID string, message mqttmgr.Message, topic string) string
 }
 
 //CloudSyncImpl struct
@@ -65,37 +65,48 @@ func (c *CloudSyncImpl) InitiateCloudSync(isCloudSet string) (err error) {
 		if strings.Compare(strings.ToLower(isCloudSet), "true") == 0 {
 			log.Println("CloudSync init set")
 			isCloudSyncSet = true
+			//Intialize the client and hashmap storing client data
+			mqttmgr.InitClientData()
 		}
 	}
 	return nil
 }
 
-//StartCloudSync is used to start the sync by connecting to the broker
-func (c *CloudSyncImpl) StartCloudSync(host string) (err error) {
-	if isCloudSyncSet && len(host) > 0 {
-		log.Info("Starting the CLoudsync Mgr")
-		go mqttmgr.StartMQTTClient(host)
-	}
-	return
-}
-
 // RequestCloudSyncConf is  configuration request handler
-func (c *CloudSyncImpl) RequestCloudSyncConf(message mqttmgr.Message, topic string, clientID string) string {
+func (c *CloudSyncImpl) RequestCloudSyncConf(host string, clientID string, message mqttmgr.Message, topic string) string {
 	log.Info(logPrefix, "Publishing the data to the cloud")
-	mqttClient = mqttmgr.GetClient()
-	mqttmgr.SetClientID(clientID)
 	resp := ""
-	if mqttClient.IsConnected() {
+	var wg sync.WaitGroup
+	if !isCloudSyncSet {
+		resp = "CloudSync is not Active. Please stop the container and rerun the container with cloudsync set"
+		return resp
+	}
+	if len(host) == 0 {
+		return "No broker host defined"
+	}
+	wg.Add(1)
+	errs := make(chan string, 1)
+	go func() {
+		errs <- mqttmgr.StartMQTTClient(host, clientID)
+		resp = <-errs
+		wg.Done()
+
+	}()
+	wg.Wait()
+	if resp != "" {
+		errresp := fmt.Sprintf("Error Connecting MQTT -> %s", resp)
+		return errresp
+	}
+
+	mqttClient = mqttmgr.CheckifClientExist(clientID)
+	if mqttClient != nil && mqttClient.IsConnected() {
 		err := mqttClient.Publish(message, topic)
 		if err != nil {
 			errMsg := fmt.Sprintf("Error in publishing the data %s", err)
 			resp = errMsg
 		} else {
-			resp = "Data published successfully to Cloud"
+			resp = "Data published successfully to Cloud" + mqttClient.URL
 		}
-	} else {
-		resp = "Client not connected to Broker URL"
 	}
-
 	return resp
 }

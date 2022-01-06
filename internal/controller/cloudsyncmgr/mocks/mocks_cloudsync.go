@@ -58,29 +58,17 @@ func (_m *MockCloudSync) InitiateCloudSync(isCloudSet string) error {
 
 // InitiateCloudSync indicates an expected call of StartCloudSync
 func (_mr *MockCloudSyncMockRecorder) InitiateCloudSync(arg0 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "InitiateCloudSync", reflect.TypeOf((*MockCloudSync)(nil).StartCloudSync), arg0)
+	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "InitiateCloudSync", reflect.TypeOf((*MockCloudSync)(nil).InitiateCloudSync), arg0)
 }
 
 // StartCloudSync mocks base method
-func (_m *MockCloudSync) StartCloudSync(host string) error {
-	ret := _m.ctrl.Call(_m, "StartCloudSync", host)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// StartCloudSync indicates an expected call of StartCloudSync
-func (_mr *MockCloudSyncMockRecorder) StartCloudSync(arg0 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "StartCloudSync", reflect.TypeOf((*MockCloudSync)(nil).StartCloudSync), arg0)
-}
-
-// StartCloudSync mocks base method
-func (_m *MockCloudSync) RequestCloudSyncConf(message mqttmgr.Message, host string, clientID string) string {
+func (_m *MockCloudSync) RequestCloudSyncConf(host string, clientID string, message mqttmgr.Message, topic string) string {
 	ret := _m.ctrl.Call(_m, "RequestCloudSyncConf", host)
 	ret0, _ := ret[0].(string)
 	return ret0
 }
 
 // StartCloudSync indicates an expected call of StartCloudSync
-func (_mr *MockCloudSyncMockRecorder) StartCRequestCloudSyncConfloudSync(arg0 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "RequestCloudSyncConf", reflect.TypeOf((*MockCloudSync)(nil).StartCloudSync), arg0)
+func (_mr *MockCloudSyncMockRecorder) RequestCloudSyncConfloudSync(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "RequestCloudSyncConf", reflect.TypeOf((*MockCloudSync)(nil).RequestCloudSyncConf), arg0)
 }

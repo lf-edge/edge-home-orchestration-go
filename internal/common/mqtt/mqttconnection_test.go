@@ -20,13 +20,14 @@ import (
 	"testing"
 )
 
-//const Host = "broker.emqx.io"
-const Host = "ec2-54-175-241-64.compute-1.amazonaws.com"
+const Host = "broker.hivemq.com"
 const port = "1883"
 
 func TestStartMQTTClient(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
-		StartMQTTClient(Host)
+		InitClientData()
+		StartMQTTClient(Host, "testClient")
+		t.Log("Client connected")
 	})
 
 }

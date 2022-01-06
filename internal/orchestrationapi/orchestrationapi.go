@@ -131,9 +131,9 @@ func init() {
 }
 
 //RequestCloudSync handles the request for cloud syncing
-func (orcheEngine *orcheImpl) RequestCloudSync(message mqtt.Message, topic string, clientID string) string {
+func (orcheEngine *orcheImpl) RequestCloudSync(host string, clientID string, message mqtt.Message, topic string) string {
 	log.Info("[RequestCloudSync]", "Requesting cloud sync")
-	return orcheEngine.cloudsyncIns.RequestCloudSyncConf(message, topic, clientID)
+	return orcheEngine.cloudsyncIns.RequestCloudSyncConf(host, clientID, message, topic)
 }
 
 // RequestService handles service request (ex. offloading) from service application
