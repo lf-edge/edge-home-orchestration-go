@@ -18,6 +18,10 @@ libedge-orchestration/sample/output/*
 internal/controller/scoringmgr/mock_internal/myscoring/libmyscoring.so*
 internal/controller/scoringmgr/mock_internal/myscoring2/libmyscoring2.so*
 
+# Web
+web/.angular
+web/dist
+web/node_modules
 
 # Test binary, build with `go test -c`
 *.test
