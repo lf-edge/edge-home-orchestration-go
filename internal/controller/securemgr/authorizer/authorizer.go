@@ -35,7 +35,8 @@ type AuthorizationImpl struct{}
 const (
 	rbacPolicyFileName = "policy.csv"
 	policyTemplate     = "p, admin, /*, *\n" +
-		"p, member, /api/v1/orchestration/services, *\n"
+		"p, member, /api/v1/orchestration/services, *\n" +
+		"p, member, /api/v1/orchestration/cloudsyncmgr, *\n"
 	rbacAuthModelFileName = "auth_model.conf"
 	authModelTemplate     = "[request_definition]\n" +
 		"r = sub, obj, act\n\n" +
