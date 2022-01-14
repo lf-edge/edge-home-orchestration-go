@@ -56,6 +56,12 @@ func (client *Client) onConnect() MQTT.OnConnectHandler {
 	return nil
 }
 
+//onConnectionLost callback is called in case of disconnection from broker
+func (client *Client) onConnectionLost() MQTT.ConnectionLostHandler {
+	log.Warn(logPrefix, "Connection to the client is disconnected")
+	return nil
+}
+
 // IsConnected checks if the client is connected or not
 func (client *Client) IsConnected() bool {
 	if client.Client == nil {
@@ -67,33 +73,59 @@ func (client *Client) IsConnected() bool {
 
 // Disconnect disconnects the connection
 func (client *Client) Disconnect(quiesce uint) {
+	log.Info(logPrefix, "Disconnect requested from client")
 	if client.Client != nil {
 		client.Client.Disconnect(quiesce)
 	}
 }
 
-//StartMQTTClient is used to initiate the client and set the configuration
-func StartMQTTClient(brokerURL string) {
+// StartMQTTClient is used to initiate the client and set the configuration
+func StartMQTTClient(brokerURL string, clientID string) string {
+	log.Info(logPrefix, "Starting the MQTT Client")
+	//Check if the client connection exist
+	mqttClient := CheckifClientExist(clientID)
+	// Check if the connection exist for same url
+	ifConn := checkforConnection(brokerURL, mqttClient)
+	if mqttClient != nil && ifConn == 0 {
+		log.Info(logPrefix, "Connection Object exist", mqttClient)
+		if mqttClient.IsConnected() {
+			log.Info(logPrefix, "Client is already connected")
+			return ""
+		}
+		connectErr := mqttClient.Connect()
+		if connectErr != nil {
+			log.Warn(logPrefix, connectErr)
+			return connectErr.Error()
+		}
+
+	} else if mqttClient != nil && ifConn != 0 {
+		//close previous connection and remove from table
+		mqttClient.Disconnect(1)
+		delete(clientData, clientID)
+	}
 
 	clientConfig, err := NewClient(
 		SetHost(brokerURL),
 		SetPort(uint(mqttPort)),
+		SetClientID(clientID),
 	)
 	if err != nil {
 		log.Warn(logPrefix, err)
+		return err.Error()
 	}
 	clientConfig.ClientOptions.SetOnConnectHandler(clientConfig.onConnect())
 	URL := clientConfig.SetBrokerURL("tcp")
 	log.Info(logPrefix, " The broker is", URL)
+	clientConfig.URL = URL
 	clientConfig.ClientOptions.AddBroker(URL)
 
 	connectErr := clientConfig.Connect()
 	if connectErr != nil {
 		log.Warn(logPrefix, connectErr)
+		return connectErr.Error()
 	}
-
-	SetClient(clientConfig)
-
+	addClientData(clientConfig, clientID)
+	return ""
 }
 
 //Publish is used to publish the client data to the cloud

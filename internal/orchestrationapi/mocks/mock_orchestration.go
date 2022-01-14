@@ -105,7 +105,7 @@ func (mr *MockOrcheExternalAPIMockRecorder) RequestService(arg0 interface{}) *go
 }
 
 // RequestCloudSync mocks base method.
-func (m *MockOrcheExternalAPI) RequestCloudSync(arg0 mqtt.Message, arg1 string, arg2 string) string {
+func (m *MockOrcheExternalAPI) RequestCloudSync(arg0 string, arg1 string, arg2 mqtt.Message, arg3 string) string {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "RequestCloudSync", arg0)
 	ret0, _ := ret[0].(string)

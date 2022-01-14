@@ -53,7 +53,7 @@ type Orche interface {
 type OrcheExternalAPI interface {
 	RequestService(serviceInfo ReqeustService) ResponseService
 	verifier.Conf
-	RequestCloudSync(message mqtt.Message, topic string, clientID string) string
+	RequestCloudSync(host string, clientID string, message mqtt.Message, topic string) string
 }
 
 // OrcheInternalAPI is the interface implemented by internal REST API

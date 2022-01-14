@@ -27,7 +27,6 @@ import (
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
 	mqttmgr "github.com/lf-edge/edge-home-orchestration-go/internal/common/mqtt"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/networkhelper"
-	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/cloudsyncmgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/securemgr/verifier"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/db/bolt/common"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/orchestrationapi"
@@ -391,7 +390,7 @@ func (h *Handler) APIV1RequestCloudSyncmgrPost(w http.ResponseWriter, r *http.Re
 		responseMsg    string
 		topic          string
 		messagePayload string
-		url            string
+		host           string
 	)
 
 	//request
@@ -426,16 +425,13 @@ func (h *Handler) APIV1RequestCloudSyncmgrPost(w http.ResponseWriter, r *http.Re
 		responseMsg = orchestrationapi.InvalidParameter
 		goto SEND_RESP
 	}
-	url, ok = appCommand["url"].(string)
+	host, ok = appCommand["url"].(string)
 	if !ok {
 		responseMsg = orchestrationapi.InvalidParameter
 		goto SEND_RESP
 	}
-	cloudsyncmgr.GetInstance().StartCloudSync(url)
-	for mqttmgr.GetClient() == nil {
-		//Wait till the client is set
-	}
-	responseMsg = h.api.RequestCloudSync(publishMessage, topic, appID)
+
+	responseMsg = h.api.RequestCloudSync(host, appID, publishMessage, topic)
 
 SEND_RESP:
 	respJSONMsg := make(map[string]interface{})

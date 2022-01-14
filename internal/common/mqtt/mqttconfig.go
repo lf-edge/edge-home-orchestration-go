@@ -20,19 +20,20 @@ package mqtt
 
 import (
 	"fmt"
+	"strings"
 	"sync"
 	"time"
 
 	MQTT "github.com/eclipse/paho.mqtt.golang"
 )
 
-const clientID = "TestHomeEdge"
 const mqttPort = 1883
 
 // Client is a wrapper on top of `MQTT.Client`
 type Client struct {
 	ID   string
 	Host string
+	URL  string
 	Port uint
 	Qos  byte
 	sync.RWMutex
@@ -47,21 +48,11 @@ type Message struct {
 }
 
 var (
-	mqttClient *Client
+	clientData map[string]*Client
 )
 
 // Config represents an attribute config setter for the `Client`.
 type Config func(*Client)
-
-//SetClient sets the client
-func SetClient(client *Client) {
-	mqttClient = client
-}
-
-//GetClient gets the client set
-func GetClient() *Client {
-	return mqttClient
-}
 
 // SetClientID sets the mqtt client id.
 func SetClientID(id string) Config {
@@ -84,9 +75,34 @@ func SetPort(port uint) Config {
 	}
 }
 
+// InitClientData creates an initialized hashmap
+func InitClientData() {
+	clientData = make(map[string]*Client)
+}
+
+// CheckifClientExist used to check if the client conn object exist
+func CheckifClientExist(clientID string) *Client {
+	client := clientData[clientID]
+	return client
+}
+
+// addClientData is used to add the client object based on client id
+func addClientData(client *Client, clientID string) {
+	clientData[clientID] = client
+}
+
 //SetBrokerURL returns the broker url for connection
 func (c *Client) SetBrokerURL(protocol string) string {
 	return fmt.Sprintf("%s://%s:%d", protocol, c.Host, c.Port)
+}
+
+func checkforConnection(brokerURL string, mqttClient *Client) int {
+	if mqttClient == nil {
+		return 0
+	}
+	log.Info(logPrefix, mqttClient.URL)
+	connURL := fmt.Sprintf("%s://%s:%d", "tcp", brokerURL, mqttPort)
+	return strings.Compare(connURL, mqttClient.URL)
 }
 
 // NewClient returns a configured `Client`. Is mandatory
@@ -98,16 +114,12 @@ func NewClient(configs ...Config) (*Client, error) {
 	for _, config := range configs {
 		config(client)
 	}
-
 	copts := MQTT.NewClientOptions()
 	copts.SetAutoReconnect(true)
+	copts.SetClientID(client.ID)
 	copts.SetMaxReconnectInterval(1 * time.Second)
 	copts.SetOnConnectHandler(client.onConnect())
-	copts.SetConnectionLostHandler(func(c MQTT.Client, err error) {
-		log.Warn(logPrefix, " disconnected, reason: "+err.Error())
-		mqttClient.Connect()
-	})
-
+	copts.SetConnectionLostHandler(client.onConnectionLost())
 	client.ClientOptions = copts
 
 	return client, nil
