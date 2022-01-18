@@ -36,7 +36,14 @@ import (
 	"github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/resthelper"
 )
 
-const logPrefix = "RestExternalInterface"
+const logPrefix = "[RestExternalInterface]"
+
+const (
+	doesNotSetAPI    = " does not set API"
+	doesNotSetKey    = " does not set key"
+	cannotDecryption = " cannot decryption"
+	cannotEncryption = " cannot encryption"
+)
 
 // Handler struct
 type Handler struct {
@@ -96,13 +103,13 @@ func (h *Handler) SetOrchestrationAPI(o orchestrationapi.OrcheExternalAPI) {
 
 // APIV1RequestServicePost handles service request from service application
 func (h *Handler) APIV1RequestServicePost(w http.ResponseWriter, r *http.Request) {
-	log.Printf("[%s] APIV1RequestServicePost", logPrefix)
+	log.Info(logPrefix, " APIV1RequestServicePost")
 	if !h.isSetAPI {
-		log.Printf("[%s] does not set api", logPrefix)
+		log.Error(logPrefix, doesNotSetAPI)
 		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	} else if !h.IsSetKey {
-		log.Printf("[%s] does not set key", logPrefix)
+		log.Error(logPrefix, doesNotSetKey)
 		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	}
@@ -142,7 +149,7 @@ func (h *Handler) APIV1RequestServicePost(w http.ResponseWriter, r *http.Request
 
 	appCommand, err := h.Key.DecryptByteToJSON(encryptBytes)
 	if err != nil {
-		log.Printf("[%s] can not decryption", logPrefix)
+		log.Error(logPrefix, cannotDecryption)
 		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	}
@@ -240,7 +247,7 @@ SEND_RESP:
 
 	respEncryptBytes, err := h.Key.EncryptJSONToByte(respJSONMsg)
 	if err != nil {
-		log.Printf("[%s] can not encryption", logPrefix)
+		log.Error(logPrefix, cannotEncryption)
 		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	}
@@ -250,13 +257,13 @@ SEND_RESP:
 
 // APIV1RequestSecuremgrPost handles securemgr request from securemgr configure application
 func (h *Handler) APIV1RequestSecuremgrPost(w http.ResponseWriter, r *http.Request) {
-	log.Printf("[%s] APIV1RequestSecuremgrPost", logPrefix)
+	log.Info(logPrefix, " APIV1RequestSecuremgrPost")
 	if !h.isSetAPI {
-		log.Printf("[%s] does not set api", logPrefix)
+		log.Error(logPrefix, doesNotSetAPI)
 		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	} else if !h.IsSetKey {
-		log.Printf("[%s] does not set key", logPrefix)
+		log.Error(logPrefix, doesNotSetKey)
 		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	}
@@ -290,7 +297,7 @@ func (h *Handler) APIV1RequestSecuremgrPost(w http.ResponseWriter, r *http.Reque
 
 	appCommand, err := h.Key.DecryptByteToJSON(encryptBytes)
 	if err != nil {
-		log.Printf("[%s] cannot decryption", logPrefix)
+		log.Error(logPrefix, cannotDecryption)
 		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	}
@@ -349,7 +356,7 @@ SEND_RESP:
 
 	respEncryptBytes, err := h.Key.EncryptJSONToByte(respJSONMsg)
 	if err != nil {
-		log.Printf("[%s] cannot encryption", logPrefix)
+		log.Error(logPrefix, cannotEncryption)
 		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	}
@@ -359,13 +366,13 @@ SEND_RESP:
 
 // APIV1RequestCloudSyncmgrPost handles cloudsync publish request from service application
 func (h *Handler) APIV1RequestCloudSyncmgrPost(w http.ResponseWriter, r *http.Request) {
-	log.Printf("[%s] APIV1RequestCloudSyncmgrPost", logPrefix)
+	log.Info(logPrefix, " APIV1RequestCloudSyncmgrPost")
 	if !h.isSetAPI {
-		log.Printf("[%s] does not set api", logPrefix)
+		log.Error(logPrefix, doesNotSetAPI)
 		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	} else if !h.IsSetKey {
-		log.Printf("[%s] does not set key", logPrefix)
+		log.Error(logPrefix, doesNotSetKey)
 		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	}
@@ -399,7 +406,7 @@ func (h *Handler) APIV1RequestCloudSyncmgrPost(w http.ResponseWriter, r *http.Re
 	//Decrypt the request in json format
 	appCommand, err := h.Key.DecryptByteToJSON(encryptBytes)
 	if err != nil {
-		log.Printf("[%s] can not decryption", logPrefix)
+		log.Error(logPrefix, cannotDecryption)
 		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	}
@@ -441,7 +448,7 @@ SEND_RESP:
 
 	respEncryptBytes, err := h.Key.EncryptJSONToByte(respJSONMsg)
 	if err != nil {
-		log.Printf("[%s] can not encryption", logPrefix)
+		log.Error(logPrefix, cannotEncryption)
 		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	}

@@ -82,10 +82,9 @@ import (
 
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/fscreator"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
-	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/storagemgr"
-
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/configuremgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/discoverymgr"
+	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/storagemgr"
 	mnedcmgr "github.com/lf-edge/edge-home-orchestration-go/internal/controller/discoverymgr/mnedc"
 	scoringmgr "github.com/lf-edge/edge-home-orchestration-go/internal/controller/scoringmgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/securemgr/authenticator"
@@ -93,9 +92,8 @@ import (
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/securemgr/verifier"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/servicemgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/servicemgr/executor/nativeexecutor"
-
+	"github.com/lf-edge/edge-home-orchestration-go/internal/db/bolt/wrapper"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/orchestrationapi"
-
 	"github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/cipher/dummy"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/cipher/sha256"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/client/restclient"
@@ -103,11 +101,9 @@ import (
 	"github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/internalhandler"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/route"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/tls"
-
-	"github.com/lf-edge/edge-home-orchestration-go/internal/db/bolt/wrapper"
 )
 
-const logPrefix = "interface"
+const logPrefix = "[interface]"
 
 // Handle Platform Dependencies
 const (
@@ -145,7 +141,7 @@ func OrchestrationInit(secure C.int, mnedc C.int) C.int {
 	flag.Parse()
 
 	logmgr.InitLogfile(logPath)
-	log.Printf("[%s] OrchestrationInit", logPrefix)
+	log.Println(logPrefix, "OrchestrationInit")
 	log.Println(">>> commitID  : ", commitID)
 	log.Println(">>> version   : ", version)
 	log.Println(">>> buildTime : ", buildTime)
@@ -158,7 +154,7 @@ func OrchestrationInit(secure C.int, mnedc C.int) C.int {
 
 	isSecured := false
 	if secure == 1 {
-		log.Println("Orchestration init with secure option")
+		log.Println(logPrefix, "Orchestration init with secure option")
 		isSecured = true
 	}
 
@@ -187,7 +183,7 @@ func OrchestrationInit(secure C.int, mnedc C.int) C.int {
 	builder.SetClient(restIns)
 	orcheEngine = builder.Build()
 	if orcheEngine == nil {
-		log.Fatalf("[%s] Orchestaration initialize fail", logPrefix)
+		log.Fatalf("%s Orchestaration initialize fail", logPrefix)
 		return -1
 	}
 
@@ -202,7 +198,7 @@ func OrchestrationInit(secure C.int, mnedc C.int) C.int {
 
 	internalapi, err := orchestrationapi.GetInternalAPI()
 	if err != nil {
-		log.Fatalf("[%s] Orchestaration internal api : %s", logPrefix, err.Error())
+		log.Fatalf("%s Orchestaration internal api : %s", logPrefix, err.Error())
 	}
 	ihandle := internalhandler.GetHandler()
 	ihandle.SetOrchestrationAPI(internalapi)
@@ -215,7 +211,7 @@ func OrchestrationInit(secure C.int, mnedc C.int) C.int {
 
 	externalapi, err := orchestrationapi.GetExternalAPI()
 	if err != nil {
-		log.Fatalf("[%s] Orchestaration external api : %s", logPrefix, err.Error())
+		log.Fatalf("%s Orchestaration external api : %s", logPrefix, err.Error())
 	}
 	ehandle := externalhandler.GetHandler()
 	ehandle.SetOrchestrationAPI(externalapi)
@@ -224,7 +220,7 @@ func OrchestrationInit(secure C.int, mnedc C.int) C.int {
 
 	restEdgeRouter.Start()
 
-	log.Println(logPrefix, "orchestration init done")
+	log.Println(logPrefix, "Orchestration init done")
 	mnedcmgr.GetServerInstance().SetCipher(cipher)
 	if isSecured {
 		mnedcmgr.GetServerInstance().SetCertificateFilePath(certificateFilePath)
@@ -234,10 +230,10 @@ func OrchestrationInit(secure C.int, mnedc C.int) C.int {
 	isMNEDCClient := false
 	if mnedc == 1 {
 		isMNEDCServer = true
-		log.Println("Orchestration init with MNEDC server option")
+		log.Println(logPrefix, "Orchestration init with MNEDC server option")
 	} else if mnedc == 2 {
 		isMNEDCClient = true
-		log.Println("Orchestration init with MNEDC client option")
+		log.Println(logPrefix, "Orchestration init with MNEDC client option")
 	}
 
 	go func() {
@@ -253,7 +249,7 @@ func OrchestrationInit(secure C.int, mnedc C.int) C.int {
 // OrchestrationRequestService performs request from service applications which uses orchestration service
 //export OrchestrationRequestService
 func OrchestrationRequestService(cAppName *C.char, cSelfSelection C.int, cRequester *C.char, serviceInfo *C.RequestServiceInfo, count C.int) C.ResponseService {
-	log.Printf("[%s] OrchestrationRequestService", logPrefix)
+	log.Printf("%s OrchestrationRequestService", logPrefix)
 
 	appName := C.GoString(cAppName)
 
@@ -272,7 +268,7 @@ func OrchestrationRequestService(cAppName *C.char, cSelfSelection C.int, cReques
 
 	externalAPI, err := orchestrationapi.GetExternalAPI()
 	if err != nil {
-		log.Fatalf("[%s] Orchestaration external api : %s", logPrefix, err.Error())
+		log.Fatalf("%s Orchestaration external api : %s", logPrefix, err.Error())
 	}
 
 	selfSel := true
@@ -293,7 +289,7 @@ func OrchestrationRequestService(cAppName *C.char, cSelfSelection C.int, cReques
 		ServiceInfo:      requestInfos,
 		ServiceRequester: requester,
 	})
-	log.Println("requestService handle : ", res)
+	log.Println(logPrefix, "requestService handle : ", res)
 
 	ret := C.ResponseService{}
 	ret.Message = C.CString(res.Message)

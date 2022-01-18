@@ -21,13 +21,13 @@ package configuremgr
 import (
 	"errors"
 	"fmt"
-	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
 
+	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
 	types "github.com/lf-edge/edge-home-orchestration-go/internal/common/types/configuremgrtypes"
 	appDB "github.com/lf-edge/edge-home-orchestration-go/internal/db/bolt/application"
 
@@ -35,7 +35,7 @@ import (
 	"gopkg.in/ini.v1"
 )
 
-const logPrefix = "Configuremgr"
+const logPrefix = "[configuremgr]"
 
 // Notifier is the interface to get scoring information for each service application
 type Notifier interface {
@@ -77,7 +77,7 @@ func (cfgMgr ConfigureMgr) SetConfigPath(configPath string) error {
 	if err == nil {
 		configuremgrObj.confpath = configPath
 	} else {
-		log.Warn("no config file path")
+		log.Warn(logPrefix, " No config file path")
 	}
 	return err
 }
@@ -106,12 +106,12 @@ func (cfgMgr ConfigureMgr) Watch(notifier Notifier) {
 		for {
 			select {
 			case event := <-watcher.Events:
-				log.Debug("event:", event)
+				log.Debug(logPrefix, " Event:", event)
 				switch event.Op {
 				case fsnotify.Create, fsnotify.Write:
 					_, dirName := filepath.Split(event.Name)
 					confFileName := fmt.Sprint(event.Name, "/", dirName, ".conf")
-					log.Debug("IsConfExist:", confFileName)
+					log.Debug(logPrefix, " IsConfExist:", confFileName)
 
 					// Should check file is exist on file system really,
 					// even though CREATE event of directory received
@@ -124,7 +124,7 @@ func (cfgMgr ConfigureMgr) Watch(notifier Notifier) {
 						time.Sleep(time.Second * 1)
 					}
 					if !isConfExist {
-						log.Warn(confFileName, "does not exist")
+						log.Warn(logPrefix, " ", confFileName, "does not exist")
 						continue
 					}
 					info, err := getServiceInfo(event.Name)
@@ -136,7 +136,7 @@ func (cfgMgr ConfigureMgr) Watch(notifier Notifier) {
 				}
 			case err := <-watcher.Errors:
 				if err != nil {
-					log.Warn("error:", err)
+					log.Warn(logPrefix, " error:", err)
 				}
 			} //select end
 		} //for end
@@ -146,20 +146,20 @@ func (cfgMgr ConfigureMgr) Watch(notifier Notifier) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Info("start watching for", cfgMgr.confpath)
-	log.Debug("configuremgr watcher register end")
+	log.Info(logPrefix, " Start watching for ", cfgMgr.confpath)
+	log.Debug(logPrefix, " Configuremgr watcher register end")
 }
 
 func getServiceInfo(path string) (types.ServiceInfo, error) {
 	confPath, err := getdirname(path)
 	if err != nil {
-		log.Warn("wrong libPath or confPath")
+		log.Warn(logPrefix, " Wrong libPath or confPath")
 		return types.ServiceInfo{}, err
 	}
 
 	cfg, err := ini.Load(confPath)
 	if err != nil {
-		log.Debug("Fail to read ", confPath, "file, err = ", err)
+		log.Debug(logPrefix, " Fail to read ", confPath, "file, err = ", err)
 		return types.ServiceInfo{}, err
 	}
 
@@ -169,14 +169,14 @@ func getServiceInfo(path string) (types.ServiceInfo, error) {
 	execType := cfg.Section("ServiceInfo").Key("ExecType").String()
 	execCmd := cfg.Section("ServiceInfo").Key("ExecCmd").Strings(" ")
 
-	log.Debug("[configuremgr] ServiceName:", serviceName)
-	log.Debug("[configuremgr] ExecutableFileName:", executableName)
-	log.Debug("[configuremgr] AllowedRequester:", allowedRequesterName)
-	log.Debug("[configuremgr] ExecType:", execType)
-	log.Debug("[configuremgr] ExecCmd:", execCmd)
+	log.Debug(logPrefix, " ServiceName:", serviceName)
+	log.Debug(logPrefix, " ExecutableFileName:", executableName)
+	log.Debug(logPrefix, " AllowedRequester:", allowedRequesterName)
+	log.Debug(logPrefix, " ExecType:", execType)
+	log.Debug(logPrefix, " ExecCmd:", execCmd)
 
 	if execType != configuremgrObj.execType {
-		log.Warn("Type of ", serviceName, " is not ", configuremgrObj.execType)
+		log.Warn(logPrefix, " Type of ", serviceName, " is not ", configuremgrObj.execType)
 		return types.ServiceInfo{}, errors.New("execution type mismatch")
 	}
 

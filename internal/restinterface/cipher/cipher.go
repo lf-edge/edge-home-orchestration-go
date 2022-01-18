@@ -18,7 +18,7 @@
 // Package cipher implements simple encrypting and decrypting message
 package cipher
 
-const logPrefix = "cipher"
+const logPrefix = "[cipher]"
 
 // IEdgeCipherer is the interface implemented by encryption/decryption functions
 type IEdgeCipherer interface {

@@ -24,7 +24,7 @@ import (
 	"github.com/vishvananda/netlink"
 )
 
-const logPrefix = "detector_netlink"
+const logPrefix = "[detectornetlink]"
 
 type detectorImpl struct{}
 
@@ -79,10 +79,10 @@ func detectionHandler(detect netlink.AddrUpdate) bool {
 	}
 
 	if updatedAddr.NewAddr {
-		log.Println(logPrefix, "[DetectionHandler]", "New Connection : ", updatedAddr.LinkAddress.IP)
+		log.Println(logPrefix, "New Connection : ", updatedAddr.LinkAddress.IP)
 		return true
 	}
 
-	log.Println(logPrefix, "[DetectionHandler]", "Disconnected : ", updatedAddr.LinkAddress.IP)
+	log.Println(logPrefix, "Disconnected : ", updatedAddr.LinkAddress.IP)
 	return true
 }
