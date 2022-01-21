@@ -107,15 +107,15 @@ func (mr *MockOrcheExternalAPIMockRecorder) RequestService(arg0 interface{}) *go
 // RequestCloudSync mocks base method.
 func (m *MockOrcheExternalAPI) RequestCloudSync(arg0 string, arg1 string, arg2 mqtt.Message, arg3 string) string {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RequestCloudSync", arg0)
+	ret := m.ctrl.Call(m, "RequestCloudSync", arg0, arg1, arg2, arg3)
 	ret0, _ := ret[0].(string)
 	return ret0
 }
 
 // RequestCloudSync indicates an expected call of RequestService.
-func (mr *MockOrcheExternalAPIMockRecorder) RequestCloudSync(arg0 interface{}) *gomock.Call {
+func (mr *MockOrcheExternalAPIMockRecorder) RequestCloudSync(arg0, arg1 interface{}, arg2 interface{}, arg3 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RequestCloudSync", reflect.TypeOf((*MockOrcheExternalAPI)(nil).RequestService), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RequestCloudSync", reflect.TypeOf((*MockOrcheExternalAPI)(nil).RequestCloudSync), arg0, arg1, arg2, arg3)
 }
 
 // RequestVerifierConf mocks base method.

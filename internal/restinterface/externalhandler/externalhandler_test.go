@@ -107,6 +107,16 @@ func getReqeustArgs() (orchestrationapi.ReqeustService, map[string]interface{}) 
 	return requestService, appCommand
 }
 
+func getCloudsynRequestArgs() (map[string]interface{}, error) {
+	appCommand := make(map[string]interface{})
+	appCommand["appid"] = "testappid"
+	appCommand["url"] = "http://localhost:1883"
+	appCommand["topic"] = "test"
+	appCommand["payload"] = "testdata"
+
+	return appCommand, nil
+}
+
 func getInvalidParamResponse() map[string]interface{} {
 	response := make(map[string]interface{})
 	response["Message"] = "INVALID_PARAMETER"
@@ -276,5 +286,125 @@ func TestAPIV1RequestServicePost(t *testing.T) {
 		)
 
 		handler.APIV1RequestServicePost(w, r)
+	})
+}
+
+func TestAPIV1RequestCloudSyncmgrPost(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	handler := GetHandler()
+	if handler == nil {
+		t.Error("unexpected return value")
+	}
+
+	mockOrchestration := orchemock.NewMockOrcheExternalAPI(ctrl)
+	mockCipher := ciphermock.NewMockIEdgeCipherer(ctrl)
+	mockHelper := helpermock.NewMockRestHelper(ctrl)
+	mockNetHelper := networkhelper.NewMockNetwork(ctrl)
+
+	r := httptest.NewRequest("POST", "http://localhost:1234", nil)
+	w := httptest.NewRecorder()
+
+	addr := strings.Split(r.RemoteAddr, ":")[0]
+
+	t.Run("Error", func(t *testing.T) {
+		t.Run("IsNotSetApi", func(t *testing.T) {
+			handler.setHelper(mockHelper)
+			mockHelper.EXPECT().Response(gomock.Any(), gomock.Any(), gomock.Eq(http.StatusServiceUnavailable))
+
+			handler.isSetAPI = false
+			handler.APIV1RequestCloudSyncmgrPost(w, r)
+		})
+		t.Run("IsNotSetKey", func(t *testing.T) {
+			handler.SetOrchestrationAPI(mockOrchestration)
+			handler.setHelper(mockHelper)
+			mockHelper.EXPECT().Response(gomock.Any(), gomock.Any(), gomock.Eq(http.StatusServiceUnavailable))
+
+			handler.IsSetKey = false
+			handler.APIV1RequestCloudSyncmgrPost(w, r)
+		})
+		t.Run("DecryptionFail", func(t *testing.T) {
+			handler.SetCipher(mockCipher)
+			handler.SetOrchestrationAPI(mockOrchestration)
+			handler.setHelper(mockHelper)
+			handler.netHelper = mockNetHelper
+			gomock.InOrder(
+				mockNetHelper.EXPECT().GetIPs().Return([]string{addr}, nil),
+				mockCipher.EXPECT().DecryptByteToJSON(gomock.Any()).Return(nil, errors.New("")),
+				mockHelper.EXPECT().Response(gomock.Any(), gomock.Any(), gomock.Eq(http.StatusServiceUnavailable)),
+			)
+
+			handler.APIV1RequestCloudSyncmgrPost(w, r)
+		})
+		t.Run("InvalidParam", func(t *testing.T) {
+			t.Run("ServiceName", func(t *testing.T) {
+				handler.SetCipher(mockCipher)
+				handler.SetOrchestrationAPI(mockOrchestration)
+				handler.setHelper(mockHelper)
+				handler.netHelper = mockNetHelper
+
+				appCommand, _ := getCloudsynRequestArgs()
+				delete(appCommand, "appid")
+
+				gomock.InOrder(
+					mockNetHelper.EXPECT().GetIPs().Return([]string{addr}, nil),
+					mockCipher.EXPECT().DecryptByteToJSON(gomock.Any()).Return(appCommand, nil),
+					mockCipher.EXPECT().EncryptJSONToByte(gomock.Any()).Do(func(resp map[string]interface{}) {
+						if resp["Message"] != orchestrationapi.InvalidParameter {
+							t.Error("unexpected response")
+						}
+					}).Return(nil, nil),
+					mockHelper.EXPECT().Response(gomock.Any(), gomock.Any(), gomock.Eq(http.StatusOK)),
+				)
+
+				handler.APIV1RequestCloudSyncmgrPost(w, r)
+			})
+			t.Run("topic", func(t *testing.T) {
+				handler.SetCipher(mockCipher)
+				handler.SetOrchestrationAPI(mockOrchestration)
+				handler.setHelper(mockHelper)
+				handler.netHelper = mockNetHelper
+
+				appCommand, _ := getCloudsynRequestArgs()
+				delete(appCommand, "topic")
+
+				gomock.InOrder(
+					mockNetHelper.EXPECT().GetIPs().Return([]string{addr}, nil),
+					mockCipher.EXPECT().DecryptByteToJSON(gomock.Any()).Return(appCommand, nil),
+					mockCipher.EXPECT().EncryptJSONToByte(gomock.Any()).Do(func(resp map[string]interface{}) {
+						if resp["Message"] != orchestrationapi.InvalidParameter {
+							t.Error("unexpected response")
+						}
+					}).Return(nil, nil),
+					mockHelper.EXPECT().Response(gomock.Any(), gomock.Any(), gomock.Eq(http.StatusOK)),
+				)
+
+				handler.APIV1RequestCloudSyncmgrPost(w, r)
+			})
+			t.Run("url", func(t *testing.T) {
+				handler.SetCipher(mockCipher)
+				handler.SetOrchestrationAPI(mockOrchestration)
+				handler.setHelper(mockHelper)
+				handler.netHelper = mockNetHelper
+
+				appCommand, _ := getCloudsynRequestArgs()
+
+				delete(appCommand, "url")
+
+				gomock.InOrder(
+					mockNetHelper.EXPECT().GetIPs().Return([]string{addr}, nil),
+					mockCipher.EXPECT().DecryptByteToJSON(gomock.Any()).Return(appCommand, nil),
+					mockCipher.EXPECT().EncryptJSONToByte(gomock.Any()).Do(func(resp map[string]interface{}) {
+						if resp["Message"] != orchestrationapi.InvalidParameter {
+							t.Error("unexpected response")
+						}
+					}).Return(nil, nil),
+					mockHelper.EXPECT().Response(gomock.Any(), gomock.Any(), gomock.Eq(http.StatusOK)),
+				)
+
+				handler.APIV1RequestCloudSyncmgrPost(w, r)
+			})
+		})
 	})
 }
