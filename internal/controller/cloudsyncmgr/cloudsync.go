@@ -46,6 +46,7 @@ var (
 	log            = logmgr.GetInstance()
 	mqttClient     *mqttmgr.Client
 	isCloudSyncSet bool
+	mqttPort       uint
 )
 
 func init() {
@@ -87,7 +88,8 @@ func (c *CloudSyncImpl) RequestCloudSyncConf(host string, clientID string, messa
 	wg.Add(1)
 	errs := make(chan string, 1)
 	go func() {
-		errs <- mqttmgr.StartMQTTClient(host, clientID)
+		mqttPort = 8883
+		errs <- mqttmgr.StartMQTTClient(host, clientID, mqttPort)
 		resp = <-errs
 		wg.Done()
 

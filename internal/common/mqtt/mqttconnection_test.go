@@ -21,13 +21,12 @@ import (
 )
 
 const Host = "broker.hivemq.com"
-const port = "1883"
 
 func TestStartMQTTClient(t *testing.T) {
-	t.Run("Success", func(t *testing.T) {
+	t.Run("Fail", func(t *testing.T) {
 		InitClientData()
-		StartMQTTClient(Host, "testClient")
-		t.Log("Client connected")
+		err := StartMQTTClient(Host, "testClient", 1883)
+		t.Log(err)
 	})
 
 }

@@ -19,7 +19,10 @@
 package mqtt
 
 import (
+	"crypto/tls"
+	"crypto/x509"
 	"fmt"
+	"io/ioutil"
 	"strings"
 	"sync"
 	"time"
@@ -27,7 +30,10 @@ import (
 	MQTT "github.com/eclipse/paho.mqtt.golang"
 )
 
-const mqttPort = 1883
+const (
+	edgeDir      = "/var/edge-orchestration"
+	caCertConfig = edgeDir + "/mqtt/certs/cacert.pem"
+)
 
 // Client is a wrapper on top of `MQTT.Client`
 type Client struct {
@@ -96,7 +102,7 @@ func (c *Client) SetBrokerURL(protocol string) string {
 	return fmt.Sprintf("%s://%s:%d", protocol, c.Host, c.Port)
 }
 
-func checkforConnection(brokerURL string, mqttClient *Client) int {
+func checkforConnection(brokerURL string, mqttClient *Client, mqttPort uint) int {
 	if mqttClient == nil {
 		return 0
 	}
@@ -105,8 +111,29 @@ func checkforConnection(brokerURL string, mqttClient *Client) int {
 	return strings.Compare(connURL, mqttClient.URL)
 }
 
+//NewTLSConfig creates a tls config for mqtt client
+func NewTLSConfig() *tls.Config {
+	certpool := x509.NewCertPool()
+	ca, err := ioutil.ReadFile(caCertConfig)
+	if err != nil {
+		log.Warn(err.Error())
+		return nil
+	}
+	certpool.AppendCertsFromPEM(ca)
+
+	return &tls.Config{
+		RootCAs: certpool,
+		/*ClientAuth:         tls.NoClientCert,
+		ClientCAs:          nil,
+		InsecureSkipVerify: false,
+		Certificates:       []tls.Certificate{clientKeyPair},*/
+	}
+
+}
+
 // NewClient returns a configured `Client`. Is mandatory
 func NewClient(configs ...Config) (*Client, error) {
+	tlsconfig := NewTLSConfig()
 	client := &Client{
 		Qos: byte(1),
 	}
@@ -120,6 +147,7 @@ func NewClient(configs ...Config) (*Client, error) {
 	copts.SetMaxReconnectInterval(1 * time.Second)
 	copts.SetOnConnectHandler(client.onConnect())
 	copts.SetConnectionLostHandler(client.onConnectionLost())
+	copts.SetTLSConfig(tlsconfig)
 	client.ClientOptions = copts
 
 	return client, nil
