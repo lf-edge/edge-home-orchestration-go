@@ -66,7 +66,7 @@ const (
 	// NetRTT defined network/rtt
 	NetRTT = "network/rtt"
 
-	logPrefix             = "resourceutil"
+	logPrefix             = "[resourceutil]"
 	defaultProcessingTime = 5
 )
 

@@ -52,7 +52,7 @@ import (
 
 // Handle Platform Dependencies
 const (
-	logPrefix     = "interface"
+	logPrefix     = "[interface]"
 	platform      = "android"
 	executionType = "android"
 
@@ -109,7 +109,7 @@ func (r *ReqeustService) SetExecutionCommand(execType string, command string) {
 	switch execType {
 	case "native", "android", "container":
 	default:
-		log.Printf("[%s] Invalid execution type: %s", logPrefix, execType)
+		log.Printf("%s Invalid execution type: %s", logPrefix, execType)
 		return
 	}
 
@@ -180,7 +180,7 @@ func OrchestrationInit(executeCallback ExecuteCallback, edgeDir string, isSecure
 	}
 
 	logmgr.InitLogfile(logPath)
-	log.Printf("[%s] OrchestrationInit", logPrefix)
+	log.Printf("%s OrchestrationInit", logPrefix)
 
 	wrapper.SetBoltDBPath(dbPath)
 
@@ -209,7 +209,7 @@ func OrchestrationInit(executeCallback ExecuteCallback, edgeDir string, isSecure
 
 	orcheEngine = builder.Build()
 	if orcheEngine == nil {
-		log.Fatalf("[%s] Orchestration initialize fail", logPrefix)
+		log.Fatalf("%s Orchestration initialize fail", logPrefix)
 		return
 	}
 
@@ -227,7 +227,7 @@ func OrchestrationInit(executeCallback ExecuteCallback, edgeDir string, isSecure
 
 	internalapi, err := orchestrationapi.GetInternalAPI()
 	if err != nil {
-		log.Fatalf("[%s] Orchestration internal api : %s", logPrefix, err.Error())
+		log.Fatalf("%s Orchestration internal api : %s", logPrefix, err.Error())
 	}
 	ihandle := internalhandler.GetHandler()
 	ihandle.SetOrchestrationAPI(internalapi)
@@ -249,12 +249,12 @@ func OrchestrationInit(executeCallback ExecuteCallback, edgeDir string, isSecure
 
 // OrchestrationRequestService performs request from service applications which uses orchestration service
 func OrchestrationRequestService(request *ReqeustService) *ResponseService {
-	log.Printf("[%s] OrchestrationRequestService", logPrefix)
+	log.Printf("%s OrchestrationRequestService", logPrefix)
 	log.Println("Service name: ", request.ServiceName)
 
 	externalAPI, err := orchestrationapi.GetExternalAPI()
 	if err != nil {
-		log.Fatalf("[%s] Orchestaration external api : %s", logPrefix, err.Error())
+		log.Fatalf("%s Orchestaration external api : %s", logPrefix, err.Error())
 	}
 
 	changed := orchestrationapi.ReqeustService{

@@ -35,7 +35,14 @@ import (
 	"github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/resthelper"
 )
 
-const logPrefix = "RestInternalInterface"
+const logPrefix = "[RestInternalInterface]"
+
+const (
+	doesNotSetAPI    = " does not set API"
+	doesNotSetKey    = " does not set key"
+	cannotDecryption = " cannot decryption "
+	cannotEncryption = " cannot encryption "
+)
 
 // Handler struct
 type Handler struct {
@@ -132,13 +139,13 @@ func (h *Handler) APIV1Ping(w http.ResponseWriter, r *http.Request) {
 
 // APIV1ServicemgrServicesPost handles service execution request from remote orchestration
 func (h *Handler) APIV1ServicemgrServicesPost(w http.ResponseWriter, r *http.Request) {
-	log.Printf("[%s] APIV1ServicemgrServicesPost", logPrefix)
+	log.Info(logPrefix, " APIV1ServicemgrServicesPost")
 	if !h.isSetAPI {
-		log.Printf("[%s] does not set api", logPrefix)
+		log.Error(logPrefix, doesNotSetAPI)
 		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	} else if !h.IsSetKey {
-		log.Printf("[%s] does not set key", logPrefix)
+		log.Error(logPrefix, doesNotSetKey)
 		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	}
@@ -148,19 +155,19 @@ func (h *Handler) APIV1ServicemgrServicesPost(w http.ResponseWriter, r *http.Req
 
 	appInfo, err := h.Key.DecryptByteToJSON(encryptBytes)
 	if err != nil {
-		log.Printf("[%s] can not decryption", logPrefix)
+		log.Error(logPrefix, cannotDecryption)
 		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	}
 
 	appInfo["NotificationTargetURL"] = remoteAddr
 
-	log.Printf("[%s] Requested AppInfo", logPrefix)
-	log.Printf("[%s] Requester    : %s", logPrefix, logmgr.SanitizeUserInput(appInfo["Requester"].(string)))                      // lgtm [go/log-injection]
-	log.Printf("[%s] ServiceID    : %s", logPrefix, logmgr.SanitizeUserInput(fmt.Sprintf("%f", appInfo["ServiceID"])))            // lgtm [go/log-injection]
-	log.Printf("[%s] ServiceName  : %s", logPrefix, logmgr.SanitizeUserInput(appInfo["ServiceName"].(string)))                    // lgtm [go/log-injection]
-	log.Printf("[%s] NotificationTargetURL : %s", logPrefix, logmgr.SanitizeUserInput(appInfo["NotificationTargetURL"].(string))) // lgtm [go/log-injection]
-	log.Printf("[%s] ExecutionCmd : %s", logPrefix, logmgr.SanitizeUserInput(fmt.Sprintf("%v", appInfo["UserArgs"])))             // lgtm [go/log-injection]
+	log.Printf("%s Requested AppInfo", logPrefix)
+	log.Printf("%s Requester    : %s", logPrefix, logmgr.SanitizeUserInput(appInfo["Requester"].(string)))                      // lgtm [go/log-injection]
+	log.Printf("%s ServiceID    : %s", logPrefix, logmgr.SanitizeUserInput(fmt.Sprintf("%f", appInfo["ServiceID"])))            // lgtm [go/log-injection]
+	log.Printf("%s ServiceName  : %s", logPrefix, logmgr.SanitizeUserInput(appInfo["ServiceName"].(string)))                    // lgtm [go/log-injection]
+	log.Printf("%s NotificationTargetURL : %s", logPrefix, logmgr.SanitizeUserInput(appInfo["NotificationTargetURL"].(string))) // lgtm [go/log-injection]
+	log.Printf("%s ExecutionCmd : %s", logPrefix, logmgr.SanitizeUserInput(fmt.Sprintf("%v", appInfo["UserArgs"])))             // lgtm [go/log-injection]
 
 	args := make([]string, 0)
 	for _, arg := range appInfo["UserArgs"].([]interface{}) {
@@ -194,7 +201,7 @@ func (h *Handler) APIV1ServicemgrServicesPost(w http.ResponseWriter, r *http.Req
 
 	respEncryptBytes, err := h.Key.EncryptJSONToByte(respJSONMsg)
 	if err != nil {
-		log.Printf("[%s] can not encryption", logPrefix)
+		log.Error(logPrefix, cannotEncryption)
 		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	}
@@ -204,13 +211,13 @@ func (h *Handler) APIV1ServicemgrServicesPost(w http.ResponseWriter, r *http.Req
 
 // APIV1ServicemgrServicesNotificationServiceIDPost handles service notification request from remote orchestration
 func (h *Handler) APIV1ServicemgrServicesNotificationServiceIDPost(w http.ResponseWriter, r *http.Request) {
-	log.Printf("[%s] APIV1ServicemgrServicesNotificationServiceIDPost", logPrefix)
+	log.Info(logPrefix, " APIV1ServicemgrServicesNotificationServiceIDPost")
 	if !h.isSetAPI {
-		log.Printf("[%s] does not set api", logPrefix)
+		log.Error(logPrefix, doesNotSetAPI)
 		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	} else if !h.IsSetKey {
-		log.Printf("[%s] does not set key", logPrefix)
+		log.Error(logPrefix, doesNotSetKey)
 		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	}
@@ -219,7 +226,7 @@ func (h *Handler) APIV1ServicemgrServicesNotificationServiceIDPost(w http.Respon
 
 	statusNotification, err := h.Key.DecryptByteToJSON(encryptBytes)
 	if err != nil {
-		log.Printf("[%s] can not decryption", logPrefix)
+		log.Error(logPrefix, cannotDecryption)
 		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	}
@@ -238,13 +245,13 @@ func (h *Handler) APIV1ServicemgrServicesNotificationServiceIDPost(w http.Respon
 
 // APIV1ScoringmgrScoreLibnameGet handles scoring request from remote orchestration
 func (h *Handler) APIV1ScoringmgrScoreLibnameGet(w http.ResponseWriter, r *http.Request) {
-	log.Printf("[%s] APIV1ScoringmgrScoreLibnameGet", logPrefix)
+	log.Info(logPrefix, " APIV1ScoringmgrScoreLibnameGet")
 	if !h.isSetAPI {
-		log.Printf("[%s] does not set api", logPrefix)
+		log.Error(logPrefix, doesNotSetAPI)
 		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	} else if !h.IsSetKey {
-		log.Printf("[%s] does not set key", logPrefix)
+		log.Error(logPrefix, doesNotSetKey)
 		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	}
@@ -252,7 +259,7 @@ func (h *Handler) APIV1ScoringmgrScoreLibnameGet(w http.ResponseWriter, r *http.
 	encryptBytes, _ := ioutil.ReadAll(r.Body)
 	Info, err := h.Key.DecryptByteToJSON(encryptBytes)
 	if err != nil {
-		log.Printf("[%s] can not decryption %s", logPrefix, err.Error())
+		log.Error(logPrefix, cannotDecryption, err.Error())
 		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	}
@@ -261,7 +268,7 @@ func (h *Handler) APIV1ScoringmgrScoreLibnameGet(w http.ResponseWriter, r *http.
 
 	scoreValue, err := h.api.GetScore(devID.(string))
 	if err != nil {
-		log.Printf("[%s] GetScore fail : %s", logPrefix, err.Error())
+		log.Error(logPrefix, " GetScore fail : ", err.Error())
 		h.helper.Response(w, nil, http.StatusInternalServerError)
 		return
 	}
@@ -271,7 +278,7 @@ func (h *Handler) APIV1ScoringmgrScoreLibnameGet(w http.ResponseWriter, r *http.
 
 	respEncryptBytes, err := h.Key.EncryptJSONToByte(respJSONMsg)
 	if err != nil {
-		log.Printf("[%s] can not encryption %s", logPrefix, err.Error())
+		log.Error(logPrefix, cannotEncryption, err.Error())
 		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	}
@@ -281,13 +288,13 @@ func (h *Handler) APIV1ScoringmgrScoreLibnameGet(w http.ResponseWriter, r *http.
 
 // APIV1ScoringmgrResourceGet handles Resource request from remote orchestration
 func (h *Handler) APIV1ScoringmgrResourceGet(w http.ResponseWriter, r *http.Request) {
-	log.Printf("[%s] APIV1ScoringmgrResourceGet", logPrefix)
+	log.Info(logPrefix, " APIV1ScoringmgrResourceGet")
 	if !h.isSetAPI {
-		log.Printf("[%s] does not set api", logPrefix)
+		log.Error(logPrefix, doesNotSetAPI)
 		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	} else if !h.IsSetKey {
-		log.Printf("[%s] does not set key", logPrefix)
+		log.Error(logPrefix, doesNotSetKey)
 		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	}
@@ -295,7 +302,7 @@ func (h *Handler) APIV1ScoringmgrResourceGet(w http.ResponseWriter, r *http.Requ
 	encryptBytes, _ := ioutil.ReadAll(r.Body)
 	Info, err := h.Key.DecryptByteToJSON(encryptBytes)
 	if err != nil {
-		log.Printf("[%s] can not decryption %s", logPrefix, err.Error())
+		log.Error(logPrefix, cannotDecryption, err.Error())
 		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	}
@@ -304,14 +311,14 @@ func (h *Handler) APIV1ScoringmgrResourceGet(w http.ResponseWriter, r *http.Requ
 
 	resourceValue, err := h.api.GetResource(devID.(string))
 	if err != nil {
-		log.Printf("[%s] GetResource fail : %s", logPrefix, err.Error())
+		log.Error(logPrefix, " GetResource fail : ", err.Error())
 		h.helper.Response(w, nil, http.StatusInternalServerError)
 		return
 	}
 
 	respEncryptBytes, err := h.Key.EncryptJSONToByte(resourceValue)
 	if err != nil {
-		log.Printf("[%s] can not encryption %s", logPrefix, err.Error())
+		log.Error(logPrefix, cannotEncryption, err.Error())
 		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	}
@@ -321,13 +328,13 @@ func (h *Handler) APIV1ScoringmgrResourceGet(w http.ResponseWriter, r *http.Requ
 
 //APIV1DiscoverymgrMNEDCDeviceInfoPost handles device info from MNEDC server
 func (h *Handler) APIV1DiscoverymgrMNEDCDeviceInfoPost(w http.ResponseWriter, r *http.Request) {
-	log.Printf("[%s] APIV1DiscoveryFromMNEDCServer", logPrefix)
+	log.Info(logPrefix, " APIV1DiscoveryFromMNEDCServer")
 	if !h.isSetAPI {
-		log.Printf("[%s] does not set api", logPrefix)
+		log.Error(logPrefix, doesNotSetAPI)
 		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	} else if !h.IsSetKey {
-		log.Printf("[%s] does not set key", logPrefix)
+		log.Error(logPrefix, doesNotSetKey)
 		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	}
@@ -336,7 +343,7 @@ func (h *Handler) APIV1DiscoverymgrMNEDCDeviceInfoPost(w http.ResponseWriter, r 
 	Info, err := h.Key.DecryptByteToJSON(encryptBytes)
 
 	if err != nil {
-		log.Printf("[%s] can not decryption %s", logPrefix, err.Error())
+		log.Error(logPrefix, cannotDecryption, err.Error())
 		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	}
@@ -356,13 +363,13 @@ func (h *Handler) APIV1DiscoverymgrMNEDCDeviceInfoPost(w http.ResponseWriter, r 
 
 //APIV1DiscoverymgrOrchestrationInfoGet handles device info requests from peers
 func (h *Handler) APIV1DiscoverymgrOrchestrationInfoGet(w http.ResponseWriter, r *http.Request) {
-	log.Printf("[%s] APIV1DiscoverymgrOrchestrationInfoGet", logPrefix)
+	log.Info(logPrefix, " APIV1DiscoverymgrOrchestrationInfoGet")
 	if !h.isSetAPI {
-		log.Printf("[%s] does not set api", logPrefix)
+		log.Error(logPrefix, doesNotSetAPI)
 		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	} else if !h.IsSetKey {
-		log.Printf("[%s] does not set key", logPrefix)
+		log.Error(logPrefix, doesNotSetKey)
 		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	}
@@ -370,7 +377,7 @@ func (h *Handler) APIV1DiscoverymgrOrchestrationInfoGet(w http.ResponseWriter, r
 	platform, execution, serviceList, err := h.api.GetOrchestrationInfo()
 
 	if err != nil {
-		log.Printf("[%s] can not encryption %s", logPrefix, err.Error())
+		log.Error(logPrefix, cannotEncryption, err.Error())
 		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	}
@@ -382,7 +389,7 @@ func (h *Handler) APIV1DiscoverymgrOrchestrationInfoGet(w http.ResponseWriter, r
 
 	respEncryptBytes, err := h.Key.EncryptJSONToByte(respJSONMsg)
 	if err != nil {
-		log.Printf("[%s] can not encryption %s", logPrefix, err.Error())
+		log.Error(logPrefix, cannotEncryption, err.Error())
 		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	}

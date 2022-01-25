@@ -28,31 +28,27 @@ import (
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/sigmgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/cloudsyncmgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/storagemgr"
-
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/configuremgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/discoverymgr"
-	mnedcmgr "github.com/lf-edge/edge-home-orchestration-go/internal/controller/discoverymgr/mnedc"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/scoringmgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/securemgr/authenticator"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/securemgr/authorizer"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/securemgr/verifier"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/servicemgr"
+	mnedcmgr "github.com/lf-edge/edge-home-orchestration-go/internal/controller/discoverymgr/mnedc"
 	executor "github.com/lf-edge/edge-home-orchestration-go/internal/controller/servicemgr/executor/containerexecutor"
-
+	"github.com/lf-edge/edge-home-orchestration-go/internal/db/bolt/wrapper"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/orchestrationapi"
-
 	"github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/cipher/dummy"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/cipher/sha256"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/client/restclient"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/externalhandler"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/internalhandler"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/route"
-
-	"github.com/lf-edge/edge-home-orchestration-go/internal/db/bolt/wrapper"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/webui"
 )
 
-const logPrefix = "interface"
+const logPrefix = "[interface]"
 
 // Handle Platform Dependencies
 const (
@@ -81,7 +77,7 @@ var (
 
 func main() {
 	if err := orchestrationInit(); err != nil {
-		log.Fatalf("[%s] Orchestaration initialize fail : %s", logPrefix, err.Error())
+		log.Fatalf("%s Orchestaration initialize fail : %s", logPrefix, err.Error())
 	}
 	sigmgr.Watch()
 }
@@ -89,7 +85,7 @@ func main() {
 // orchestrationInit runs orchestration service and discovers other orchestration services in other devices
 func orchestrationInit() error {
 	logmgr.InitLogfile(logPath)
-	log.Printf("[%s] OrchestrationInit", logPrefix)
+	log.Println(logPrefix, "OrchestrationInit")
 	log.Println(">>> commitID  : ", commitID)
 	log.Println(">>> version   : ", version)
 	log.Println(">>> buildTime : ", buildTime)
@@ -107,7 +103,7 @@ func orchestrationInit() error {
 	isSecured := false
 	if len(secure) > 0 {
 		if strings.Compare(strings.ToLower(secure), "true") == 0 {
-			log.Println("Orchestration init with secure option")
+			log.Println(logPrefix, "Orchestration init with secure option")
 			isSecured = true
 		}
 	}
@@ -140,7 +136,7 @@ func orchestrationInit() error {
 
 	orcheEngine := builder.Build()
 	if orcheEngine == nil {
-		log.Fatalf("[%s] Orchestaration initialize fail", logPrefix)
+		log.Fatalf("%s Orchestration initialize fail", logPrefix)
 		return errors.New("fail to init orchestration")
 	}
 
@@ -155,7 +151,7 @@ func orchestrationInit() error {
 
 	internalapi, err := orchestrationapi.GetInternalAPI()
 	if err != nil {
-		log.Fatalf("[%s] Orchestaration internal api : %s", logPrefix, err.Error())
+		log.Fatalf("%s Orchestaration internal api : %s", logPrefix, err.Error())
 	}
 	ihandle := internalhandler.GetHandler()
 	ihandle.SetOrchestrationAPI(internalapi)
@@ -169,7 +165,7 @@ func orchestrationInit() error {
 	// external rest api
 	externalapi, err := orchestrationapi.GetExternalAPI()
 	if err != nil {
-		log.Fatalf("[%s] Orchestaration external api : %s", logPrefix, err.Error())
+		log.Fatalf("%s Orchestaration external api : %s", logPrefix, err.Error())
 	}
 	ehandle := externalhandler.GetHandler()
 	ehandle.SetOrchestrationAPI(externalapi)
@@ -196,7 +192,7 @@ func orchestrationInit() error {
 	if strings.Compare(strings.ToLower(ui), "true") == 0 {
 		webui.Start()
 	}
-	log.Println(logPrefix, "orchestration init done")
+	log.Println(logPrefix, "Orchestration init done")
 
 	return nil
 }
