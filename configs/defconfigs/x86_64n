@@ -10,5 +10,22 @@ CONFIG_X86_64=y
 # CONFIG_CONTAINER is not set
 CONFIG_NATIVE=y
 # CONFIG_ANDROID is not set
+
+#
+# Configuring environment variables to run the Edge-Orchestration (make run)
+#
 # CONFIG_MNEDC is not set
+# CONFIG_MNEDC_SERVER is not set
+# CONFIG_MNEDC_CLIENT is not set
 # CONFIG_SECURE_MODE is not set
+# CONFIG_WEB_UI is not set
+# CONFIG_CLOUD_SYNC is not set
+CONFIG_LOGLEVEL=y
+# CONFIG_LOGLEVEL_TRACE is not set
+# CONFIG_LOGLEVEL_DEBUG is not set
+CONFIG_LOGLEVEL_INFO=y
+# CONFIG_LOGLEVEL_WARN is not set
+# CONFIG_LOGLEVEL_ERROR is not set
+# CONFIG_LOGLEVEL_FATAL is not set
+# CONFIG_LOGLEVEL_PANIC is not set
+CONFIG_LOGLEVEL_VALUE="Info"

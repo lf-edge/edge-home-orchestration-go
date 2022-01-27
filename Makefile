@@ -32,10 +32,18 @@ ifeq ($(CONFIG_SECURE_MODE),y)
 RUN_OPTIONS += -e SECURE=true
 endif
 
-ifeq ($CONFIG_CLOUD_SYNC),y)
+ifeq ($(CONFIG_CLOUD_SYNC),y)
 RUN_OPTIONS += -e CLOUD_SYNC=true
 endif
-                                                                                                              
+
+ifeq ($(CONFIG_WEB_UI),y)
+RUN_OPTIONS += -e WEBUI=true
+endif
+
+ifeq ($(CONFIG_LOGLEVEL),y)
+RUN_OPTIONS += -e LOGLEVEL=$(subst ",,$(CONFIG_LOGLEVEL_VALUE))
+endif
+
 # Go parameters
 GOCMD		:= GO111MODULE=on go
 GOBUILD 	:= $(GOCMD) build

@@ -3,7 +3,7 @@
 # see the file kconfig-language.txt.
 #
 
-mainmenu "Edge-Home-Orchstration Configuration"
+mainmenu "Edge-Home-Orchestration Configuration"
 
 config CONFIGFILE
 	string "Configuration file name"
@@ -63,6 +63,8 @@ config ANDROID
 
 endchoice
 
+comment "Configuring environment variables to run the Edge-Orchestration (make run)"
+
 config MNEDC
 	bool "MNEDC"
 
@@ -90,6 +92,73 @@ config SECURE_MODE
 	---help---
 		"Secure mode is enable"
 
+config WEB_UI
+	bool "Web UI is enable"
+	default n
+	---help---
+		"Web UI is enable"
+
 config CLOUD_SYNC
 	bool "CloudSync"
 	default y
+
+config LOGLEVEL
+	bool "LOGLEVEL"
+
+choice
+	depends on LOGLEVEL
+	prompt "Info"
+
+config LOGLEVEL_TRACE
+	bool "LOGLEVEL Trace"
+	default n
+	---help---
+		"LOGLEVEL Trace: Something very low level"
+
+config LOGLEVEL_DEBUG
+	bool "LOGLEVEL Debug"
+	default n
+	---help---
+		"LOGLEVEL Debug: Useful debugging information"
+
+config LOGLEVEL_INFO
+	bool "LOGLEVEL Info"
+	default n
+	---help---
+		"LOGLEVEL Info: Something noteworthy happened"
+
+config LOGLEVEL_WARN
+	bool "LOGLEVEL Warn"
+	default n
+	---help---
+		"LOGLEVEL Warn: You should probably take a look at this"
+
+config LOGLEVEL_ERROR
+	bool "LOGLEVEL Error"
+	default n
+	---help---
+		"LOGLEVEL Error: Something failed but I'm not quitting"
+
+config LOGLEVEL_FATAL
+	bool "LOGLEVEL Fatal"
+	default n
+	---help---
+		"LOGLEVEL Fatal: os.Exit(1) after logging"
+
+config LOGLEVEL_PANIC
+	bool "LOGLEVEL Panic"
+	default n
+	---help---
+		"LOGLEVEL Panic: panic() after logging"
+
+endchoice
+
+config LOGLEVEL_VALUE
+	string
+	default "Trace"		if LOGLEVEL_TRACE
+	default "Debug"		if LOGLEVEL_DEBUG
+	default "Info"		if LOGLEVEL_INFO
+	default "Warn"		if LOGLEVEL_WARN
+	default "Error"		if LOGLEVEL_ERROR
+	default "Fatal"		if LOGLEVEL_FATAL
+	default "Panic"		if LOGLEVEL_PANIC
