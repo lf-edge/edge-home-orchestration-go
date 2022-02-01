@@ -17,17 +17,61 @@
 package mqtt
 
 import (
+	"strings"
 	"testing"
 )
 
 const Host = "broker.hivemq.com"
 const port = "1883"
+const InvalidHost = "invalid"
+
+func initializeTest(Host string, clientID string) {
+	InitClientData()
+	StartMQTTClient(Host, clientID)
+}
 
 func TestStartMQTTClient(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
-		InitClientData()
-		StartMQTTClient(Host, "testClient")
-		t.Log("Client connected")
+		initializeTest(Host, "testClient")
+		client := clientData["testClient"]
+		message := Message{"appid", "Test data for testing"}
+		client.Publish(message, "home/livingroom")
+		err := StartMQTTClient(Host, "testClient")
+		expected := ""
+		if !strings.Contains(err, expected) {
+			t.Error("Unexpected err", err)
+		}
 	})
+	t.Run("Fail", func(t *testing.T) {
+		InitClientData()
+		err := StartMQTTClient(InvalidHost, "testClientFailure")
+		expected := "dial tcp: lookup invalid: Temporary failure in name resolution"
+		if !strings.Contains(err, expected) {
+			t.Error("Unexpected err", err)
+		}
+	})
+}
 
+func TestCheckforConnection(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
+		initializeTest(Host, "CheckConnection")
+		client := clientData["CheckConnection"]
+		isConnected := checkforConnection(Host, client)
+		expected := 0
+		if isConnected != expected {
+			t.Errorf("Expected %d But received %d", expected, isConnected)
+		}
+		client.Disconnect(1)
+	})
+}
+
+func TestIsClientConnected(t *testing.T) {
+	t.Run("Fail", func(t *testing.T) {
+		client := clientData["CheckConnection"]
+		connStatus := client.IsConnected()
+		expected := false
+		if connStatus != expected {
+			t.Errorf("Expected %v but received %v", expected, connStatus)
+		}
+	})
 }

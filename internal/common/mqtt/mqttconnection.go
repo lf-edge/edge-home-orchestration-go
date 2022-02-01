@@ -64,7 +64,8 @@ func (client *Client) onConnectionLost() MQTT.ConnectionLostHandler {
 
 // IsConnected checks if the client is connected or not
 func (client *Client) IsConnected() bool {
-	if client.Client == nil {
+	//check as client can be null
+	if client == nil || client.Client == nil {
 		return false
 	}
 
