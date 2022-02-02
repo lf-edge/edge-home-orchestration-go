@@ -28,7 +28,7 @@ import (
 
 var (
 	log       = logmgr.GetInstance()
-	logPrefix = "[MQTTConnectionMgr]"
+	logPrefix = "[MQTTConnectionMgr] "
 )
 
 // Connect creates a new mqtt client and uses the ClientOptions generated in the NewClient function to connect with the provided host and port.
@@ -81,12 +81,12 @@ func (client *Client) Disconnect(quiesce uint) {
 }
 
 // StartMQTTClient is used to initiate the client and set the configuration
-func StartMQTTClient(brokerURL string, clientID string) string {
+func StartMQTTClient(brokerURL string, clientID string, mqttPort uint) string {
 	log.Info(logPrefix, "Starting the MQTT Client")
 	//Check if the client connection exist
 	mqttClient := CheckifClientExist(clientID)
 	// Check if the connection exist for same url
-	ifConn := checkforConnection(brokerURL, mqttClient)
+	ifConn := checkforConnection(brokerURL, mqttClient, mqttPort)
 	if mqttClient != nil && ifConn == 0 {
 		log.Info(logPrefix, "Connection Object exist", mqttClient)
 		if mqttClient.IsConnected() {
@@ -115,8 +115,9 @@ func StartMQTTClient(brokerURL string, clientID string) string {
 		return err.Error()
 	}
 	clientConfig.ClientOptions.SetOnConnectHandler(clientConfig.onConnect())
-	URL := clientConfig.SetBrokerURL("tcp")
-	log.Info(logPrefix, " The broker is", URL)
+	clientConfig.setProtocol()
+	URL := clientConfig.SetBrokerURL()
+	log.Info(logPrefix, "The broker is", URL)
 	clientConfig.URL = URL
 	clientConfig.ClientOptions.AddBroker(URL)
 
