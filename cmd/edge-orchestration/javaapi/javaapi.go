@@ -21,7 +21,6 @@ package javaapi
 import (
 	"bytes"
 	"fmt"
-	"github.com/lf-edge/edge-home-orchestration-go/internal/db/bolt/wrapper"
 	"net/http"
 	"strings"
 	"sync"
@@ -30,7 +29,6 @@ import (
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/fscreator"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/networkhelper"
-
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/configuremgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/discoverymgr"
 	scoringmgr "github.com/lf-edge/edge-home-orchestration-go/internal/controller/scoringmgr"
@@ -39,9 +37,8 @@ import (
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/securemgr/verifier"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/servicemgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/servicemgr/executor/androidexecutor"
-
+	"github.com/lf-edge/edge-home-orchestration-go/internal/db/bolt/wrapper"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/orchestrationapi"
-
 	"github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/cipher/dummy"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/cipher/sha256"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/client/restclient"

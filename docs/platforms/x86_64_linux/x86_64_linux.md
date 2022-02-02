@@ -179,7 +179,6 @@ docker logs -f edge-orchestration
 2019/10/16 07:35:45 main_secured.go:89: [interface] OrchestrationInit
 2019/10/16 07:35:45 main_secured.go:90: >>> commitID  :  c3041ae
 2019/10/16 07:35:45 main_secured.go:91: >>> version   :  v1.1.0
-2019/10/16 07:35:45 main_secured.go:92: >>> buildTime :  {build time}
 2019/10/16 07:35:45 discovery.go:256: [discoverymgr] UUID :  {$UUID}
 2019/10/16 07:35:45 discovery.go:338: [discoverymgr] [{$discovery_ip_list}]
 2019/10/16 07:35:45 discovery.go:369: [deviceDetectionRoutine] edge-orchestration-{$UUID}

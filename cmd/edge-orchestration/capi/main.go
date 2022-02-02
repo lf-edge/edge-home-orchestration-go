@@ -84,7 +84,6 @@ import (
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/configuremgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/discoverymgr"
-	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/storagemgr"
 	mnedcmgr "github.com/lf-edge/edge-home-orchestration-go/internal/controller/discoverymgr/mnedc"
 	scoringmgr "github.com/lf-edge/edge-home-orchestration-go/internal/controller/scoringmgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/securemgr/authenticator"
@@ -92,6 +91,7 @@ import (
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/securemgr/verifier"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/servicemgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/servicemgr/executor/nativeexecutor"
+	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/storagemgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/db/bolt/wrapper"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/orchestrationapi"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/cipher/dummy"
@@ -126,9 +126,9 @@ const (
 )
 
 var (
-	flagVersion                  bool
-	commitID, version, buildTime string
-	log                          = logmgr.GetInstance()
+	flagVersion       bool
+	commitID, version string
+	log               = logmgr.GetInstance()
 
 	orcheEngine orchestrationapi.Orche
 )
@@ -144,7 +144,6 @@ func OrchestrationInit(secure C.int, mnedc C.int) C.int {
 	log.Println(logPrefix, "OrchestrationInit")
 	log.Println(">>> commitID  : ", commitID)
 	log.Println(">>> version   : ", version)
-	log.Println(">>> buildTime : ", buildTime)
 	wrapper.SetBoltDBPath(dbPath)
 
 	if err := fscreator.CreateFileSystem(edgeDir); err != nil {
