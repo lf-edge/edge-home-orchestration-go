@@ -20,10 +20,11 @@ package verifier
 
 import (
 	"errors"
-	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
 	"io/ioutil"
 	"os"
 	"strings"
+
+	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
 )
 
 // cwl - Container White List
@@ -167,7 +168,7 @@ func addHashToContainerWhiteList(hash string) error {
 		}
 		for _, whitelistItem := range containerWhiteList {
 			if whitelistItem == hash {
-				log.Printf("%s container's hash %s already exists in container white list\n", logPrefix, hash)
+				log.Info(logPrefix, " container's hash ", logmgr.SanitizeUserInput(hash), " already exists in container white list") // lgtm [go/log-injection]
 				return nil
 			}
 		}
@@ -196,7 +197,7 @@ func delHashFromContainerWhiteList(hash string) error {
 		fileContentStr := string(fileContent)
 		digestIndex := strings.Index(fileContentStr, hash)
 		if digestIndex == -1 {
-			log.Printf("%s hash: %s not found in %s\n", logPrefix, hash, cwlFileName)
+			log.Printf("%s hash: %s not found in %s\n", logPrefix, logmgr.SanitizeUserInput(hash), cwlFileName) // lgtm [go/log-injection]
 			return nil
 		}
 		fileContentStr = fileContentStr[:digestIndex] + fileContentStr[digestIndex+65:]
@@ -209,7 +210,7 @@ func delHashFromContainerWhiteList(hash string) error {
 		if len(containerWhiteList) > 0 {
 			containerWhiteList = containerWhiteList[:len(containerWhiteList)-1]
 		}
-		log.Printf("%s hash: %s successfully deleted from %s file\n", logPrefix, hash, cwlFileName)
+		log.Printf("%s hash: %s successfully deleted from %s file\n", logPrefix, logmgr.SanitizeUserInput(hash), cwlFileName) // lgtm [go/log-injection]
 	}
 	return nil
 }
@@ -230,7 +231,7 @@ func delAllHashFromContainerWhiteList() error {
 func printAllHashFromContainerWhiteList() {
 	if containerWhiteList != nil {
 		for idx, whitelistItem := range containerWhiteList {
-			log.Printf("%s container's hash[%d]: len = %d %s\n", logPrefix, idx, len(whitelistItem), whitelistItem)
+			log.Printf("%s container's hash[%d]: len = %d %s\n", logPrefix, idx, len(whitelistItem), logmgr.SanitizeUserInput(whitelistItem)) // lgtm [go/log-injection]
 		}
 	} else {
 		log.Println(logPrefix, "container white list is empty")
@@ -239,7 +240,7 @@ func printAllHashFromContainerWhiteList() {
 
 // RequestVerifierConf is Verifier configuration request handler
 func (verifier *VerificationImpl) RequestVerifierConf(containerInfo RequestVerifierConf) ResponseVerifierConf {
-	log.Printf("%s command type: %s\n", logPrefix, logmgr.SanitizeUserInput(containerInfo.CmdType)) // lgtm [go/log-injection]
+	log.Info(logPrefix, " command type: ", logmgr.SanitizeUserInput(containerInfo.CmdType)) // lgtm [go/log-injection]
 	switch containerInfo.CmdType {
 	case "addHashCWL":
 		for _, containerDesc := range containerInfo.Desc {
