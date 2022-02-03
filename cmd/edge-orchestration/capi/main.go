@@ -87,8 +87,7 @@ import (
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/storagemgr"
 	mnedcmgr "github.com/lf-edge/edge-home-orchestration-go/internal/controller/discoverymgr/mnedc"
 	scoringmgr "github.com/lf-edge/edge-home-orchestration-go/internal/controller/scoringmgr"
-	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/securemgr/authenticator"
-	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/securemgr/authorizer"
+	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/securemgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/securemgr/verifier"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/servicemgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/servicemgr/executor/nativeexecutor"
@@ -116,9 +115,6 @@ const (
 	configPath             = edgeDir + "/apps"
 	dbPath                 = edgeDir + "/data/db"
 	certificateFilePath    = edgeDir + "/data/cert"
-	containerWhiteListPath = edgeDir + "/data/cwl"
-	passPhraseJWTPath      = edgeDir + "/data/jwt"
-	rbacRulePath           = edgeDir + "/data/rbac"
 
 	cipherKeyFilePath = edgeDir + "/user/orchestration_userID.txt"
 	deviceIDFilePath  = edgeDir + "/device/orchestration_deviceID.txt"
@@ -155,14 +151,12 @@ func OrchestrationInit(secure C.int, mnedc C.int) C.int {
 	isSecured := false
 	if secure == 1 {
 		log.Println(logPrefix, "Orchestration init with secure option")
+		securemgr.Start(edgeDir)
 		isSecured = true
 	}
 
 	cipher := dummy.GetCipher(cipherKeyFilePath)
 	if isSecured {
-		verifier.Init(containerWhiteListPath)
-		authenticator.Init(passPhraseJWTPath)
-		authorizer.Init(rbacRulePath)
 		cipher = sha256.GetCipher(cipherKeyFilePath)
 	}
 

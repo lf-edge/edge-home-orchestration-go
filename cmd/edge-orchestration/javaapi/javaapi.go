@@ -34,8 +34,7 @@ import (
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/configuremgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/discoverymgr"
 	scoringmgr "github.com/lf-edge/edge-home-orchestration-go/internal/controller/scoringmgr"
-	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/securemgr/authenticator"
-	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/securemgr/authorizer"
+	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/securemgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/securemgr/verifier"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/servicemgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/servicemgr/executor/androidexecutor"
@@ -60,9 +59,6 @@ const (
 	configStr              = "/apps"
 	dbStr                  = "/data/db"
 	certificateFile        = "/data/cert"
-	containerWhiteListPath = "/data/cwl"
-	passPhraseJWTPath      = "/data/jwt"
-	rbacRulePath           = "/data/rbac"
 
 	cipherKeyFile = "/user/orchestration_userID.txt"
 	deviceIDFile  = "/device/orchestration_deviceID.txt"
@@ -186,9 +182,7 @@ func OrchestrationInit(executeCallback ExecuteCallback, edgeDir string, isSecure
 
 	cipher := dummy.GetCipher(cipherKeyFilePath)
 	if isSecured {
-		verifier.Init(containerWhiteListPath)
-		authenticator.Init(passPhraseJWTPath)
-		authorizer.Init(rbacRulePath)
+		securemgr.Start(edgeDir)
 		cipher = sha256.GetCipher(cipherKeyFilePath)
 	}
 
