@@ -56,7 +56,7 @@ GO111MODULE=on go mod vendor
 -------------------------------------------
 mkdir -p /home/virtual-pc/projects/edge-home-orchestration-go/bin/javaapi/output
 rm -rf /home/virtual-pc/projects/edge-home-orchestration-go/vendor
-gomobile bind -ldflags '-X main.version= -X main.commitID=687e09c -X main.buildTime=20210213.0915' -o /home/virtual-pc/projects/edge-home-orchestration-go/bin/javaapi/output/liborchestration.aar -target=android/amd64 -androidapi=23 /home/virtual-pc/projects/edge-home-orchestration-go/cmd/edge-orchestration/javaapi || exit 1
+gomobile bind -ldflags '-X main.version= -X main.commitID=687e09c ' -o /home/virtual-pc/projects/edge-home-orchestration-go/bin/javaapi/output/liborchestration.aar -target=android/amd64 -androidapi=23 /home/virtual-pc/projects/edge-home-orchestration-go/cmd/edge-orchestration/javaapi || exit 1
 ls -al /home/virtual-pc/projects/edge-home-orchestration-go/bin/javaapi/output
 total 8368
 drwxrwxr-x 2 virtual-pc virtual-pc    4096 Feb 13 09:16 .

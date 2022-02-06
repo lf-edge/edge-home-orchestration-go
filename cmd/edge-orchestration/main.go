@@ -27,15 +27,15 @@ import (
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/sigmgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/cloudsyncmgr"
-	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/storagemgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/configuremgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/discoverymgr"
+	mnedcmgr "github.com/lf-edge/edge-home-orchestration-go/internal/controller/discoverymgr/mnedc"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/scoringmgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/securemgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/securemgr/verifier"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/servicemgr"
-	mnedcmgr "github.com/lf-edge/edge-home-orchestration-go/internal/controller/discoverymgr/mnedc"
 	executor "github.com/lf-edge/edge-home-orchestration-go/internal/controller/servicemgr/executor/containerexecutor"
+	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/storagemgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/db/bolt/wrapper"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/orchestrationapi"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/cipher/dummy"
@@ -67,8 +67,8 @@ const (
 )
 
 var (
-	commitID, version, buildTime string
-	log                          = logmgr.GetInstance()
+	commitID, version string
+	log               = logmgr.GetInstance()
 )
 
 func main() {
@@ -84,7 +84,6 @@ func orchestrationInit() error {
 	log.Println(logPrefix, "OrchestrationInit")
 	log.Println(">>> commitID  : ", commitID)
 	log.Println(">>> version   : ", version)
-	log.Println(">>> buildTime : ", buildTime)
 	wrapper.SetBoltDBPath(dbPath)
 
 	if err := fscreator.CreateFileSystem(edgeDir); err != nil {
