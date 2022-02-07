@@ -49,7 +49,7 @@ const (
 )
 
 var (
-	logPrefix             = "[securemgr: RBAC]"
+	logPrefix             = "[securemgr: RBAC] "
 	log                   = logmgr.GetInstance()
 	rbacPolicyFilePath    = ""
 	rbacAuthModelFilePath = ""
@@ -87,7 +87,7 @@ func Init(rbacRulePath string) {
 	if _, err := os.Stat(rbacRulePath); err != nil {
 		err := os.MkdirAll(rbacRulePath, os.ModePerm)
 		if err != nil {
-			log.Panicf("%s Failed to create rbacRulePath %s: %s\n", logPrefix, rbacRulePath, err)
+			log.Panic(logPrefix, "Failed to create rbacRulePath", rbacRulePath, ": ", err)
 			return
 		}
 	}
@@ -95,7 +95,7 @@ func Init(rbacRulePath string) {
 	if _, err := os.Stat(rbacPolicyFilePath); err != nil {
 		err = ioutil.WriteFile(rbacPolicyFilePath, []byte(policyTemplate), 0664)
 		if err != nil {
-			log.Panicf("%s Cannot create %s: %s\n", logPrefix, rbacPolicyFilePath, err)
+			log.Panic(logPrefix, "Cannot create ", rbacPolicyFilePath, ": ", err)
 		}
 	}
 
@@ -103,7 +103,7 @@ func Init(rbacRulePath string) {
 	if _, err := os.Stat(rbacAuthModelFilePath); err != nil {
 		err = ioutil.WriteFile(rbacAuthModelFilePath, []byte(authModelTemplate), 0664)
 		if err != nil {
-			log.Panicf("%s Cannot create %s: %s\n", logPrefix, rbacAuthModelFilePath, err)
+			log.Panic(logPrefix, "Cannot create ", rbacAuthModelFilePath, ": ", err)
 		}
 	}
 
@@ -119,7 +119,7 @@ func Init(rbacRulePath string) {
 func Authorizer(name string, r *http.Request) error {
 	user, err := users.findByName(name)
 	if err != nil {
-		log.Println(logPrefix, err)
+		log.Info(logPrefix, err)
 		return err
 	}
 
@@ -128,20 +128,20 @@ func Authorizer(name string, r *http.Request) error {
 		role = "unknow"
 	}
 
-	// log.Print("user.Name = ", user.Name)
-	// log.Print("user.Role = ", user.Role)
-	// log.Print("r.URL.Path = ", r.URL.Path)
-	// log.Print("r.Method = ", r.Method)
+	// log.Debug("user.Name = ", user.Name)
+	// log.Debug("user.Role = ", user.Role)
+	// log.Debug("r.URL.Path = ", r.URL.Path)
+	// log.Debug("r.Method = ", r.Method)
 
 	// casbin enforce
 	res, err := enf.EnforceSafe(role, r.URL.Path, r.Method)
 	if err != nil {
-		log.Println(logPrefix, "Error: ", err)
+		log.Error(logPrefix, err)
 		return err
 	}
 	if res {
 		return nil
 	}
-	log.Println(logPrefix, "Unauthorized request")
+	log.Error(logPrefix, "Unauthorized request")
 	return errors.New("unauthorized request")
 }

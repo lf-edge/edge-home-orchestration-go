@@ -21,6 +21,7 @@ package externalhandler
 import (
 	"io/ioutil"
 	"net/http"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -36,13 +37,14 @@ import (
 	"github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/resthelper"
 )
 
-const logPrefix = "[RestExternalInterface]"
+const logPrefix = "[RestExternalInterface] "
 
 const (
-	doesNotSetAPI    = " does not set API"
-	doesNotSetKey    = " does not set key"
-	cannotDecryption = " cannot decryption"
-	cannotEncryption = " cannot encryption"
+	doesNotSetAPI     = "does not set API"
+	doesNotSetKey     = "does not set key"
+	cannotDecryption  = "cannot decryption"
+	cannotEncryption  = "cannot encryption"
+	invalidInputParam = "Invalid input parameter"
 )
 
 // Handler struct
@@ -103,7 +105,7 @@ func (h *Handler) SetOrchestrationAPI(o orchestrationapi.OrcheExternalAPI) {
 
 // APIV1RequestServicePost handles service request from service application
 func (h *Handler) APIV1RequestServicePost(w http.ResponseWriter, r *http.Request) {
-	log.Info(logPrefix, " APIV1RequestServicePost")
+	log.Info(logPrefix, "APIV1RequestServicePost")
 	if !h.isSetAPI {
 		log.Error(logPrefix, doesNotSetAPI)
 		h.helper.Response(w, nil, http.StatusServiceUnavailable)
@@ -167,12 +169,12 @@ func (h *Handler) APIV1RequestServicePost(w http.ResponseWriter, r *http.Request
 
 	isParseRequesterFromPort := true
 	port, err := strconv.Atoi(portStr)
-	log.Println("port: ", port)
+	log.Info(logPrefix, "port: ", port)
 	if err != nil {
 		isParseRequesterFromPort = false
 	} else {
 		requester, err := senderresolver.GetNameByPort(int64(port))
-		log.Println("requester: ", requester)
+		log.Info(logPrefix, "requester: ", requester)
 		if err != nil {
 			isParseRequesterFromPort = false
 		} else {
@@ -257,7 +259,7 @@ SEND_RESP:
 
 // APIV1RequestSecuremgrPost handles securemgr request from securemgr configure application
 func (h *Handler) APIV1RequestSecuremgrPost(w http.ResponseWriter, r *http.Request) {
-	log.Info(logPrefix, " APIV1RequestSecuremgrPost")
+	log.Info(logPrefix, "APIV1RequestSecuremgrPost")
 	if !h.isSetAPI {
 		log.Error(logPrefix, doesNotSetAPI)
 		h.helper.Response(w, nil, http.StatusServiceUnavailable)
@@ -307,23 +309,24 @@ func (h *Handler) APIV1RequestSecuremgrPost(w http.ResponseWriter, r *http.Reque
 	SecureInsName, ok := appCommand["SecureMgr"].(string)
 	if ok {
 		containerInfos.SecureInsName = SecureInsName
-		log.Println("SecureMgr: ", logmgr.SanitizeUserInput(containerInfos.SecureInsName)) // lgtm [go/log-injection]
+		log.Info(logPrefix, "SecureMgr: ", logmgr.SanitizeUserInput(containerInfos.SecureInsName)) // lgtm [go/log-injection]
 	}
 
 	containerInfos.CmdType, ok = appCommand["CmdType"].(string)
 	if ok {
-		log.Println("CmdType: ", logmgr.SanitizeUserInput(containerInfos.CmdType)) // lgtm [go/log-injection]
+		log.Info(logPrefix, "CmdType: ", logmgr.SanitizeUserInput(containerInfos.CmdType)) // lgtm [go/log-injection]
 	}
 	if containerInfos.CmdType == "addHashCWL" || containerInfos.CmdType == "delHashCWL" {
 		containerDescs, ok = appCommand["Desc"].([]interface{})
 		if !ok {
-			log.Println("Error")
+			log.Error(logPrefix, invalidInputParam)
 			responseMsg = verifier.InvalidParameter
 			responseName = "verifier"
 			goto SEND_RESP
 		}
 
 		containerInfos.Desc = make([]verifier.RequestDescInfo, len(containerDescs))
+		hashSymbols := regexp.MustCompile("^[A-Fa-f0-9]*$")
 		for idx, containerDesc := range containerDescs {
 			tmp := containerDesc.(map[string]interface{})
 			//name, ok := tmp["ContainerName"].(string)
@@ -336,6 +339,13 @@ func (h *Handler) APIV1RequestSecuremgrPost(w http.ResponseWriter, r *http.Reque
 
 			hash, ok := tmp["ContainerHash"].(string)
 			if !ok {
+				log.Error(logPrefix, invalidInputParam)
+				responseMsg = verifier.InvalidParameter
+				responseName = "verifier"
+				goto SEND_RESP
+			}
+			if !hashSymbols.MatchString(hash) || len(hash) != 64 {
+				log.Error(logPrefix, invalidInputParam)
 				responseMsg = verifier.InvalidParameter
 				responseName = "verifier"
 				goto SEND_RESP
@@ -366,7 +376,7 @@ SEND_RESP:
 
 // APIV1RequestCloudSyncmgrPost handles cloudsync publish request from service application
 func (h *Handler) APIV1RequestCloudSyncmgrPost(w http.ResponseWriter, r *http.Request) {
-	log.Info(logPrefix, " APIV1RequestCloudSyncmgrPost")
+	log.Info(logPrefix, "APIV1RequestCloudSyncmgrPost")
 	if !h.isSetAPI {
 		log.Error(logPrefix, doesNotSetAPI)
 		h.helper.Response(w, nil, http.StatusServiceUnavailable)
