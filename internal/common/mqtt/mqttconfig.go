@@ -19,7 +19,11 @@
 package mqtt
 
 import (
+	"crypto/tls"
+	"crypto/x509"
 	"fmt"
+	"io/ioutil"
+	"os"
 	"strings"
 	"sync"
 	"time"
@@ -27,7 +31,10 @@ import (
 	MQTT "github.com/eclipse/paho.mqtt.golang"
 )
 
-const mqttPort = 1883
+const (
+	edgeDir      = "/var/edge-orchestration"
+	caCertConfig = edgeDir + "/mqtt/certs/cacert.pem"
+)
 
 // Client is a wrapper on top of `MQTT.Client`
 type Client struct {
@@ -39,6 +46,7 @@ type Client struct {
 	sync.RWMutex
 	ClientOptions *MQTT.ClientOptions
 	MQTT.Client
+	protocol string
 }
 
 //Message is used to wrap the app id and payload into one and publish to broker
@@ -80,6 +88,14 @@ func InitClientData() {
 	clientData = make(map[string]*Client)
 }
 
+func (c *Client) setProtocol() {
+	if c.Port == 8883 {
+		c.protocol = "tcps"
+	} else {
+		c.protocol = "tcp"
+	}
+}
+
 // CheckifClientExist used to check if the client conn object exist
 func CheckifClientExist(clientID string) *Client {
 	client := clientData[clientID]
@@ -92,17 +108,31 @@ func addClientData(client *Client, clientID string) {
 }
 
 //SetBrokerURL returns the broker url for connection
-func (c *Client) SetBrokerURL(protocol string) string {
-	return fmt.Sprintf("%s://%s:%d", protocol, c.Host, c.Port)
+func (c *Client) SetBrokerURL() string {
+	return fmt.Sprintf("%s://%s:%d", c.protocol, c.Host, c.Port)
 }
 
-func checkforConnection(brokerURL string, mqttClient *Client) int {
+func checkforConnection(brokerURL string, mqttClient *Client, mqttPort uint) int {
 	if mqttClient == nil {
 		return 0
 	}
 	log.Info(logPrefix, mqttClient.URL)
-	connURL := fmt.Sprintf("%s://%s:%d", "tcp", brokerURL, mqttPort)
+	connURL := fmt.Sprintf("%s://%s:%d", mqttClient.protocol, brokerURL, mqttPort)
 	return strings.Compare(connURL, mqttClient.URL)
+}
+
+//NewTLSConfig creates a tls config for mqtt client
+func NewTLSConfig() (*tls.Config, error) {
+	certpool := x509.NewCertPool()
+	ca, err := ioutil.ReadFile(caCertConfig)
+	if err != nil {
+		log.Warn(logPrefix, err.Error())
+		return nil, err
+	}
+	certpool.AppendCertsFromPEM(ca)
+	return &tls.Config{
+		RootCAs: certpool,
+	}, nil
 }
 
 // NewClient returns a configured `Client`. Is mandatory
@@ -120,7 +150,16 @@ func NewClient(configs ...Config) (*Client, error) {
 	copts.SetMaxReconnectInterval(1 * time.Second)
 	copts.SetOnConnectHandler(client.onConnect())
 	copts.SetConnectionLostHandler(client.onConnectionLost())
+	secure := os.Getenv("SECURE")
+	if len(secure) > 0 {
+		if strings.Compare(strings.ToLower(secure), "true") == 0 {
+			tlsconfig, err := NewTLSConfig()
+			if err != nil {
+				return nil, err
+			}
+			copts.SetTLSConfig(tlsconfig)
+		}
+	}
 	client.ClientOptions = copts
-
 	return client, nil
 }
