@@ -56,10 +56,10 @@ const (
 
 	edgeDir = "/var/edge-orchestration"
 
-	logPath                = edgeDir + "/log"
-	configPath             = edgeDir + "/apps"
-	dbPath                 = edgeDir + "/data/db"
-	certificateFilePath    = edgeDir + "/data/cert"
+	logPath             = edgeDir + "/log"
+	configPath          = edgeDir + "/apps"
+	dbPath              = edgeDir + "/data/db"
+	certificateFilePath = edgeDir + "/data/cert"
 
 	cipherKeyFilePath = edgeDir + "/user/orchestration_userID.txt"
 	deviceIDFilePath  = edgeDir + "/device/orchestration_deviceID.txt"

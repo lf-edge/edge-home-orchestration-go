@@ -52,10 +52,10 @@ const (
 	platform      = "android"
 	executionType = "android"
 
-	logStr                 = "/log"
-	configStr              = "/apps"
-	dbStr                  = "/data/db"
-	certificateFile        = "/data/cert"
+	logStr          = "/log"
+	configStr       = "/apps"
+	dbStr           = "/data/db"
+	certificateFile = "/data/cert"
 
 	cipherKeyFile = "/user/orchestration_userID.txt"
 	deviceIDFile  = "/device/orchestration_deviceID.txt"
