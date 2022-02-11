@@ -227,6 +227,7 @@ fmt:
 	$(Q) make clean
 	$(call print_header, "Formatting source code using gofmt")
 	$(Q) gofmt -s -w ./internal
+	$(Q) gofmt -s -w ./cmd
 
 ## show help
 help:
