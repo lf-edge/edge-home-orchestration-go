@@ -9,7 +9,7 @@ require (
 	github.com/casbin/casbin v1.9.1
 	github.com/containerd/containerd v1.4.12 // indirect
 	github.com/docker/cli v0.0.0-20201024074417-fd3371eb7df1
-	github.com/docker/distribution v2.7.1-0.20190205005809-0d3efadf0154+incompatible // indirect
+	github.com/docker/distribution v2.8.0+incompatible // indirect
 	github.com/docker/docker v17.12.0-ce-rc1.0.20201201034508-7d75c1d40d88+incompatible
 	github.com/docker/go-connections v0.4.0
 	github.com/docker/go-units v0.4.0
