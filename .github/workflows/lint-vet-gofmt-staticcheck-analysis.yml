@@ -30,7 +30,8 @@ jobs:
 
       - name: GoFmt Analysis
         run: |
-          if [[ $(gofmt -l ./internal) ]]; then exit 1; fi 
+          if [[ $(gofmt -l ./internal) ]]; then exit 1; fi
+          if [[ $(gofmt -l ./cmd) ]]; then exit 1; fi
 
       - name: Staticcheck Analysis
         run: |

@@ -84,14 +84,13 @@ import (
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/configuremgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/discoverymgr"
-	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/storagemgr"
 	mnedcmgr "github.com/lf-edge/edge-home-orchestration-go/internal/controller/discoverymgr/mnedc"
 	scoringmgr "github.com/lf-edge/edge-home-orchestration-go/internal/controller/scoringmgr"
-	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/securemgr/authenticator"
-	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/securemgr/authorizer"
+	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/securemgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/securemgr/verifier"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/servicemgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/servicemgr/executor/nativeexecutor"
+	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/storagemgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/db/bolt/wrapper"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/orchestrationapi"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/cipher/dummy"
@@ -112,13 +111,10 @@ const (
 
 	edgeDir = "/var/edge-orchestration"
 
-	logPath                = edgeDir + "/log"
-	configPath             = edgeDir + "/apps"
-	dbPath                 = edgeDir + "/data/db"
-	certificateFilePath    = edgeDir + "/data/cert"
-	containerWhiteListPath = edgeDir + "/data/cwl"
-	passPhraseJWTPath      = edgeDir + "/data/jwt"
-	rbacRulePath           = edgeDir + "/data/rbac"
+	logPath             = edgeDir + "/log"
+	configPath          = edgeDir + "/apps"
+	dbPath              = edgeDir + "/data/db"
+	certificateFilePath = edgeDir + "/data/cert"
 
 	cipherKeyFilePath = edgeDir + "/user/orchestration_userID.txt"
 	deviceIDFilePath  = edgeDir + "/device/orchestration_deviceID.txt"
@@ -126,9 +122,9 @@ const (
 )
 
 var (
-	flagVersion                  bool
-	commitID, version, buildTime string
-	log                          = logmgr.GetInstance()
+	flagVersion       bool
+	commitID, version string
+	log               = logmgr.GetInstance()
 
 	orcheEngine orchestrationapi.Orche
 )
@@ -144,7 +140,6 @@ func OrchestrationInit(secure C.int, mnedc C.int) C.int {
 	log.Println(logPrefix, "OrchestrationInit")
 	log.Println(">>> commitID  : ", commitID)
 	log.Println(">>> version   : ", version)
-	log.Println(">>> buildTime : ", buildTime)
 	wrapper.SetBoltDBPath(dbPath)
 
 	if err := fscreator.CreateFileSystem(edgeDir); err != nil {
@@ -155,14 +150,12 @@ func OrchestrationInit(secure C.int, mnedc C.int) C.int {
 	isSecured := false
 	if secure == 1 {
 		log.Println(logPrefix, "Orchestration init with secure option")
+		securemgr.Start(edgeDir)
 		isSecured = true
 	}
 
 	cipher := dummy.GetCipher(cipherKeyFilePath)
 	if isSecured {
-		verifier.Init(containerWhiteListPath)
-		authenticator.Init(passPhraseJWTPath)
-		authorizer.Init(rbacRulePath)
 		cipher = sha256.GetCipher(cipherKeyFilePath)
 	}
 

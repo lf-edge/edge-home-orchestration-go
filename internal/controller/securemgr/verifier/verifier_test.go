@@ -163,7 +163,7 @@ func TestDelHashFromContainerWhiteList(t *testing.T) {
 		}
 
 		if err := delHashFromContainerWhiteList(fakehashExtraContainer); err != nil {
-			log.Println(logPrefix, "Can't create "+cwlFileName+": ", err)
+			t.Error(unexpectedSuccess)
 		}
 
 		if err := containerHashIsInWhiteList(fakehashExtraContainer); err == nil {

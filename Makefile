@@ -13,7 +13,6 @@ export Q := @
 endif
 endif
 
-BUILD_DATE=${shell date +%Y%m%d.%H%M}
 VERSION := v$(shell cat VERSION)
 CONTAINER_VERSION="latest"
 DOCKER_IMAGE="lfedge/edge-home-orchestration-go"
@@ -54,8 +53,8 @@ GOCOVER		:= gocov
 GOMOBILE	:= gomobile
 DOCKER		:= docker
 GO_COMMIT_ID	:= $(shell git rev-parse --short HEAD)
-GO_LDFLAGS		:= -ldflags '-extldflags "-static" -X main.version=$(VERSION) -X main.commitID=$(GO_COMMIT_ID) -X main.buildTime=$(BUILD_DATE)'
-GO_MOBILE_LDFLAGS	:= -ldflags '-X main.version=$(VERSION) -X main.commitID=$(GO_COMMIT_ID) -X main.buildTime=$(BUILD_DATE)'
+GO_LDFLAGS		:= -ldflags '-extldflags "-static" -X main.version=$(VERSION) -X main.commitID=$(GO_COMMIT_ID)'
+GO_MOBILE_LDFLAGS	:= -ldflags '-X main.version=$(VERSION) -X main.commitID=$(GO_COMMIT_ID)'
 
 # Target parameters
 PKG_NAME	:= edge-orchestration
@@ -228,6 +227,7 @@ fmt:
 	$(Q) make clean
 	$(call print_header, "Formatting source code using gofmt")
 	$(Q) gofmt -s -w ./internal
+	$(Q) gofmt -s -w ./cmd
 
 ## show help
 help:

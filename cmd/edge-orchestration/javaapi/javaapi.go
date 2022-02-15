@@ -21,7 +21,6 @@ package javaapi
 import (
 	"bytes"
 	"fmt"
-	"github.com/lf-edge/edge-home-orchestration-go/internal/db/bolt/wrapper"
 	"net/http"
 	"strings"
 	"sync"
@@ -30,18 +29,15 @@ import (
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/fscreator"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/networkhelper"
-
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/configuremgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/discoverymgr"
 	scoringmgr "github.com/lf-edge/edge-home-orchestration-go/internal/controller/scoringmgr"
-	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/securemgr/authenticator"
-	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/securemgr/authorizer"
+	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/securemgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/securemgr/verifier"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/servicemgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/servicemgr/executor/androidexecutor"
-
+	"github.com/lf-edge/edge-home-orchestration-go/internal/db/bolt/wrapper"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/orchestrationapi"
-
 	"github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/cipher/dummy"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/cipher/sha256"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/client/restclient"
@@ -56,13 +52,10 @@ const (
 	platform      = "android"
 	executionType = "android"
 
-	logStr                 = "/log"
-	configStr              = "/apps"
-	dbStr                  = "/data/db"
-	certificateFile        = "/data/cert"
-	containerWhiteListPath = "/data/cwl"
-	passPhraseJWTPath      = "/data/jwt"
-	rbacRulePath           = "/data/rbac"
+	logStr          = "/log"
+	configStr       = "/apps"
+	dbStr           = "/data/db"
+	certificateFile = "/data/cert"
 
 	cipherKeyFile = "/user/orchestration_userID.txt"
 	deviceIDFile  = "/device/orchestration_deviceID.txt"
@@ -186,9 +179,7 @@ func OrchestrationInit(executeCallback ExecuteCallback, edgeDir string, isSecure
 
 	cipher := dummy.GetCipher(cipherKeyFilePath)
 	if isSecured {
-		verifier.Init(containerWhiteListPath)
-		authenticator.Init(passPhraseJWTPath)
-		authorizer.Init(rbacRulePath)
+		securemgr.Start(edgeDir)
 		cipher = sha256.GetCipher(cipherKeyFilePath)
 	}
 

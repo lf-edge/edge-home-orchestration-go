@@ -43,7 +43,7 @@ const (
 )
 
 var (
-	logPrefix             = "[securemgr: authenticator]"
+	logPrefix             = "[securemgr: authenticator] "
 	log                   = logmgr.GetInstance()
 	authenticatorIns      *AuthenticationImpl
 	passphrase            = []byte{}
@@ -72,7 +72,7 @@ func Init(passPhraseJWTPath string) {
 	if _, err := os.Stat(passPhraseJWTPath); err != nil {
 		err := os.MkdirAll(passPhraseJWTPath, os.ModePerm)
 		if err != nil {
-			log.Panicf("%s Failed to create passPhraseJWTPath: %s\n", logPrefix, err)
+			log.Panic(logPrefix, "Failed to create passPhraseJWTPath: ", err)
 			return
 		}
 	}
@@ -86,13 +86,13 @@ func Init(passPhraseJWTPath string) {
 		passphrase = []byte(randString(16))
 		err = ioutil.WriteFile(passPhraseJWTFilePath, passphrase, 0666)
 		if err != nil {
-			log.Println(logPrefix, "Cannot create passPhraseJWT.txt:", err)
+			log.Error(logPrefix, "Cannot create passPhraseJWT.txt: ", err)
 		}
 	}
 
 	verifyBytes, err := ioutil.ReadFile(passPhraseJWTPath + "/" + pubKeyPath)
 	if err != nil {
-		log.Println(logPrefix, err)
+		log.Error(logPrefix, err)
 	} else {
 		verifyKey, err = jwt.ParseRSAPublicKeyFromPEM(verifyBytes)
 		if err != nil {
@@ -130,8 +130,8 @@ var IsAuthorizedRequest = func(next http.Handler) http.Handler {
 		if r.Header["Authorization"] != nil {
 
 			token, err := jwt.Parse(r.Header["Authorization"][0], func(token *jwt.Token) (interface{}, error) {
-				// log.Println(token.Claims)
-				// log.Printf("%s Signing method: %v\n", logPrefix, jwt.GetSigningMethod(fmt.Sprintf("%v", token.Header["alg"])))
+				// log.Debug(logPrefix, token.Claims)
+				// log.Info(logPrefix, "Signing method: ", jwt.GetSigningMethod(fmt.Sprintf("%v", token.Header["alg"])))
 
 				switch token.Header["alg"] {
 				case "HS256":
@@ -152,7 +152,7 @@ var IsAuthorizedRequest = func(next http.Handler) http.Handler {
 			})
 
 			if err != nil {
-				log.Println(logPrefix, err.Error())
+				log.Error(logPrefix, err.Error())
 			}
 
 			if token.Valid {
@@ -164,7 +164,7 @@ var IsAuthorizedRequest = func(next http.Handler) http.Handler {
 				}
 			}
 		} else {
-			log.Println(logPrefix, "Request doesn't contain an Authorization token")
+			log.Error(logPrefix, "Request doesn't contain an Authorization token")
 		}
 	})
 }

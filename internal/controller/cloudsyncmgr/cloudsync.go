@@ -20,6 +20,7 @@ package cloudsyncmgr
 
 import (
 	"fmt"
+	"os"
 	"strings"
 	"sync"
 
@@ -28,7 +29,7 @@ import (
 )
 
 const (
-	logPrefix = "[cloudsyncmgr]"
+	logPrefix = "[cloudsyncmgr] "
 )
 
 // CloudSync is the interface for starting Cloud synchronization
@@ -46,6 +47,7 @@ var (
 	log            = logmgr.GetInstance()
 	mqttClient     *mqttmgr.Client
 	isCloudSyncSet bool
+	mqttPort       uint = 1883
 )
 
 func init() {
@@ -63,8 +65,15 @@ func (c *CloudSyncImpl) InitiateCloudSync(isCloudSet string) (err error) {
 	isCloudSyncSet = false
 	if len(isCloudSet) > 0 {
 		if strings.Compare(strings.ToLower(isCloudSet), "true") == 0 {
-			log.Println("CloudSync init set")
+			log.Info(logPrefix, "CloudSync init set")
 			isCloudSyncSet = true
+			secure := os.Getenv("SECURE")
+			if len(secure) > 0 {
+				if strings.Compare(strings.ToLower(secure), "true") == 0 {
+					log.Info(logPrefix, "Orchestration init with secure option")
+					mqttPort = 8883
+				}
+			}
 			//Intialize the client and hashmap storing client data
 			mqttmgr.InitClientData()
 		}
@@ -87,7 +96,7 @@ func (c *CloudSyncImpl) RequestCloudSyncConf(host string, clientID string, messa
 	wg.Add(1)
 	errs := make(chan string, 1)
 	go func() {
-		errs <- mqttmgr.StartMQTTClient(host, clientID)
+		errs <- mqttmgr.StartMQTTClient(host, clientID, mqttPort)
 		resp = <-errs
 		wg.Done()
 

@@ -22,21 +22,25 @@ import (
 )
 
 const Host = "broker.hivemq.com"
-const port = "1883"
+
+var port uint = 1883
+
 const InvalidHost = "invalid"
 
 func initializeTest(Host string, clientID string) {
 	InitClientData()
-	StartMQTTClient(Host, clientID)
+	StartMQTTClient(Host, clientID, port)
 }
 
 func TestStartMQTTClient(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		initializeTest(Host, "testClient")
 		client := clientData["testClient"]
-		message := Message{"appid", "Test data for testing"}
-		client.Publish(message, "home/livingroom")
-		err := StartMQTTClient(Host, "testClient")
+		if client != nil {
+			message := Message{"appid", "Test data for testing"}
+			client.Publish(message, "home/livingroom")
+		}
+		err := StartMQTTClient(Host, "testClient", port)
 		expected := ""
 		if !strings.Contains(err, expected) {
 			t.Error("Unexpected err", err)
@@ -44,7 +48,7 @@ func TestStartMQTTClient(t *testing.T) {
 	})
 	t.Run("Fail", func(t *testing.T) {
 		InitClientData()
-		err := StartMQTTClient(InvalidHost, "testClientFailure")
+		err := StartMQTTClient(InvalidHost, "testClientFailure", port)
 		expected := "dial tcp: lookup invalid: Temporary failure in name resolution"
 		if !strings.Contains(err, expected) {
 			t.Error("Unexpected err", err)
@@ -56,7 +60,7 @@ func TestCheckforConnection(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		initializeTest(Host, "CheckConnection")
 		client := clientData["CheckConnection"]
-		isConnected := checkforConnection(Host, client)
+		isConnected := checkforConnection(Host, client, port)
 		expected := 0
 		if isConnected != expected {
 			t.Errorf("Expected %d But received %d", expected, isConnected)

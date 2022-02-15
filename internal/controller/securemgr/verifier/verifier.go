@@ -20,10 +20,11 @@ package verifier
 
 import (
 	"errors"
-	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
 	"io/ioutil"
 	"os"
 	"strings"
+
+	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
 )
 
 // cwl - Container White List
@@ -34,6 +35,8 @@ const (
 	InvalidParameter  = "INVALID_PARAMETER"
 	SecureMgrError    = "INTERNAL_SECUREMGR_ERROR"
 	NotAllowedCommand = "NOT_ALLOWED_COMMAND"
+
+	cannotCreateFile = "cannot create file: "
 )
 
 // VerificationImpl structure
@@ -41,7 +44,7 @@ type VerificationImpl struct{}
 
 var (
 	containerWhiteList []string
-	logPrefix          = "[securemgr: verifier]"
+	logPrefix          = "[securemgr: verifier] "
 	log                = logmgr.GetInstance()
 	verifierIns        *VerificationImpl
 	initialized        = false
@@ -84,7 +87,7 @@ func initContainerWhiteList() error {
 		containerWhiteList = nil
 		err = ioutil.WriteFile(cwlFilePath, []byte(""), 0666)
 		if err != nil {
-			log.Println(logPrefix, "cannot create "+cwlFileName+": ", err)
+			log.Error(logPrefix, cannotCreateFile, cwlFileName, ": ", err)
 		}
 	} else {
 		containerWhiteList = strings.Split(string(fileContent), "\n")
@@ -92,7 +95,7 @@ func initContainerWhiteList() error {
 			containerWhiteList = containerWhiteList[:len(containerWhiteList)-1]
 		}
 		//for _, whitelistItem := range containerWhiteList {
-		//	log.Println(logPrefix, whitelistItem)
+		//	log.Debug(logPrefix, whitelistItem)
 		//}
 	}
 	return err
@@ -126,7 +129,7 @@ func Init(cwlPath string) {
 	if _, err := os.Stat(cwlPath); err != nil {
 		err := os.MkdirAll(cwlPath, os.ModePerm)
 		if err != nil {
-			log.Panicf("Failed to create cwlPath %s: %s\n", cwlPath, err)
+			log.Panic(logPrefix, "Failed to create cwlPath", cwlPath, ": ", err)
 		}
 	}
 	cwlFilePath = cwlPath + "/" + cwlFileName
@@ -154,27 +157,27 @@ func addHashToContainerWhiteList(hash string) error {
 		fileContentStr := hash + "\n"
 		err = ioutil.WriteFile(cwlFilePath, []byte(fileContentStr), 0666)
 		if err != nil {
-			log.Printf("%s cannot create %s file: %s\n", logPrefix, cwlFileName, err)
+			log.Error(logPrefix, cannotCreateFile, cwlFileName, err)
 			return err
 		}
 		containerWhiteList = append(containerWhiteList, hash)
 	} else {
 		fileContentStr := string(fileContent)
-		log.Println(logPrefix, "Len filecontentstr = ", len(fileContentStr))
+		log.Debug(logPrefix, "Len filecontentstr = ", len(fileContentStr))
 		containerWhiteList = strings.Split(fileContentStr, "\n")
 		if len(containerWhiteList) > 0 {
 			containerWhiteList = containerWhiteList[:len(containerWhiteList)-1]
 		}
 		for _, whitelistItem := range containerWhiteList {
 			if whitelistItem == hash {
-				log.Printf("%s container's hash %s already exists in container white list\n", logPrefix, hash)
+				log.Info(logPrefix, "container's hash ", logmgr.SanitizeUserInput(hash), " already exists in container white list") // lgtm [go/log-injection]
 				return nil
 			}
 		}
 		fileContentStr = fileContentStr + hash + "\n"
 		err = ioutil.WriteFile(cwlFilePath, []byte(fileContentStr), 0666)
 		if err != nil {
-			log.Printf("%s cannot create %s file: %s\n", logPrefix, cwlFileName, err)
+			log.Error(logPrefix, cannotCreateFile, cwlFileName, err)
 			return err
 		}
 		containerWhiteList = append(containerWhiteList, hash)
@@ -189,27 +192,27 @@ func delHashFromContainerWhiteList(hash string) error {
 	if err != nil {
 		err = ioutil.WriteFile(cwlFilePath, []byte(""), 0666)
 		if err != nil {
-			log.Printf("%s cannot create %s file: %s\n", logPrefix, cwlFileName, err)
+			log.Error(logPrefix, cannotCreateFile, cwlFileName, err)
 			return err
 		}
 	} else {
 		fileContentStr := string(fileContent)
 		digestIndex := strings.Index(fileContentStr, hash)
 		if digestIndex == -1 {
-			log.Printf("%s hash: %s not found in %s\n", logPrefix, hash, cwlFileName)
+			log.Info(logPrefix, "hash: ", logmgr.SanitizeUserInput(hash), " not found in ", cwlFileName) // lgtm [go/log-injection]
 			return nil
 		}
 		fileContentStr = fileContentStr[:digestIndex] + fileContentStr[digestIndex+65:]
 		err = ioutil.WriteFile(cwlFilePath, []byte(fileContentStr), 0666)
 		if err != nil {
-			log.Printf("%s cannot create %s file: %s\n", logPrefix, cwlFileName, err)
+			log.Error(logPrefix, cannotCreateFile, cwlFileName, err)
 			return err
 		}
 		containerWhiteList = strings.Split(fileContentStr, "\n")
 		if len(containerWhiteList) > 0 {
 			containerWhiteList = containerWhiteList[:len(containerWhiteList)-1]
 		}
-		log.Printf("%s hash: %s successfully deleted from %s file\n", logPrefix, hash, cwlFileName)
+		log.Info(logPrefix, "hash: ", logmgr.SanitizeUserInput(hash), " successfully deleted from ", cwlFileName, " file") // lgtm [go/log-injection]
 	}
 	return nil
 }
@@ -218,11 +221,11 @@ func delHashFromContainerWhiteList(hash string) error {
 func delAllHashFromContainerWhiteList() error {
 	err := ioutil.WriteFile(cwlFilePath, []byte(""), 0666)
 	if err != nil {
-		log.Printf("%s cannot create %s file: %s\n", logPrefix, cwlFileName, err)
+		log.Error(logPrefix, cannotCreateFile, cwlFileName, err)
 		return err
 	}
 	containerWhiteList = nil
-	log.Printf("%s all hashes successfully deleted from %s file\n", logPrefix, cwlFileName)
+	log.Info(logPrefix, "all hashes successfully deleted from ", cwlFileName, " file")
 	return err
 }
 
@@ -230,16 +233,16 @@ func delAllHashFromContainerWhiteList() error {
 func printAllHashFromContainerWhiteList() {
 	if containerWhiteList != nil {
 		for idx, whitelistItem := range containerWhiteList {
-			log.Printf("%s container's hash[%d]: len = %d %s\n", logPrefix, idx, len(whitelistItem), whitelistItem)
+			log.Info(logPrefix, "container's hash[", idx, "]: ", logmgr.SanitizeUserInput(whitelistItem)) // lgtm [go/log-injection]
 		}
 	} else {
-		log.Println(logPrefix, "container white list is empty")
+		log.Info(logPrefix, "container white list is empty")
 	}
 }
 
 // RequestVerifierConf is Verifier configuration request handler
 func (verifier *VerificationImpl) RequestVerifierConf(containerInfo RequestVerifierConf) ResponseVerifierConf {
-	log.Printf("%s command type: %s\n", logPrefix, logmgr.SanitizeUserInput(containerInfo.CmdType)) // lgtm [go/log-injection]
+	log.Info(logPrefix, "command type: ", logmgr.SanitizeUserInput(containerInfo.CmdType)) // lgtm [go/log-injection]
 	switch containerInfo.CmdType {
 	case "addHashCWL":
 		for _, containerDesc := range containerInfo.Desc {
@@ -272,7 +275,7 @@ func (verifier *VerificationImpl) RequestVerifierConf(containerInfo RequestVerif
 	case "printAllHashCWL":
 		printAllHashFromContainerWhiteList()
 	default:
-		log.Println(logPrefix, "command does not supported: ", logmgr.SanitizeUserInput(containerInfo.CmdType)) // lgtm [go/log-injection]
+		log.Info(logPrefix, "command does not supported: ", logmgr.SanitizeUserInput(containerInfo.CmdType)) // lgtm [go/log-injection]
 		return ResponseVerifierConf{
 			Message:       NotAllowedCommand,
 			SecureCmpName: "verifier",
