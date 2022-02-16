@@ -1,6 +1,8 @@
 name: Test Suite
 on: [push, pull_request]
 
+permissions: read-all
+
 jobs:
   test-suite:
     strategy:
@@ -9,16 +11,16 @@ jobs:
         os: [ubuntu-18.04, ubuntu-20.04]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@629c2de402a417ea7690ca6ce3f33229e27606a5 # v2
 
       - name: Setup Golang
-        uses: actions/setup-go@v1
+        uses: actions/setup-go@77b162d042858409656f087cab0246511e670694 # v1
         with:
           go-version: '1.16.6'
 
       - name: Set env vars (gocov)
         run: |
-          go get github.com/axw/gocov/gocov
+          go get github.com/axw/gocov/gocov@b6eca663ebb7e7ef9798914d19f53ba2c6f74c96
           echo "$HOME/go/bin" >> $GITHUB_PATH
           sudo mkdir -p /var/edge-orchestration/mnedc
           echo -e 'server-ip: 192.168.0.125\nport: 3334' | sudo tee /var/edge-orchestration/mnedc/client-config.yaml
