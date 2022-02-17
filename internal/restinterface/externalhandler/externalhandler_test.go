@@ -289,7 +289,7 @@ func TestAPIV1RequestServicePost(t *testing.T) {
 	})
 }
 
-func TestAPIV1RequestCloudSyncmgrPost(t *testing.T) {
+func TestAPIV1RequestCloudSyncmgrPublish(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -314,7 +314,7 @@ func TestAPIV1RequestCloudSyncmgrPost(t *testing.T) {
 			mockHelper.EXPECT().Response(gomock.Any(), gomock.Any(), gomock.Eq(http.StatusServiceUnavailable))
 
 			handler.isSetAPI = false
-			handler.APIV1RequestCloudSyncmgrPost(w, r)
+			handler.APIV1RequestCloudSyncmgrPublish(w, r)
 		})
 		t.Run("IsNotSetKey", func(t *testing.T) {
 			handler.SetOrchestrationAPI(mockOrchestration)
@@ -322,7 +322,7 @@ func TestAPIV1RequestCloudSyncmgrPost(t *testing.T) {
 			mockHelper.EXPECT().Response(gomock.Any(), gomock.Any(), gomock.Eq(http.StatusServiceUnavailable))
 
 			handler.IsSetKey = false
-			handler.APIV1RequestCloudSyncmgrPost(w, r)
+			handler.APIV1RequestCloudSyncmgrPublish(w, r)
 		})
 		t.Run("DecryptionFail", func(t *testing.T) {
 			handler.SetCipher(mockCipher)
@@ -335,7 +335,7 @@ func TestAPIV1RequestCloudSyncmgrPost(t *testing.T) {
 				mockHelper.EXPECT().Response(gomock.Any(), gomock.Any(), gomock.Eq(http.StatusServiceUnavailable)),
 			)
 
-			handler.APIV1RequestCloudSyncmgrPost(w, r)
+			handler.APIV1RequestCloudSyncmgrPublish(w, r)
 		})
 		t.Run("InvalidParam", func(t *testing.T) {
 			t.Run("ServiceName", func(t *testing.T) {
@@ -358,7 +358,7 @@ func TestAPIV1RequestCloudSyncmgrPost(t *testing.T) {
 					mockHelper.EXPECT().Response(gomock.Any(), gomock.Any(), gomock.Eq(http.StatusOK)),
 				)
 
-				handler.APIV1RequestCloudSyncmgrPost(w, r)
+				handler.APIV1RequestCloudSyncmgrPublish(w, r)
 			})
 			t.Run("topic", func(t *testing.T) {
 				handler.SetCipher(mockCipher)
@@ -380,7 +380,7 @@ func TestAPIV1RequestCloudSyncmgrPost(t *testing.T) {
 					mockHelper.EXPECT().Response(gomock.Any(), gomock.Any(), gomock.Eq(http.StatusOK)),
 				)
 
-				handler.APIV1RequestCloudSyncmgrPost(w, r)
+				handler.APIV1RequestCloudSyncmgrPublish(w, r)
 			})
 			t.Run("url", func(t *testing.T) {
 				handler.SetCipher(mockCipher)
@@ -403,7 +403,7 @@ func TestAPIV1RequestCloudSyncmgrPost(t *testing.T) {
 					mockHelper.EXPECT().Response(gomock.Any(), gomock.Any(), gomock.Eq(http.StatusOK)),
 				)
 
-				handler.APIV1RequestCloudSyncmgrPost(w, r)
+				handler.APIV1RequestCloudSyncmgrPublish(w, r)
 			})
 		})
 	})

@@ -83,10 +83,10 @@ func init() {
 			HandlerFunc: handler.APIV1RequestSecuremgrPost,
 		},
 		restinterface.Route{
-			Name:        "APIV1RequestCloudSyncmgrPost",
+			Name:        "APIV1RequestCloudSyncmgrPublish",
 			Method:      strings.ToUpper("Post"),
-			Pattern:     "/api/v1/orchestration/cloudsyncmgr",
-			HandlerFunc: handler.APIV1RequestCloudSyncmgrPost,
+			Pattern:     "/api/v1/orchestration/cloudsyncmgr/publish",
+			HandlerFunc: handler.APIV1RequestCloudSyncmgrPublish,
 		},
 	}
 	handler.netHelper = networkhelper.GetInstance()
@@ -374,9 +374,9 @@ SEND_RESP:
 	h.helper.Response(w, respEncryptBytes, http.StatusOK)
 }
 
-// APIV1RequestCloudSyncmgrPost handles cloudsync publish request from service application
-func (h *Handler) APIV1RequestCloudSyncmgrPost(w http.ResponseWriter, r *http.Request) {
-	log.Info(logPrefix, "APIV1RequestCloudSyncmgrPost")
+// APIV1RequestCloudSyncmgrPublish handles cloudsync publish request from service application
+func (h *Handler) APIV1RequestCloudSyncmgrPublish(w http.ResponseWriter, r *http.Request) {
+	log.Info(logPrefix, "APIV1RequestCloudSyncmgrPublish")
 	if !h.isSetAPI {
 		log.Error(logPrefix, doesNotSetAPI)
 		h.helper.Response(w, nil, http.StatusServiceUnavailable)
@@ -448,7 +448,7 @@ func (h *Handler) APIV1RequestCloudSyncmgrPost(w http.ResponseWriter, r *http.Re
 		goto SEND_RESP
 	}
 
-	responseMsg = h.api.RequestCloudSync(host, appID, publishMessage, topic)
+	responseMsg = h.api.RequestCloudSyncPublish(host, appID, publishMessage, topic)
 
 SEND_RESP:
 	respJSONMsg := make(map[string]interface{})

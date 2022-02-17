@@ -36,7 +36,7 @@ const (
 	rbacPolicyFileName = "policy.csv"
 	policyTemplate     = "p, admin, /*, *\n" +
 		"p, member, /api/v1/orchestration/services, *\n" +
-		"p, member, /api/v1/orchestration/cloudsyncmgr, *\n"
+		"p, member, /api/v1/orchestration/cloudsyncmgr/publish, *\n"
 	rbacAuthModelFileName = "auth_model.conf"
 	authModelTemplate     = "[request_definition]\n" +
 		"r = sub, obj, act\n\n" +

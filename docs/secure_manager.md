@@ -222,7 +222,7 @@ The system is currently configured in the simplest configuration with two roles:
 | ---------------------------------- | ----- | ------ |
 | /api/v1/orchestration/services     | Allow | Allow  |
 | /api/v1/orchestration/securemgr    | Allow | Deny   |
-| /api/v1/orchestration/cloudsyncmgr | Allow | Allow  |
+| /api/v1/orchestration/cloudsyncmgr/publish | Allow | Allow  |
 
 To change the access model and policy, you need to edit the files:  
 `/var/edge-orchestration/data/rbac/auth_model.conf`
@@ -245,7 +245,7 @@ and `/var/edge-orchestration/data/rbac/policy.csv`
 ```
 p, admin, /*, *
 p, member, /api/v1/orchestration/services, *
-p, member, /api/v1/orchestration/cloudsyncmgr, *
+p, member, /api/v1/orchestration/cloudsyncmgr/publish, *
 ```
 ---
 

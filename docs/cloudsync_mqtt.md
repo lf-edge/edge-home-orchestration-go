@@ -269,7 +269,7 @@ docker run -it -d --privileged --network="host" --name edge-orchestration -e CLO
 From the another terminal/post make a curl command as follows to publish data using home edge to the broker running on AWS endpoint
 
 ```
-curl --location --request POST 'http://<ip where edgeorchestration is running>:56001/api/v1/orchestration/cloudsyncmgr' \
+curl --location --request POST 'http://<ip where edgeorchestration is running>:56001/api/v1/orchestration/cloudsyncmgr/publish' \
 --header 'Content-Type: text/plain' \
 --data-raw '{
     "appid": "<appid of service app>",
