@@ -1,0 +1,16 @@
+version: 2
+updates:
+# Enable version updates for gomod
+  - package-ecosystem: "gomod"
+    # Look for `gomod` in the `root` directory
+    directory: "/"
+    # Check for updates once a day
+    schedule:
+      interval: "daily"
+# Enable version updates for Actions
+  - package-ecosystem: "github-actions"
+    # Look for `.github/workflows` in the `root` directory
+    directory: "/"
+    # Check for updates once a day
+    schedule:
+      interval: "daily"
