@@ -3,14 +3,13 @@ module github.com/lf-edge/edge-home-orchestration-go
 go 1.16
 
 require (
-	github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1 // indirect
 	github.com/Microsoft/go-winio v0.4.16 // indirect
 	github.com/StackExchange/wmi v0.0.0-20190523213315-cbe66965904d // indirect
 	github.com/casbin/casbin v1.9.1
 	github.com/containerd/containerd v1.4.12 // indirect
 	github.com/docker/cli v0.0.0-20201024074417-fd3371eb7df1
 	github.com/docker/distribution v2.8.0+incompatible // indirect
-	github.com/docker/docker v17.12.0-ce-rc1.0.20201201034508-7d75c1d40d88+incompatible
+	github.com/docker/docker v20.10.12+incompatible
 	github.com/docker/go-connections v0.4.0
 	github.com/docker/go-units v0.4.0
 	github.com/eclipse/paho.mqtt.golang v1.3.5
@@ -27,6 +26,7 @@ require (
 	github.com/imdario/mergo v0.3.11 // indirect
 	github.com/leemcloughlin/logfile v0.0.0-20201123203928-cff1c8a30a10
 	github.com/mattn/go-shellwords v1.0.10 // indirect
+	github.com/moby/term v0.0.0-20210619224110-3f7ff695adc6 // indirect
 	github.com/morikuni/aec v1.0.0 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.0.2 // indirect
@@ -49,7 +49,6 @@ require (
 	google.golang.org/grpc v1.34.0 // indirect
 	gopkg.in/ini.v1 v1.62.0
 	gopkg.in/yaml.v2 v2.4.0
-	gotest.tools v2.2.0+incompatible // indirect
 	gotest.tools/v3 v3.0.3
 )
 
