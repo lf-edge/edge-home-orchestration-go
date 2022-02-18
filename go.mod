@@ -19,7 +19,7 @@ require (
 	github.com/fsnotify/fsnotify v1.4.9
 	github.com/go-ole/go-ole v1.2.5 // indirect
 	github.com/gogo/protobuf v1.3.1 // indirect
-	github.com/golang-jwt/jwt/v4 v4.0.0
+	github.com/golang-jwt/jwt/v4 v4.3.0
 	github.com/golang/mock v1.4.4
 	github.com/gomodule/redigo v1.8.3
 	github.com/gorilla/mux v1.8.0
