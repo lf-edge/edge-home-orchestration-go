@@ -27,7 +27,7 @@ import (
 // Handle Platform Dependencies
 const (
 	logPrefix              = "[securemgr]"
-	certificateFilePath    = "/data/cert"
+	certificateFilePath    = "/certs"
 	containerWhiteListPath = "/data/cwl"
 	passPhraseJWTPath      = "/data/jwt"
 	rbacRulePath           = "/data/rbac"

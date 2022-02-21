@@ -32,8 +32,10 @@ import (
 )
 
 const (
-	edgeDir      = "/var/edge-orchestration"
-	caCertConfig = edgeDir + "/mqtt/certs/cacert.pem"
+	edgeDir = "/var/edge-orchestration"
+	caCert  = edgeDir + "/certs/ca-crt.pem"
+	henCert = edgeDir + "/certs/hen-crt.pem"
+	henKey  = edgeDir + "/certs/hen-key.pem"
 )
 
 // Client is a wrapper on top of `MQTT.Client`
@@ -124,14 +126,22 @@ func checkforConnection(brokerURL string, mqttClient *Client, mqttPort uint) int
 //NewTLSConfig creates a tls config for mqtt client
 func NewTLSConfig() (*tls.Config, error) {
 	certpool := x509.NewCertPool()
-	ca, err := ioutil.ReadFile(caCertConfig)
+	ca, err := ioutil.ReadFile(caCert)
 	if err != nil {
 		log.Warn(logPrefix, err.Error())
 		return nil, err
 	}
+
 	certpool.AppendCertsFromPEM(ca)
+
+	cert, err := tls.LoadX509KeyPair(henCert, henKey)
+	if err != nil {
+		return nil, err
+	}
 	return &tls.Config{
-		RootCAs: certpool,
+		Certificates: []tls.Certificate{cert},
+		ClientAuth:   tls.RequireAndVerifyClientCert,
+		RootCAs:      certpool,
 	}, nil
 }
 

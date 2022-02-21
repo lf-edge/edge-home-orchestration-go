@@ -22,8 +22,16 @@ import (
 
 	"crypto/tls"
 	"crypto/x509"
-	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
 	"io/ioutil"
+
+	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
+)
+
+const (
+	edgeDir = "/var/edge-orchestration"
+	caCert  = edgeDir + "/certs/ca-crt.pem"
+	henCert = edgeDir + "/certs/hen-crt.pem"
+	henKey  = edgeDir + "/certs/hen-key.pem"
 )
 
 var (
@@ -39,7 +47,7 @@ type TLSListenerServer interface {
 type TLSServer struct{}
 
 func createServerConfig() (*tls.Config, error) {
-	caCertPEM, err := ioutil.ReadFile("/var/edge-orchestration/data/cert/ca.crt")
+	caCertPEM, err := ioutil.ReadFile(caCert)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +58,7 @@ func createServerConfig() (*tls.Config, error) {
 		panic("failed to parse root certificate")
 	}
 
-	cert, err := tls.LoadX509KeyPair("/var/edge-orchestration/data/cert/hen.crt", "/var/edge-orchestration/data/cert/hen.key")
+	cert, err := tls.LoadX509KeyPair(henCert, henKey)
 	if err != nil {
 		return nil, err
 	}

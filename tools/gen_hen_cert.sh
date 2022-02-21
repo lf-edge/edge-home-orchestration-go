@@ -12,14 +12,14 @@ then
     exit 1
 fi
 
-mkdir -p ./cert/$1
+mkdir -p ./certs/$1
 
 # Home Edge Node (HEN) Certificate
-# Generate HEN Certificate private key : hen.key
-openssl genrsa -out ./cert/$1/hen.key 2048
+# Generate HEN private key: hen-key.pem
+openssl genrsa -out ./certs/$1/hen-key.pem 2048
 
 # Generate HEN Certificate request: hen.csr
-openssl req -new -nodes -key ./cert/$1/hen.key -out ./cert/$1/hen.csr -subj /C=KR/ST=Seoul/O="Samsung Electronics"/CN="Home Edge Node Certificate"
+openssl req -new -nodes -key ./certs/$1/hen-key.pem -out ./certs/$1/hen.csr -subj /C=KR/ST=Seoul/O="Samsung Electronics"/CN="Home Edge Node Certificate"
 
-# Signature HEN Certificate: hen.crt
-openssl x509 -req -extfile <(printf "subjectAltName=IP:$1") -days 365 -in ./cert/$1/hen.csr -CA ./cert/ca.crt -CAkey ./cert/ca.key -CAcreateserial -out ./cert/$1/hen.crt
+# Signature HEN Certificate: hen-crt.pem
+openssl x509 -req -extfile <(printf "subjectAltName=IP:$1") -days 365 -in ./certs/$1/hen.csr -CA ./certs/ca-crt.pem -CAkey ./certs/ca-key.pem -CAcreateserial -out ./certs/$1/hen-crt.pem -outform PEM

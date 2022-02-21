@@ -59,7 +59,7 @@ const (
 	logPath             = edgeDir + "/log"
 	configPath          = edgeDir + "/apps"
 	dbPath              = edgeDir + "/data/db"
-	certificateFilePath = edgeDir + "/data/cert"
+	certificateFilePath = edgeDir + "/certs"
 
 	cipherKeyFilePath = edgeDir + "/user/orchestration_userID.txt"
 	deviceIDFilePath  = edgeDir + "/device/orchestration_deviceID.txt"

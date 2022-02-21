@@ -295,10 +295,10 @@ The **[Transport Layer Security (TLS)](https://en.wikipedia.org/wiki/Transport_L
 
 @startuml
   autonumber
-  CA->>CA: Generate CA Root Certificate ca.crt ca.key
-  "Node (192.168.0.100)"->>"Node (192.168.0.100)": Generate private key hen.key, request hen.csr
+  CA->>CA: Generate CA Root Certificate ca-crt.pem ca-key.pem
+  "Node (192.168.0.100)"->>"Node (192.168.0.100)": Generate private key hen-key.pem, request hen.csr
   "Node (192.168.0.100)"->>CA: Send hen.csr to CA
-  CA-->>"Node (192.168.0.100)": Send ca.crt and hen.crt to Node
+  CA-->>"Node (192.168.0.100)": Send ca-crt.pem and hen-crt.pem to Node
   Note right of CA: For each Node, must be executed items 2-4
 @enduml
 ```
@@ -310,23 +310,23 @@ The **[Transport Layer Security (TLS)](https://en.wikipedia.org/wiki/Transport_L
 Before starting work the _Home Edge Network_, need to create a key infrastructure (for a certification authority and for each node separately).
 
 There are two scripts: 
- * [tools/gen_ca_cert.sh](../tools/gen_ca_cert.sh) for generation of CA Root Certificate, that consists of a private key `ca.key` and a self-signed root certificate `ca.crt`
- * [tools/gen_hen_cert.sh](../tools/gen_hen_cert.sh) for generation of Home Edge Node (HEN) Certificate, that consists of a private key `hen.key` and a signature HEN certificate: `hen.crt`
+ * [tools/gen_ca_cert.sh](../tools/gen_ca_cert.sh) for generation of CA Root Certificate, that consists of a private key `ca-key.pem` and a self-signed root certificate `ca-crt.pem`
+ * [tools/gen_hen_cert.sh](../tools/gen_hen_cert.sh) for generation of Home Edge Node (HEN) Certificate, that consists of a private key `hen-key.pem` and a signature HEN certificate: `hen-crt.pem`
  
 #### CA Root Certificate
 Generating a CA Root Certificate only needs to be done once for _Home Edge Network_ by running command:
 ```shell
 tools/gen_ca_cert.sh
 ```
-As a result, we get the private key `cert/ca.key` and self-signed root certificate `cert/ca.crt`. The certificate must be saved on all nodes in the `/var/edge-orchestration/data/cert/` folder.
+As a result, we get the private key `certs/ca-key.pem` and self-signed root certificate `certs/ca-crt.pem`. The certificate must be saved on all nodes in the `/var/edge-orchestration/certs/` folder.
 
 #### Home Edge Node (HEN) Certificate
-Generate HEN Certificate private key : hen.key
+Generate HEN Certificate private key : hen-key.pem
 
-For each node, need to create a private key `hen.key` and a certificate `hen.crt`. To do this, need to start the script and specify the node IP address. 
+For each node, need to create a private key `hen-key.pem` and a certificate `hen-crt.pem`. To do this, need to start the script and specify the node IP address. 
 ```shell
 tools/gen_hen_cert.sh 192.168.0.100
 ```
-As a result, the key and certificate will be created in the `cert/<IP>/`. They must be copied into the `/var/edge-orchestration/data/cert/` folder on a node with the specified IP address
+As a result, the key and certificate will be created in the `certs/<IP>/`. They must be copied into the `/var/edge-orchestration/certs/` folder on a node with the specified IP address
 
 ---

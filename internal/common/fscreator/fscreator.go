@@ -29,8 +29,8 @@ const (
 
 var edgeDirs = []string{
 	"/apps",
+	"/certs",
 	"/data/db",
-	"/data/cert",
 	"/datastorage",
 	"/device",
 	"/log",
