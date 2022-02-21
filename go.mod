@@ -5,7 +5,6 @@ go 1.16
 require (
 	github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1 // indirect
 	github.com/Microsoft/go-winio v0.4.16 // indirect
-	github.com/StackExchange/wmi v0.0.0-20190523213315-cbe66965904d // indirect
 	github.com/casbin/casbin v1.9.1
 	github.com/containerd/containerd v1.4.12 // indirect
 	github.com/docker/cli v0.0.0-20201024074417-fd3371eb7df1
@@ -17,9 +16,8 @@ require (
 	github.com/edgexfoundry/device-sdk-go v1.4.0
 	github.com/edgexfoundry/go-mod-core-contracts v0.1.115
 	github.com/fsnotify/fsnotify v1.4.9
-	github.com/go-ole/go-ole v1.2.5 // indirect
 	github.com/gogo/protobuf v1.3.1 // indirect
-	github.com/golang-jwt/jwt/v4 v4.0.0
+	github.com/golang-jwt/jwt/v4 v4.3.0
 	github.com/golang/mock v1.4.4
 	github.com/gomodule/redigo v1.8.3
 	github.com/gorilla/mux v1.8.0
@@ -33,17 +31,18 @@ require (
 	github.com/pelletier/go-toml v1.2.0
 	github.com/pkg/errors v0.9.1
 	github.com/satori/go.uuid v1.2.0
-	github.com/shirou/gopsutil v3.20.11+incompatible
-	github.com/sirupsen/logrus v1.7.0
+	github.com/shirou/gopsutil v3.21.11+incompatible
+	github.com/sirupsen/logrus v1.8.1
 	github.com/smartystreets/goconvey v1.6.4 // indirect
 	github.com/songgao/water v0.0.0-20200317203138-2b4b6d7c09d8
 	github.com/spf13/cast v1.3.1
 	github.com/spf13/pflag v1.0.3
-	github.com/stretchr/testify v1.6.1
+	github.com/stretchr/testify v1.7.0
 	github.com/vishvananda/netlink v1.1.0
 	github.com/xeipuuv/gojsonpointer v0.0.0-20180127040702-4e3ac2762d5f // indirect
 	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect
 	github.com/xeipuuv/gojsonschema v0.0.0-20160323030313-93e72a773fad // indirect
+	github.com/yusufpapurcu/wmi v1.2.2 // indirect
 	go.etcd.io/bbolt v1.3.5
 	golang.org/x/time v0.0.0-20210611083556-38a9dc6acbc6 // indirect
 	google.golang.org/grpc v1.34.0 // indirect
