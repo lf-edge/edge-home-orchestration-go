@@ -36,7 +36,7 @@ const (
 type CloudSync interface {
 	InitiateCloudSync(isCloudSet string) error
 	//implemented by external REST API
-	RequestCloudSyncConf(host string, clientID string, message mqttmgr.Message, topic string) string
+	RequestPublish(host string, clientID string, message mqttmgr.Message, topic string) string
 }
 
 //CloudSyncImpl struct
@@ -81,8 +81,8 @@ func (c *CloudSyncImpl) InitiateCloudSync(isCloudSet string) (err error) {
 	return nil
 }
 
-// RequestCloudSyncConf is  configuration request handler
-func (c *CloudSyncImpl) RequestCloudSyncConf(host string, clientID string, message mqttmgr.Message, topic string) string {
+// RequestPublish is  configuration request handler
+func (c *CloudSyncImpl) RequestPublish(host string, clientID string, message mqttmgr.Message, topic string) string {
 	log.Info(logPrefix, "Publishing the data to the cloud")
 	resp := ""
 	var wg sync.WaitGroup

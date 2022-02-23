@@ -61,14 +61,14 @@ func (_mr *MockCloudSyncMockRecorder) InitiateCloudSync(arg0 interface{}) *gomoc
 	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "InitiateCloudSync", reflect.TypeOf((*MockCloudSync)(nil).InitiateCloudSync), arg0)
 }
 
-// StartCloudSync mocks base method
-func (_m *MockCloudSync) RequestCloudSyncConf(host string, clientID string, message mqttmgr.Message, topic string) string {
-	ret := _m.ctrl.Call(_m, "RequestCloudSyncConf", host)
+// RequestPublish mocks base method
+func (_m *MockCloudSync) RequestPublish(host string, clientID string, message mqttmgr.Message, topic string) string {
+	ret := _m.ctrl.Call(_m, "RequestPublish", host)
 	ret0, _ := ret[0].(string)
 	return ret0
 }
 
-// StartCloudSync indicates an expected call of StartCloudSync
-func (_mr *MockCloudSyncMockRecorder) RequestCloudSyncConfloudSync(arg0 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "RequestCloudSyncConf", reflect.TypeOf((*MockCloudSync)(nil).RequestCloudSyncConf), arg0)
+// RequestPublish indicates an expected call of StartCloudSync
+func (_mr *MockCloudSyncMockRecorder) RequestPublish(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "RequestPublish", reflect.TypeOf((*MockCloudSync)(nil).RequestPublish), arg0)
 }

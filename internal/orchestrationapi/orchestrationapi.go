@@ -130,10 +130,10 @@ func init() {
 	helper = dbhelper.GetInstance()
 }
 
-//RequestCloudSync handles the request for cloud syncing
-func (orcheEngine *orcheImpl) RequestCloudSync(host string, clientID string, message mqtt.Message, topic string) string {
-	log.Info("[RequestCloudSync]", "Requesting cloud sync")
-	return orcheEngine.cloudsyncIns.RequestCloudSyncConf(host, clientID, message, topic)
+//RequestCloudSyncPublish handles the request for cloud syncing
+func (orcheEngine *orcheImpl) RequestCloudSyncPublish(host string, clientID string, message mqtt.Message, topic string) string {
+	log.Info("[RequestCloudSync]", "Requesting cloud sync publish")
+	return orcheEngine.cloudsyncIns.RequestPublish(host, clientID, message, topic)
 }
 
 // RequestService handles service request (ex. offloading) from service application
