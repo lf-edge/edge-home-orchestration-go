@@ -7,6 +7,9 @@ updates:
     # Check for updates once a month
     schedule:
       interval: "monthly"
+    ignore:
+      - dependency-name: "*docker*"
+
 # Enable version updates for Actions
   - package-ecosystem: "github-actions"
     # Look for `.github/workflows` in the `root` directory
