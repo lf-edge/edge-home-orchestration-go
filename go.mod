@@ -35,7 +35,7 @@ require (
 	github.com/sirupsen/logrus v1.8.1
 	github.com/smartystreets/goconvey v1.6.4 // indirect
 	github.com/songgao/water v0.0.0-20200317203138-2b4b6d7c09d8
-	github.com/spf13/cast v1.3.1
+	github.com/spf13/cast v1.4.1
 	github.com/spf13/pflag v1.0.3
 	github.com/stretchr/testify v1.7.0
 	github.com/vishvananda/netlink v1.1.0
