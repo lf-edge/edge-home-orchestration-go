@@ -21,16 +21,16 @@ import (
 	"context"
 	b64 "encoding/base64"
 	"fmt"
-	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
-	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/storagemgr/config"
-	dbhelper "github.com/lf-edge/edge-home-orchestration-go/internal/db/helper"
-	"github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/resthelper"
 	"io/ioutil"
 	"math"
 	"net/http"
 	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
+	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/storagemgr/config"
+	dbhelper "github.com/lf-edge/edge-home-orchestration-go/internal/db/helper"
+	"github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/resthelper"
 	"github.com/spf13/cast"
 
 	"github.com/edgexfoundry/device-sdk-go/pkg/models"
@@ -49,12 +49,16 @@ const (
 	handlerContextKey ctxKey = "StorageHandler"
 	configPath               = "res/configuration.toml"
 	numberOfReadings         = "readingCount"
+	eventIDKey               = "id"
+	event                    = "event"
 
 	apiResourceRoute               = clients.ApiBase + "/device/{" + deviceNameKey + "}/resource/{" + resourceNameKey + "}"
 	apiResourceRouteMultiple       = clients.ApiBase + "/device/{" + deviceNameKey + "}/resource/{" + resourceNameKey + "}/{" + numberOfReadings + "}"
 	apiWithoutResRoute             = clients.ApiBase + "/resource/{" + resourceNameKey + "}"
 	apiWithoutResRouteMultiple     = clients.ApiBase + "/resource/{" + resourceNameKey + "}/{" + numberOfReadings + "}"
 	apiWithoutResRouteTimeMultiple = clients.ApiBase + "/start/{" + startKey + "}/end/{" + endKey + "}/{" + numberOfReadings + "}"
+	apiEventAddRoute               = clients.ApiBase + "/{" + event + "}"
+	apiEventDeleteRoute            = clients.ApiBase + "/event/id/{" + eventIDKey + "}"
 )
 
 var (
@@ -98,6 +102,12 @@ func (handler StorageHandler) Start() error {
 	}
 	if err := handler.service.AddRoute(apiWithoutResRouteTimeMultiple, handler.addContext(deviceHandler), http.MethodGet); err != nil {
 		return fmt.Errorf("unable to add required route: %s: %s", apiWithoutResRouteTimeMultiple, err.Error())
+	}
+	if err := handler.service.AddRoute(apiEventAddRoute, handler.addContext(deviceHandler), http.MethodPost); err != nil {
+		return fmt.Errorf("unable to add required route: %s: %s", apiEventAddRoute, err.Error())
+	}
+	if err := handler.service.AddRoute(apiEventDeleteRoute, handler.addContext(deviceHandler), http.MethodDelete); err != nil {
+		return fmt.Errorf("unable to add required route: %s: %s", apiEventDeleteRoute, err.Error())
 	}
 	return nil
 }
@@ -170,9 +180,39 @@ func (handler StorageHandler) processAsyncGetRequest(writer http.ResponseWriter,
 	handler.helper.Response(writer, resp, http.StatusOK)
 }
 
-// processGetAsyncRequest is used to handle Async POST Requests
+//addEvent is used to handle the add event Post requests
+func (handler StorageHandler) addEvent(writer http.ResponseWriter, request *http.Request) {
+	readingAPI := "/api/v1/" + event
+	serverIP, readingPort, err := config.GetServerIP(configPath)
+
+	if err != nil {
+		http.Error(writer, "Configuration File Not Found", http.StatusNotFound)
+		return
+	}
+
+	requestURL := handler.helper.MakeTargetURL(serverIP, readingPort, readingAPI)
+	reqBody, err := ioutil.ReadAll(request.Body)
+	if err != nil {
+		http.Error(writer, "Error in getting body", http.StatusBadRequest)
+	}
+	resp, statusCode, err := handler.helper.DoPost(requestURL, reqBody)
+	if err != nil {
+		http.Error(writer, "Error in doing Post request :", statusCode)
+		return
+	}
+	eventid := string(resp)
+	log.Debug(fmt.Sprintf("Event Id is %s", eventid))
+	handler.helper.Response(writer, resp, http.StatusOK)
+}
+
+// processAsyncPostRequest is used to handle Async POST Requests
 func (handler StorageHandler) processAsyncPostRequest(writer http.ResponseWriter, request *http.Request) {
 	vars := mux.Vars(request)
+	event := vars[event]
+	if event != "" {
+		handler.addEvent(writer, request)
+		return
+	}
 	deviceName := vars[deviceNameKey]
 	var err error
 	if deviceName == "" {
@@ -182,6 +222,7 @@ func (handler StorageHandler) processAsyncPostRequest(writer http.ResponseWriter
 			http.Error(writer, "Device not found", http.StatusNotFound)
 		}
 	}
+
 	resourceName := vars[resourceNameKey]
 
 	log.Debug(fmt.Sprintf("Received POST for Device=%s Resource=%s", logmgr.SanitizeUserInput(deviceName), logmgr.SanitizeUserInput(resourceName))) // lgtm [go/log-injection]
@@ -253,6 +294,31 @@ func (handler StorageHandler) processAsyncPostRequest(writer http.ResponseWriter
 	handler.asyncValues <- asyncValues
 }
 
+//processDeleteRequest is used to handle the Async Delete Request
+func (handler StorageHandler) processDeleteRequest(writer http.ResponseWriter, request *http.Request) {
+	vars := mux.Vars(request)
+	ID := vars[eventIDKey]
+
+	log.Debug(fmt.Sprintf("Received DELETE for Event ID=%s", logmgr.SanitizeUserInput(ID))) // lgtm [go/log-injection]
+	var deleteAPI string
+	if ID != "" {
+		deleteAPI = "/api/v1/event/id" + "/" + ID
+	}
+	serverIP, readingPort, err := config.GetServerIP(configPath)
+	if err != nil {
+		http.Error(writer, "Configuration File Not Found", http.StatusNotFound)
+		return
+	}
+	requestURL := handler.helper.MakeTargetURL(serverIP, readingPort, deleteAPI)
+	resp, _, err := handler.helper.DoDelete(requestURL)
+	if err != nil {
+		http.Error(writer, "Resource not found", http.StatusNotFound)
+		return
+	}
+	handler.helper.Response(writer, resp, http.StatusOK)
+
+}
+
 func (handler StorageHandler) readBodyAsString(request *http.Request) (string, error) {
 	if request.Body == nil {
 		return "", fmt.Errorf("no request body provided")
@@ -301,6 +367,8 @@ func deviceHandler(writer http.ResponseWriter, request *http.Request) {
 		handler.processAsyncGetRequest(writer, request)
 	case "POST":
 		handler.processAsyncPostRequest(writer, request)
+	case "DELETE":
+		handler.processDeleteRequest(writer, request)
 	}
 
 }
