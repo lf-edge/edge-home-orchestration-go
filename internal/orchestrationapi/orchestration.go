@@ -54,6 +54,7 @@ type OrcheExternalAPI interface {
 	RequestService(serviceInfo ReqeustService) ResponseService
 	verifier.Conf
 	RequestCloudSyncPublish(host string, clientID string, message mqtt.Message, topic string) string
+	RequestCloudSyncSubscribe(host string, clientID string, topic string) string
 }
 
 // OrcheInternalAPI is the interface implemented by internal REST API

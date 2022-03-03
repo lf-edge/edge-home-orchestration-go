@@ -150,3 +150,23 @@ func (client *Client) Publish(message Message, topic string) error {
 	time.Sleep(time.Second)
 	return nil
 }
+
+var messageHandler MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Message) {
+
+	log.Info(logPrefix, "Topic ", msg.Topic(), " registered.. ", string(msg.Payload()), " is the payload")
+}
+
+//Subscribe is used to subscribe to a topic
+func (client *Client) Subscribe(topic string) error {
+	log.Info(logPrefix, "Subscribing to ", logmgr.SanitizeUserInput(topic)) // lgtm [go/log-injection]
+	mqttClient := client.Client
+	for mqttClient == nil {
+		time.Sleep(time.Second * 2)
+	}
+	token := mqttClient.Subscribe(topic, 0, messageHandler)
+	if token.Wait() && token.Error() != nil {
+		return token.Error()
+	}
+	time.Sleep(time.Second)
+	return nil
+}

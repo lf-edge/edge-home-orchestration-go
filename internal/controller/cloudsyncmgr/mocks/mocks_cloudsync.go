@@ -68,7 +68,19 @@ func (_m *MockCloudSync) RequestPublish(host string, clientID string, message mq
 	return ret0
 }
 
-// RequestPublish indicates an expected call of StartCloudSync
+// RequestPublish indicates an expected call of RequestPublish
 func (_mr *MockCloudSyncMockRecorder) RequestPublish(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "RequestPublish", reflect.TypeOf((*MockCloudSync)(nil).RequestPublish), arg0)
+}
+
+// RequestSubscribe mocks base method
+func (_m *MockCloudSync) RequestSubscribe(host string, clientID string, topic string) string {
+	ret := _m.ctrl.Call(_m, "RequestSubscribe", host)
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// RequestSubscribe indicates an expected call of RequestSubscribe
+func (_mr *MockCloudSyncMockRecorder) RequestSubscribe(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "RequestSubscribe", reflect.TypeOf((*MockCloudSync)(nil).RequestSubscribe), arg0)
 }
