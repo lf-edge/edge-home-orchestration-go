@@ -9,6 +9,8 @@ updates:
       interval: "monthly"
     ignore:
       - dependency-name: "*docker*"
+    # Allow up to 15 open pull requests for gomod dependencies
+    open-pull-requests-limit: 15
 
 # Enable version updates for Actions
   - package-ecosystem: "github-actions"
@@ -17,3 +19,5 @@ updates:
     # Check for updates once a month
     schedule:
       interval: "monthly"
+    # Allow up to 15 open pull requests for github-actions dependencies
+    open-pull-requests-limit: 15
