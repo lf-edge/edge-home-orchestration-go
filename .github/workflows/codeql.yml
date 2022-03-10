@@ -26,7 +26,7 @@ jobs:
 
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
-      uses: github/codeql-action/init@d39d5d5c9707b926d517b1b292905ef4c03aa777 # v1
+      uses: github/codeql-action/init@75f07e7ab2ee63cba88752d8c696324e4df67466 # v1
       with:
         languages: ${{ matrix.language }}
 
@@ -36,4 +36,4 @@ jobs:
         go-version: '1.16.6'
 
     - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@d39d5d5c9707b926d517b1b292905ef4c03aa777 # v1
+      uses: github/codeql-action/analyze@75f07e7ab2ee63cba88752d8c696324e4df67466 # v1
