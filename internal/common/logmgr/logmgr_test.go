@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"github.com/sirupsen/logrus"
 	"os"
+	"strings"
 	"testing"
 )
 
@@ -91,4 +92,19 @@ func TestInitFileFail(t *testing.T) {
 	if err != nil {
 		t.Error(err.Error())
 	}
+}
+
+func TestSanitizeUserInput(t *testing.T) {
+	malStr := "This is the\n malstring"
+	printStr := "This is the\\n malstring"
+	t.Run("Success", func(t *testing.T) {
+		if strings.Compare(SanitizeUserInput(malStr), printStr) != 0 {
+			t.Error("unexpected error")
+		}
+	})
+	t.Run("Fail", func(t *testing.T) {
+		if strings.Compare(SanitizeUserInput(malStr), malStr) == 0 {
+			t.Error("unexpected error")
+		}
+	})
 }
