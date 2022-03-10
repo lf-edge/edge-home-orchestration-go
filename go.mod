@@ -14,7 +14,7 @@ require (
 	github.com/docker/go-units v0.4.0
 	github.com/eclipse/paho.mqtt.golang v1.3.5
 	github.com/edgexfoundry/device-sdk-go v1.4.0
-	github.com/edgexfoundry/go-mod-core-contracts v0.1.115
+	github.com/edgexfoundry/go-mod-core-contracts v0.1.149
 	github.com/fsnotify/fsnotify v1.5.1
 	github.com/gogo/protobuf v1.3.1 // indirect
 	github.com/golang-jwt/jwt/v4 v4.3.0
