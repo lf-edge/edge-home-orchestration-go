@@ -19,7 +19,7 @@ require (
 	github.com/gogo/protobuf v1.3.1 // indirect
 	github.com/golang-jwt/jwt/v4 v4.3.0
 	github.com/golang/mock v1.4.4
-	github.com/gomodule/redigo v1.8.3
+	github.com/gomodule/redigo v1.8.8
 	github.com/gorilla/mux v1.8.0
 	github.com/grandcat/zeroconf v1.0.0
 	github.com/imdario/mergo v0.3.11 // indirect
