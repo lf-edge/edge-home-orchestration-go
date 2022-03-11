@@ -136,6 +136,12 @@ func (orcheEngine *orcheImpl) RequestCloudSyncPublish(host string, clientID stri
 	return orcheEngine.cloudsyncIns.RequestPublish(host, clientID, message, topic)
 }
 
+//RequestCloudSyncSubscribe handles the request for cloud subscribing
+func (orcheEngine *orcheImpl) RequestCloudSyncSubscribe(host string, clientID string, topic string) string {
+	log.Info("[RequestCloudSync]", "Requesting cloud sync subscribe")
+	return orcheEngine.cloudsyncIns.RequestSubscribe(host, clientID, topic)
+}
+
 // RequestService handles service request (ex. offloading) from service application
 func (orcheEngine *orcheImpl) RequestService(serviceInfo ReqeustService) ResponseService {
 	log.Printf("[RequestService] %s: %v\n", logmgr.SanitizeUserInput(serviceInfo.ServiceName), serviceInfo.ServiceInfo) // lgtm [go/log-injection]

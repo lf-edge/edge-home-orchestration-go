@@ -88,6 +88,12 @@ func init() {
 			Pattern:     "/api/v1/orchestration/cloudsyncmgr/publish",
 			HandlerFunc: handler.APIV1RequestCloudSyncmgrPublish,
 		},
+		restinterface.Route{
+			Name:        "APIV1RequestCloudSyncmgrSubscribe",
+			Method:      strings.ToUpper("Post"),
+			Pattern:     "/api/v1/orchestration/cloudsyncmgr/subscribe",
+			HandlerFunc: handler.APIV1RequestCloudSyncmgrSubscribe,
+		},
 	}
 	handler.netHelper = networkhelper.GetInstance()
 }
@@ -456,6 +462,82 @@ SEND_RESP:
 	respJSONMsg["ServiceName"] = ""
 	respJSONMsg["RemoteTargetInfo"] = ""
 
+	respEncryptBytes, err := h.Key.EncryptJSONToByte(respJSONMsg)
+	if err != nil {
+		log.Error(logPrefix, cannotEncryption)
+		h.helper.Response(w, nil, http.StatusServiceUnavailable)
+		return
+	}
+
+	h.helper.Response(w, respEncryptBytes, http.StatusOK)
+}
+
+// APIV1RequestCloudSyncmgrSubscribe handles cloudsync subscribe request from service application
+func (h *Handler) APIV1RequestCloudSyncmgrSubscribe(w http.ResponseWriter, r *http.Request) {
+	log.Info(logPrefix, "APIV1RequestCloudSyncmgrSubscribe")
+	if !h.isSetAPI {
+		log.Error(logPrefix, doesNotSetAPI)
+		h.helper.Response(w, nil, http.StatusServiceUnavailable)
+		return
+	} else if !h.IsSetKey {
+		log.Error(logPrefix, doesNotSetKey)
+		h.helper.Response(w, nil, http.StatusServiceUnavailable)
+		return
+	}
+
+	reqAddr := strings.Split(r.RemoteAddr, ":")
+	var addr string
+	if strings.Contains(r.RemoteAddr, "::1") {
+		addr = "localhost"
+	} else {
+		addr = reqAddr[0]
+	}
+	ips, err := h.netHelper.GetIPs()
+	if err != nil {
+		h.helper.Response(w, nil, http.StatusServiceUnavailable)
+		return
+	} else if addr != "localhost" && addr != "127.0.0.1" && !common.HasElem(ips, addr) {
+		h.helper.Response(w, nil, http.StatusNotAcceptable)
+		return
+	}
+
+	var (
+		responseMsg string
+		topic       string
+		host        string
+	)
+
+	//request
+	encryptBytes, _ := ioutil.ReadAll(r.Body)
+
+	//Decrypt the request in json format
+	appCommand, err := h.Key.DecryptByteToJSON(encryptBytes)
+	if err != nil {
+		log.Error(logPrefix, cannotDecryption)
+		h.helper.Response(w, nil, http.StatusServiceUnavailable)
+	}
+
+	appID, ok := appCommand["appid"].(string)
+	if !ok {
+		responseMsg = orchestrationapi.InvalidParameter
+		goto SEND_RESP
+	}
+	topic, ok = appCommand["topic"].(string)
+	if !ok {
+		responseMsg = orchestrationapi.InvalidParameter
+		goto SEND_RESP
+	}
+	host, ok = appCommand["url"].(string)
+	if !ok {
+		responseMsg = orchestrationapi.InvalidParameter
+		goto SEND_RESP
+	}
+
+	responseMsg = h.api.RequestCloudSyncSubscribe(host, appID, topic)
+
+SEND_RESP:
+	respJSONMsg := make(map[string]interface{})
+	respJSONMsg["Message"] = responseMsg
 	respEncryptBytes, err := h.Key.EncryptJSONToByte(respJSONMsg)
 	if err != nil {
 		log.Error(logPrefix, cannotEncryption)
