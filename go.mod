@@ -17,7 +17,7 @@ require (
 	github.com/edgexfoundry/go-mod-core-contracts v0.1.115
 	github.com/fsnotify/fsnotify v1.5.1
 	github.com/gogo/protobuf v1.3.1 // indirect
-	github.com/golang-jwt/jwt/v4 v4.3.0
+	github.com/golang-jwt/jwt/v4 v4.4.0
 	github.com/golang/mock v1.4.4
 	github.com/gomodule/redigo v1.8.8
 	github.com/gorilla/mux v1.8.0
