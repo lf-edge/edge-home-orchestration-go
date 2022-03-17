@@ -235,23 +235,35 @@ help:
 	@echo ''
 	@echo 'Available targets are:'
 	@echo ''
-	@echo '    create_context     Prepare configuration.'
-	@echo '    help               Show this help screen.'
-	@echo '    clean              Remove binaries, artifacts.'
-	@echo '    test               Run unit tests.'
-	@echo '    lint               Run golint and go vet.'
-	@echo '    staticcheck        Run staticcheck.'
-	@echo '    fmt                Run: gofmt -s -w ./ .'
 	@echo '    all                Build project for current platform.'
+	@echo '    clean              Remove binaries, artifacts.'
+	@echo '    create_context     Prepare configuration.'
+	@echo '    fmt                Run: gofmt -s -w ./ .'
+	@echo '    help               Show this help screen.'
+	@echo '    lint               Run golint and go vet.'
 	@echo '    menuconfig         Change configuration by kconfig-frontends.'
+	@echo '    run                Run docker container.'
+	@echo '    staticcheck        Run staticcheck.'
+	@echo '    stop               Stop and remove docker container.'
+	@echo '    test               Run unit tests.'
 	@echo ''
 
 ## define build target not a file
-.PHONY: all build test clean lint fmt help staticcheck
+.PHONY: all build test clean lint fmt help staticcheck run stop
 
 define stop_docker_container
 	$(call print_header, "Stop Docker container")
-	-docker stop $(PKG_NAME)
+	$(Q) if [ ! -z ${shell docker ps -a --format "{{.Names}}" --filter name=^/$(PKG_NAME)} ]; then \
+		docker stop $(PKG_NAME) > /dev/null ; \
+	fi
+	$(Q) docker ps -a
+endef
+
+define rm_docker_container
+	$(call print_header, "Remove Docker container")
+	$(Q) if [ ! -z ${shell docker ps -a --format "{{.Names}}" --filter name=^/$(PKG_NAME)} ]; then \
+		docker rm -f $(PKG_NAME) > /dev/null ; \
+	fi
 	$(Q) docker ps -a
 endef
 
@@ -304,6 +316,10 @@ run:
                 -v /proc/:/process/:ro \
                 $(DOCKER_IMAGE):$(CONTAINER_VERSION)
 	$(Q) docker container ls
+
+stop:
+	$(call stop_docker_container)
+	$(call rm_docker_container)
 
 test: go.sum
 	$(call print_header, "Build test to calculate Coverage")
