@@ -9,6 +9,8 @@ updates:
       interval: "monthly"
     ignore:
       - dependency-name: "*docker*"
+      - dependency-name: "*edgexfoundry*"
+      - dependency-name: "mock"
     # Allow up to 15 open pull requests for gomod dependencies
     open-pull-requests-limit: 15
 
