@@ -88,12 +88,12 @@ type Clients map[string]Client
 
 // Toml contains the struct for building the DataStorage configuration file.
 type Toml struct {
-	Writable
-	Service
-	Registry
-	Device
-	DeviceList
-	Clients
+	Writable   Writable
+	Service    Service
+	Registry   Registry
+	Device     Device
+	DeviceList DeviceList
+	Clients    Clients
 }
 
 var (
