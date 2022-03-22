@@ -18,13 +18,33 @@
 package config
 
 import (
-	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
+	"io/ioutil"
+	"os"
 	"testing"
 )
 
-var (
-	log = logmgr.GetInstance()
+const (
+	testFilePath = "test.toml"
+	invalidPath  = "wrong.toml"
 )
+
+func createMockFile() {
+	SetWritable("DEBUG")
+	SetService("127.0.0.1", 49986, nil)
+	SetRegistry("127.0.0.1", 8500)
+	SetDevice(true, "", "", 128, 256, "", "", "./res")
+	SetDeviceList("datastorage", "datastorage", "RESTful Device", []string{"rest", "json"})
+	SetClients("127.0.0.1", "http", 5000)
+
+	b, err := TomlMarshal()
+	if err == nil {
+		ioutil.WriteFile(testFilePath, b, 0644)
+	}
+}
+
+func deleteMockFile() {
+	os.Remove(testFilePath)
+}
 
 func TestToml(t *testing.T) {
 	SetWritable("DEBUG")
@@ -34,9 +54,42 @@ func TestToml(t *testing.T) {
 	SetDeviceList("datastorage", "datastorage", "RESTful Device", []string{"rest", "json"})
 	SetClients("127.0.0.1", "http", 5000)
 
-	b, err := TomlMarshal()
+	_, err := TomlMarshal()
 	if err != nil {
-		t.Fatal("Unexpected Error")
+		t.Error("unexpected error")
 	}
-	log.Println(string(b))
+}
+
+func TestGetServerIP(t *testing.T) {
+	createMockFile()
+	t.Run("Success", func(t *testing.T) {
+		host, port, err := GetServerIP(testFilePath)
+		if err != nil || host != "127.0.0.1" || port != 48080 {
+			t.Error("unexpected error")
+		}
+	})
+	t.Run("Fail", func(t *testing.T) {
+		_, _, err := GetServerIP(invalidPath)
+		if err == nil {
+			t.Error("unexpected error")
+		}
+	})
+	deleteMockFile()
+}
+
+func TestGetMetadataServerIP(t *testing.T) {
+	createMockFile()
+	t.Run("Success", func(t *testing.T) {
+		host, port, err := GetMetadataServerIP(testFilePath)
+		if err != nil || host != "127.0.0.1" || port != 48081 {
+			t.Error("unexpected error")
+		}
+	})
+	t.Run("Fail", func(t *testing.T) {
+		_, _, err := GetMetadataServerIP(invalidPath)
+		if err == nil {
+			t.Error("unexpected error")
+		}
+	})
+	deleteMockFile()
 }

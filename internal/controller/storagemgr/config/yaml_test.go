@@ -104,10 +104,8 @@ var (
 func TestYaml(t *testing.T) {
 	SetYaml(testName, testManufacture, testModel, testDescription, testLabel, testResource)
 
-	b, err := YamlMarshal()
+	_, err := YamlMarshal()
 	if err != nil {
 		t.Fatal("Unexpected Error")
 	}
-
-	log.Println(string(b))
 }
