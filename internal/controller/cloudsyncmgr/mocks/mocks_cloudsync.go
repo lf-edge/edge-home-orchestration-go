@@ -22,7 +22,6 @@ package mocks
 
 import (
 	gomock "github.com/golang/mock/gomock"
-	mqttmgr "github.com/lf-edge/edge-home-orchestration-go/internal/common/mqtt"
 	reflect "reflect"
 )
 
@@ -62,7 +61,7 @@ func (_mr *MockCloudSyncMockRecorder) InitiateCloudSync(arg0 interface{}) *gomoc
 }
 
 // RequestPublish mocks base method
-func (_m *MockCloudSync) RequestPublish(host string, clientID string, message mqttmgr.Message, topic string) string {
+func (_m *MockCloudSync) RequestPublish(host string, clientID string, message string, topic string) string {
 	ret := _m.ctrl.Call(_m, "RequestPublish", host)
 	ret0, _ := ret[0].(string)
 	return ret0
@@ -83,4 +82,16 @@ func (_m *MockCloudSync) RequestSubscribe(host string, clientID string, topic st
 // RequestSubscribe indicates an expected call of RequestSubscribe
 func (_mr *MockCloudSyncMockRecorder) RequestSubscribe(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "RequestSubscribe", reflect.TypeOf((*MockCloudSync)(nil).RequestSubscribe), arg0)
+}
+
+// RequestSubscribedData mocks base method
+func (_m *MockCloudSync) RequestSubscribedData(clientID string, topic string) string {
+	ret := _m.ctrl.Call(_m, "RequestSubscribedData", clientID)
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// RequestSubscribedData indicates an expected call of RequestSubscribedData
+func (_mr *MockCloudSyncMockRecorder) RequestSubscribedData(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "RequestSubscribedData", reflect.TypeOf((*MockCloudSync)(nil).RequestSubscribedData), arg0)
 }

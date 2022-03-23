@@ -28,16 +28,16 @@ var port uint = 1883
 const InvalidHost = "invalid"
 
 func initializeTest(Host string, clientID string) {
-	InitClientData()
+	InitMQTTData()
 	StartMQTTClient(Host, clientID, port)
 }
 
 func TestStartMQTTClient(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		initializeTest(Host, "testClient")
-		client := clientData["testClient"]
+		client := publishData["testClient"]
 		if client != nil {
-			message := Message{"appid", "Test data for testing"}
+			message := "Test data for testing"
 			client.Publish(message, "home/livingroom")
 		}
 		err := StartMQTTClient(Host, "testClient", port)
@@ -47,7 +47,7 @@ func TestStartMQTTClient(t *testing.T) {
 		}
 	})
 	t.Run("Fail", func(t *testing.T) {
-		InitClientData()
+		InitMQTTData()
 		err := StartMQTTClient(InvalidHost, "testClientFailure", port)
 		expected := "dial tcp: lookup invalid: Temporary failure in name resolution"
 		if !strings.Contains(err, expected) {
@@ -59,7 +59,7 @@ func TestStartMQTTClient(t *testing.T) {
 func TestCheckforConnection(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		initializeTest(Host, "CheckConnection")
-		client := clientData["CheckConnection"]
+		client := publishData["CheckConnection"]
 		isConnected := checkforConnection(Host, client, port)
 		expected := 0
 		if isConnected != expected {
@@ -71,7 +71,7 @@ func TestCheckforConnection(t *testing.T) {
 
 func TestIsClientConnected(t *testing.T) {
 	t.Run("Fail", func(t *testing.T) {
-		client := clientData["CheckConnection"]
+		client := publishData["CheckConnection"]
 		connStatus := client.IsConnected()
 		expected := false
 		if connStatus != expected {

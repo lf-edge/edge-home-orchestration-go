@@ -25,8 +25,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/gorilla/mux"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
-	mqttmgr "github.com/lf-edge/edge-home-orchestration-go/internal/common/mqtt"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/networkhelper"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/securemgr/verifier"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/db/bolt/common"
@@ -45,6 +45,8 @@ const (
 	cannotDecryption  = "cannot decryption"
 	cannotEncryption  = "cannot encryption"
 	invalidInputParam = "Invalid input parameter"
+	topic             = "topic"
+	clientID          = "clientID"
 )
 
 // Handler struct
@@ -93,6 +95,12 @@ func init() {
 			Method:      strings.ToUpper("Post"),
 			Pattern:     "/api/v1/orchestration/cloudsyncmgr/subscribe",
 			HandlerFunc: handler.APIV1RequestCloudSyncmgrSubscribe,
+		},
+		restinterface.Route{
+			Name:        "APIV1RequestCloudSyncmgrGetSubscribedData",
+			Method:      strings.ToUpper("Get"),
+			Pattern:     "/api/v1/orchestration/cloudsyncmgr/getsubscribedata/{" + topic + "}/{" + clientID + "}",
+			HandlerFunc: handler.APIV1RequestCloudSyncmgrGetSubscribedData,
 		},
 	}
 	handler.netHelper = networkhelper.GetInstance()
@@ -426,20 +434,15 @@ func (h *Handler) APIV1RequestCloudSyncmgrPublish(w http.ResponseWriter, r *http
 		h.helper.Response(w, nil, http.StatusServiceUnavailable)
 		return
 	}
-	publishMessage := mqttmgr.Message{}
 
 	appID, ok := appCommand["appid"].(string)
-	if ok {
-		publishMessage.AppID = appID
-	} else {
+	if !ok {
 		responseMsg = orchestrationapi.InvalidParameter
 		goto SEND_RESP
 	}
 
 	messagePayload, ok = appCommand["payload"].(string)
-	if ok {
-		publishMessage.Payload = messagePayload
-	} else {
+	if !ok {
 		responseMsg = orchestrationapi.InvalidParameter
 		goto SEND_RESP
 	}
@@ -454,7 +457,7 @@ func (h *Handler) APIV1RequestCloudSyncmgrPublish(w http.ResponseWriter, r *http
 		goto SEND_RESP
 	}
 
-	responseMsg = h.api.RequestCloudSyncPublish(host, appID, publishMessage, topic)
+	responseMsg = h.api.RequestCloudSyncPublish(host, appID, messagePayload, topic)
 
 SEND_RESP:
 	respJSONMsg := make(map[string]interface{})
@@ -550,4 +553,50 @@ SEND_RESP:
 
 func (h *Handler) setHelper(helper resthelper.RestHelper) {
 	h.helper = helper
+}
+
+// APIV1RequestCloudSyncmgrGetSubscribedData gets subscribed data for the service application
+func (h *Handler) APIV1RequestCloudSyncmgrGetSubscribedData(w http.ResponseWriter, r *http.Request) {
+	log.Info(logPrefix, "APIV1RequestCloudSyncmgrGetSubscribedData")
+	if !h.isSetAPI {
+		log.Error(logPrefix, doesNotSetAPI)
+		h.helper.Response(w, nil, http.StatusServiceUnavailable)
+		return
+	} else if !h.IsSetKey {
+		log.Error(logPrefix, doesNotSetKey)
+		h.helper.Response(w, nil, http.StatusServiceUnavailable)
+		return
+	}
+
+	reqAddr := strings.Split(r.RemoteAddr, ":")
+	var addr string
+	if strings.Contains(r.RemoteAddr, "::1") {
+		addr = "localhost"
+	} else {
+		addr = reqAddr[0]
+	}
+	ips, err := h.netHelper.GetIPs()
+	if err != nil {
+		h.helper.Response(w, nil, http.StatusServiceUnavailable)
+		return
+	} else if addr != "localhost" && addr != "127.0.0.1" && !common.HasElem(ips, addr) {
+		h.helper.Response(w, nil, http.StatusNotAcceptable)
+		return
+	}
+
+	vars := mux.Vars(r)
+	clientID := vars[clientID]
+	topic := vars[topic]
+	resp := h.api.RequestSubscribedData(clientID, topic)
+	respJSONMsg := make(map[string]interface{})
+	respJSONMsg["Message"] = resp
+	respEncryptBytes, err := h.Key.EncryptJSONToByte(respJSONMsg)
+	if err != nil {
+		log.Error(logPrefix, cannotEncryption)
+		h.helper.Response(w, nil, http.StatusServiceUnavailable)
+		return
+	}
+
+	h.helper.Response(w, respEncryptBytes, http.StatusOK)
+
 }

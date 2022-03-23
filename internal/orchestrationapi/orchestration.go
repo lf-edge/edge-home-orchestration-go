@@ -25,7 +25,6 @@ import (
 
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/commandvalidator"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
-	"github.com/lf-edge/edge-home-orchestration-go/internal/common/mqtt"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/networkhelper"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/requestervalidator"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/resourceutil"
@@ -53,8 +52,9 @@ type Orche interface {
 type OrcheExternalAPI interface {
 	RequestService(serviceInfo ReqeustService) ResponseService
 	verifier.Conf
-	RequestCloudSyncPublish(host string, clientID string, message mqtt.Message, topic string) string
+	RequestCloudSyncPublish(host string, clientID string, message string, topic string) string
 	RequestCloudSyncSubscribe(host string, clientID string, topic string) string
+	RequestSubscribedData(clientID string, topic string) string
 }
 
 // OrcheInternalAPI is the interface implemented by internal REST API
