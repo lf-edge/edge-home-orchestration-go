@@ -156,7 +156,7 @@ func (c *CloudSyncImpl) RequestSubscribe(host string, clientID string, topic str
 			errMsg := fmt.Sprintf("Error in subscribing the data %s", err)
 			resp = errMsg
 		} else {
-			resp = "Sucessfully Subscribed to the topic " + topic
+			resp = "Successfully subscribed to the topic " + topic
 		}
 	}
 	return resp

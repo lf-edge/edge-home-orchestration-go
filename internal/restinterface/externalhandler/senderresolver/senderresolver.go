@@ -30,11 +30,11 @@ import (
 )
 
 const (
-	procNetTCP    = "/proc/net/tcp"
 	wellKnownPort = 56001
 )
 
 var (
+	procNetTCP      = "/proc/net/tcp"
 	processInfoPath = "/process"
 	log             = logmgr.GetInstance()
 )
@@ -72,12 +72,12 @@ func GetNameByPort(port int64) (string, error) {
 			return "", err
 		}
 
-		log.Println("returning: ", process)
+		log.Debug("returning: ", process)
 		return process, nil
 
 	}
 
-	return "", errors.New("not found port")
+	return "", errors.New("port not found")
 }
 
 func getData() ([]string, error) {
