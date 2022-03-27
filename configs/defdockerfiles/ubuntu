@@ -21,7 +21,7 @@ ENV WEB_DIR=web
 COPY $APP_BIN_DIR/$APP_NAME $BUILD_DIR/package/run.sh $TARGET_DIR/
 COPY $APP_QEMU_DIR/ /usr/bin/
 RUN mkdir -p $TARGET_DIR/res/
-COPY $WEB_DIR/static/ $TARGET_DIR/$WEB_DIR/
+COPY $WEB_DIR/$BUILD_DIR/ $TARGET_DIR/$WEB_DIR/
 
 # install required tools
 RUN apt-get update

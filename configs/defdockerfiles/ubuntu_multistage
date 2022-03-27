@@ -40,7 +40,7 @@ WORKDIR $TARGET_DIR
 # copy files
 COPY --from=builder $TARGET_DIR/$APP_BIN_DIR/$APP_NAME $TARGET_DIR/
 COPY --from=builder $TARGET_DIR/$BUILD_DIR/package/run.sh $TARGET_DIR/
-COPY --from=builder $TARGET_DIR/$WEB_DIR/static $TARGET_DIR/$WEB_DIR/
+COPY --from=builder $TARGET_DIR/$WEB_DIR/$BUILD_DIR $TARGET_DIR/$WEB_DIR/
 RUN mkdir -p $TARGET_DIR/res/
 
 # install required tools
