@@ -55,7 +55,7 @@ const (
 	logStr          = "/log"
 	configStr       = "/apps"
 	dbStr           = "/data/db"
-	certificateFile = "/data/cert"
+	certificateFile = "/certs"
 
 	cipherKeyFile = "/user/orchestration_userID.txt"
 	deviceIDFile  = "/device/orchestration_deviceID.txt"

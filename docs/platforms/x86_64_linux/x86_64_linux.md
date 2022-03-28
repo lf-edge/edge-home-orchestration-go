@@ -122,7 +122,7 @@ Note that you can visit [Swagger Editor](https://editor.swagger.io/) to graphica
   - Same network connected among the devices.
   - Same Authentication key in /var/edge-orchestration/user/orchestration_userID.txt
     - To let the Edge Orchestration devices communicate with each other, each devices should have same authentication key in:
-`/var/edge-orchestration/data/cert/edge-orchestration.key` (Any cert file can be authentication key)
+`/var/edge-orchestration/certs/edge-orchestration.key` (Any cert file can be authentication key)
   - Edge Orchestration Docker image
     - Please see the above [How to build](#how-to-build) to know how to build Edge Orchestration Docker image
   - If you use in secure mode, you must [deploy the key infrastructure](../../secure_manager.md#53-generation-key-infrastructure). 
@@ -186,8 +186,8 @@ docker logs -f edge-orchestration
 2019/10/16 07:35:45 discovery.go:371: [deviceDetectionRoutine] netInfo     : IPv4({$discovery_ip_list})
 2019/10/16 07:35:45 discovery.go:372: [deviceDetectionRoutine] serviceInfo : Services([])
 2019/10/16 07:35:45 discovery.go:373: 
-2019/10/16 07:35:45 tls.go:40: SetCertFilePath:  /var/edge-orchestration/data/cert
-2019/10/16 07:35:45 tls.go:40: SetCertFilePath:  /var/edge-orchestration/data/cert
+2019/10/16 07:35:45 tls.go:40: SetCertFilePath:  /var/edge-orchestration/certs
+2019/10/16 07:35:45 tls.go:40: SetCertFilePath:  /var/edge-orchestration/certs
 2019/10/16 07:35:45 route.go:76: {APIV1Ping GET /api/v1/ping 0x8090f0}
 2019/10/16 07:35:45 route.go:76: {APIV1ServicemgrServicesPost POST /api/v1/servicemgr/services 0x809160}
 2019/10/16 07:35:45 route.go:76: {APIV1ServicemgrServicesNotificationServiceIDPost POST /api/v1/servicemgr/services/notification/{serviceid} 0x8091c0}
