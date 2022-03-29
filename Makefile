@@ -64,6 +64,7 @@ CMD_DIR 	:= $(BASE_DIR)/cmd
 CMD_SRC 	:= $(CMD_DIR)/edge-orchestration/main.go
 BIN_DIR 	:= $(BASE_DIR)/bin
 BIN_FILE	:= $(PKG_NAME)
+WEB_DIR 	:= $(BASE_DIR)/web
 
 # Go Library for C-archive
 LIBRARY_NAME		:= liborchestration
@@ -168,6 +169,12 @@ build-object-java:
 	$(GOMOBILE) bind $(GO_MOBILE_LDFLAGS) -o $(ANDROID_LIBRARY_OUT_DIR)/$(ANDROID_LIBRARY_FILE) -target=$(ANDROID_TARGET) -androidapi=23 $(ANDROID_SRC_DIR) || exit 1
 	$(Q) go mod tidy
 	$(Q) ls -al $(ANDROID_LIBRARY_OUT_DIR)
+
+## webui build
+build-webui:
+	$(call print_header, "Build web contents")
+	cd web && npm install && npm run build
+	$(Q) ls -al $(WEB_DIR)
 
 ## edge-orchestration container build
 build_docker_container:
