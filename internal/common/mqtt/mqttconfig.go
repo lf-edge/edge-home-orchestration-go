@@ -51,14 +51,10 @@ type Client struct {
 	protocol string
 }
 
-//Message is used to wrap the app id and payload into one and publish to broker
-type Message struct {
-	AppID   string
-	Payload string
-}
-
 var (
-	clientData map[string]*Client
+	publishData     map[string]*Client
+	subscribeData   map[string]string    //topic-->published data
+	subscribeClient map[string][]*Client //topic-->multiple clients
 )
 
 // Config represents an attribute config setter for the `Client`.
@@ -85,9 +81,11 @@ func SetPort(port uint) Config {
 	}
 }
 
-// InitClientData creates an initialized hashmap
-func InitClientData() {
-	clientData = make(map[string]*Client)
+// InitMQTTData creates an initialized hashmap
+func InitMQTTData() {
+	publishData = make(map[string]*Client)
+	subscribeClient = make(map[string][]*Client)
+	subscribeData = make(map[string]string)
 }
 
 func (c *Client) setProtocol() {
@@ -100,13 +98,34 @@ func (c *Client) setProtocol() {
 
 // CheckifClientExist used to check if the client conn object exist
 func CheckifClientExist(clientID string) *Client {
-	client := clientData[clientID]
+	client := publishData[clientID]
 	return client
 }
 
-// addClientData is used to add the client object based on client id
-func addClientData(client *Client, clientID string) {
-	clientData[clientID] = client
+// addpublishData is used to add the client object based on client id
+func addPublishData(client *Client, clientID string) {
+	publishData[clientID] = client
+}
+
+// addSubscribeClient is used to add the client info for a topic
+func addSubscribeClient(client *Client, topic string) {
+	subscribeClient[topic] = append(subscribeClient[topic], client)
+}
+
+func addSubscribedData(topic string, message string) {
+	subscribeData[topic] = message
+}
+
+//GetSubscribedData is used to get the data for topic subscribed
+func GetSubscribedData(topic string, clientID string) string {
+	list := subscribeClient[topic]
+	for _, client := range list {
+		if client.ID == clientID {
+			return subscribeData[topic]
+		}
+	}
+	return "Client is not subscribed to the topic " + topic
+
 }
 
 //SetBrokerURL returns the broker url for connection

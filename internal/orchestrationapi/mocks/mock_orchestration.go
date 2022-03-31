@@ -22,12 +22,10 @@
 package mocks
 
 import (
-	reflect "reflect"
-
-	"github.com/lf-edge/edge-home-orchestration-go/internal/common/mqtt"
 	configuremgrtypes "github.com/lf-edge/edge-home-orchestration-go/internal/common/types/configuremgrtypes"
 	verifier "github.com/lf-edge/edge-home-orchestration-go/internal/controller/securemgr/verifier"
 	orchestrationapi "github.com/lf-edge/edge-home-orchestration-go/internal/orchestrationapi"
+	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
 )
@@ -105,7 +103,7 @@ func (mr *MockOrcheExternalAPIMockRecorder) RequestService(arg0 interface{}) *go
 }
 
 // RequestCloudSyncPublish mocks base method
-func (m *MockOrcheExternalAPI) RequestCloudSyncPublish(arg0 string, arg1 string, arg2 mqtt.Message, arg3 string) string {
+func (m *MockOrcheExternalAPI) RequestCloudSyncPublish(arg0 string, arg1 string, arg2 string, arg3 string) string {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "RequestCloudSyncPublish", arg0, arg1, arg2, arg3)
 	ret0, _ := ret[0].(string)
@@ -118,7 +116,7 @@ func (mr *MockOrcheExternalAPIMockRecorder) RequestCloudSyncPublish(arg0, arg1 i
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RequestCloudSyncPublish", reflect.TypeOf((*MockOrcheExternalAPI)(nil).RequestCloudSyncPublish), arg0, arg1, arg2, arg3)
 }
 
-// RequestCloudSync mocks base method.
+// RequestCloudSyncSubscribe mocks base method.
 func (m *MockOrcheExternalAPI) RequestCloudSyncSubscribe(arg0 string, arg1 string, arg2 string) string {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "RequestCloudSyncSubscribe", arg0, arg1, arg2)
@@ -126,10 +124,24 @@ func (m *MockOrcheExternalAPI) RequestCloudSyncSubscribe(arg0 string, arg1 strin
 	return ret0
 }
 
-// RequestCloudSync indicates an expected call of RequestService.
+// RequestCloudSyncSubscribe indicates an expected call of RequestCloudSyncSubscribe.
 func (mr *MockOrcheExternalAPIMockRecorder) RequestCloudSyncSubscribe(arg0, arg1 interface{}, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RequestCloudSyncSubscribe", reflect.TypeOf((*MockOrcheExternalAPI)(nil).RequestCloudSyncSubscribe), arg0, arg1, arg2)
+}
+
+// RequestSubscribedData mocks base method.
+func (m *MockOrcheExternalAPI) RequestSubscribedData(arg0 string, arg1 string) string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RequestSubscribedData", arg0, arg1)
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// RequestSubscribedData indicates an expected call of RequestSubscribedData.
+func (mr *MockOrcheExternalAPIMockRecorder) RequestSubscribedData(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RequestSubscribedData", reflect.TypeOf((*MockOrcheExternalAPI)(nil).RequestSubscribedData), arg0, arg1)
 }
 
 // RequestVerifierConf mocks base method.

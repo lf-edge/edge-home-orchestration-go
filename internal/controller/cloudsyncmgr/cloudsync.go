@@ -29,15 +29,17 @@ import (
 )
 
 const (
-	logPrefix = "[cloudsyncmgr] "
+	logPrefix             = "[cloudsyncmgr] "
+	cloudsyncNotActiveLog = "CloudSync is not Active. Please stop the container and rerun the container with cloudsync set"
 )
 
 // CloudSync is the interface for starting Cloud synchronization
 type CloudSync interface {
 	InitiateCloudSync(isCloudSet string) error
 	//implemented by external REST API
-	RequestPublish(host string, clientID string, message mqttmgr.Message, topic string) string
+	RequestPublish(host string, clientID string, message string, topic string) string
 	RequestSubscribe(host string, clientID string, topic string) string
+	RequestSubscribedData(clientID string, topic string) string
 }
 
 //CloudSyncImpl struct
@@ -76,19 +78,19 @@ func (c *CloudSyncImpl) InitiateCloudSync(isCloudSet string) (err error) {
 				}
 			}
 			//Intialize the client and hashmap storing client data
-			mqttmgr.InitClientData()
+			mqttmgr.InitMQTTData()
 		}
 	}
 	return nil
 }
 
 // RequestPublish is  configuration request handler
-func (c *CloudSyncImpl) RequestPublish(host string, clientID string, message mqttmgr.Message, topic string) string {
+func (c *CloudSyncImpl) RequestPublish(host string, clientID string, message string, topic string) string {
 	log.Info(logPrefix, "Publishing the data to the cloud")
 	resp := ""
 	var wg sync.WaitGroup
 	if !isCloudSyncSet {
-		resp = "CloudSync is not Active. Please stop the container and rerun the container with cloudsync set"
+		resp = cloudsyncNotActiveLog
 		return resp
 	}
 	if len(host) == 0 {
@@ -127,7 +129,7 @@ func (c *CloudSyncImpl) RequestSubscribe(host string, clientID string, topic str
 	resp := ""
 	var wg sync.WaitGroup
 	if !isCloudSyncSet {
-		resp = "CloudSync is not Active. Please stop the container and rerun the container with cloudsync set"
+		resp = cloudsyncNotActiveLog
 		return resp
 	}
 	if len(host) == 0 {
@@ -154,8 +156,23 @@ func (c *CloudSyncImpl) RequestSubscribe(host string, clientID string, topic str
 			errMsg := fmt.Sprintf("Error in subscribing the data %s", err)
 			resp = errMsg
 		} else {
-			resp = "Sucessfully Subscribed to the topic" + topic
+			resp = "Sucessfully Subscribed to the topic " + topic
 		}
 	}
+	return resp
+}
+
+// RequestSubscribedData is  to get the subscribed data
+func (c *CloudSyncImpl) RequestSubscribedData(clientID string, topic string) string {
+	log.Info(logPrefix, "Requesting the data for ", logmgr.SanitizeUserInput(topic)) // lgtm [go/log-injection]
+	resp := ""
+	if !isCloudSyncSet {
+		resp = cloudsyncNotActiveLog
+		return resp
+	}
+	if len(topic) == 0 {
+		return "No topic defined"
+	}
+	resp = mqttmgr.GetSubscribedData(topic, clientID)
 	return resp
 }

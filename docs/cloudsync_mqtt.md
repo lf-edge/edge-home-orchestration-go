@@ -132,7 +132,8 @@ The edge-orchestration is build and run using following command with option `CLO
 ```
 docker run -it -d --privileged --network="host" --name edge-orchestration -e CLOUD_SYNC=true -e SECURE=true -v /var/edge-orchestration/:/var/edge-orchestration/:rw -v /var/run/docker.sock:/var/run/docker.sock:rw -v /proc/:/process/:ro  lfedge/edge-home-orchestration-go:latest
 ```
-From the another terminal/post make a curl command as follows to publish data using home edge to the broker running on AWS endpoint
+From another terminal/post, it is recommended to make a curl command as follows to publish data using home edge to the broker running on AWS endpoint<br>
+***Please Note :***  Donot use '/' in topic name field.
 
 ```
 curl --location --request POST 'http://<ip where edge-orchestration is running>:56001/api/v1/orchestration/cloudsyncmgr/publish' \
@@ -141,7 +142,23 @@ curl --location --request POST 'http://<ip where edge-orchestration is running>:
 --data-raw '{
     "appid": "<appid of service app>",
     "payload": "{Another data from TV1 and testdata}",
-    "topic": "home1/livingroom",
+    "topic": "home1-livingroom",
     "url" : "<AWS public IP>"
 }'
+```
+From another terminal/post,it is recommended to make a curl post command as follows to subscribe to topic using home edge to the broker running on AWS endpoint
+
+```
+curl --location --request POST 'http://<ip where edge-orchestration is running>:56001/api/v1/orchestration/cloudsyncmgr/subscribe' \
+--header 'Content-Type: text/plain' \
+--data-raw '{
+    "appid": "<appid of the service app>",
+    "topic": "kitchen1",
+    "url" : "<AWS public IP>"
+}'
+```
+From another terminal/post,it is recommended make a curl get command as follows to get the data received on subscribed topic by passing the clientid(appid) and topic in the request header
+
+```
+curl --location --request GET 'http://<ip where edge-orchestration is running>:56001/api/v1/orchestration/cloudsyncmgr/getsubscribedata/<topicname>/<appid>'
 ```

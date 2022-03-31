@@ -26,7 +26,6 @@ import (
 
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/commandvalidator"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
-	"github.com/lf-edge/edge-home-orchestration-go/internal/common/mqtt"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/networkhelper"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/requestervalidator"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/cloudsyncmgr"
@@ -112,7 +111,8 @@ const (
 	//InternalServerError is key for internal server error
 	InternalServerError = "INTERNAL_SERVER_ERROR"
 	// NotAllowedCommand is key for not allowed command
-	NotAllowedCommand = "NOT_ALLOWED_COMMAND"
+	NotAllowedCommand  = "NOT_ALLOWED_COMMAND"
+	cloudsyncLogPrefix = "[RequestCloudSync]"
 )
 
 var (
@@ -131,15 +131,21 @@ func init() {
 }
 
 //RequestCloudSyncPublish handles the request for cloud syncing
-func (orcheEngine *orcheImpl) RequestCloudSyncPublish(host string, clientID string, message mqtt.Message, topic string) string {
-	log.Info("[RequestCloudSync]", "Requesting cloud sync publish")
+func (orcheEngine *orcheImpl) RequestCloudSyncPublish(host string, clientID string, message string, topic string) string {
+	log.Info(cloudsyncLogPrefix, "Requesting cloud sync publish")
 	return orcheEngine.cloudsyncIns.RequestPublish(host, clientID, message, topic)
 }
 
 //RequestCloudSyncSubscribe handles the request for cloud subscribing
 func (orcheEngine *orcheImpl) RequestCloudSyncSubscribe(host string, clientID string, topic string) string {
-	log.Info("[RequestCloudSync]", "Requesting cloud sync subscribe")
+	log.Info(cloudsyncLogPrefix, "Requesting cloud sync subscribe")
 	return orcheEngine.cloudsyncIns.RequestSubscribe(host, clientID, topic)
+}
+
+//RequestSubscribedData request for the data on subscribed topic
+func (orcheEngine *orcheImpl) RequestSubscribedData(clientID string, topic string) string {
+	log.Info(cloudsyncLogPrefix, "Requesting SubscribedData")
+	return orcheEngine.cloudsyncIns.RequestSubscribedData(clientID, topic)
 }
 
 // RequestService handles service request (ex. offloading) from service application

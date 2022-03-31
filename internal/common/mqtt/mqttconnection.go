@@ -19,7 +19,6 @@
 package mqtt
 
 import (
-	"encoding/json"
 	"time"
 
 	MQTT "github.com/eclipse/paho.mqtt.golang"
@@ -102,7 +101,7 @@ func StartMQTTClient(brokerURL string, clientID string, mqttPort uint) string {
 	} else if mqttClient != nil && ifConn != 0 {
 		//close previous connection and remove from table
 		mqttClient.Disconnect(1)
-		delete(clientData, clientID)
+		delete(publishData, clientID)
 	}
 
 	clientConfig, err := NewClient(
@@ -126,24 +125,19 @@ func StartMQTTClient(brokerURL string, clientID string, mqttPort uint) string {
 		log.Warn(logPrefix, connectErr)
 		return connectErr.Error()
 	}
-	addClientData(clientConfig, clientID)
+	addPublishData(clientConfig, clientID)
 	return ""
 }
 
 //Publish is used to publish the client data to the cloud
-func (client *Client) Publish(message Message, topic string) error {
+func (client *Client) Publish(message string, topic string) error {
 
 	log.Info(logPrefix, "Publishing the data to cloud")
-	payload, err := json.Marshal(message)
-	if err != nil {
-		log.Warn(logPrefix, "Error in Json Marshalling", err)
-		return err
-	}
 	mqttClient := client.Client
 	for mqttClient == nil {
 		time.Sleep(time.Second * 2)
 	}
-	token := mqttClient.Publish(topic, 0, true, payload)
+	token := mqttClient.Publish(topic, 0, true, message)
 	if token.Wait() && token.Error() != nil {
 		return token.Error()
 	}
@@ -154,6 +148,7 @@ func (client *Client) Publish(message Message, topic string) error {
 var messageHandler MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Message) {
 
 	log.Info(logPrefix, "Topic ", msg.Topic(), " registered.. ", string(msg.Payload()), " is the payload")
+	addSubscribedData(msg.Topic(), string(msg.Payload()))
 }
 
 //Subscribe is used to subscribe to a topic
@@ -168,5 +163,6 @@ func (client *Client) Subscribe(topic string) error {
 		return token.Error()
 	}
 	time.Sleep(time.Second)
+	addSubscribeClient(client, topic)
 	return nil
 }
