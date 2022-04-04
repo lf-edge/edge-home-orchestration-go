@@ -38,7 +38,7 @@ internal/controller/discoverymgr/testDB/*
 internal/controller/storagemgr/storagedriver/tests.log
 
 # Certificates
-cert/
+tools/certs/
 
 # VS Code
 .vscode/
