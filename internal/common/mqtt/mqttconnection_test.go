@@ -77,5 +77,17 @@ func TestIsClientConnected(t *testing.T) {
 		if connStatus != expected {
 			t.Errorf("Expected %v but received %v", expected, connStatus)
 		}
+
+		client.Client = nil
+		connStatus = client.IsConnected()
+		if connStatus != expected {
+			t.Errorf("Expected %v but received %v", expected, connStatus)
+		}
+
+		client = nil
+		connStatus = client.IsConnected()
+		if connStatus != expected {
+			t.Errorf("Expected %v but received %v", expected, connStatus)
+		}
 	})
 }

@@ -18,6 +18,8 @@
 package errormsg
 
 import (
+	"errors"
+	"strconv"
 	"strings"
 	"testing"
 )
@@ -28,6 +30,9 @@ func TestToString(t *testing.T) {
 
 	realErrString := ToString("string")
 	assertEqualStr(t, realErrString, "NOT SUPPORT TYPE")
+
+	errErrString := ToString(errors.New(strconv.Itoa(ErrorNoDeviceReturn)))
+	assertEqualStr(t, errErrString, orchestrationErrorString[ErrorNoDeviceReturn*(-1)])
 }
 
 func TestToInt(t *testing.T) {

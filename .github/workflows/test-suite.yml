@@ -24,6 +24,13 @@ jobs:
           echo "$HOME/go/bin" >> $GITHUB_PATH
           sudo mkdir -p /var/edge-orchestration/mnedc
           echo -e 'server-ip: 192.168.0.125\nport: 3334' | sudo tee /var/edge-orchestration/mnedc/client-config.yaml
+          sudo mkdir -p /var/edge-orchestration/certs
+          if [ ! -e /var/edge-orchestration/certs/ca-crt.pem ]; then \
+            cd tools ; ./gen_ca_cert.sh ; sudo cp ./certs/ca-crt.pem /var/edge-orchestration/certs/ ; cd ../ ; \
+          fi
+          if [ ! -e /var/edge-orchestration/certs/hen-crt.pem ]; then \
+            cd tools ; ./gen_hen_cert.sh 1.1.1.1 ; sudo cp ./certs/1.1.1.1/hen-*.pem /var/edge-orchestration/certs/ ; cd ../ ; sudo chmod +r /var/edge-orchestration/certs/hen-key.pem ; \
+          fi
 
       - name: Run the Test Suite
         run: |

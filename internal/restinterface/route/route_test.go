@@ -31,10 +31,14 @@ import (
 	"github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/internalhandler"
 )
 
+const (
+	unexpectedSuccess = "unexpected success"
+	unexpectedFail    = "unexpected fail"
+)
+
 func TestNewRestRouter(t *testing.T) {
-	router := NewRestRouter()
-	if router == nil {
-		t.Error("unexpected return value")
+	if router := NewRestRouter(); router == nil {
+		t.Error(unexpectedFail)
 	}
 }
 
@@ -54,7 +58,7 @@ func TestAdd(t *testing.T) {
 
 	router := NewRestRouter()
 	if router == nil {
-		t.Error("unexpected return nil")
+		t.Error(unexpectedFail)
 		return
 	}
 
@@ -64,16 +68,17 @@ func TestAdd(t *testing.T) {
 	}
 	router.Add(&fakeRouter{})
 	if router.routerInternal != nil || router.routerExternal != nil {
-		t.Error("unexpected not set internal handler")
+		t.Error("unexpected not set internal and external routers")
 	}
 
 	router.Add(internalhandler.GetHandler())
 	if router.routerInternal == nil {
 		t.Error("unexpected not set internal handler")
 	}
+
 	router.Add(externalhandler.GetHandler())
 	if router.routerExternal == nil {
-		t.Error("unexpected not set internal handler")
+		t.Error("unexpected not set external handler")
 	}
 }
 
@@ -98,4 +103,39 @@ func TestNewRestRouterWithCerti(t *testing.T) {
 	if edgeRoute.IsSetCert != true {
 		t.Error("expected certificate is set, but not set")
 	}
+}
+
+func TestStart(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	router := NewRestRouter()
+	if router == nil {
+		t.Error(unexpectedFail)
+		return
+	}
+	router.Start()
+
+	routers := NewRestRouterWithCerti("test")
+	if routers == nil {
+		t.Error(unexpectedFail)
+		return
+	}
+	routers.Start()
+
+	routere := NewRestRouter()
+	if routere == nil {
+		t.Error(unexpectedFail)
+		return
+	}
+	type fakeRouter struct {
+		restinterface.HasRoutes
+		cipher.HasCipher
+	}
+	routere.Add(&fakeRouter{})
+	routere.Add(externalhandler.GetHandler())
+	if routere.routerExternal == nil {
+		t.Error("unexpected not set external handler")
+	}
+	routere.Start()
 }

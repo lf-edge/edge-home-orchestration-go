@@ -21,34 +21,46 @@ import (
 	"testing"
 )
 
+const (
+	testPath          = "/test/testcert/path"
+	unexpectedSuccess = "unexpected success"
+	unexpectedFail    = "unexpected fail"
+)
+
 func TestGetSetCertFilePath(t *testing.T) {
-	testPath := "/test/testcert/path"
-
-	SetCertFilePath(testPath)
-
-	ret := GetCertFilePath()
-	if ret != testPath {
-		t.Error("expect: ", testPath, " returned: ", ret)
-	}
+	t.Run("Success", func(t *testing.T) {
+		SetCertFilePath(testPath)
+		if ret := GetCertFilePath(); ret != testPath {
+			t.Error(unexpectedFail)
+		}
+	})
 }
 
 func TestHasCertificate(t *testing.T) {
-	testHasCertificate := HasCertificate{}
+	t.Run("Success", func(t *testing.T) {
+		testHasCertificate := HasCertificate{}
+		testHasCertificate.SetCertificateFilePath(testPath)
 
-	testPath := "/test/testcert/path"
+		if ret := testHasCertificate.GetCertificateFilePath(); ret != testPath {
+			t.Error(unexpectedFail)
+		} else if testHasCertificate.IsSetCert != true {
+			t.Error(unexpectedFail)
+		}
 
-	testHasCertificate.SetCertificateFilePath(testPath)
+		testHasCertificate.IsSetCert = false
 
-	ret := testHasCertificate.GetCertificateFilePath()
-	if ret != testPath {
-		t.Error("expect: ", testPath, " returned: ", ret)
-	} else if testHasCertificate.IsSetCert != true {
-		t.Error("expect certificate key is set, but not set")
-	}
+		if ret := testHasCertificate.GetCertificateFilePath(); ret != "" {
+			t.Error(unexpectedSuccess)
+		}
+	})
+}
 
-	testHasCertificate.IsSetCert = false
-	ret = testHasCertificate.GetCertificateFilePath()
-	if ret != "" {
-		t.Error("unexpected value: ")
-	}
+func TestSetHandler(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
+		handlerTest := new(Handler)
+		SetHandler(handlerTest)
+		if handler != handlerTest {
+			t.Error(unexpectedFail)
+		}
+	})
 }

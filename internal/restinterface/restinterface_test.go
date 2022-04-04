@@ -16,3 +16,25 @@
  *******************************************************************************/
 
 package restinterface
+
+import (
+	"net/http"
+	"testing"
+)
+
+const (
+	unexpectedSuccess = "unexpected success"
+	unexpectedFail    = "unexpected fail"
+)
+
+func TestGetRoutes(t *testing.T) {
+	hasRouter := new(HasRoutes)
+	route1handler := func(w http.ResponseWriter, r *http.Request) {}
+
+	hasRouter.Routes = Routes{
+		Route{Name: "route1", Method: "GET", Pattern: "/api/v1/route1", HandlerFunc: route1handler},
+	}
+	if hasRouter1 := hasRouter.GetRoutes(); hasRouter1 == nil {
+		t.Error(unexpectedFail)
+	}
+}
