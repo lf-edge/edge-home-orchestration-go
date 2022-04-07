@@ -36,6 +36,7 @@ import (
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/securemgr/verifier"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/servicemgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/servicemgr/executor/androidexecutor"
+	storagemgr "github.com/lf-edge/edge-home-orchestration-go/internal/controller/storagemgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/db/bolt/wrapper"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/orchestrationapi"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/cipher/dummy"
@@ -191,6 +192,7 @@ func OrchestrationInit(executeCallback ExecuteCallback, edgeDir string, isSecure
 
 	builder := orchestrationapi.OrchestrationBuilder{}
 	builder.SetWatcher(configuremgr.GetInstance(configPath, executionType))
+	builder.SetStorage(storagemgr.GetInstance())
 	builder.SetDiscovery(discoverymgr.GetInstance())
 	builder.SetVerifierConf(verifier.GetInstance())
 	builder.SetScoring(scoringmgr.GetInstance())
