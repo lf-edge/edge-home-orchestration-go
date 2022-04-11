@@ -213,6 +213,7 @@ clean: go.sum
 	$(Q) -rm -rf $(ANDROID_LIBRARY_OUT_DIR)
 	$(Q) -rm -rf $(BASE_DIR)/bin/$(PKG_NAME)*
 	$(Q) -rm -rf $(BASE_DIR)/coverage.out
+	$(Q) -rm -rf $(BASE_DIR)/coverage.html
 	$(Q) make -C examples/native clean
 
 distclean: clean
