@@ -61,7 +61,7 @@ func (_mr *MockCloudSyncMockRecorder) InitiateCloudSync(arg0 interface{}) *gomoc
 }
 
 // RequestPublish mocks base method
-func (_m *MockCloudSync) RequestPublish(host string, clientID string, message string, topic string) string {
+func (_m *MockCloudSync) RequestPublish(host string, appID string, message string, topic string) string {
 	ret := _m.ctrl.Call(_m, "RequestPublish", host)
 	ret0, _ := ret[0].(string)
 	return ret0
@@ -73,7 +73,7 @@ func (_mr *MockCloudSyncMockRecorder) RequestPublish(arg0 interface{}) *gomock.C
 }
 
 // RequestSubscribe mocks base method
-func (_m *MockCloudSync) RequestSubscribe(host string, clientID string, topic string) string {
+func (_m *MockCloudSync) RequestSubscribe(host string, appID string, topic string) string {
 	ret := _m.ctrl.Call(_m, "RequestSubscribe", host)
 	ret0, _ := ret[0].(string)
 	return ret0
@@ -85,8 +85,8 @@ func (_mr *MockCloudSyncMockRecorder) RequestSubscribe(arg0 interface{}) *gomock
 }
 
 // RequestSubscribedData mocks base method
-func (_m *MockCloudSync) RequestSubscribedData(clientID string, topic string) string {
-	ret := _m.ctrl.Call(_m, "RequestSubscribedData", clientID)
+func (_m *MockCloudSync) RequestSubscribedData(appID string, topic string, host string) string {
+	ret := _m.ctrl.Call(_m, "RequestSubscribedData", appID)
 	ret0, _ := ret[0].(string)
 	return ret0
 }

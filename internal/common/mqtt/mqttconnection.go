@@ -74,36 +74,29 @@ func (client *Client) IsConnected() bool {
 // Disconnect disconnects the connection
 func (client *Client) Disconnect(quiesce uint) {
 	log.Info(logPrefix, "Disconnect requested from client")
-	if client.Client != nil {
+	if client != nil && client.Client != nil {
 		client.Client.Disconnect(quiesce)
 	}
 }
 
 // StartMQTTClient is used to initiate the client and set the configuration
-func StartMQTTClient(brokerURL string, clientID string, mqttPort uint) string {
+func StartMQTTClient(brokerURL string, appID string, mqttPort uint) string {
 	log.Info(logPrefix, "Starting the MQTT Client")
 	//Check if the client connection exist
-	mqttClient := CheckifClientExist(clientID)
-	// Check if the connection exist for same url
-	ifConn := checkforConnection(brokerURL, mqttClient, mqttPort)
-	if mqttClient != nil && ifConn == 0 {
-		log.Info(logPrefix, "Connection Object exist", mqttClient)
-		if mqttClient.IsConnected() {
-			log.Info(logPrefix, "Client is already connected")
-			return ""
+	mqttClient := CheckifClientExist(brokerURL)
+	if mqttClient != nil {
+		log.Info(logPrefix, "Client is already connected")
+		//add it to URL Data if not present
+		clientList := URLData[brokerURL]
+		for _, id := range clientList {
+			if id == appID {
+				return ""
+			}
 		}
-		connectErr := mqttClient.Connect()
-		if connectErr != nil {
-			log.Warn(logPrefix, connectErr)
-			return connectErr.Error()
-		}
-
-	} else if mqttClient != nil && ifConn != 0 {
-		//close previous connection and remove from table
-		mqttClient.Disconnect(1)
-		delete(publishData, clientID)
+		URLData[brokerURL] = append(URLData[brokerURL], appID)
+		return ""
 	}
-
+	//new client object is created to add to MQTTClient and connection is established and added to URLData
 	clientConfig, err := NewClient(
 		SetHost(brokerURL),
 		SetPort(uint(mqttPort)),
@@ -125,7 +118,9 @@ func StartMQTTClient(brokerURL string, clientID string, mqttPort uint) string {
 		log.Warn(logPrefix, connectErr)
 		return connectErr.Error()
 	}
-	addPublishData(clientConfig, clientID)
+	MQTTClient[brokerURL] = clientConfig
+	URLData[brokerURL] = append(URLData[brokerURL], appID)
+	//log.Info(logPrefix, URLData[brokerURL])
 	return ""
 }
 
@@ -152,7 +147,7 @@ var messageHandler MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Messa
 }
 
 //Subscribe is used to subscribe to a topic
-func (client *Client) Subscribe(topic string) error {
+func (client *Client) Subscribe(topic string, appID string) error {
 	log.Info(logPrefix, "Subscribing to ", logmgr.SanitizeUserInput(topic)) // lgtm [go/log-injection]
 	mqttClient := client.Client
 	for mqttClient == nil {
@@ -163,6 +158,6 @@ func (client *Client) Subscribe(topic string) error {
 		return token.Error()
 	}
 	time.Sleep(time.Second)
-	addSubscribeClient(client, topic)
+	addSubscribeClient(appID, topic, client.Host)
 	return nil
 }
