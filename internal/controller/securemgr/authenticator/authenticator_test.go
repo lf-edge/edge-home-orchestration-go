@@ -17,6 +17,7 @@
 package authenticator
 
 import (
+	"io/ioutil"
 	"os"
 	"testing"
 )
@@ -25,6 +26,17 @@ const (
 	fakejwtPath     = "fakejwt"
 	fakejwtFilePath = fakejwtPath + "/" + passPhraseJWTFileName
 )
+
+const fakejwtpubKey = `
+-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA0qFs/QpUuZx8mjysmY7M
+rt9PL6GBwgyl+yh5NrBM5P+SmTC0epfF+o/2vQcRvx0ensi37uFAYPZhVa712Bte
+a/ID5c7usRlqPkIHpHd4DImdZd8EvGBEJolutHDv62qa4cqVOOCpkFXWDMSewxoY
+ND0zGk7OFI7D8ttkUsvectjXW2tHRkHTcaj65NLBHA4HNGR9p8MHV1FIgWF7aZU6
+SQBiuaHzBMhZlWL+OEa4kVTl//kpaMFwvGB7Jis4og9LUPZx0bZXxVGVz0Wqe5L5
+D05zqiDCvS6Tkoc9gtNrFMmzuysnrXLrewWhqVewLatN/wBHndc8MsvugV1phqvL
+4QIDAQAB
+-----END PUBLIC KEY-----`
 
 func TestInit(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
@@ -54,6 +66,19 @@ func TestInit(t *testing.T) {
 		if _, err := os.Stat(fakejwtFilePath); os.IsNotExist(err) {
 			t.Error(err.Error())
 		}
+
+		err := ioutil.WriteFile(fakejwtPath+"/"+pubKeyPath, []byte(fakejwtpubKey), 0666)
+		if err != nil {
+			t.Error(err.Error())
+		}
+		Init(fakejwtPath)
+		os.RemoveAll(fakejwtPath + "/" + pubKeyPath)
+
+		err = ioutil.WriteFile(fakejwtPath+"/"+pubKeyPath, []byte(""), 0666)
+		if err != nil {
+			t.Error(err.Error())
+		}
+		Init(fakejwtPath)
 	})
 	t.Run("Error", func(t *testing.T) {
 		defer func() {

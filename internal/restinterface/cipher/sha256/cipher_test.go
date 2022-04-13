@@ -18,20 +18,43 @@ package sha256
 
 import (
 	"encoding/json"
+	"io/ioutil"
+	"os"
 	"strings"
 	"testing"
 )
 
 var ec *Cipher
 
+const (
+	fakeCipherKeyFile = "fakecipherkey"
+	unexpectedSuccess = "unexpected success"
+	unexpectedFail    = "unexpected fail"
+)
+
 func TestGetCipher(t *testing.T) {
-	c := GetCipher("")
-	data := []byte("I love you !!")
-	_, err := c.EncryptByte(data)
-	log.Println(err)
-	if err == nil {
-		t.Error()
-	}
+	t.Run("Success", func(t *testing.T) {
+		defer os.RemoveAll(fakeCipherKeyFile)
+
+		err := ioutil.WriteFile(fakeCipherKeyFile, []byte("edge-orchestration"), 0666)
+		if err != nil {
+			t.Error(err.Error())
+		}
+		c := GetCipher(fakeCipherKeyFile)
+		data := []byte("I love you !!")
+		_, err = c.EncryptByte(data)
+		if err != nil {
+			t.Error(err.Error())
+		}
+	})
+	t.Run("Fail", func(t *testing.T) {
+		c := GetCipher("")
+		data := []byte("I love you !!")
+		_, err := c.EncryptByte(data)
+		if err == nil {
+			t.Error()
+		}
+	})
 }
 
 func TestEncryptDecryptByte(t *testing.T) {

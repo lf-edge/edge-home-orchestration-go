@@ -45,16 +45,16 @@ var (
 
 // GetCipher set passphrase for ciphering
 func GetCipher(cipherKeyFilePath string) c.IEdgeCipherer {
-	sHA256Cipher := new(Cipher)
+	SHA256Cipher := new(Cipher)
 	passphrase, err := ioutil.ReadFile(cipherKeyFilePath)
 	if err != nil {
-		sHA256Cipher.passphrase = []byte{}
-		log.Println("len :", len(sHA256Cipher.passphrase))
+		SHA256Cipher.passphrase = []byte{}
+		log.Println("len :", len(SHA256Cipher.passphrase))
 		log.Println("can't read passphrase key from keyFilePath - ", err)
 	} else {
-		sHA256Cipher.passphrase = passphrase
+		SHA256Cipher.passphrase = passphrase
 	}
-	return sHA256Cipher
+	return SHA256Cipher
 }
 
 // EncryptByte encrypts from []byte to []byte

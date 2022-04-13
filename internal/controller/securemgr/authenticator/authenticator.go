@@ -96,7 +96,7 @@ func Init(passPhraseJWTPath string) {
 	} else {
 		verifyKey, err = jwt.ParseRSAPublicKeyFromPEM(verifyBytes)
 		if err != nil {
-			log.Fatal(err)
+			log.Error(err)
 		} else {
 			rsaKeyInitialized = true
 		}

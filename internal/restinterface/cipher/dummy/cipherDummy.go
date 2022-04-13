@@ -43,7 +43,7 @@ func GetCipher(cipherKeyFilePath string) c.IEdgeCipherer {
 	passphrase, err := ioutil.ReadFile(cipherKeyFilePath)
 	if err != nil {
 		dummyCipher.passphrase = []byte{}
-		log.Println("can't read passphrase key from keyFilePath - ", err)
+		log.Info("can't read passphrase key from keyFilePath - ", err)
 	} else {
 		dummyCipher.passphrase = passphrase
 	}
