@@ -26,6 +26,7 @@ import (
 
 	networkhelper "github.com/lf-edge/edge-home-orchestration-go/internal/common/networkhelper/mocks"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/requestervalidator"
+	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/securemgr/verifier"
 	orchestrationapi "github.com/lf-edge/edge-home-orchestration-go/internal/orchestrationapi"
 	orchemock "github.com/lf-edge/edge-home-orchestration-go/internal/orchestrationapi/mocks"
 	ciphermock "github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/cipher/mocks"
@@ -289,6 +290,171 @@ func TestAPIV1RequestServicePost(t *testing.T) {
 	})
 }
 
+func getReqeustSecureArgs() (verifier.RequestVerifierConf, map[string]interface{}) {
+	cmdType := "addHashCWL"
+	descInfo := make([]verifier.RequestDescInfo, 1)
+	descInfo[0].ContainerHash = "fc6a51919cfeb2e6763f62b6d9e8815acbf7cd2e476ea353743570610737b752"
+	requestVerifier := verifier.RequestVerifierConf{
+		CmdType: "addHashCWL",
+		Desc:    descInfo,
+	}
+
+	dInfo := make(map[string]interface{})
+	dInfo["ContainerHash"] = "fc6a51919cfeb2e6763f62b6d9e8815acbf7cd2e476ea353743570610737b752"
+
+	dInfos := make([]interface{}, 1)
+	dInfos[0] = dInfo
+
+	appCommand := make(map[string]interface{})
+	appCommand["CmdType"] = cmdType
+	appCommand["Desc"] = dInfos
+
+	return requestVerifier, appCommand
+}
+
+func TestAPIV1RequestSecuremgrPost(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	handler := GetHandler()
+	if handler == nil {
+		t.Error("unexpected return value")
+	}
+
+	mockOrchestration := orchemock.NewMockOrcheExternalAPI(ctrl)
+	mockCipher := ciphermock.NewMockIEdgeCipherer(ctrl)
+	mockHelper := helpermock.NewMockRestHelper(ctrl)
+	mockNetHelper := networkhelper.NewMockNetwork(ctrl)
+
+	r := httptest.NewRequest("POST", "http://localhost:1234", nil)
+	w := httptest.NewRecorder()
+
+	addr := strings.Split(r.RemoteAddr, ":")[0]
+
+	t.Run("Error", func(t *testing.T) {
+		t.Run("IsNotSetApi", func(t *testing.T) {
+			handler.setHelper(mockHelper)
+			mockHelper.EXPECT().Response(gomock.Any(), gomock.Any(), gomock.Eq(http.StatusServiceUnavailable))
+
+			handler.isSetAPI = false
+			handler.APIV1RequestSecuremgrPost(w, r)
+		})
+		t.Run("IsNotSetKey", func(t *testing.T) {
+			handler.SetOrchestrationAPI(mockOrchestration)
+			handler.setHelper(mockHelper)
+			mockHelper.EXPECT().Response(gomock.Any(), gomock.Any(), gomock.Eq(http.StatusServiceUnavailable))
+
+			handler.IsSetKey = false
+			handler.APIV1RequestSecuremgrPost(w, r)
+		})
+		t.Run("DecryptionFail", func(t *testing.T) {
+			handler.SetCipher(mockCipher)
+			handler.SetOrchestrationAPI(mockOrchestration)
+			handler.setHelper(mockHelper)
+			handler.netHelper = mockNetHelper
+
+			gomock.InOrder(
+				mockNetHelper.EXPECT().GetIPs().Return([]string{addr}, nil),
+				mockCipher.EXPECT().DecryptByteToJSON(gomock.Any()).Return(nil, errors.New("")),
+				mockHelper.EXPECT().Response(gomock.Any(), gomock.Any(), gomock.Eq(http.StatusServiceUnavailable)),
+			)
+
+			handler.APIV1RequestSecuremgrPost(w, r)
+		})
+		t.Run("EncryptionFail", func(t *testing.T) {
+			handler.SetCipher(mockCipher)
+			handler.SetOrchestrationAPI(mockOrchestration)
+			handler.setHelper(mockHelper)
+			handler.netHelper = mockNetHelper
+
+			requestVerifier, appCommand := getReqeustSecureArgs()
+
+			gomock.InOrder(
+				mockNetHelper.EXPECT().GetIPs().Return([]string{addr}, nil),
+				mockCipher.EXPECT().DecryptByteToJSON(gomock.Any()).Return(appCommand, nil),
+				mockOrchestration.EXPECT().RequestVerifierConf(gomock.Eq(requestVerifier)),
+				mockCipher.EXPECT().EncryptJSONToByte(gomock.Any()).Return(nil, errors.New("")),
+				mockHelper.EXPECT().Response(gomock.Any(), gomock.Any(), gomock.Eq(http.StatusServiceUnavailable)),
+			)
+
+			handler.APIV1RequestSecuremgrPost(w, r)
+		})
+		t.Run("InvalidParam", func(t *testing.T) {
+			t.Run("Desc", func(t *testing.T) {
+				handler.SetCipher(mockCipher)
+				handler.SetOrchestrationAPI(mockOrchestration)
+				handler.setHelper(mockHelper)
+				handler.netHelper = mockNetHelper
+
+				_, appCommand := getReqeustSecureArgs()
+				delete(appCommand, "Desc")
+
+				gomock.InOrder(
+					mockNetHelper.EXPECT().GetIPs().Return([]string{addr}, nil),
+					mockCipher.EXPECT().DecryptByteToJSON(gomock.Any()).Return(appCommand, nil),
+					mockCipher.EXPECT().EncryptJSONToByte(gomock.Any()).Do(func(resp map[string]interface{}) {
+						if resp["Message"] != verifier.InvalidParameter {
+							t.Error("unexpected response")
+						}
+					}).Return(nil, nil),
+					mockHelper.EXPECT().Response(gomock.Any(), gomock.Any(), gomock.Eq(http.StatusOK)),
+				)
+
+				handler.APIV1RequestSecuremgrPost(w, r)
+			})
+			t.Run("ContainerHash", func(t *testing.T) {
+				handler.SetCipher(mockCipher)
+				handler.SetOrchestrationAPI(mockOrchestration)
+				handler.setHelper(mockHelper)
+				handler.netHelper = mockNetHelper
+
+				_, appCommand := getReqeustSecureArgs()
+				tmp := appCommand["Desc"].([]interface{})
+				descInfo := tmp[0].(map[string]interface{})
+				delete(descInfo, "ContainerHash")
+
+				gomock.InOrder(
+					mockNetHelper.EXPECT().GetIPs().Return([]string{addr}, nil),
+					mockCipher.EXPECT().DecryptByteToJSON(gomock.Any()).Return(appCommand, nil),
+					mockCipher.EXPECT().EncryptJSONToByte(gomock.Any()).Do(func(resp map[string]interface{}) {
+						if resp["Message"] != verifier.InvalidParameter {
+							t.Error("unexpected response")
+						}
+					}).Return(nil, nil),
+					mockHelper.EXPECT().Response(gomock.Any(), gomock.Any(), gomock.Eq(http.StatusOK)),
+				)
+
+				handler.APIV1RequestSecuremgrPost(w, r)
+			})
+			t.Run("ContainerHashFail", func(t *testing.T) {
+				handler.SetCipher(mockCipher)
+				handler.SetOrchestrationAPI(mockOrchestration)
+				handler.setHelper(mockHelper)
+				handler.netHelper = mockNetHelper
+
+				_, appCommand := getReqeustSecureArgs()
+				tmp := appCommand["Desc"].([]interface{})
+				descInfo := tmp[0].(map[string]interface{})
+				descInfo["ContainerHash"] = "fc6a51919cfeb2e6763f62b6d9e8815acbf7cd2e476ea353743570610737b75g"
+
+				gomock.InOrder(
+					mockNetHelper.EXPECT().GetIPs().Return([]string{addr}, nil),
+					mockCipher.EXPECT().DecryptByteToJSON(gomock.Any()).Return(appCommand, nil),
+					mockCipher.EXPECT().EncryptJSONToByte(gomock.Any()).Do(func(resp map[string]interface{}) {
+						if resp["Message"] != verifier.InvalidParameter {
+							t.Error("unexpected response")
+						}
+					}).Return(nil, nil),
+					mockHelper.EXPECT().Response(gomock.Any(), gomock.Any(), gomock.Eq(http.StatusOK)),
+				)
+
+				handler.APIV1RequestSecuremgrPost(w, r)
+			})
+
+		})
+	})
+}
+
 func TestAPIV1RequestCloudSyncmgrPublish(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -405,6 +571,147 @@ func TestAPIV1RequestCloudSyncmgrPublish(t *testing.T) {
 
 				handler.APIV1RequestCloudSyncmgrPublish(w, r)
 			})
+		})
+	})
+}
+
+func TestAPIV1RequestCloudSyncmgrSubscribe(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	handler := GetHandler()
+	if handler == nil {
+		t.Error("unexpected return value")
+	}
+
+	mockOrchestration := orchemock.NewMockOrcheExternalAPI(ctrl)
+	mockCipher := ciphermock.NewMockIEdgeCipherer(ctrl)
+	mockHelper := helpermock.NewMockRestHelper(ctrl)
+	mockNetHelper := networkhelper.NewMockNetwork(ctrl)
+
+	r := httptest.NewRequest("POST", "http://localhost:1234", nil)
+	w := httptest.NewRecorder()
+
+	addr := strings.Split(r.RemoteAddr, ":")[0]
+
+	t.Run("Error", func(t *testing.T) {
+		t.Run("IsNotSetApi", func(t *testing.T) {
+			handler.setHelper(mockHelper)
+			mockHelper.EXPECT().Response(gomock.Any(), gomock.Any(), gomock.Eq(http.StatusServiceUnavailable))
+
+			handler.isSetAPI = false
+			handler.APIV1RequestCloudSyncmgrSubscribe(w, r)
+		})
+		t.Run("IsNotSetKey", func(t *testing.T) {
+			handler.SetOrchestrationAPI(mockOrchestration)
+			handler.setHelper(mockHelper)
+			mockHelper.EXPECT().Response(gomock.Any(), gomock.Any(), gomock.Eq(http.StatusServiceUnavailable))
+
+			handler.IsSetKey = false
+			handler.APIV1RequestCloudSyncmgrSubscribe(w, r)
+		})
+		t.Run("InvalidParam", func(t *testing.T) {
+			t.Run("ServiceName", func(t *testing.T) {
+				handler.SetCipher(mockCipher)
+				handler.SetOrchestrationAPI(mockOrchestration)
+				handler.setHelper(mockHelper)
+				handler.netHelper = mockNetHelper
+
+				appCommand, _ := getCloudsynRequestArgs()
+				delete(appCommand, "appid")
+
+				gomock.InOrder(
+					mockNetHelper.EXPECT().GetIPs().Return([]string{addr}, nil),
+					mockCipher.EXPECT().DecryptByteToJSON(gomock.Any()).Return(appCommand, nil),
+					mockCipher.EXPECT().EncryptJSONToByte(gomock.Any()).Do(func(resp map[string]interface{}) {
+						if resp["Message"] != orchestrationapi.InvalidParameter {
+							t.Error("unexpected response")
+						}
+					}).Return(nil, nil),
+					mockHelper.EXPECT().Response(gomock.Any(), gomock.Any(), gomock.Eq(http.StatusOK)),
+				)
+
+				handler.APIV1RequestCloudSyncmgrSubscribe(w, r)
+			})
+			t.Run("topic", func(t *testing.T) {
+				handler.SetCipher(mockCipher)
+				handler.SetOrchestrationAPI(mockOrchestration)
+				handler.setHelper(mockHelper)
+				handler.netHelper = mockNetHelper
+
+				appCommand, _ := getCloudsynRequestArgs()
+				delete(appCommand, "topic")
+
+				gomock.InOrder(
+					mockNetHelper.EXPECT().GetIPs().Return([]string{addr}, nil),
+					mockCipher.EXPECT().DecryptByteToJSON(gomock.Any()).Return(appCommand, nil),
+					mockCipher.EXPECT().EncryptJSONToByte(gomock.Any()).Do(func(resp map[string]interface{}) {
+						if resp["Message"] != orchestrationapi.InvalidParameter {
+							t.Error("unexpected response")
+						}
+					}).Return(nil, nil),
+					mockHelper.EXPECT().Response(gomock.Any(), gomock.Any(), gomock.Eq(http.StatusOK)),
+				)
+
+				handler.APIV1RequestCloudSyncmgrSubscribe(w, r)
+			})
+			t.Run("url", func(t *testing.T) {
+				handler.SetCipher(mockCipher)
+				handler.SetOrchestrationAPI(mockOrchestration)
+				handler.setHelper(mockHelper)
+				handler.netHelper = mockNetHelper
+
+				appCommand, _ := getCloudsynRequestArgs()
+
+				delete(appCommand, "url")
+
+				gomock.InOrder(
+					mockNetHelper.EXPECT().GetIPs().Return([]string{addr}, nil),
+					mockCipher.EXPECT().DecryptByteToJSON(gomock.Any()).Return(appCommand, nil),
+					mockCipher.EXPECT().EncryptJSONToByte(gomock.Any()).Do(func(resp map[string]interface{}) {
+						if resp["Message"] != orchestrationapi.InvalidParameter {
+							t.Error("unexpected response")
+						}
+					}).Return(nil, nil),
+					mockHelper.EXPECT().Response(gomock.Any(), gomock.Any(), gomock.Eq(http.StatusOK)),
+				)
+
+				handler.APIV1RequestCloudSyncmgrSubscribe(w, r)
+			})
+		})
+	})
+}
+
+func TestAPIV1RequestCloudSyncmgrGetSubscribedData(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	handler := GetHandler()
+	if handler == nil {
+		t.Error("unexpected return value")
+	}
+
+	mockOrchestration := orchemock.NewMockOrcheExternalAPI(ctrl)
+	mockHelper := helpermock.NewMockRestHelper(ctrl)
+
+	r := httptest.NewRequest("POST", "http://localhost:1234", nil)
+	w := httptest.NewRecorder()
+
+	t.Run("Error", func(t *testing.T) {
+		t.Run("IsNotSetApi", func(t *testing.T) {
+			handler.setHelper(mockHelper)
+			mockHelper.EXPECT().Response(gomock.Any(), gomock.Any(), gomock.Eq(http.StatusServiceUnavailable))
+
+			handler.isSetAPI = false
+			handler.APIV1RequestCloudSyncmgrGetSubscribedData(w, r)
+		})
+		t.Run("IsNotSetKey", func(t *testing.T) {
+			handler.SetOrchestrationAPI(mockOrchestration)
+			handler.setHelper(mockHelper)
+			mockHelper.EXPECT().Response(gomock.Any(), gomock.Any(), gomock.Eq(http.StatusServiceUnavailable))
+
+			handler.IsSetKey = false
+			handler.APIV1RequestCloudSyncmgrGetSubscribedData(w, r)
 		})
 	})
 }
