@@ -19,80 +19,124 @@ package dummy
 
 import (
 	"encoding/json"
+	"io/ioutil"
+	"os"
 	"strings"
 	"testing"
 )
 
+const (
+	fakeCipherKeyFile = "fakecipherkey"
+	unexpectedSuccess = "unexpected success"
+	unexpectedFail    = "unexpected fail"
+)
+
 func TestGetCipher(t *testing.T) {
-	c := GetCipher("")
-	data := []byte("I love you !!")
-	_, err := c.EncryptByte(data)
-	log.Println(err)
-	if err != nil {
-		t.Error()
-	}
+	t.Run("Success", func(t *testing.T) {
+		defer os.RemoveAll(fakeCipherKeyFile)
+
+		err := ioutil.WriteFile(fakeCipherKeyFile, []byte("edge-orchestration"), 0666)
+		if err != nil {
+			t.Error(err.Error())
+		}
+		c := GetCipher(fakeCipherKeyFile)
+		data := []byte("I love you !!")
+		_, err = c.EncryptByte(data)
+		if err != nil {
+			t.Error(err.Error())
+		}
+	})
+	t.Run("Fail", func(t *testing.T) {
+		c := GetCipher("")
+		data := []byte("I love you !!")
+		_, err := c.EncryptByte(data)
+		if err != nil {
+			t.Error(err.Error())
+		}
+	})
 }
 
 func TestDummyEncryptDecryptByte(t *testing.T) {
-	ec := Cipher{}
-	ec.passphrase = []byte("edge-orchestration")
+	t.Run("Success", func(t *testing.T) {
+		ec := Cipher{}
+		ec.passphrase = []byte("edge-orchestration")
 
-	data := []byte("I love you !!")
-	encryptedByte, err := ec.EncryptByte(data)
+		data := []byte("I love you !!")
+		encryptedByte, err := ec.EncryptByte(data)
 
-	errCheck(t, err)
-	if len(encryptedByte) == 0 {
-		t.Error(err)
-	} else {
-		log.Println("passphrase: ", string(ec.passphrase))
-		log.Println(encryptedByte)
-	}
+		errCheck(t, err)
+		if len(encryptedByte) == 0 {
+			t.Error(err)
+		} else {
+			log.Println("passphrase: ", string(ec.passphrase))
+			log.Println(encryptedByte)
+		}
 
-	decryptedByte, err := ec.DecryptByte(encryptedByte)
+		decryptedByte, err := ec.DecryptByte(encryptedByte)
 
-	errCheck(t, err)
-	if len(decryptedByte) == 0 {
-		t.Error(err)
-	} else {
-		log.Println(decryptedByte)
-		log.Println(string(decryptedByte))
-	}
+		errCheck(t, err)
+		if len(decryptedByte) == 0 {
+			t.Error(err)
+		} else {
+			log.Println(decryptedByte)
+			log.Println(string(decryptedByte))
+		}
 
-	assertEqualByteSlice(t, data, decryptedByte)
+		assertEqualByteSlice(t, data, decryptedByte)
+	})
+	t.Run("Success", func(t *testing.T) {
+		ec := Cipher{}
+		ec.passphrase = []byte("edge-orchestration")
+
+		_, err := ec.DecryptByte([]byte(""))
+		if err == nil {
+			t.Error(err.Error())
+		}
+	})
 }
 
 func TestDummyEncryptDecryptByteJsonMap(t *testing.T) {
-	ec := Cipher{}
-	ec.passphrase = []byte("edge-orchestration")
+	t.Run("Success", func(t *testing.T) {
+		ec := Cipher{}
+		ec.passphrase = []byte("edge-orchestration")
 
-	doc := `{"member":7,"project":"edge-orchestration"}`
+		doc := `{"member":7,"project":"edge-orchestration"}`
 
-	var jsonMap map[string]interface{}
+		var jsonMap map[string]interface{}
 
-	json.Unmarshal([]byte(doc), &jsonMap)
+		json.Unmarshal([]byte(doc), &jsonMap)
 
-	encryptedByte, err := ec.EncryptJSONToByte(jsonMap)
-	errCheck(t, err)
-	if len(encryptedByte) == 0 {
-		t.Error(err)
-	} else {
-		log.Println(encryptedByte)
-	}
+		encryptedByte, err := ec.EncryptJSONToByte(jsonMap)
+		errCheck(t, err)
+		if len(encryptedByte) == 0 {
+			t.Error(err)
+		} else {
+			log.Println(encryptedByte)
+		}
 
-	decryptedJSONMap, err := ec.DecryptByteToJSON(encryptedByte)
-	errCheck(t, err)
+		decryptedJSONMap, err := ec.DecryptByteToJSON(encryptedByte)
+		errCheck(t, err)
 
-	jsonByte, err := json.Marshal(decryptedJSONMap)
+		jsonByte, err := json.Marshal(decryptedJSONMap)
 
-	errCheck(t, err)
-	if len(jsonByte) == 0 {
-		t.Error(err)
-	} else {
-		log.Println(jsonByte)
-		log.Println(string(jsonByte))
-	}
+		errCheck(t, err)
+		if len(jsonByte) == 0 {
+			t.Error(err)
+		} else {
+			log.Println(jsonByte)
+			log.Println(string(jsonByte))
+		}
 
-	assertEqualStr(t, doc, string(jsonByte))
+		assertEqualStr(t, doc, string(jsonByte))
+	})
+	t.Run("Fail", func(t *testing.T) {
+		ec := Cipher{}
+		ec.passphrase = []byte("edge-orchestration")
+		_, err := ec.DecryptByteToJSON([]byte(""))
+		if err == nil {
+			t.Error(err.Error())
+		}
+	})
 }
 
 func assertEqualByteSlice(t *testing.T, a, b []byte) {
