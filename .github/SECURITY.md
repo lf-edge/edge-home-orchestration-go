@@ -7,7 +7,8 @@
     2.2 [Vulnerability Report](#22-vulnerability-report)  
     2.3 [Security Disclosure](#23-security-disclosure)  
 3. [Security requrements](#3-security_requirements)
-4. [Security Software life cycle processes](#3-security-software-life-cycle-processes)
+4. [Security Software life cycle processes](#4-security-software-life-cycle-processes)
+5. [Reproducible build](#5-reproducible-build)
 
 ---
 
@@ -176,4 +177,18 @@ usecase SDISS           #lightblue;line:black   as  "Secure disign
 
 @enduml
 ```
+---
+
+## 5. Reproducible build
+
+_Reproducible builds, also known as deterministic compilation, is a process of compiling software which ensures the resulting binary code can be reproduced. Source code compiled using deterministic compilation will always output the same binary_ [from  Wikipedia & other useful information](https://en.wikipedia.org/wiki/Reproducible_builds). 
+
+To create reproducible build, should do the following steps:
+
+1. Download source code (Ex. `git clone https://github.com/lf-edge/edge-home-orchestration-go.git`).
+2. Checkout to the commit corresponding to the tag version (Ex. `git checkout <your_commit>`).
+3. Install all packages, software and environment  that was used to create this version ([See documentation](https://github.com/lf-edge/edge-home-orchestration-go/blob/master/docs/platforms/x86_64_linux/x86_64_linux.md)). 
+4. Execute build command ([How to build](https://github.com/lf-edge/edge-home-orchestration-go/blob/master/docs/platforms/x86_64_linux/x86_64_linux.md#how-to-build)).
+5. Compare  the resulting executable `edge-orchestration` file with the original (Ex. `diff bin/edge-orchestration <origin_edge-orchestration_file>`).
+
 ---
