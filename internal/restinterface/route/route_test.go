@@ -32,6 +32,7 @@ import (
 )
 
 const (
+	fakeCertsPath     = "/var/edge-orchestration/certs"
 	unexpectedSuccess = "unexpected success"
 	unexpectedFail    = "unexpected fail"
 )
@@ -99,7 +100,7 @@ func TestReadClientIP(t *testing.T) {
 }
 
 func TestNewRestRouterWithCerti(t *testing.T) {
-	edgeRoute := NewRestRouterWithCerti("test")
+	edgeRoute := NewRestRouterWithCerti(fakeCertsPath)
 	if edgeRoute.IsSetCert != true {
 		t.Error("expected certificate is set, but not set")
 	}
@@ -116,7 +117,7 @@ func TestStart(t *testing.T) {
 	}
 	router.Start()
 
-	routers := NewRestRouterWithCerti("test")
+	routers := NewRestRouterWithCerti(fakeCertsPath)
 	if routers == nil {
 		t.Error(unexpectedFail)
 		return

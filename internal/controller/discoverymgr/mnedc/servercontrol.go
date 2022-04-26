@@ -18,10 +18,11 @@
 package mnedcmgr
 
 import (
-	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
 	"io/ioutil"
 	"net/http"
 	"strconv"
+
+	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
 
 	networkhelper "github.com/lf-edge/edge-home-orchestration-go/internal/common/networkhelper"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/discoverymgr/mnedc/server"
@@ -90,7 +91,7 @@ func startMNEDCBroadcastServer() {
 		http.HandleFunc("/register", handleClientInfo)
 		go http.ListenAndServe(":"+strconv.Itoa(broadcastServerPort), nil)
 	} else {
-		go tlsserver.TLSServer{}.ListenAndServe(":"+strconv.Itoa(broadcastServerPort), http.HandlerFunc(handleClientInfo))
+		go tlsserver.TLSServer{Certspath: serverIns.GetCertificateFilePath()}.ListenAndServe(":"+strconv.Itoa(broadcastServerPort), http.HandlerFunc(handleClientInfo))
 	}
 }
 
