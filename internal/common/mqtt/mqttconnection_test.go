@@ -27,15 +27,15 @@ var port uint = 1883
 
 const InvalidHost = "invalid"
 
-func initializeTest(Host string, clientID string) {
+func initializeTest(Host string, appID string) {
 	InitMQTTData()
-	StartMQTTClient(Host, clientID, port)
+	StartMQTTClient(Host, appID, port)
 }
 
 func TestStartMQTTClient(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		initializeTest(Host, "testClient")
-		client := publishData["testClient"]
+		client := MQTTClient["testClient"]
 		if client != nil {
 			message := "Test data for testing"
 			client.Publish(message, "home/livingroom")
@@ -59,7 +59,7 @@ func TestStartMQTTClient(t *testing.T) {
 func TestCheckforConnection(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		initializeTest(Host, "CheckConnection")
-		client := publishData["CheckConnection"]
+		client := MQTTClient["CheckConnection"]
 		isConnected := checkforConnection(Host, client, port)
 		expected := 0
 		if isConnected != expected {
@@ -71,19 +71,19 @@ func TestCheckforConnection(t *testing.T) {
 
 func TestIsClientConnected(t *testing.T) {
 	t.Run("Fail", func(t *testing.T) {
-		client := publishData["CheckConnection"]
+		client := MQTTClient["CheckConnection"]
 		connStatus := client.IsConnected()
 		expected := false
 		if connStatus != expected {
 			t.Errorf("Expected %v but received %v", expected, connStatus)
 		}
-
-		client.Client = nil
-		connStatus = client.IsConnected()
-		if connStatus != expected {
-			t.Errorf("Expected %v but received %v", expected, connStatus)
+		if client != nil {
+			client.Client = nil
+			connStatus = client.IsConnected()
+			if connStatus != expected {
+				t.Errorf("Expected %v but received %v", expected, connStatus)
+			}
 		}
-
 		client = nil
 		connStatus = client.IsConnected()
 		if connStatus != expected {

@@ -29,6 +29,7 @@ import (
 	"time"
 
 	MQTT "github.com/eclipse/paho.mqtt.golang"
+	dbhelper "github.com/lf-edge/edge-home-orchestration-go/internal/db/helper"
 )
 
 const (
@@ -51,10 +52,19 @@ type Client struct {
 	protocol string
 }
 
+// Key is composite key for storing topic with url
+type Key struct {
+	topic, url string
+}
+
 var (
-	publishData     map[string]*Client
-	subscribeData   map[string]string    //topic-->published data
-	subscribeClient map[string][]*Client //topic-->multiple clients
+	subscribeData    map[string]string //topic-->published data  (//TODO in next PR)
+	subscriptionInfo map[Key][]string  //to store the appids mapped to {topic,url}
+	//URLData stores the urls mapped to app id
+	URLData map[string][]string //to store the appids maped to urls
+	//MQTTClient stores the Client object mapped to urls
+	MQTTClient map[string]*Client //to store Homeedge client object for every url
+	clientID   string
 )
 
 // Config represents an attribute config setter for the `Client`.
@@ -83,9 +93,16 @@ func SetPort(port uint) Config {
 
 // InitMQTTData creates an initialized hashmap
 func InitMQTTData() {
-	publishData = make(map[string]*Client)
-	subscribeClient = make(map[string][]*Client)
+	subscriptionInfo = make(map[Key][]string)
 	subscribeData = make(map[string]string)
+	URLData = make(map[string][]string)
+	MQTTClient = make(map[string]*Client)
+	dbIns := dbhelper.GetInstance()
+	clientID, err := dbIns.GetDeviceID()
+	if err != nil {
+		log.Println(err.Error())
+	}
+	log.Info(logPrefix, "DeviceId is set as ", clientID)
 }
 
 func (c *Client) setProtocol() {
@@ -97,19 +114,15 @@ func (c *Client) setProtocol() {
 }
 
 // CheckifClientExist used to check if the client conn object exist
-func CheckifClientExist(clientID string) *Client {
-	client := publishData[clientID]
+func CheckifClientExist(url string) *Client {
+	client := MQTTClient[url]
 	return client
 }
 
-// addpublishData is used to add the client object based on client id
-func addPublishData(client *Client, clientID string) {
-	publishData[clientID] = client
-}
-
 // addSubscribeClient is used to add the client info for a topic
-func addSubscribeClient(client *Client, topic string) {
-	subscribeClient[topic] = append(subscribeClient[topic], client)
+func addSubscribeClient(appID string, topic string, url string) {
+	subscriptionInfo[Key{topic, url}] = append(subscriptionInfo[Key{topic, url}], appID)
+	log.Info(logPrefix, subscriptionInfo[Key{topic, url}])
 }
 
 func addSubscribedData(topic string, message string) {
@@ -117,10 +130,10 @@ func addSubscribedData(topic string, message string) {
 }
 
 //GetSubscribedData is used to get the data for topic subscribed
-func GetSubscribedData(topic string, clientID string) string {
-	list := subscribeClient[topic]
-	for _, client := range list {
-		if client.ID == clientID {
+func GetSubscribedData(topic string, clientID string, host string) string {
+	list := subscriptionInfo[Key{topic, host}]
+	for _, ID := range list {
+		if ID == clientID {
 			return subscribeData[topic]
 		}
 	}
@@ -175,7 +188,7 @@ func NewClient(configs ...Config) (*Client, error) {
 	}
 	copts := MQTT.NewClientOptions()
 	copts.SetAutoReconnect(true)
-	copts.SetClientID(client.ID)
+	copts.SetClientID(clientID)
 	copts.SetMaxReconnectInterval(1 * time.Second)
 	copts.SetOnConnectHandler(client.onConnect())
 	copts.SetConnectionLostHandler(client.onConnectionLost())

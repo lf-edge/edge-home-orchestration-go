@@ -131,21 +131,21 @@ func init() {
 }
 
 //RequestCloudSyncPublish handles the request for cloud syncing
-func (orcheEngine *orcheImpl) RequestCloudSyncPublish(host string, clientID string, message string, topic string) string {
+func (orcheEngine *orcheImpl) RequestCloudSyncPublish(host string, appID string, message string, topic string) string {
 	log.Info(cloudsyncLogPrefix, "Requesting cloud sync publish")
-	return orcheEngine.cloudsyncIns.RequestPublish(host, clientID, message, topic)
+	return orcheEngine.cloudsyncIns.RequestPublish(host, appID, message, topic)
 }
 
 //RequestCloudSyncSubscribe handles the request for cloud subscribing
-func (orcheEngine *orcheImpl) RequestCloudSyncSubscribe(host string, clientID string, topic string) string {
+func (orcheEngine *orcheImpl) RequestCloudSyncSubscribe(host string, appID string, topic string) string {
 	log.Info(cloudsyncLogPrefix, "Requesting cloud sync subscribe")
-	return orcheEngine.cloudsyncIns.RequestSubscribe(host, clientID, topic)
+	return orcheEngine.cloudsyncIns.RequestSubscribe(host, appID, topic)
 }
 
 //RequestSubscribedData request for the data on subscribed topic
-func (orcheEngine *orcheImpl) RequestSubscribedData(clientID string, topic string) string {
+func (orcheEngine *orcheImpl) RequestSubscribedData(appID string, topic string, host string) string {
 	log.Info(cloudsyncLogPrefix, "Requesting SubscribedData")
-	return orcheEngine.cloudsyncIns.RequestSubscribedData(clientID, topic)
+	return orcheEngine.cloudsyncIns.RequestSubscribedData(appID, topic, host)
 }
 
 // RequestService handles service request (ex. offloading) from service application

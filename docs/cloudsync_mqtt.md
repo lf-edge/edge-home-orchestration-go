@@ -5,6 +5,7 @@
 3. [Installing MQTT Broker on AWS](#3-Installing-MQTT-Broker-on-AWS)
 4. [Configurations for MQTT broker](#4-Configurations-for-MQTT)
 5. [Run CloudSync](#5-Run-Cloudsync)
+6. [DataStructures Used](#6-DataStructures)
 
 # 1. Introduction
 This module would be responsible for sending the data (can be sensor data or any reading or image/video data, etc.) collected from different devices in the home environment to a cloud Endpoint (AWS). This Sync to the cloud will be using a API Call by the service application. The broker used is mosquitto which is setup at AWS endpoint. The Service Application will make a POST API call which will then check first for the connection to the broker and then establish a connection if not present to further publish the data to the cloud. After successful publish or in case of failure corresponding response is sent back to the service application<br><br>
@@ -162,3 +163,12 @@ From another terminal/post,it is recommended make a curl get command as follows 
 ```
 curl --location --request GET 'http://<ip where edge-orchestration is running>:56001/api/v1/orchestration/cloudsyncmgr/getsubscribedata/<topicname>/<appid>'
 ```
+# 6. DataStructures Used
+### a. URLData 
+This is a hashmap of the type <string,[]string> to store the client ids (appids) mapped to the Url of the broker to which the client are connected. For any first time entry of url in the hashmap, a connection is established between the broker and Home Edge. For any subsequent entry for the same url, the client id is appended to the list of client ids and same connection object is used for communication. In case of any client calling disconnect or wants to terminate the connection with broker, the client id can be removed from the list of client ids. In case of one single client for any url calling the disconnect or wanting to terminate the connection, then the connection with the broker is closed and url entry with its key is removed from the Hashmap.
+### b. MQTTClient
+This hashmap of type<string,*Client> stores the client object for every new url connection between home edge and Broker.When a request for any url comes to Home Edge , this hashmap is searched to see if the client object exits. If the client object exist, the object is returned and further operations of publish/subscribe is performed. Incase if the client object is not present for the given url, then entry to MQTTClient hashmap is created with the url and object created. When all the clients for any url have closed the connection, entry from MQTTClient for that url is also removed.
+### c. SubscriptionInfo
+This hashmap of type<{topic,url},[]clientid> stores the subscriptionInfo. The key used here is composite and uses both topic and url to uniquely identify the subscription. Multiple clients can subscribe to the same broker on same topic and so the list of such clientids is stored as value.Before retrieving the data requested by any client, this hashmap will be checked to see if the client is subscribed or not.
+### d. SubscribedData
+This hashmap of type<{topic,url},string> stores the data published by any client on topic that has been subscribed by any client for the same broker.When a client requests for subscription to any topic, a entry is made to this hashmap with {topic,url} as the composite key and the latest published data as the string.Whenever a new data for the same key is published, the entry is updated. At any given point, this hashmap contains the latest value published for the topic on the broker url mentioned.

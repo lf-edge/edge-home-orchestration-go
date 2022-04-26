@@ -37,9 +37,9 @@ const (
 type CloudSync interface {
 	InitiateCloudSync(isCloudSet string) error
 	//implemented by external REST API
-	RequestPublish(host string, clientID string, message string, topic string) string
-	RequestSubscribe(host string, clientID string, topic string) string
-	RequestSubscribedData(clientID string, topic string) string
+	RequestPublish(host string, appID string, message string, topic string) string
+	RequestSubscribe(host string, appID string, topic string) string
+	RequestSubscribedData(appID string, topic string, host string) string
 }
 
 //CloudSyncImpl struct
@@ -85,7 +85,7 @@ func (c *CloudSyncImpl) InitiateCloudSync(isCloudSet string) (err error) {
 }
 
 // RequestPublish is  configuration request handler
-func (c *CloudSyncImpl) RequestPublish(host string, clientID string, message string, topic string) string {
+func (c *CloudSyncImpl) RequestPublish(host string, appID string, message string, topic string) string {
 	log.Info(logPrefix, "Publishing the data to the cloud")
 	resp := ""
 	var wg sync.WaitGroup
@@ -99,7 +99,7 @@ func (c *CloudSyncImpl) RequestPublish(host string, clientID string, message str
 	wg.Add(1)
 	errs := make(chan string, 1)
 	go func() {
-		errs <- mqttmgr.StartMQTTClient(host, clientID, mqttPort)
+		errs <- mqttmgr.StartMQTTClient(host, appID, mqttPort)
 		resp = <-errs
 		wg.Done()
 
@@ -110,7 +110,7 @@ func (c *CloudSyncImpl) RequestPublish(host string, clientID string, message str
 		return errresp
 	}
 
-	mqttClient = mqttmgr.CheckifClientExist(clientID)
+	mqttClient = mqttmgr.CheckifClientExist(host)
 	if mqttClient != nil && mqttClient.IsConnected() {
 		err := mqttClient.Publish(message, topic)
 		if err != nil {
@@ -124,7 +124,7 @@ func (c *CloudSyncImpl) RequestPublish(host string, clientID string, message str
 }
 
 // RequestSubscribe is  configuration request handler
-func (c *CloudSyncImpl) RequestSubscribe(host string, clientID string, topic string) string {
+func (c *CloudSyncImpl) RequestSubscribe(host string, appID string, topic string) string {
 	log.Info(logPrefix, "Subscribing the data to ", logmgr.SanitizeUserInput(host)) // lgtm [go/log-injection]
 	resp := ""
 	var wg sync.WaitGroup
@@ -138,7 +138,7 @@ func (c *CloudSyncImpl) RequestSubscribe(host string, clientID string, topic str
 	wg.Add(1)
 	errs := make(chan string, 1)
 	go func() {
-		errs <- mqttmgr.StartMQTTClient(host, clientID, mqttPort)
+		errs <- mqttmgr.StartMQTTClient(host, appID, mqttPort)
 		resp = <-errs
 		wg.Done()
 	}()
@@ -147,11 +147,10 @@ func (c *CloudSyncImpl) RequestSubscribe(host string, clientID string, topic str
 		errresp := fmt.Sprintf("Error Connecting MQTT -> %s", resp)
 		return errresp
 	}
-
-	mqttClient = mqttmgr.CheckifClientExist(clientID)
+	mqttClient = mqttmgr.CheckifClientExist(host)
 	//subscribe function
 	if mqttClient != nil && mqttClient.IsConnected() {
-		err := mqttClient.Subscribe(topic)
+		err := mqttClient.Subscribe(topic, appID)
 		if err != nil {
 			errMsg := fmt.Sprintf("Error in subscribing the data %s", err)
 			resp = errMsg
@@ -163,7 +162,7 @@ func (c *CloudSyncImpl) RequestSubscribe(host string, clientID string, topic str
 }
 
 // RequestSubscribedData is  to get the subscribed data
-func (c *CloudSyncImpl) RequestSubscribedData(clientID string, topic string) string {
+func (c *CloudSyncImpl) RequestSubscribedData(appID string, topic string, host string) string {
 	log.Info(logPrefix, "Requesting the data for ", logmgr.SanitizeUserInput(topic)) // lgtm [go/log-injection]
 	resp := ""
 	if !isCloudSyncSet {
@@ -173,6 +172,6 @@ func (c *CloudSyncImpl) RequestSubscribedData(clientID string, topic string) str
 	if len(topic) == 0 {
 		return "No topic defined"
 	}
-	resp = mqttmgr.GetSubscribedData(topic, clientID)
+	resp = mqttmgr.GetSubscribedData(topic, appID, host)
 	return resp
 }
