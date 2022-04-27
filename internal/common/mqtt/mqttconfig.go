@@ -58,8 +58,8 @@ type Key struct {
 }
 
 var (
-	subscribeData    map[string]string //topic-->published data  (//TODO in next PR)
-	subscriptionInfo map[Key][]string  //to store the appids mapped to {topic,url}
+	publishData      map[Key]string   //topic-->published data
+	subscriptionInfo map[Key][]string //to store the appids mapped to {topic,url}
 	//URLData stores the urls mapped to app id
 	URLData map[string][]string //to store the appids maped to urls
 	//MQTTClient stores the Client object mapped to urls
@@ -94,7 +94,7 @@ func SetPort(port uint) Config {
 // InitMQTTData creates an initialized hashmap
 func InitMQTTData() {
 	subscriptionInfo = make(map[Key][]string)
-	subscribeData = make(map[string]string)
+	publishData = make(map[Key]string)
 	URLData = make(map[string][]string)
 	MQTTClient = make(map[string]*Client)
 	dbIns := dbhelper.GetInstance()
@@ -125,16 +125,16 @@ func addSubscribeClient(appID string, topic string, url string) {
 	log.Info(logPrefix, subscriptionInfo[Key{topic, url}])
 }
 
-func addSubscribedData(topic string, message string) {
-	subscribeData[topic] = message
+func addPublishedData(topic string, host string, message string) {
+	publishData[Key{topic, host}] = message
 }
 
-//GetSubscribedData is used to get the data for topic subscribed
-func GetSubscribedData(topic string, clientID string, host string) string {
+//GetPublishedData is used to get the data for topic subscribed
+func GetPublishedData(topic string, clientID string, host string) string {
 	list := subscriptionInfo[Key{topic, host}]
 	for _, ID := range list {
 		if ID == clientID {
-			return subscribeData[topic]
+			return publishData[Key{topic, host}]
 		}
 	}
 	return "Client is not subscribed to the topic " + topic

@@ -87,8 +87,8 @@ func StartMQTTClient(brokerURL string, appID string, mqttPort uint) string {
 	if mqttClient != nil {
 		log.Info(logPrefix, "Client is already connected")
 		//add it to URL Data if not present
-		clientList := URLData[brokerURL]
-		for _, id := range clientList {
+		appList := URLData[brokerURL]
+		for _, id := range appList {
 			if id == appID {
 				return ""
 			}
@@ -143,7 +143,9 @@ func (client *Client) Publish(message string, topic string) error {
 var messageHandler MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Message) {
 
 	log.Info(logPrefix, "Topic ", msg.Topic(), " registered.. ", string(msg.Payload()), " is the payload")
-	addSubscribedData(msg.Topic(), string(msg.Payload()))
+	options := client.OptionsReader()
+	path := options.Servers()
+	addPublishedData(msg.Topic(), path[0].Hostname(), string(msg.Payload()))
 }
 
 //Subscribe is used to subscribe to a topic
