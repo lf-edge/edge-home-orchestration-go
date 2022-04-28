@@ -80,7 +80,7 @@ func init() {
 func GetHelper() RestHelper {
 	switch helper.IsSetCert {
 	case true:
-		helper.c = tlshelper.TLSHelper{}
+		helper.c = tlshelper.TLSHelper{Certspath: helper.GetCertificateFilePath()}
 	default:
 		helper.c = httphelper.HTTPHelper{}
 	}
