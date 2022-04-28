@@ -19,13 +19,13 @@
 package route
 
 import (
-	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
 	"net/http"
 	"strconv"
 	"time"
 
 	"github.com/gorilla/mux"
 
+	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/securemgr/authenticator"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/restinterface"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/externalhandler"
@@ -39,6 +39,7 @@ const (
 	ConstWellknownPort = 56001
 	// ConstInternalPort is the port used for TLS connection
 	ConstInternalPort = 56002
+	logPrefix         = "[route] "
 )
 
 var (
@@ -95,7 +96,7 @@ func (r *RestRouter) Add(s restinterface.IRestRoutes) {
 	case *externalhandler.Handler:
 		r.routerExternal = router
 	default:
-		log.Println("added unknown type, ignore")
+		log.Info(logPrefix, "added unknown type, ignore")
 	}
 }
 
@@ -108,14 +109,14 @@ func (r RestRouter) listenAndServe() {
 	// start internal server
 	switch r.IsSetCert {
 	case true:
-		log.Printf("ListenAndServeTLS_For_Inter")
-		go tlsserver.TLSServer{}.ListenAndServe(":"+strconv.Itoa(ConstInternalPort), r.routerInternal)
+		log.Info(logPrefix, "Internal ListenAndServeTLS")
+		go tlsserver.TLSServer{Certspath: r.GetCertificateFilePath()}.ListenAndServe(":"+strconv.Itoa(ConstInternalPort), r.routerInternal)
 	default:
-		log.Printf("ListenAndServe_For_Inter")
+		log.Info(logPrefix, "Internal ListenAndServe")
 		go http.ListenAndServe(":"+strconv.Itoa(ConstInternalPort), r.routerInternal)
 	}
 
-	if log.Printf("ListenAndServe"); r.routerExternal != nil {
+	if log.Info(logPrefix, "External ListenAndServe"); r.routerExternal != nil {
 		go http.ListenAndServe(":"+strconv.Itoa(ConstWellknownPort), r.routerExternal)
 	}
 }

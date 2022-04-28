@@ -28,10 +28,7 @@ import (
 )
 
 const (
-	edgeDir = "/var/edge-orchestration"
-	caCert  = edgeDir + "/certs/ca-crt.pem"
-	henCert = edgeDir + "/certs/hen-crt.pem"
-	henKey  = edgeDir + "/certs/hen-key.pem"
+	logPrefix = "[tlsserver] "
 )
 
 var (
@@ -44,10 +41,12 @@ type TLSListenerServer interface {
 }
 
 // TLSServer structure
-type TLSServer struct{}
+type TLSServer struct {
+	Certspath string
+}
 
-func createServerConfig() (*tls.Config, error) {
-	caCertPEM, err := ioutil.ReadFile(caCert)
+func createServerConfig(certspath string) (*tls.Config, error) {
+	caCertPEM, err := ioutil.ReadFile(certspath + "/ca-crt.pem")
 	if err != nil {
 		return nil, err
 	}
@@ -55,10 +54,10 @@ func createServerConfig() (*tls.Config, error) {
 	roots := x509.NewCertPool()
 	ok := roots.AppendCertsFromPEM(caCertPEM)
 	if !ok {
-		panic("failed to parse root certificate")
+		log.Panic(logPrefix, "failed to parse root certificate")
 	}
 
-	cert, err := tls.LoadX509KeyPair(henCert, henKey)
+	cert, err := tls.LoadX509KeyPair(certspath+"/hen-crt.pem", certspath+"/hen-key.pem")
 	if err != nil {
 		return nil, err
 	}
@@ -75,16 +74,16 @@ func createServerConfig() (*tls.Config, error) {
 }
 
 // ListenAndServe listens HTTPS connection and calls Serve with handler to handle requests on incoming connections.
-func (TLSServer) ListenAndServe(addr string, handler http.Handler) {
+func (s TLSServer) ListenAndServe(addr string, handler http.Handler) {
 
-	config, err := createServerConfig()
+	config, err := createServerConfig(s.Certspath)
 	if err != nil {
-		log.Fatal("config failed: ", err)
+		log.Fatal(logPrefix, "config failed: ", err.Error())
 	}
 
 	listener, err := tls.Listen("tcp", addr, config)
 	if err != nil {
-		log.Fatal("listen failed: ", err)
+		log.Fatal(logPrefix, "listen failed: ", err.Error())
 	}
 
 	defer listener.Close()
