@@ -15,6 +15,7 @@ Please delete options that are not relevant.
 - [ ] Documentation update
 - [ ] This change requires a documentation update
 - [ ] CI system update
+- [ ] Test Coverage update
 
 # How Has This Been Tested?
 Please describe the tests that you ran to verify your changes. Provide instructions so we can reproduce. Please also list any relevant details for your test configuration. Below is just an example and you can delete it when you contribute.
@@ -29,10 +30,10 @@ Example
 ```
 
 **Test Configuration**:
-* OS type & version: (e.g., Ubuntu 18.04)
-* Hardware: (e.g., x86, x86-64, arm, arm64)
-* Toolchain: (e.g., Docker v17.6 and Go v1.16)
-* Edge Orchestration Release: (e.g., v1.0.0)
+* OS type & version: Ubuntu 20.04
+* Hardware: x86-64 (e.g., x86, x86-64, arm, arm64)
+* Toolchain: Docker v20.10 & Go v1.16
+* Edge Orchestration Release: v1.1.x
 
 # Checklist:
 
