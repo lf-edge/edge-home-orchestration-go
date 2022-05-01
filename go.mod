@@ -15,7 +15,7 @@ require (
 	github.com/eclipse/paho.mqtt.golang v1.3.5
 	github.com/edgexfoundry/device-sdk-go v1.4.0
 	github.com/edgexfoundry/go-mod-core-contracts v0.1.115
-	github.com/fsnotify/fsnotify v1.5.1
+	github.com/fsnotify/fsnotify v1.5.4
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang-jwt/jwt/v4 v4.4.1
 	github.com/golang/mock v1.4.4
