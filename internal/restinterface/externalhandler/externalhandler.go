@@ -46,7 +46,7 @@ const (
 	cannotEncryption  = "cannot encryption"
 	invalidInputParam = "Invalid input parameter"
 	topic             = "topic"
-	clientID          = "clientID"
+	appID             = "appID"
 	host              = "host"
 )
 
@@ -100,7 +100,7 @@ func init() {
 		restinterface.Route{
 			Name:        "APIV1RequestCloudSyncmgrGetSubscribedData",
 			Method:      strings.ToUpper("Get"),
-			Pattern:     "/api/v1/orchestration/cloudsyncmgr/getsubscribedata/{" + host + "}/{" + topic + "}/{" + clientID + "}",
+			Pattern:     "/api/v1/orchestration/cloudsyncmgr/getsubscribedata/{" + host + "}/{" + topic + "}/{" + appID + "}",
 			HandlerFunc: handler.APIV1RequestCloudSyncmgrGetSubscribedData,
 		},
 	}
@@ -586,7 +586,7 @@ func (h *Handler) APIV1RequestCloudSyncmgrGetSubscribedData(w http.ResponseWrite
 	}
 
 	vars := mux.Vars(r)
-	appID := vars[clientID]
+	appID := vars[appID]
 	topic := vars[topic]
 	host := vars[host]
 

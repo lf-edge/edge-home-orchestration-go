@@ -161,7 +161,7 @@ func (c *CloudSyncImpl) RequestSubscribe(host string, appID string, topic string
 	return resp
 }
 
-// RequestSubscribedData is  to get the subscribed data
+// RequestSubscribedData is  to get the subscribed data for {topic,url}
 func (c *CloudSyncImpl) RequestSubscribedData(appID string, topic string, host string) string {
 	log.Info(logPrefix, "Requesting the data for ", logmgr.SanitizeUserInput(topic)) // lgtm [go/log-injection]
 	resp := ""
@@ -172,6 +172,6 @@ func (c *CloudSyncImpl) RequestSubscribedData(appID string, topic string, host s
 	if len(topic) == 0 {
 		return "No topic defined"
 	}
-	resp = mqttmgr.GetSubscribedData(topic, appID, host)
+	resp = mqttmgr.GetPublishedData(topic, appID, host)
 	return resp
 }
