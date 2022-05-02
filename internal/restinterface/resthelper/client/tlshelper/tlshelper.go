@@ -35,15 +35,10 @@ var (
 	wellKnownPort map[string]string
 )
 
-const (
-	edgeDir = "/var/edge-orchestration"
-	caCert  = edgeDir + "/certs/ca-crt.pem"
-	henCert = edgeDir + "/certs/hen-crt.pem"
-	henKey  = edgeDir + "/certs/hen-key.pem"
-)
-
 // TLSHelper struct
-type TLSHelper struct{}
+type TLSHelper struct {
+	Certspath string
+}
 
 func init() {
 	wellKnownPort = map[string]string{
@@ -53,8 +48,8 @@ func init() {
 
 }
 
-func createClientConfig() (*tls.Config, error) {
-	caCertPEM, err := ioutil.ReadFile(caCert)
+func createClientConfig(certspath string) (*tls.Config, error) {
+	caCertPEM, err := ioutil.ReadFile(certspath + "/ca-crt.pem")
 	if err != nil {
 		return nil, err
 	}
@@ -65,7 +60,7 @@ func createClientConfig() (*tls.Config, error) {
 		panic("failed to parse root certificate")
 	}
 
-	cert, err := tls.LoadX509KeyPair(henCert, henKey)
+	cert, err := tls.LoadX509KeyPair(certspath+"/hen-crt.pem", certspath+"/hen-key.pem")
 	if err != nil {
 		return nil, err
 	}
@@ -81,12 +76,12 @@ func createClientConfig() (*tls.Config, error) {
 }
 
 // Do is used to initiate TLS connection
-func (TLSHelper) Do(req *http.Request) (*http.Response, error) {
+func (s TLSHelper) Do(req *http.Request) (*http.Response, error) {
 	if _, err := strconv.Atoi(req.URL.Port()); err != nil {
 		return nil, fmt.Errorf("invalid URL port %q", req.URL.Port())
 	}
 
-	config, err := createClientConfig()
+	config, err := createClientConfig(s.Certspath)
 	if err != nil {
 		log.Fatal("config failed: ", err)
 	}
