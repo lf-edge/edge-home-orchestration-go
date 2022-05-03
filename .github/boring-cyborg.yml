@@ -6,12 +6,6 @@ labelPRBasedOnFilePath:
   base code:
     - 'internal/**/*'
 
-  # Add 'documentation' to any changes within 'docs' and 'api' folders or any subfolders and any change to *.md files
-  documentation:
-    - '**/*.md'
-    - 'docs/**/*'
-    - 'api/**/*'
-
   # Add 'CI' to any file changes within '.github' folder or any subfolders
   CI:
     - '.github/**/*'
@@ -25,20 +19,11 @@ labelPRBasedOnFilePath:
     - 'deployments/**/*'
     - 'go.mod'
 
-  # Add 'tools' label to any change within the 'tools' and 'script' folders or any subfolders
-  tools:
-    - 'tools/**/*'
-    - 'script/**/*'
-
-  # Add 'security' label to any change within the 'securemgr' folder or any subfolders and 'SECURITY.md' file
-  security:
-    - 'internal/controller/securemgr/**/*'
-    - '.github/SECURITY.md'
-
-  # Add 'Web UI' label to any change within the 'web' and `webui`folders or any subfolders
-  Web UI:
-    - 'web/**/*'
-    - 'internal/webui/**/*'
+  # Add 'documentation' to any changes within 'docs' and 'api' folders or any subfolders and any change to *.md files
+  documentation:
+    - '**/*.md'
+    - 'docs/**/*'
+    - 'api/**/*'
 
   # Add 'examples' label to any change within the 'examples' and 'test' folders or any subfolders
   examples:
@@ -48,10 +33,30 @@ labelPRBasedOnFilePath:
   # Add 'mqtt' label to any change within the 'mqtt' folder or any subfolders
   mqtt:
     - 'internal/common/mqtt/**/*'
-  
+
+  # Add 'security' label to any change within the 'securemgr' folder or any subfolders and 'SECURITY.md' file
+  security:
+    - 'internal/controller/securemgr/**/*'
+    - '.github/SECURITY.md'
+
+  # Add 'tc' label to any change within the 'internal' folder or any subfolders  related to test coverage
+  tc:
+    - 'internal/**/*_test.go'
+    - 'internal/**/mocks_*.go'
+
+  # Add 'tools' label to any change within the 'tools' and 'script' folders or any subfolders
+  tools:
+    - 'tools/**/*'
+    - 'script/**/*'
+
   # Add 'VersionTag' label to any change VERSION file
   VersionTag:
     - 'VERSION'
+
+  # Add 'Web UI' label to any change within the 'web' and `webui`folders or any subfolders
+  Web UI:
+    - 'web/**/*'
+    - 'internal/webui/**/*'
 
 ##### Greetings ########################################################################################################
 # Comment to be posted to welcome users when they open their first PR

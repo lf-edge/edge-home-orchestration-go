@@ -5,6 +5,7 @@
     2.1 [Using the makefile](#21-using-the-makefile)  
     2.2 [Using standard Go language facilities](#22-using-standard-go-language-facilities)  
 3. [Automated Run Test Suite (Remote)](#3-automated-run-test-suite-remote)  
+4. [Test file pattern](#4-test-file-pattern)  
 
 ---
 
@@ -53,4 +54,51 @@ go test -v [PKG_NAME]
 Code testing occurs remotely using a [github->Actions->workflow (Build)](https://github.com/lf-edge/edge-home-orchestration-go/actions) during each `push` or `pull_request`.
 
 > [More information on github->actions](https://docs.github.com/en/actions) 
+
 ---
+
+## 4. Test file pattern
+
+Testing should include both positive (success) and negative (fail) tests whenever possible. Tests can be nested for greater coverage and better understanding. Example:
+
+```
+package <your-package-name>
+
+import (
+	"testing"
+)
+
+const (
+	unexpectedSuccess = "unexpected success"
+	unexpectedFail    = "unexpected fail"
+)
+
+func TestFuncName(t *testing.T) {
+	// Positive test
+	t.Run("Success", func(t *testing.T) {
+		if err := FuncName(param); err != nil {
+			t.Error(unexpectedFail)
+		}
+	})
+	// Negative tests
+	t.Run("Fail", func(t *testing.T) {
+		// Nested test
+		t.Run("FailCondition #1", func(t *testing.T) {
+			if err := FuncName(param); err == nil {
+				t.Error(unexpectedSuccess)
+			}
+		})
+		// Nested test with panic result
+		t.Run("FailCondition #2", func(t *testing.T) {
+			defer func() {
+				if r := recover(); r == nil {
+					t.Error(r)
+				}
+			}()
+			if err := FuncName(param); err == nil {
+				t.Error(unexpectedSuccess)
+			}
+		})
+	})
+}
+```

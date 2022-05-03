@@ -46,8 +46,8 @@ var (
 // ├── var
 //     └── edge-orchestration
 //         ├── apps
+//         ├── certs
 //         ├── data
-//         │   ├── cert
 //         │   └── db
 //         ├── datastorage
 //         ├── device
