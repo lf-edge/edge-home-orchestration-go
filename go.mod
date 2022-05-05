@@ -15,7 +15,7 @@ require (
 	github.com/eclipse/paho.mqtt.golang v1.3.5
 	github.com/edgexfoundry/device-sdk-go v1.4.0
 	github.com/edgexfoundry/go-mod-core-contracts v0.1.115
-	github.com/fsnotify/fsnotify v1.5.1
+	github.com/fsnotify/fsnotify v1.5.4
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang-jwt/jwt/v4 v4.4.1
 	github.com/golang/mock v1.4.4
@@ -28,7 +28,7 @@ require (
 	github.com/morikuni/aec v1.0.0 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.0.2 // indirect
-	github.com/pelletier/go-toml v1.9.4
+	github.com/pelletier/go-toml v1.9.5
 	github.com/pkg/errors v0.9.1
 	github.com/satori/go.uuid v1.2.0
 	github.com/shirou/gopsutil v3.21.11+incompatible
@@ -48,7 +48,7 @@ require (
 	gopkg.in/ini.v1 v1.66.4
 	gopkg.in/yaml.v2 v2.4.0
 	gotest.tools v2.2.0+incompatible // indirect
-	gotest.tools/v3 v3.1.0
+	gotest.tools/v3 v3.2.0
 )
 
 replace github.com/grandcat/zeroconf v1.0.0 => ./third_party/zeroconf
