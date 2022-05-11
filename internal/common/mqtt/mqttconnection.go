@@ -97,15 +97,11 @@ func StartMQTTClient(brokerURL string, appID string, mqttPort uint) string {
 		return ""
 	}
 	//new client object is created to add to MQTTClient and connection is established and added to URLData
-	clientConfig, err := NewClient(
+	clientConfig, _ := NewClient(
 		SetHost(brokerURL),
 		SetPort(uint(mqttPort)),
 		SetClientID(clientID),
 	)
-	if err != nil {
-		log.Warn(logPrefix, err)
-		return err.Error()
-	}
 	clientConfig.ClientOptions.SetOnConnectHandler(clientConfig.onConnect())
 	clientConfig.setProtocol()
 	URL := clientConfig.SetBrokerURL()
