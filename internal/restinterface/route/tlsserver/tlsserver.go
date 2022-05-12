@@ -18,6 +18,7 @@
 package tlsserver
 
 import (
+	"net"
 	"net/http"
 
 	"crypto/tls"
@@ -43,11 +44,13 @@ type TLSListenerServer interface {
 // TLSServer structure
 type TLSServer struct {
 	Certspath string
+	listener  net.Listener
 }
 
 func createServerConfig(certspath string) (*tls.Config, error) {
 	caCertPEM, err := ioutil.ReadFile(certspath + "/ca-crt.pem")
 	if err != nil {
+		log.Panic(logPrefix, err.Error())
 		return nil, err
 	}
 
@@ -59,6 +62,7 @@ func createServerConfig(certspath string) (*tls.Config, error) {
 
 	cert, err := tls.LoadX509KeyPair(certspath+"/hen-crt.pem", certspath+"/hen-key.pem")
 	if err != nil {
+		log.Panic(logPrefix, err.Error())
 		return nil, err
 	}
 	return &tls.Config{
@@ -74,19 +78,17 @@ func createServerConfig(certspath string) (*tls.Config, error) {
 }
 
 // ListenAndServe listens HTTPS connection and calls Serve with handler to handle requests on incoming connections.
-func (s TLSServer) ListenAndServe(addr string, handler http.Handler) {
+func (s *TLSServer) ListenAndServe(addr string, handler http.Handler) {
 
-	config, err := createServerConfig(s.Certspath)
+	config, _ := createServerConfig(s.Certspath)
+
+	var err error
+	s.listener, err = tls.Listen("tcp", addr, config)
 	if err != nil {
-		log.Fatal(logPrefix, "config failed: ", err.Error())
+		log.Panic(logPrefix, "listen failed: ", err.Error())
 	}
 
-	listener, err := tls.Listen("tcp", addr, config)
-	if err != nil {
-		log.Fatal(logPrefix, "listen failed: ", err.Error())
-	}
+	defer s.listener.Close()
 
-	defer listener.Close()
-
-	(&http.Server{Handler: handler}).Serve(listener)
+	(&http.Server{Handler: handler}).Serve(s.listener)
 }

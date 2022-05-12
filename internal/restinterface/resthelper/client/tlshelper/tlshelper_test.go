@@ -19,6 +19,8 @@ package tlshelper
 
 import (
 	"io/ioutil"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"testing"
 )
@@ -107,6 +109,13 @@ PCVId1PsX2rDTRr7vVM+j9nDtEybYZO7BFHPGPRkkHr30mU17VSOxWsfnN3+NJ3u
 func TestCreateClientConfig(t *testing.T) {
 	t.Run("Fail", func(t *testing.T) {
 		t.Run("AbsentCertsPath", func(t *testing.T) {
+			defer func() {
+				os.RemoveAll(fakeCertsPath)
+				if r := recover(); r == nil {
+					t.Error(r)
+				}
+			}()
+
 			if _, err := createClientConfig(fakeCertsPath); err == nil {
 				t.Error(unexpectedSuccess)
 			}
@@ -133,7 +142,12 @@ func TestCreateClientConfig(t *testing.T) {
 			}
 		})
 		t.Run("AbsentHenCrtKey", func(t *testing.T) {
-			defer os.RemoveAll(fakeCertsPath)
+			defer func() {
+				os.RemoveAll(fakeCertsPath)
+				if r := recover(); r == nil {
+					t.Error(r)
+				}
+			}()
 
 			err := os.MkdirAll(fakeCertsPath, os.ModePerm)
 			if err != nil {
@@ -170,5 +184,67 @@ func TestCreateClientConfig(t *testing.T) {
 		if _, err := createClientConfig(fakeCertsPath); err != nil {
 			t.Error(unexpectedFail)
 		}
+	})
+}
+
+func TestDo(t *testing.T) {
+	t.Run("Fail", func(t *testing.T) {
+		t.Run("WrongAddr", func(t *testing.T) {
+			h := TLSHelper{Certspath: fakeCertsPath}
+			req := httptest.NewRequest(http.MethodGet, "http://test.test", nil)
+			_, err := h.Do(req)
+			if err == nil {
+				t.Error(unexpectedSuccess)
+			}
+		})
+		t.Run("BadTLSConfig", func(t *testing.T) {
+			defer func() {
+				os.RemoveAll(fakeCertsPath)
+				if r := recover(); r == nil {
+					t.Error(r)
+				}
+			}()
+
+			h := TLSHelper{Certspath: fakeCertsPath}
+			req := httptest.NewRequest(http.MethodGet, "http://test.test:443", nil)
+
+			if err := os.MkdirAll(fakeCertsPath, os.ModePerm); err != nil {
+				t.Error(err.Error())
+			}
+
+			_, err := h.Do(req)
+			if err != nil {
+				t.Error(unexpectedSuccess)
+			}
+		})
+		t.Run("DialFail", func(t *testing.T) {
+			defer func() {
+				os.RemoveAll(fakeCertsPath)
+			}()
+
+			if err := os.MkdirAll(fakeCertsPath, os.ModePerm); err != nil {
+				t.Error(err.Error())
+			}
+
+			if err := ioutil.WriteFile(fakeCertsPath+"/ca-crt.pem", []byte(fakeCASert), 0444); err != nil {
+				t.Error(err.Error())
+			}
+
+			if err := ioutil.WriteFile(fakeCertsPath+"/hen-crt.pem", []byte(fakeHENSert), 0444); err != nil {
+				t.Error(err.Error())
+			}
+			if err := ioutil.WriteFile(fakeCertsPath+"/hen-key.pem", []byte(fakeHENKey), 0444); err != nil {
+				t.Error(err.Error())
+			}
+
+			h := TLSHelper{Certspath: fakeCertsPath}
+			req := httptest.NewRequest(http.MethodGet, "http://test.test:443", nil)
+
+			_, err := h.Do(req)
+			if err == nil {
+				t.Error(unexpectedSuccess)
+			}
+		})
+
 	})
 }

@@ -21,6 +21,7 @@ import (
 	"io/ioutil"
 	"os"
 	"testing"
+	"time"
 )
 
 const (
@@ -106,29 +107,47 @@ PCVId1PsX2rDTRr7vVM+j9nDtEybYZO7BFHPGPRkkHr30mU17VSOxWsfnN3+NJ3u
 
 func TestCreateServerConfig(t *testing.T) {
 	t.Run("Fail", func(t *testing.T) {
-		defer func() {
-			os.RemoveAll(fakeCertsPath)
-			if r := recover(); r == nil {
-				t.Error(r)
+		t.Run("WrongCACrtFmt", func(t *testing.T) {
+			defer func() {
+				os.RemoveAll(fakeCertsPath)
+				if r := recover(); r == nil {
+					t.Error(r)
+				}
+			}()
+
+			if _, err := createServerConfig(fakeCertsPath); err == nil {
+				t.Error(unexpectedSuccess)
 			}
-		}()
 
-		if _, err := createServerConfig(fakeCertsPath); err == nil {
-			t.Error(unexpectedSuccess)
-		}
+			if err := os.MkdirAll(fakeCertsPath, os.ModePerm); err != nil {
+				t.Error(err.Error())
+			}
+			if err := ioutil.WriteFile(fakeCertsPath+"/ca-crt.pem", []byte("hello"), 0444); err != nil {
+				t.Error(err.Error())
+			}
 
-		err := os.MkdirAll(fakeCertsPath, 0777)
-		if err != nil {
-			t.Error(err.Error())
-		}
+			if _, err := createServerConfig(fakeCertsPath); err == nil {
+				t.Error(unexpectedSuccess)
+			}
+		})
+		t.Run("AbsentHenCrtKey", func(t *testing.T) {
+			defer func() {
+				os.RemoveAll(fakeCertsPath)
+				if r := recover(); r == nil {
+					t.Error(r)
+				}
+			}()
 
-		if err := ioutil.WriteFile(fakeCertsPath+"/ca-crt.pem", []byte("hello"), 0444); err != nil {
-			t.Error(err.Error())
-		}
-
-		if _, err := createServerConfig(fakeCertsPath); err == nil {
-			t.Error(unexpectedSuccess)
-		}
+			if err := os.MkdirAll(fakeCertsPath, os.ModePerm); err != nil {
+				t.Error(err.Error())
+			}
+			if err := ioutil.WriteFile(fakeCertsPath+"/ca-crt.pem", []byte(fakeCASert), 0444); err != nil {
+				t.Error(err.Error())
+			}
+			if _, err := createServerConfig(fakeCertsPath); err == nil {
+				t.Error(unexpectedSuccess)
+			}
+		})
 	})
 
 	t.Run("Success", func(t *testing.T) {
@@ -154,20 +173,106 @@ func TestCreateServerConfig(t *testing.T) {
 		}
 
 	})
-	t.Run("Fail", func(t *testing.T) {
+}
+
+const addr = "localhost:12345"
+
+func TestListenAndServe(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
 		defer os.RemoveAll(fakeCertsPath)
 
-		err := os.MkdirAll(fakeCertsPath, os.ModePerm)
-		if err != nil {
+		if err := os.MkdirAll(fakeCertsPath, os.ModePerm); err != nil {
 			t.Error(err.Error())
 		}
-
 		if err := ioutil.WriteFile(fakeCertsPath+"/ca-crt.pem", []byte(fakeCASert), 0444); err != nil {
 			t.Error(err.Error())
 		}
-
-		if _, err := createServerConfig(fakeCertsPath); err == nil {
-			t.Error(unexpectedSuccess)
+		if err := ioutil.WriteFile(fakeCertsPath+"/hen-crt.pem", []byte(fakeHENSert), 0444); err != nil {
+			t.Error(err.Error())
 		}
+		if err := ioutil.WriteFile(fakeCertsPath+"/hen-key.pem", []byte(fakeHENKey), 0444); err != nil {
+			t.Error(err.Error())
+		}
+
+		s := TLSServer{Certspath: fakeCertsPath}
+		go func() {
+			time.Sleep(2 * time.Second)
+			s.listener.Close()
+		}()
+		s.ListenAndServe(addr, nil)
+	})
+	t.Run("Fail", func(t *testing.T) {
+		t.Run("AbsentCertsPath", func(t *testing.T) {
+			defer func() {
+				os.RemoveAll(fakeCertsPath)
+				if r := recover(); r == nil {
+					t.Error(r)
+				}
+			}()
+
+			s := TLSServer{Certspath: fakeCertsPath}
+			s.ListenAndServe(addr, nil)
+
+		})
+		t.Run("WrongCACrtFmt", func(t *testing.T) {
+			defer func() {
+				os.RemoveAll(fakeCertsPath)
+				if r := recover(); r == nil {
+					t.Error(r)
+				}
+			}()
+
+			if err := os.MkdirAll(fakeCertsPath, os.ModePerm); err != nil {
+				t.Error(err.Error())
+			}
+			if err := ioutil.WriteFile(fakeCertsPath+"/ca-crt.pem", []byte(""), 0444); err != nil {
+				t.Error(err.Error())
+			}
+
+			s := TLSServer{Certspath: fakeCertsPath}
+			s.ListenAndServe(addr, nil)
+		})
+		t.Run("AbsentHenCrtKey", func(t *testing.T) {
+			defer func() {
+				os.RemoveAll(fakeCertsPath)
+				if r := recover(); r == nil {
+					t.Error(r)
+				}
+			}()
+
+			if err := os.MkdirAll(fakeCertsPath, os.ModePerm); err != nil {
+				t.Error(err.Error())
+			}
+			if err := ioutil.WriteFile(fakeCertsPath+"/ca-crt.pem", []byte(fakeCASert), 0444); err != nil {
+				t.Error(err.Error())
+			}
+
+			s := TLSServer{Certspath: fakeCertsPath}
+			s.ListenAndServe(addr, nil)
+		})
+		t.Run("BadAddr", func(t *testing.T) {
+			defer func() {
+				os.RemoveAll(fakeCertsPath)
+				if r := recover(); r == nil {
+					t.Error(r)
+				}
+			}()
+
+			if err := os.MkdirAll(fakeCertsPath, os.ModePerm); err != nil {
+				t.Error(err.Error())
+			}
+			if err := ioutil.WriteFile(fakeCertsPath+"/ca-crt.pem", []byte(fakeCASert), 0444); err != nil {
+				t.Error(err.Error())
+			}
+			if err := ioutil.WriteFile(fakeCertsPath+"/hen-crt.pem", []byte(fakeHENSert), 0444); err != nil {
+				t.Error(err.Error())
+			}
+			if err := ioutil.WriteFile(fakeCertsPath+"/hen-key.pem", []byte(fakeHENKey), 0444); err != nil {
+				t.Error(err.Error())
+			}
+
+			s := TLSServer{Certspath: fakeCertsPath}
+			s.ListenAndServe("_", nil)
+		})
 	})
 }
