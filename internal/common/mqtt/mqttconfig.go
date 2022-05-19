@@ -33,10 +33,9 @@ import (
 )
 
 const (
-	edgeDir = "/var/edge-orchestration"
-	caCert  = edgeDir + "/certs/ca-crt.pem"
-	henCert = edgeDir + "/certs/hen-crt.pem"
-	henKey  = edgeDir + "/certs/hen-key.pem"
+	caCert  = "/ca-crt.pem"
+	henCert = "/hen-crt.pem"
+	henKey  = "/hen-key.pem"
 )
 
 // Client is a wrapper on top of `MQTT.Client`
@@ -63,8 +62,9 @@ var (
 	//URLData stores the urls mapped to app id
 	URLData map[string][]string //to store the appids maped to urls
 	//MQTTClient stores the Client object mapped to urls
-	MQTTClient map[string]*Client //to store Homeedge client object for every url
-	clientID   string
+	MQTTClient          map[string]*Client //to store Homeedge client object for every url
+	clientID            string
+	certificateFilePath string
 )
 
 // Config represents an attribute config setter for the `Client`.
@@ -93,6 +93,7 @@ func SetPort(port uint) Config {
 
 // InitMQTTData creates an initialized hashmap
 func InitMQTTData() {
+	certificateFilePath = "/var/edge-orchestration/certs"
 	subscriptionInfo = make(map[Key][]string)
 	publishData = make(map[Key]string)
 	URLData = make(map[string][]string)
@@ -100,7 +101,7 @@ func InitMQTTData() {
 	dbIns := dbhelper.GetInstance()
 	clientID, err := dbIns.GetDeviceID()
 	if err != nil {
-		log.Println(err.Error())
+		log.Error(logPrefix, err.Error())
 	}
 	log.Info(logPrefix, "DeviceId is set as ", clientID)
 }
@@ -156,18 +157,21 @@ func checkforConnection(brokerURL string, mqttClient *Client, mqttPort uint) int
 }
 
 //NewTLSConfig creates a tls config for mqtt client
-func NewTLSConfig() (*tls.Config, error) {
-	certpool := x509.NewCertPool()
-	ca, err := ioutil.ReadFile(caCert)
+func NewTLSConfig(certsPath string) (*tls.Config, error) {
+	caCertPEM, err := ioutil.ReadFile(certsPath + "/ca-crt.pem")
 	if err != nil {
-		log.Warn(logPrefix, err.Error())
+		log.Panic(logPrefix, err.Error())
 		return nil, err
 	}
+	certpool := x509.NewCertPool()
+	ok := certpool.AppendCertsFromPEM(caCertPEM)
+	if !ok {
+		log.Panic(logPrefix, " failed to parse root certificate")
+	}
 
-	certpool.AppendCertsFromPEM(ca)
-
-	cert, err := tls.LoadX509KeyPair(henCert, henKey)
+	cert, err := tls.LoadX509KeyPair(certsPath+"/hen-crt.pem", certsPath+"/hen-key.pem")
 	if err != nil {
+		log.Panic(logPrefix, err.Error())
 		return nil, err
 	}
 	return &tls.Config{
@@ -195,10 +199,7 @@ func NewClient(configs ...Config) (*Client, error) {
 	secure := os.Getenv("SECURE")
 	if len(secure) > 0 {
 		if strings.Compare(strings.ToLower(secure), "true") == 0 {
-			tlsconfig, err := NewTLSConfig()
-			if err != nil {
-				return nil, err
-			}
+			tlsconfig, _ := NewTLSConfig(certificateFilePath)
 			copts.SetTLSConfig(tlsconfig)
 		}
 	}
