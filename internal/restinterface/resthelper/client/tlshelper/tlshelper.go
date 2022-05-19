@@ -51,17 +51,19 @@ func init() {
 func createClientConfig(certspath string) (*tls.Config, error) {
 	caCertPEM, err := ioutil.ReadFile(certspath + "/ca-crt.pem")
 	if err != nil {
+		log.Panic(err.Error())
 		return nil, err
 	}
 
 	roots := x509.NewCertPool()
 	ok := roots.AppendCertsFromPEM(caCertPEM)
 	if !ok {
-		panic("failed to parse root certificate")
+		log.Panic("failed to parse root certificate")
 	}
 
 	cert, err := tls.LoadX509KeyPair(certspath+"/hen-crt.pem", certspath+"/hen-key.pem")
 	if err != nil {
+		log.Panic(err.Error())
 		return nil, err
 	}
 	return &tls.Config{
@@ -81,11 +83,7 @@ func (s TLSHelper) Do(req *http.Request) (*http.Response, error) {
 		return nil, fmt.Errorf("invalid URL port %q", req.URL.Port())
 	}
 
-	config, err := createClientConfig(s.Certspath)
-	if err != nil {
-		log.Fatal("config failed: ", err)
-	}
-
+	config, _ := createClientConfig(s.Certspath)
 	tlsconn, err := tls.Dial("tcp", req.URL.Host, config)
 	if err != nil {
 		return nil, err

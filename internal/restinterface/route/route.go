@@ -110,7 +110,8 @@ func (r RestRouter) listenAndServe() {
 	switch r.IsSetCert {
 	case true:
 		log.Info(logPrefix, "Internal ListenAndServeTLS")
-		go tlsserver.TLSServer{Certspath: r.GetCertificateFilePath()}.ListenAndServe(":"+strconv.Itoa(ConstInternalPort), r.routerInternal)
+		s := tlsserver.TLSServer{Certspath: r.GetCertificateFilePath()}
+		go s.ListenAndServe(":"+strconv.Itoa(ConstInternalPort), r.routerInternal)
 	default:
 		log.Info(logPrefix, "Internal ListenAndServe")
 		go http.ListenAndServe(":"+strconv.Itoa(ConstInternalPort), r.routerInternal)

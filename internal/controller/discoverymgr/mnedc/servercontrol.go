@@ -91,7 +91,9 @@ func startMNEDCBroadcastServer() {
 		http.HandleFunc("/register", handleClientInfo)
 		go http.ListenAndServe(":"+strconv.Itoa(broadcastServerPort), nil)
 	} else {
-		go tlsserver.TLSServer{Certspath: serverIns.GetCertificateFilePath()}.ListenAndServe(":"+strconv.Itoa(broadcastServerPort), http.HandlerFunc(handleClientInfo))
+		s := tlsserver.TLSServer{Certspath: serverIns.GetCertificateFilePath()}
+		go s.ListenAndServe(":"+strconv.Itoa(broadcastServerPort), http.HandlerFunc(handleClientInfo))
+		// go tlsserver.TLSServer{Certspath: serverIns.GetCertificateFilePath()}.ListenAndServe(":"+strconv.Itoa(broadcastServerPort), http.HandlerFunc(handleClientInfo))
 	}
 }
 

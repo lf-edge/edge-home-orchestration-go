@@ -260,10 +260,6 @@ func TestAPIV1ScoringmgrScoreLibnameGet(t *testing.T) {
 	mockHelper := helpermock.NewMockRestHelper(ctrl)
 
 	serviceID := float64(1.0)
-	//	status := "Testing"
-	//	notification := make(map[string]interface{})
-	//	notification["ServiceID"] = serviceID
-	//	notification["Status"] = status
 
 	appNameInfo := make(map[string]interface{})
 	appNameInfo["devID"] = "deviceID"
@@ -399,6 +395,119 @@ func TestAPIV1DiscoveryFromVPNServer(t *testing.T) {
 
 		handler.APIV1DiscoverymgrMNEDCDeviceInfoPost(w, r)
 	})
+}
+
+func TestAPIV1ScoringmgrResourceGet(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	handler := GetHandler()
+	if handler == nil {
+		t.Error("unexpected return value")
+	}
+
+	mockOrchestration := orchemock.NewMockOrcheInternalAPI(ctrl)
+	mockCipher := ciphermock.NewMockIEdgeCipherer(ctrl)
+	mockHelper := helpermock.NewMockRestHelper(ctrl)
+
+	resource := make(map[string]interface{})
+	resource["cpuUsage"] = "10.0"
+
+	appNameInfo := make(map[string]interface{})
+	appNameInfo["devID"] = "deviceID"
+
+	r := httptest.NewRequest("POST", "http://test.test", nil)
+	w := httptest.NewRecorder()
+
+	t.Run("IsNotSetApi", func(t *testing.T) {
+		handler.setHelper(mockHelper)
+		mockHelper.EXPECT().Response(gomock.Any(), gomock.Any(), gomock.Eq(http.StatusServiceUnavailable))
+
+		handler.isSetAPI = false
+		handler.APIV1ScoringmgrResourceGet(w, r)
+	})
+	t.Run("IsNotSetKey", func(t *testing.T) {
+		handler.SetOrchestrationAPI(mockOrchestration)
+		handler.setHelper(mockHelper)
+		mockHelper.EXPECT().Response(gomock.Any(), gomock.Any(), gomock.Eq(http.StatusServiceUnavailable))
+
+		handler.IsSetKey = false
+		handler.APIV1ScoringmgrResourceGet(w, r)
+	})
+	t.Run("DecryptionFail", func(t *testing.T) {
+		handler.SetCipher(mockCipher)
+		handler.SetOrchestrationAPI(mockOrchestration)
+		handler.setHelper(mockHelper)
+		gomock.InOrder(
+			mockCipher.EXPECT().DecryptByteToJSON(gomock.Any()).Return(nil, errors.New("")),
+			mockHelper.EXPECT().Response(gomock.Any(), gomock.Any(), gomock.Eq(http.StatusServiceUnavailable)),
+		)
+
+		handler.APIV1ScoringmgrResourceGet(w, r)
+	})
+	t.Run("GetResourceFail", func(t *testing.T) {
+		handler.SetCipher(mockCipher)
+		handler.SetOrchestrationAPI(mockOrchestration)
+		handler.setHelper(mockHelper)
+		gomock.InOrder(
+			mockCipher.EXPECT().DecryptByteToJSON(gomock.Any()).Return(appNameInfo, nil),
+			mockOrchestration.EXPECT().GetResource(gomock.Any()).Return(resource, errors.New("")),
+			mockHelper.EXPECT().Response(gomock.Any(), gomock.Any(), gomock.Eq(http.StatusInternalServerError)),
+		)
+
+		handler.APIV1ScoringmgrResourceGet(w, r)
+	})
+	t.Run("EncryptionFail", func(t *testing.T) {
+		handler.SetCipher(mockCipher)
+		handler.SetOrchestrationAPI(mockOrchestration)
+		handler.setHelper(mockHelper)
+		gomock.InOrder(
+			mockCipher.EXPECT().DecryptByteToJSON(gomock.Any()).Return(appNameInfo, nil),
+			mockOrchestration.EXPECT().GetResource(gomock.Any()).Return(resource, nil),
+			mockCipher.EXPECT().EncryptJSONToByte(gomock.Any()).Return(nil, errors.New("")),
+			mockHelper.EXPECT().Response(gomock.Any(), gomock.Any(), gomock.Eq(http.StatusServiceUnavailable)),
+		)
+
+		handler.APIV1ScoringmgrResourceGet(w, r)
+	})
+	t.Run("Success", func(t *testing.T) {
+		handler.SetCipher(mockCipher)
+		handler.SetOrchestrationAPI(mockOrchestration)
+		handler.setHelper(mockHelper)
+		gomock.InOrder(
+			mockCipher.EXPECT().DecryptByteToJSON(gomock.Any()).Return(appNameInfo, nil),
+			mockOrchestration.EXPECT().GetResource(gomock.Any()).Return(resource, nil),
+			mockCipher.EXPECT().EncryptJSONToByte(gomock.Any()).Return(nil, nil),
+			mockHelper.EXPECT().Response(gomock.Any(), gomock.Any(), gomock.Eq(http.StatusOK)),
+		)
+
+		handler.APIV1ScoringmgrResourceGet(w, r)
+	})
+
+}
+
+func TestAPIV1Ping(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	handler := GetHandler()
+	if handler == nil {
+		t.Error("unexpected return value")
+	}
+
+	mockHelper := helpermock.NewMockRestHelper(ctrl)
+
+	r := httptest.NewRequest("POST", "http://test.test", nil)
+	w := httptest.NewRecorder()
+
+	t.Run("Success", func(t *testing.T) {
+		handler.setHelper(mockHelper)
+		gomock.InOrder(
+			mockHelper.EXPECT().Response(gomock.Any(), gomock.Any(), gomock.Eq(http.StatusOK)),
+		)
+		handler.APIV1Ping(w, r)
+	})
+
 }
 
 func TestAPIV1DiscoverymgrOrchInfoGet(t *testing.T) {
