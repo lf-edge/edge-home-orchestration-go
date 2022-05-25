@@ -55,7 +55,7 @@ func checkCPUUsage() {
 
 	cpus, err := cpu.percent(time.Second, true)
 	if err != nil {
-		log.Println(logPrefix, "usage of cpu is fail : ", err.Error())
+		log.Error(logPrefix, "usage of cpu is fail : ", err.Error())
 		return
 	}
 
@@ -70,14 +70,14 @@ func checkCPUUsage() {
 
 	err = resourceDBExecutor.Set(info)
 	if err != nil {
-		log.Println(logPrefix, "DB error : ", err.Error())
+		log.Error(logPrefix, "DB error : ", err.Error())
 	}
 }
 
 func checkCPUFreq() (out float64, err error) {
 	infos, err := cpu.info()
 	if err != nil {
-		log.Println(logPrefix, "cpu.Info() fail : ", err.Error())
+		log.Error(logPrefix, "cpu.Info() fail : ", err.Error())
 		return
 	}
 
@@ -87,7 +87,7 @@ func checkCPUFreq() (out float64, err error) {
 
 	err = resourceDBExecutor.Set(info)
 	if err != nil {
-		log.Println(logPrefix, "DB error : ", err.Error())
+		log.Error(logPrefix, "DB error : ", err.Error())
 	}
 	return
 }
@@ -95,7 +95,7 @@ func checkCPUFreq() (out float64, err error) {
 func checkCPUCount() {
 	infos, err := cpu.info()
 	if err != nil {
-		log.Println(logPrefix, "cpu info getting fail : ", err.Error())
+		log.Error(logPrefix, "cpu info getting fail : ", err.Error())
 		return
 	}
 
@@ -105,6 +105,6 @@ func checkCPUCount() {
 
 	err = resourceDBExecutor.Set(info)
 	if err != nil {
-		log.Println(logPrefix, "DB error : ", err.Error())
+		log.Error(logPrefix, "DB error : ", err.Error())
 	}
 }

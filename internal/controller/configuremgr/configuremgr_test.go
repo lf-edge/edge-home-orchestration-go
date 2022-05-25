@@ -37,6 +37,12 @@ const (
 	fakeExecType    = "native"
 )
 
+const (
+	fakePath          = "fakePath"
+	unexpectedSuccess = "unexpected success"
+	unexpectedFail    = "unexpected fail"
+)
+
 type dummyNoti struct{}
 
 func (d dummyNoti) Notify(serviceinfo configuremgrtypes.ServiceInfo) {
@@ -108,6 +114,24 @@ func TestBasicMockConfigureMgr(t *testing.T) {
 
 		if name != expectedName {
 			t.Errorf("Not matched notified serviceName %s != %s", name, expectedName)
+		}
+	})
+}
+
+func TestGetServiceInfo(t *testing.T) {
+	t.Run("Fail", func(t *testing.T) {
+		_, err := getServiceInfo(fakePath)
+		if err == nil {
+			t.Error(unexpectedSuccess)
+		}
+	})
+}
+
+func TestGetdirname(t *testing.T) {
+	t.Run("Fail", func(t *testing.T) {
+		_, err := getdirname(fakePath + "/")
+		if err == nil {
+			t.Error(unexpectedSuccess)
 		}
 	})
 }

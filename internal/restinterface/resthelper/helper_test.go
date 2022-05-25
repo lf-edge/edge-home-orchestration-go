@@ -25,6 +25,11 @@ import (
 	"testing"
 )
 
+const (
+	unexpectedSuccess = "unexpected success"
+	unexpectedFail    = "unexpected fail"
+)
+
 var (
 	expectMethod = http.MethodGet
 	statusCode   = http.StatusOK
@@ -38,10 +43,12 @@ var (
 )
 
 func TestGetHelper(t *testing.T) {
-	helper := GetHelper()
-	if helper == nil {
-		t.Error("unexpected return value")
-	}
+	t.Run("Success", func(t *testing.T) {
+		helper := GetHelper()
+		if helper == nil {
+			t.Error("unexpected return value")
+		}
+	})
 }
 
 func getTestServer(handler http.HandlerFunc) *httptest.Server {
@@ -60,6 +67,12 @@ func TestDoGet(t *testing.T) {
 			t.Error("unexpected error " + err.Error())
 		}
 	})
+	t.Run("Fail", func(t *testing.T) {
+		_, _, err := GetHelper().DoGet("")
+		if err == nil {
+			t.Error(unexpectedSuccess)
+		}
+	})
 }
 
 func TestDoGetWithBody(t *testing.T) {
@@ -72,6 +85,12 @@ func TestDoGetWithBody(t *testing.T) {
 			t.Error("unexpected error code " + http.StatusText(code))
 		} else if err != nil {
 			t.Error("unexpected error " + err.Error())
+		}
+	})
+	t.Run("Fail", func(t *testing.T) {
+		_, _, err := GetHelper().DoGetWithBody("", nil)
+		if err == nil {
+			t.Error(unexpectedSuccess)
 		}
 	})
 }
@@ -89,6 +108,12 @@ func TestDoPost(t *testing.T) {
 			t.Error("unexpected error " + err.Error())
 		}
 	})
+	t.Run("Fail", func(t *testing.T) {
+		_, _, err := GetHelper().DoPost("", make([]byte, 0))
+		if err == nil {
+			t.Error(unexpectedSuccess)
+		}
+	})
 }
 
 func TestDoDelete(t *testing.T) {
@@ -104,20 +129,53 @@ func TestDoDelete(t *testing.T) {
 			t.Error("unexpected error " + err.Error())
 		}
 	})
+	t.Run("Fail", func(t *testing.T) {
+		_, _, err := GetHelper().DoDelete("")
+		if err == nil {
+			t.Error(unexpectedSuccess)
+		}
+	})
 }
 
 func TestMakeTargetURL(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
-		target := "testserver.test"
-		port := 1234
-		restapi := "/api/v1/test"
-		expected := "http://" + target + ":" + strconv.Itoa(port) + restapi
+		t.Run("GetHelper-MakeTargetURL", func(t *testing.T) {
+			target := "testserver.test"
+			port := 1234
+			restapi := "/api/v1/test"
+			expected := "http://" + target + ":" + strconv.Itoa(port) + restapi
 
-		fullURL := GetHelper().MakeTargetURL(target, port, restapi)
+			fullURL := GetHelper().MakeTargetURL(target, port, restapi)
 
-		if expected != fullURL {
-			t.Error("expect same, but not same")
-		}
+			if expected != fullURL {
+				t.Error("expect same, but not same")
+			}
+		})
+		t.Run("GetHelperWithCertificate-MakeTargetURL", func(t *testing.T) {
+			target := "testserver.test"
+			port := 1234
+			restapi := "/api/v1/test"
+			expected := "http://" + target + ":" + strconv.Itoa(port) + restapi
+
+			fullURL := GetHelperWithCertificate().MakeTargetURL(target, port, restapi)
+			if expected != fullURL {
+				t.Error("expect same, but not same")
+			}
+		})
+		t.Run("HTTPS-MakeTargetURL", func(t *testing.T) {
+			target := "testserver.test"
+			port := 1234
+			restapi := "/api/v1/test"
+			expected := "https://" + target + ":" + strconv.Itoa(port) + restapi
+
+			var hh helperImpl
+			hh.SetCertificateFilePath("fakecerts")
+
+			fullURL := hh.MakeTargetURL(target, port, restapi)
+			if expected != fullURL {
+				t.Error("expect same, but not same")
+			}
+		})
 	})
 }
 
