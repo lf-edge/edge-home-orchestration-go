@@ -135,7 +135,7 @@ func (h *Handler) SetCertificateFilePath(path string) {
 // APIV1Ping handles ping request from remote orchestration
 func (h *Handler) APIV1Ping(w http.ResponseWriter, r *http.Request) {
 	var responseBytes []byte
-	responseBytes = []byte("Pong")
+	responseBytes = []byte("Pong\n")
 	h.helper.Response(w, responseBytes, http.StatusOK)
 }
 
