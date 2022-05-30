@@ -2,11 +2,12 @@ package cpu
 
 import (
 	"bufio"
-	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
 	"os"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
 )
 
 const (
@@ -59,7 +60,7 @@ func init() {
 func readCPUUsage() ([]float64, error) {
 	f, err := fileOpen("/proc/stat")
 	if err != nil {
-		log.Println(err.Error())
+		log.Error(err.Error())
 		return nil, err
 	}
 	defer f.Close()
@@ -181,9 +182,11 @@ func getCPUFreqCPUInfo() (float64, error) {
 	defer f.Close()
 
 	r := bufio.NewReader(f)
+	var line string
 	for {
-		line, err := r.ReadString('\n')
+		line, err = r.ReadString('\n')
 		if err != nil {
+			log.Error(err.Error())
 			break
 		}
 

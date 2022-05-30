@@ -19,13 +19,20 @@ package networkhelper
 
 import (
 	"errors"
-	"github.com/lf-edge/edge-home-orchestration-go/internal/common/networkhelper/detector/mocks"
 	"net"
+	"os"
 	"reflect"
 	"sync"
 	"testing"
 
 	"github.com/golang/mock/gomock"
+	"github.com/lf-edge/edge-home-orchestration-go/internal/common/networkhelper/detector/mocks"
+)
+
+const (
+	fakeWirelessPath  = "fakewireless"
+	unexpectedSuccess = "unexpected success"
+	unexpectedFail    = "unexpected fail"
 )
 
 var (
@@ -122,10 +129,10 @@ func TestGetOutboundIP(t *testing.T) {
 		setPassCondOfNetInfo()
 		ip, err := network.GetOutboundIP()
 		if err != nil {
-			t.Error()
+			t.Error(err.Error())
 		}
 		if ip != TESTNEWIP.String() {
-			t.Error()
+			t.Error(unexpectedFail)
 		}
 
 	})
@@ -133,7 +140,7 @@ func TestGetOutboundIP(t *testing.T) {
 		setFailCondOfNetInfo()
 		_, err := network.GetOutboundIP()
 		if err == nil {
-			t.Error()
+			t.Error(unexpectedSuccess)
 		}
 	})
 }
@@ -143,17 +150,17 @@ func TestGetMACAddress(t *testing.T) {
 		setPassCondOfNetInfo()
 		mac, err := network.GetMACAddress()
 		if err != nil {
-			t.Error()
+			t.Error(err.Error())
 		}
 		if mac != TESTMAC {
-			t.Error()
+			t.Error(err.Error())
 		}
 	})
 	t.Run("Fail", func(t *testing.T) {
 		setFailCondOfNetInfo()
 		_, err := network.GetMACAddress()
 		if err == nil {
-			t.Error()
+			t.Error(unexpectedSuccess)
 		}
 	})
 }
@@ -262,7 +269,7 @@ func TestGetVirtualIP(t *testing.T) {
 		setFailCondOfNetInfo()
 		_, err := network.GetVirtualIP()
 		if err == nil {
-			t.Error("Expected error")
+			t.Error(unexpectedSuccess)
 			return
 		}
 	})
@@ -270,7 +277,7 @@ func TestGetVirtualIP(t *testing.T) {
 		setPassCondOfNetInfo()
 		_, err := network.GetVirtualIP()
 		if err == nil {
-			t.Error("Expected error")
+			t.Error(unexpectedSuccess)
 			return
 		}
 	})
@@ -281,8 +288,45 @@ func TestGetVirtualIP(t *testing.T) {
 		netInfo.addrInfos[0].ipv4 = TESTNEWIP
 		_, err := network.GetVirtualIP()
 		if err != nil {
-			t.Error("error not expected")
+			t.Error(unexpectedFail)
 			return
+		}
+	})
+}
+
+func TestSetAddrInfoP(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
+		ifaces, _ := net.Interfaces()
+		err := setAddrInfo(ifaces)
+		if err != nil {
+			t.Error(unexpectedFail)
+		}
+	})
+	t.Run("Fail", func(t *testing.T) {
+		err := setAddrInfo(nil)
+		if err == nil {
+			t.Error(unexpectedSuccess)
+		}
+	})
+}
+
+func TestCheckWiredNet(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
+		defer os.RemoveAll(fakeWirelessPath)
+
+		err := os.MkdirAll(fakeWirelessPath+"/wireless", os.ModePerm)
+		if err != nil {
+			t.Error(err.Error())
+		}
+		res := checkWiredNet(fakeWirelessPath)
+		if res == true {
+			t.Error(unexpectedFail)
+		}
+	})
+	t.Run("Fail", func(t *testing.T) {
+		res := checkWiredNet(fakeWirelessPath)
+		if res != true {
+			t.Error(unexpectedSuccess)
 		}
 	})
 }

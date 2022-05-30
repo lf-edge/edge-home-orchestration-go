@@ -41,6 +41,8 @@ import (
 
 const (
 	defaultServiceName = "default_service"
+	unexpectedSuccess  = "unexpected success"
+	unexpectedFail     = "unexpected fail"
 )
 
 var (
@@ -273,5 +275,31 @@ func TestNotify(t *testing.T) {
 				ExecutableFileName: defaultServiceName,
 			})
 		})
+	})
+}
+
+func TestInternalExternalAPI(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
+		getOrcheImple().Ready = true
+
+		if _, err := GetInternalAPI(); err != nil {
+			t.Error(unexpectedFail + err.Error())
+		}
+
+		if _, err := GetExternalAPI(); err != nil {
+			t.Error(unexpectedFail + err.Error())
+		}
+
+	})
+	t.Run("Fail", func(t *testing.T) {
+		getOrcheImple().Ready = false
+
+		if _, err := GetInternalAPI(); err == nil {
+			t.Error(unexpectedSuccess)
+		}
+
+		if _, err := GetExternalAPI(); err == nil {
+			t.Error(unexpectedSuccess)
+		}
 	})
 }

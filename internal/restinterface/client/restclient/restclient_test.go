@@ -291,6 +291,19 @@ func TestDoGetScoreRemoteDevice(t *testing.T) {
 				}
 			})
 		})
+		t.Run("EncryptionFail", func(t *testing.T) {
+			client.SetCipher(mockCipher)
+			client.setHelper(mockHelper)
+			gomock.InOrder(
+				mockHelper.EXPECT().MakeTargetURL(gomock.Any(), gomock.Any(), gomock.Any()).Return(""),
+				mockCipher.EXPECT().EncryptJSONToByte(gomock.Any()).Return(nil, errors.New("")),
+			)
+
+			_, err := client.DoGetScoreRemoteDevice("", "")
+			if err == nil {
+				t.Error("expect error is not nil, but nil")
+			}
+		})
 		t.Run("DecryptionFail", func(t *testing.T) {
 			client.SetCipher(mockCipher)
 			client.setHelper(mockHelper)
@@ -346,6 +359,115 @@ func TestDoGetScoreRemoteDevice(t *testing.T) {
 			t.Error("expect error is nil, but not nil")
 		} else if score != float64(1.0) {
 			t.Error("unexpected score value")
+		}
+	})
+}
+
+func TestDoGetResourceRemoteDevice(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	client := restClient
+	if client == nil {
+		t.Error("unexpected return value")
+	}
+
+	mockCipher := ciphermock.NewMockIEdgeCipherer(ctrl)
+	mockHelper := helpermock.NewMockRestHelper(ctrl)
+
+	t.Run("Error", func(t *testing.T) {
+		t.Run("IsNotSetKey", func(t *testing.T) {
+			client.setHelper(mockHelper)
+
+			client.IsSetKey = false
+			_, err := client.DoGetResourceRemoteDevice("", "")
+			if err == nil {
+				t.Error("expect error is not nil, but nil")
+			}
+		})
+		t.Run("DoGetWithBody", func(t *testing.T) {
+			t.Run("ReturnError", func(t *testing.T) {
+				client.SetCipher(mockCipher)
+				client.setHelper(mockHelper)
+				gomock.InOrder(
+					mockHelper.EXPECT().MakeTargetURL(gomock.Any(), gomock.Any(), gomock.Any()).Return(""),
+					mockCipher.EXPECT().EncryptJSONToByte(gomock.Any()).Return(nil, nil),
+					mockHelper.EXPECT().DoGetWithBody(gomock.Any(), gomock.Any()).Return(nil, http.StatusOK, errors.New("")),
+				)
+
+				_, err := client.DoGetResourceRemoteDevice("", "")
+				if err == nil {
+					t.Error("expect error is not nil, but nil")
+				}
+			})
+		})
+		t.Run("EncryptionFail", func(t *testing.T) {
+			client.SetCipher(mockCipher)
+			client.setHelper(mockHelper)
+			gomock.InOrder(
+				mockHelper.EXPECT().MakeTargetURL(gomock.Any(), gomock.Any(), gomock.Any()).Return(""),
+				mockCipher.EXPECT().EncryptJSONToByte(gomock.Any()).Return(nil, errors.New("")),
+			)
+
+			_, err := client.DoGetResourceRemoteDevice("", "")
+			if err == nil {
+				t.Error("expect error is not nil, but nil")
+			}
+		})
+
+		t.Run("DecryptionFail", func(t *testing.T) {
+			client.SetCipher(mockCipher)
+			client.setHelper(mockHelper)
+			gomock.InOrder(
+				mockHelper.EXPECT().MakeTargetURL(gomock.Any(), gomock.Any(), gomock.Any()).Return(""),
+				mockCipher.EXPECT().EncryptJSONToByte(gomock.Any()).Return(nil, nil),
+				mockHelper.EXPECT().DoGetWithBody(gomock.Any(), gomock.Any()).Return(nil, http.StatusOK, nil),
+				mockCipher.EXPECT().DecryptByteToJSON(gomock.Any()).Return(nil, errors.New("")),
+			)
+
+			_, err := client.DoGetResourceRemoteDevice("", "")
+			if err == nil {
+				t.Error("expect error is not nil, but nil")
+			}
+		})
+		t.Run("ReturnError", func(t *testing.T) {
+			client.SetCipher(mockCipher)
+			client.setHelper(mockHelper)
+
+			respMsg := make(map[string]interface{})
+			respMsg["error"] = "failed"
+
+			gomock.InOrder(
+				mockHelper.EXPECT().MakeTargetURL(gomock.Any(), gomock.Any(), gomock.Any()).Return(""),
+				mockCipher.EXPECT().EncryptJSONToByte(gomock.Any()).Return(nil, nil),
+				mockHelper.EXPECT().DoGetWithBody(gomock.Any(), gomock.Any()).Return(nil, http.StatusOK, nil),
+				mockCipher.EXPECT().DecryptByteToJSON(gomock.Any()).Return(respMsg, nil),
+			)
+
+			_, err := client.DoGetResourceRemoteDevice("", "")
+			if err == nil {
+				t.Error("expect error is not nil, but nil")
+			}
+		})
+	})
+
+	t.Run("Success", func(t *testing.T) {
+		client.SetCipher(mockCipher)
+		client.setHelper(mockHelper)
+
+		respMsg := make(map[string]interface{})
+		// 	respMsg["ScoreValue"] = float64(1.0)
+
+		gomock.InOrder(
+			mockHelper.EXPECT().MakeTargetURL(gomock.Any(), gomock.Any(), gomock.Any()).Return(""),
+			mockCipher.EXPECT().EncryptJSONToByte(gomock.Any()).Return(nil, nil),
+			mockHelper.EXPECT().DoGetWithBody(gomock.Any(), gomock.Any()).Return(nil, http.StatusOK, nil),
+			mockCipher.EXPECT().DecryptByteToJSON(gomock.Any()).Return(respMsg, nil),
+		)
+
+		_, err := client.DoGetResourceRemoteDevice("", "")
+		if err != nil {
+			t.Error("unexpectedFail")
 		}
 	})
 }

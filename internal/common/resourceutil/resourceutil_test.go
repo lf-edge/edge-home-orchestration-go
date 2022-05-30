@@ -32,6 +32,11 @@ import (
 	resourceDBMock "github.com/lf-edge/edge-home-orchestration-go/internal/db/bolt/resource/mocks"
 )
 
+const (
+	unexpectedSuccess = "unexpected success"
+	unexpectedFail    = "unexpected fail"
+)
+
 type dummpyLink struct {
 	Link
 	attrs   netutil.LinkAttrs
@@ -229,219 +234,251 @@ func setupMemFreeTest() {
 	monitoringExecutor.rttScoring = func() {}
 }
 
-func TestGetCPUUsage_ExpectedSuccess(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
+func TestGetCPUUsage(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
 
-	resourceDBMockObj := resourceDBMock.NewMockDBInterface(ctrl)
+		resourceDBMockObj := resourceDBMock.NewMockDBInterface(ctrl)
 
-	info := resourceDB.Info{}
-	info.Name = CPUUsage
-	info.Value = dummyCPUPercentResult
+		info := resourceDB.Info{}
+		info.Name = CPUUsage
+		info.Value = dummyCPUPercentResult
 
-	resourceDBMockObj.EXPECT().Set(info).Return(nil).AnyTimes()
-	resourceDBMockObj.EXPECT().Get(CPUUsage).Return(info, nil)
+		resourceDBMockObj.EXPECT().Set(info).Return(nil).AnyTimes()
+		resourceDBMockObj.EXPECT().Get(CPUUsage).Return(info, nil)
 
-	resourceDBExecutor = resourceDBMockObj
+		resourceDBExecutor = resourceDBMockObj
 
-	setupTestCase()
+		setupTestCase()
 
-	monitoringImpl := GetMonitoringInstance()
-	setupCPUUsageTest()
-	monitoringImpl.StartMonitoringResource()
+		monitoringImpl := GetMonitoringInstance()
+		setupCPUUsageTest()
+		monitoringImpl.StartMonitoringResource()
 
-	cpuUsage, err := resourceIns.GetResource(CPUUsage)
-	if err != nil {
-		t.Errorf(err.Error())
-	}
+		cpuUsage, err := resourceIns.GetResource(CPUUsage)
+		if err != nil {
+			t.Errorf(err.Error())
+		}
 
-	if cpuUsage != dummyCPUPercentResult {
-		t.Errorf("%f != %f", cpuUsage, dummyCPUPercentResult)
-	}
+		if cpuUsage != dummyCPUPercentResult {
+			t.Errorf("%f != %f", cpuUsage, dummyCPUPercentResult)
+		}
+	})
 }
 
-func TestGetCPUFreq_ExpectedSuccess(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
+func TestGetCPUFreq(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
 
-	resourceDBMockObj := resourceDBMock.NewMockDBInterface(ctrl)
+		resourceDBMockObj := resourceDBMock.NewMockDBInterface(ctrl)
 
-	info := resourceDB.Info{}
-	info.Name = CPUFreq
-	info.Value = dummyCPUFreqResult
+		info := resourceDB.Info{}
+		info.Name = CPUFreq
+		info.Value = dummyCPUFreqResult
 
-	resourceDBMockObj.EXPECT().Set(info).Return(nil).AnyTimes()
-	resourceDBMockObj.EXPECT().Get(CPUFreq).Return(info, nil)
+		resourceDBMockObj.EXPECT().Set(info).Return(nil).AnyTimes()
+		resourceDBMockObj.EXPECT().Get(CPUFreq).Return(info, nil)
 
-	resourceDBExecutor = resourceDBMockObj
+		resourceDBExecutor = resourceDBMockObj
 
-	setupTestCase()
+		setupTestCase()
 
-	monitoringImpl := GetMonitoringInstance()
-	setupCPUFreqTest()
-	monitoringImpl.StartMonitoringResource()
+		monitoringImpl := GetMonitoringInstance()
+		setupCPUFreqTest()
+		monitoringImpl.StartMonitoringResource()
 
-	cpuFreq, err := resourceIns.GetResource(CPUFreq)
-	if err != nil {
-		t.Errorf(err.Error())
-	}
+		cpuFreq, err := resourceIns.GetResource(CPUFreq)
+		if err != nil {
+			t.Errorf(err.Error())
+		}
 
-	if cpuFreq != dummyCPUFreqResult {
-		t.Errorf("%f != %f", cpuFreq, dummyCPUFreqResult)
-	}
+		if cpuFreq != dummyCPUFreqResult {
+			t.Errorf("%f != %f", cpuFreq, dummyCPUFreqResult)
+		}
+	})
 }
 
-func TestGetCPUCount_ExpectedSuccess(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
+func TestGetCPUCount(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
 
-	resourceDBMockObj := resourceDBMock.NewMockDBInterface(ctrl)
+		resourceDBMockObj := resourceDBMock.NewMockDBInterface(ctrl)
 
-	info := resourceDB.Info{}
-	info.Name = CPUCount
-	info.Value = dummyCPUCountResult
+		info := resourceDB.Info{}
+		info.Name = CPUCount
+		info.Value = dummyCPUCountResult
 
-	resourceDBMockObj.EXPECT().Set(info).Return(nil).AnyTimes()
-	resourceDBMockObj.EXPECT().Get(CPUCount).Return(info, nil)
+		resourceDBMockObj.EXPECT().Set(info).Return(nil).AnyTimes()
+		resourceDBMockObj.EXPECT().Get(CPUCount).Return(info, nil)
 
-	resourceDBExecutor = resourceDBMockObj
+		resourceDBExecutor = resourceDBMockObj
 
-	setupTestCase()
+		setupTestCase()
 
-	monitoringImpl := GetMonitoringInstance()
-	setupCPUCountTest()
-	monitoringImpl.StartMonitoringResource()
+		monitoringImpl := GetMonitoringInstance()
+		setupCPUCountTest()
+		monitoringImpl.StartMonitoringResource()
 
-	cpuCount, err := resourceIns.GetResource(CPUCount)
-	if err != nil {
-		t.Errorf(err.Error())
-	}
+		cpuCount, err := resourceIns.GetResource(CPUCount)
+		if err != nil {
+			t.Errorf(err.Error())
+		}
 
-	if cpuCount != dummyCPUCountResult {
-		t.Errorf("%f != %f", cpuCount, dummyCPUCountResult)
-	}
+		if cpuCount != dummyCPUCountResult {
+			t.Errorf("%f != %f", cpuCount, dummyCPUCountResult)
+		}
+	})
 }
 
-func TestGetMemAvailable_ExpectedSuccess(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
+func TestGetMemAvailable(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
 
-	resourceDBMockObj := resourceDBMock.NewMockDBInterface(ctrl)
+		resourceDBMockObj := resourceDBMock.NewMockDBInterface(ctrl)
 
-	info := resourceDB.Info{}
-	info.Name = MemAvailable
-	info.Value = dummyMemAvailableResult
+		info := resourceDB.Info{}
+		info.Name = MemAvailable
+		info.Value = dummyMemAvailableResult
 
-	resourceDBMockObj.EXPECT().Set(info).Return(nil).AnyTimes()
-	resourceDBMockObj.EXPECT().Get(MemAvailable).Return(info, nil)
+		resourceDBMockObj.EXPECT().Set(info).Return(nil).AnyTimes()
+		resourceDBMockObj.EXPECT().Get(MemAvailable).Return(info, nil)
 
-	resourceDBExecutor = resourceDBMockObj
+		resourceDBExecutor = resourceDBMockObj
 
-	setupTestCase()
+		setupTestCase()
 
-	monitoringImpl := GetMonitoringInstance()
-	setupMemAvailableTest()
-	monitoringImpl.StartMonitoringResource()
+		monitoringImpl := GetMonitoringInstance()
+		setupMemAvailableTest()
+		monitoringImpl.StartMonitoringResource()
 
-	memAvailable, err := resourceIns.GetResource(MemAvailable)
-	if err != nil {
-		t.Errorf(err.Error())
-	}
+		memAvailable, err := resourceIns.GetResource(MemAvailable)
+		if err != nil {
+			t.Errorf(err.Error())
+		}
 
-	if memAvailable != dummyMemAvailableResult {
-		t.Errorf("%f != %f", memAvailable, dummyMemAvailableResult)
-	}
+		if memAvailable != dummyMemAvailableResult {
+			t.Errorf("%f != %f", memAvailable, dummyMemAvailableResult)
+		}
+	})
 }
 
-func TestGetMemFree_ExpectedSuccess(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
+func TestGetMemFree(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
 
-	resourceDBMockObj := resourceDBMock.NewMockDBInterface(ctrl)
+		resourceDBMockObj := resourceDBMock.NewMockDBInterface(ctrl)
 
-	info := resourceDB.Info{}
-	info.Name = MemFree
-	info.Value = dummyMemFreeResult
+		info := resourceDB.Info{}
+		info.Name = MemFree
+		info.Value = dummyMemFreeResult
 
-	resourceDBMockObj.EXPECT().Set(info).Return(nil).AnyTimes()
-	resourceDBMockObj.EXPECT().Get(MemFree).Return(info, nil)
+		resourceDBMockObj.EXPECT().Set(info).Return(nil).AnyTimes()
+		resourceDBMockObj.EXPECT().Get(MemFree).Return(info, nil)
 
-	resourceDBExecutor = resourceDBMockObj
+		resourceDBExecutor = resourceDBMockObj
 
-	setupTestCase()
+		setupTestCase()
 
-	monitoringImpl := GetMonitoringInstance()
-	setupMemFreeTest()
-	monitoringImpl.StartMonitoringResource()
+		monitoringImpl := GetMonitoringInstance()
+		setupMemFreeTest()
+		monitoringImpl.StartMonitoringResource()
 
-	memFree, err := resourceIns.GetResource(MemFree)
-	if err != nil {
-		t.Errorf(err.Error())
-	}
+		memFree, err := resourceIns.GetResource(MemFree)
+		if err != nil {
+			t.Errorf(err.Error())
+		}
 
-	if memFree != dummyMemFreeResult {
-		t.Errorf("%f != %f", memFree, dummyMemFreeResult)
-	}
+		if memFree != dummyMemFreeResult {
+			t.Errorf("%f != %f", memFree, dummyMemFreeResult)
+		}
+	})
 }
 
-func TestGetNetMBps_ExpectedSuccess(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
+func TestGetNetMBps(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
 
-	resourceDBMockObj := resourceDBMock.NewMockDBInterface(ctrl)
+		resourceDBMockObj := resourceDBMock.NewMockDBInterface(ctrl)
 
-	info := resourceDB.Info{}
-	info.Name = NetMBps
-	info.Value = dummyNetMBpsResult
+		info := resourceDB.Info{}
+		info.Name = NetMBps
+		info.Value = dummyNetMBpsResult
 
-	resourceDBMockObj.EXPECT().Set(info).Return(nil).AnyTimes()
-	resourceDBMockObj.EXPECT().Get(NetMBps).Return(info, nil)
+		resourceDBMockObj.EXPECT().Set(info).Return(nil).AnyTimes()
+		resourceDBMockObj.EXPECT().Get(NetMBps).Return(info, nil)
 
-	resourceDBExecutor = resourceDBMockObj
+		resourceDBExecutor = resourceDBMockObj
 
-	setupTestCase()
+		setupTestCase()
 
-	monitoringImpl := GetMonitoringInstance()
-	setupNetMBpsTest()
-	monitoringImpl.StartMonitoringResource()
+		monitoringImpl := GetMonitoringInstance()
+		setupNetMBpsTest()
+		monitoringImpl.StartMonitoringResource()
 
-	netMBps, err := resourceIns.GetResource(NetMBps)
-	if err != nil {
-		t.Errorf(err.Error())
-	}
+		netMBps, err := resourceIns.GetResource(NetMBps)
+		if err != nil {
+			t.Errorf(err.Error())
+		}
 
-	if netMBps != dummyNetMBpsResult {
-		t.Errorf("%f != %f", netMBps, dummyNetMBpsResult)
-	}
+		if netMBps != dummyNetMBpsResult {
+			t.Errorf("%f != %f", netMBps, dummyNetMBpsResult)
+		}
+	})
 }
 
-func TestGetNetBandwidth_ExpectedSuccess(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
+func TestGetNetBandwidth(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
 
-	resourceDBMockObj := resourceDBMock.NewMockDBInterface(ctrl)
+		resourceDBMockObj := resourceDBMock.NewMockDBInterface(ctrl)
 
-	info := resourceDB.Info{}
-	info.Name = NetBandwidth
-	info.Value = dummyNetBandwidthResult
+		info := resourceDB.Info{}
+		info.Name = NetBandwidth
+		info.Value = dummyNetBandwidthResult
 
-	resourceDBMockObj.EXPECT().Set(info).Return(nil).AnyTimes()
-	resourceDBMockObj.EXPECT().Get(NetBandwidth).Return(info, nil)
+		resourceDBMockObj.EXPECT().Set(info).Return(nil).AnyTimes()
+		resourceDBMockObj.EXPECT().Get(NetBandwidth).Return(info, nil)
 
-	resourceDBExecutor = resourceDBMockObj
+		resourceDBExecutor = resourceDBMockObj
 
-	setupTestCase()
+		setupTestCase()
 
-	monitoringImpl := GetMonitoringInstance()
-	setupNetBandwidthTest()
-	monitoringImpl.StartMonitoringResource()
+		monitoringImpl := GetMonitoringInstance()
+		setupNetBandwidthTest()
+		monitoringImpl.StartMonitoringResource()
 
-	netBandwidth, err := resourceIns.GetResource(NetBandwidth)
-	if err != nil {
-		t.Errorf(err.Error())
-	}
+		netBandwidth, err := resourceIns.GetResource(NetBandwidth)
+		if err != nil {
+			t.Errorf(err.Error())
+		}
 
-	if netBandwidth != dummyNetBandwidthResult {
-		t.Errorf("%f != %f", netBandwidth, dummyNetBandwidthResult)
-	}
+		if netBandwidth != dummyNetBandwidthResult {
+			t.Errorf("%f != %f", netBandwidth, dummyNetBandwidthResult)
+		}
+	})
+}
+
+func TestGetResource(t *testing.T) {
+	t.Run("Fail", func(t *testing.T) {
+		_, err := resourceIns.GetResource("UndefinedResource")
+		if err == nil {
+			t.Error(unexpectedSuccess)
+		}
+	})
+}
+
+func TestSetDeviceID(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
+		resourceIns.SetDeviceID("Device1")
+		if resourceIns.targetDeviceID != "Device1" {
+			t.Error(unexpectedFail)
+		}
+	})
 }
