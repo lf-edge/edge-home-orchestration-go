@@ -45,7 +45,7 @@ require (
 	go.etcd.io/bbolt v1.3.6
 	golang.org/x/time v0.0.0-20210611083556-38a9dc6acbc6 // indirect
 	google.golang.org/grpc v1.34.0 // indirect
-	gopkg.in/ini.v1 v1.66.4
+	gopkg.in/ini.v1 v1.66.6
 	gopkg.in/yaml.v2 v2.4.0
 	gotest.tools v2.2.0+incompatible // indirect
 	gotest.tools/v3 v3.2.0
