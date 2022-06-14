@@ -18,7 +18,6 @@
 package discoverymgr
 
 import (
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"net"
 	"os"
@@ -33,6 +32,7 @@ import (
 	mnedc "github.com/lf-edge/edge-home-orchestration-go/internal/controller/discoverymgr/mnedc"
 	wrapper "github.com/lf-edge/edge-home-orchestration-go/internal/controller/discoverymgr/wrapper"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/storagemgr"
+	"gopkg.in/yaml.v3"
 
 	configurationdb "github.com/lf-edge/edge-home-orchestration-go/internal/db/bolt/configuration"
 	networkdb "github.com/lf-edge/edge-home-orchestration-go/internal/db/bolt/network"
