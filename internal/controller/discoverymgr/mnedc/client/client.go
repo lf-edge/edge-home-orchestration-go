@@ -19,20 +19,18 @@ package client
 
 import (
 	"errors"
-	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"net"
 	"sync"
 	"time"
 
-	restclient "github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/client"
-	//"controller/discoverymgr"
+	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
 	networkhelper "github.com/lf-edge/edge-home-orchestration-go/internal/common/networkhelper"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/discoverymgr/mnedc/connectionutil"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/discoverymgr/mnedc/tunmgr"
-
+	restclient "github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/client"
 	"github.com/songgao/water"
+	"gopkg.in/yaml.v3"
 )
 
 const (

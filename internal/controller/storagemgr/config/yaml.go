@@ -18,7 +18,7 @@
 package config
 
 import (
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 )
 
 // Yaml contains the struct for building the DataStorage Device Resources configuration.
