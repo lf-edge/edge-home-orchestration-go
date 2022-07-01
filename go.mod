@@ -41,7 +41,7 @@ require (
 	google.golang.org/grpc v1.47.0 // indirect
 	gopkg.in/ini.v1 v1.66.6
 	gopkg.in/yaml.v3 v3.0.0
-	gotest.tools/v3 v3.2.0
+	gotest.tools/v3 v3.3.0
 )
 
 replace github.com/grandcat/zeroconf v1.0.0 => ./third_party/zeroconf
