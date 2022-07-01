@@ -32,7 +32,7 @@ require (
 	github.com/songgao/water v0.0.0-20200317203138-2b4b6d7c09d8
 	github.com/spf13/cast v1.4.1
 	github.com/spf13/pflag v1.0.5
-	github.com/stretchr/testify v1.7.1
+	github.com/stretchr/testify v1.8.0
 	github.com/vishvananda/netlink v1.1.1-0.20210330154013-f5de75959ad5
 	github.com/xeipuuv/gojsonschema v1.2.0 // indirect
 	github.com/yusufpapurcu/wmi v1.2.2 // indirect
@@ -40,7 +40,7 @@ require (
 	golang.org/x/time v0.0.0-20220609170525-579cf78fd858 // indirect
 	google.golang.org/grpc v1.47.0 // indirect
 	gopkg.in/ini.v1 v1.66.6
-	gopkg.in/yaml.v3 v3.0.0
+	gopkg.in/yaml.v3 v3.0.1
 	gotest.tools/v3 v3.2.0
 )
 
