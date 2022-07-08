@@ -257,7 +257,7 @@ help:
 	@echo ''
 
 ## define build target not a file
-.PHONY: all build test clean lint fmt help staticcheck run stop
+.PHONY: all build test clean lint fmt help staticcheck run stop binary
 
 define stop_docker_container
 	$(call print_header, "Stop Docker container")
@@ -283,6 +283,21 @@ ifeq ($(CONFIG_CONTAINER),y)
 	$(Q) cp configs/defdockerfiles/$(CONFIG_DOCKERFILE) Dockerfile
 	$(call build_binary)
 	make build_docker_container
+else ifeq ($(CONFIG_NATIVE),y)
+	$(call build-object-c)
+	$(call build-result)
+else ifeq ($(CONFIG_ANDROID),y)
+	$(call print_header, "Target Binary is for Android")
+	$(call print_header, "Create Android archive from Java interface")
+	make build-object-java
+	$(call build-result)
+endif
+
+binary: check_context
+	make clean
+	$(call go-vendor)
+ifeq ($(CONFIG_CONTAINER),y)
+	$(call build_binary)
 else ifeq ($(CONFIG_NATIVE),y)
 	$(call build-object-c)
 	$(call build-result)
