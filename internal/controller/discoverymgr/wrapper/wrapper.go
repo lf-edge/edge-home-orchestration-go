@@ -19,8 +19,10 @@
 package wrapper
 
 import (
-	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
 	"net"
+	"strings"
+
+	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
 
 	"github.com/grandcat/zeroconf"
 )
@@ -172,6 +174,16 @@ func convertServiceEntrytoDB(data *zeroconf.ServiceEntry) (newDevice Orchestrati
 	if len(data.Text) < 2 {
 		newDevice.ServiceList = data.Text
 	} else {
+		//Checking for values from android
+		if strings.Contains(data.Text[1], "=") {
+			execType := strings.Split(data.Text[1], "=")
+			data.Text[1] = execType[1]
+		}
+		//Checking for values from android
+		if strings.Contains(data.Text[0], "=") {
+			platform := strings.Split(data.Text[0], "=")
+			data.Text[0] = platform[1]
+		}
 		newDevice.Platform = data.Text[0]
 		newDevice.ExecutionType = data.Text[1]
 		if len(data.Text) > 2 {
