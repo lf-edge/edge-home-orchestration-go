@@ -571,6 +571,17 @@ func deviceDetectionRoutine() {
 
 				_, confInfo, netInfo, serviceInfo := convertToDBInfo(*data)
 
+				//Checking for values from android
+				if strings.Contains(confInfo.ExecType, "=") {
+					execType := strings.Split(confInfo.ExecType, "=")
+					confInfo.ExecType = execType[1]
+				}
+				//Checking for values from android
+				if strings.Contains(confInfo.Platform, "=") {
+					platform := strings.Split(confInfo.Platform, "=")
+					confInfo.Platform = platform[1]
+				}
+
 				log.Printf("[deviceDetectionRoutine] %s", data.DeviceID)
 				log.Printf("[deviceDetectionRoutine] confInfo    : ExecType(%s), Platform(%s)", confInfo.ExecType, confInfo.Platform)
 				log.Printf("[deviceDetectionRoutine] netInfo     : IPv4(%s), RTT(%v)", netInfo.IPv4, netInfo.RTT)
