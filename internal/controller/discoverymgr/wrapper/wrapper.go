@@ -111,7 +111,7 @@ func (zc ZeroconfImpl) GetSubscriberChan() (chan *Entity, error) {
 		for {
 			select {
 			case data := <-subchan:
-				// log.Println(logPrefix, "[detectDevice] ", data)
+				//log.Println("#######################", "[detectDevice] ", data)
 				if data == nil {
 					select {
 					case exportchan <- nil:
@@ -175,17 +175,16 @@ func convertServiceEntrytoDB(data *zeroconf.ServiceEntry) (newDevice Orchestrati
 		newDevice.ServiceList = data.Text
 	} else {
 		//Checking for values from android
-		if strings.Contains(data.Text[1], "=") {
-			execType := strings.Split(data.Text[1], "=")
-			data.Text[1] = execType[1]
+		for _, val := range data.Text {
+			if strings.Contains(val, "ExecType=") {
+				execType := strings.Split(val, "=")
+				newDevice.ExecutionType = execType[1]
+			}
+			if strings.Contains(val, "Platform=") {
+				platform := strings.Split(val, "Platform=")
+				newDevice.Platform = platform[1]
+			}
 		}
-		//Checking for values from android
-		if strings.Contains(data.Text[0], "=") {
-			platform := strings.Split(data.Text[0], "=")
-			data.Text[0] = platform[1]
-		}
-		newDevice.Platform = data.Text[0]
-		newDevice.ExecutionType = data.Text[1]
 		if len(data.Text) > 2 {
 			newDevice.ServiceList = append(newDevice.ServiceList, data.Text[2:]...)
 		}
