@@ -239,8 +239,8 @@ func (d *DiscoveryImpl) ResetServiceName() {
 
 	servicEnv := getServiceFromEnv()
 	var serverTXT []string
-	serverTXT = append(serverTXT, confItem.ExecType)
-	serverTXT = append(serverTXT, confItem.Platform)
+	serverTXT = append(serverTXT, "ExecType="+confItem.ExecType)
+	serverTXT = append(serverTXT, "Platform="+confItem.Platform)
 	if len(servicEnv) > 0 {
 		serverTXT = append(serverTXT, servicEnv)
 	}
@@ -522,8 +522,8 @@ func setDeviceArgument(deviceUUID string, platform string, executionType string)
 	hostName = "edge-" + deviceUUID
 
 	servicEnv := getServiceFromEnv()
-	Text = append(Text, platform)
-	Text = append(Text, executionType)
+	Text = append(Text, "Platform="+platform)
+	Text = append(Text, "ExecType="+executionType)
 	if len(servicEnv) > 0 {
 		Text = append(Text, servicEnv)
 	}

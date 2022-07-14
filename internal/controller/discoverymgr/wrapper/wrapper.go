@@ -19,8 +19,10 @@
 package wrapper
 
 import (
-	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
 	"net"
+	"strings"
+
+	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
 
 	"github.com/grandcat/zeroconf"
 )
@@ -109,7 +111,7 @@ func (zc ZeroconfImpl) GetSubscriberChan() (chan *Entity, error) {
 		for {
 			select {
 			case data := <-subchan:
-				// log.Println(logPrefix, "[detectDevice] ", data)
+				//log.Println("#######################", "[detectDevice] ", data)
 				if data == nil {
 					select {
 					case exportchan <- nil:
@@ -172,8 +174,17 @@ func convertServiceEntrytoDB(data *zeroconf.ServiceEntry) (newDevice Orchestrati
 	if len(data.Text) < 2 {
 		newDevice.ServiceList = data.Text
 	} else {
-		newDevice.Platform = data.Text[0]
-		newDevice.ExecutionType = data.Text[1]
+		//Checking for values from android
+		for _, val := range data.Text {
+			if strings.Contains(val, "ExecType=") {
+				execType := strings.Split(val, "=")
+				newDevice.ExecutionType = execType[1]
+			}
+			if strings.Contains(val, "Platform=") {
+				platform := strings.Split(val, "Platform=")
+				newDevice.Platform = platform[1]
+			}
+		}
 		if len(data.Text) > 2 {
 			newDevice.ServiceList = append(newDevice.ServiceList, data.Text[2:]...)
 		}
