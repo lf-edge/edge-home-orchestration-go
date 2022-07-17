@@ -113,12 +113,12 @@ use_identity_as_username true
 
 **Normal mode**
 The edge-orchestration is build and run using following command with option CLOUD_SYNC set to true
-```
+```sh
 docker run -it -d --privileged --network="host" --name edge-orchestration -e CLOUD_SYNC=true -v /var/edge-orchestration/:/var/edge-orchestration/:rw -v /var/run/docker.sock:/var/run/docker.sock:rw -v /proc/:/process/:ro  lfedge/edge-home-orchestration-go:latest
 ```
 From the another terminal/post make a curl command as follows to publish data using home edge to the broker running on AWS endpoint
 
-```
+```sh
 curl --location --request POST 'http://<ip where edge-orchestration is running>:56001/api/v1/orchestration/cloudsyncmgr/publish' \
 --header 'Content-Type: text/plain' \
 --data-raw '{
@@ -130,13 +130,13 @@ curl --location --request POST 'http://<ip where edge-orchestration is running>:
 ```
 **Secure mode**
 The edge-orchestration is build and run using following command with option `CLOUD_SYNC` and `SECURE` set to true
-```
+```sh
 docker run -it -d --privileged --network="host" --name edge-orchestration -e CLOUD_SYNC=true -e SECURE=true -v /var/edge-orchestration/:/var/edge-orchestration/:rw -v /var/run/docker.sock:/var/run/docker.sock:rw -v /proc/:/process/:ro  lfedge/edge-home-orchestration-go:latest
 ```
 From another terminal/post, it is recommended to make a curl command as follows to publish data using home edge to the broker running on AWS endpoint<br>
 ***Please Note :***  Donot use '/' in topic name field.
 
-```
+```sh
 curl --location --request POST 'http://<ip where edge-orchestration is running>:56001/api/v1/orchestration/cloudsyncmgr/publish' \
 -H "Authorization: $EDGE_ORCHESTRATION_TOKEN" \
 --header 'Content-Type: text/plain' \
@@ -149,7 +149,7 @@ curl --location --request POST 'http://<ip where edge-orchestration is running>:
 ```
 From another terminal/post,it is recommended to make a curl post command as follows to subscribe to topic using home edge to the broker running on AWS endpoint
 
-```
+```sh
 curl --location --request POST 'http://<ip where edge-orchestration is running>:56001/api/v1/orchestration/cloudsyncmgr/subscribe' \
 --header 'Content-Type: text/plain' \
 --data-raw '{
@@ -160,7 +160,7 @@ curl --location --request POST 'http://<ip where edge-orchestration is running>:
 ```
 From another terminal/post,it is recommended make a curl get command as follows to get the data received on subscribed topic by passing the clientid(appid) and topic in the request header
 
-```
+```sh
 curl --location --request GET 'http://<ip where edge-orchestration is running>:56001/api/v1/orchestration/cloudsyncmgr/getsubscribedata/<topicname>/<appid>'
 ```
 # 6. DataStructures Used
