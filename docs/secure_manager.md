@@ -72,13 +72,12 @@ JSON:
         },
         {
             "ContainerHash": "fc6a51919cfeb2e6763f62b6d9e8815acbf7cd2e476ea353743570610737b751"
-        }],
-        "StatusCallbackURI": "http://localhost:8888/api/v1/services/notification"
+        }]
     }
 ```
 Curl:
 ```shell
-curl -X POST "127.0.0.1:56001/api/v1/orchestration/securemgr" -H "accept: application/json" -H "Content-Type: application/json" -H "Authorization: $EDGE_ORCHESTRATION_TOKEN" -d "{ \"SecureMgr\": \"Verifier\", \"CmdType\": \"addHashCWL\", \"Desc\": [{ \"ContainerHash\": \"fc6a51919cfeb2e6763f62b6d9e8815acbf7cd2e476ea353743570610737b752\"}, { \"ContainerHash\": \"fc6a51919cfeb2e6763f62b6d9e8815acbf7cd2e476ea353743570610737b751\"}], \"StatusCallbackURI\": \"http://localhost:8888/api/v1/services/notification\"}"
+curl -X POST "127.0.0.1:56001/api/v1/orchestration/securemgr" -H "accept: application/json" -H "Content-Type: application/json" -H "Authorization: $EDGE_ORCHESTRATION_TOKEN" -d "{ \"SecureMgr\": \"Verifier\", \"CmdType\": \"addHashCWL\", \"Desc\": [{ \"ContainerHash\": \"fc6a51919cfeb2e6763f62b6d9e8815acbf7cd2e476ea353743570610737b752\"}, { \"ContainerHash\": \"fc6a51919cfeb2e6763f62b6d9e8815acbf7cd2e476ea353743570610737b751\"}]}"
 ```
 
 _**delHashCWL**_  
@@ -90,39 +89,36 @@ JSON:
         "Desc": [
         {
             "ContainerHash": "fc6a51919cfeb2e6763f62b6d9e8815acbf7cd2e476ea353743570610737b752"
-        }],
-        "StatusCallbackURI": "http://localhost:8888/api/v1/services/notification"
+        }]
     }
 ```
 Curl:
 ```shell
-curl -X POST "127.0.0.1:56001/api/v1/orchestration/securemgr" -H "accept: application/json" -H "Content-Type: application/json" -H "Authorization: $EDGE_ORCHESTRATION_TOKEN" -d "{ \"SecureMgr\": \"Verifier\", \"CmdType\": \"delHashCWL\", \"Desc\": [{ \"ContainerHash\": \"fc6a51919cfeb2e6763f62b6d9e8815acbf7cd2e476ea353743570610737b752\"}], \"StatusCallbackURI\": \"http://localhost:8888/api/v1/services/notification\"}"
+curl -X POST "127.0.0.1:56001/api/v1/orchestration/securemgr" -H "accept: application/json" -H "Content-Type: application/json" -H "Authorization: $EDGE_ORCHESTRATION_TOKEN" -d "{ \"SecureMgr\": \"Verifier\", \"CmdType\": \"delHashCWL\", \"Desc\": [{ \"ContainerHash\": \"fc6a51919cfeb2e6763f62b6d9e8815acbf7cd2e476ea353743570610737b752\"}]}"
 ```
 _**delAllHashCWL**_  
 JSON:
 ```json
     {
         "SecureMgr": "Verifier",
-        "CmdType": "delAllHashCWL",
-        "StatusCallbackURI": "http://localhost:8888/api/v1/services/notification"
+        "CmdType": "delAllHashCWL"
     }
 ```
 Curl:
 ```shell
-curl -X POST "127.0.0.1:56001/api/v1/orchestration/securemgr" -H "accept: application/json" -H "Content-Type: application/json" -H "Authorization: $EDGE_ORCHESTRATION_TOKEN" -d "{ \"SecureMgr\": \"Verifier\", \"CmdType\": \"delAllHashCWL\", \"StatusCallbackURI\": \"http://localhost:8888/api/v1/services/notification\"}"
+curl -X POST "127.0.0.1:56001/api/v1/orchestration/securemgr" -H "accept: application/json" -H "Content-Type: application/json" -H "Authorization: $EDGE_ORCHESTRATION_TOKEN" -d "{ \"SecureMgr\": \"Verifier\", \"CmdType\": \"delAllHashCWL\"}"
 ```
 _**printAllHashCWL**_  
 JSON:
 ```json
     {
         "SecureMgr": "Verifier",
-        "CmdType": "printAllHashCWL",
-        "StatusCallbackURI": "http://localhost:8888/api/v1/services/notification"
+        "CmdType": "printAllHashCWL"
     }
 ```
 Curl:
 ```shell
-curl -X POST "127.0.0.1:56001/api/v1/orchestration/securemgr" -H "accept: application/json" -H "Content-Type: application/json" -H "Authorization: $EDGE_ORCHESTRATION_TOKEN" -d "{ \"SecureMgr\": \"Verifier\", \"CmdType\": \"printAllHashCWL\", \"StatusCallbackURI\": \"http://localhost:8888/api/v1/services/notification\"}"
+curl -X POST "127.0.0.1:56001/api/v1/orchestration/securemgr" -H "accept: application/json" -H "Content-Type: application/json" -H "Authorization: $EDGE_ORCHESTRATION_TOKEN" -d "{ \"SecureMgr\": \"Verifier\", \"CmdType\": \"printAllHashCWL\"}"
 ```
 
 #### 2.3.2 Editing the container white list by other tools.
@@ -138,7 +134,7 @@ Example: _how to add hash by command line_
 ### 2.4 Usage Edge-Orchestration with Verifier
 To run **Edge Orchestration** container you need to add a digest (sha256) to the last parameter. For example:  `"hello-world@sha256:fc6a51919cfeb2e6763f62b6d9e8815acbf7cd2e476ea353743570610737b752"`
 ```
-curl -X POST "IP:56001/api/v1/orchestration/services" -H "accept: application/json" -H "Content-Type: application/json" -H "Authorization: $EDGE_ORCHESTRATION_TOKEN" -d "{ \"ServiceName\": \"hello-world\", \"ServiceInfo\": [{ \"ExecutionType\": \"container\", \"ExecCmd\": [ \"docker\", \"run\", \"-v\", \"/var/run:/var/run:rw\", \"hello-world@sha256:fc6a51919cfeb2e6763f62b6d9e8815acbf7cd2e476ea353743570610737b752\"]}], \"StatusCallbackURI\": \"http://localhost:8888/api/v1/services/notification\"}"
+curl -X POST "IP:56001/api/v1/orchestration/services" -H "accept: application/json" -H "Content-Type: application/json" -H "Authorization: $EDGE_ORCHESTRATION_TOKEN" -d "{ \"ServiceName\": \"hello-world\", \"ServiceInfo\": [{ \"ExecutionType\": \"container\", \"ExecCmd\": [ \"docker\", \"run\", \"-v\", \"/var/run:/var/run:rw\", \"hello-world@sha256:fc6a51919cfeb2e6763f62b6d9e8815acbf7cd2e476ea353743570610737b752\"]}]}"
 ```  
 If the `"fc6a51919cfeb2e6763f62b6d9e8815acbf7cd2e476ea353743570610737b752"` hash is written to the `/var/edge-orchestration/data/cwl/containerwhitelist.txt` file, the container will be launched successfully.
 
@@ -210,7 +206,7 @@ openssl rsa -in app_rsa.key -pubout > app_rsa.pub
 To use a JWT, you must include it in the header of the request: `Authorization: {token}`.
 Example below:
 ```shell
-curl -X POST "127.0.0.1:56001/api/v1/orchestration/securemgr" -H "accept: applicationnt-Type: application/json" -H "Authorization: $EDGE_ORCHESTRATION_TOKEN" -d "{ \"SecureMgr\": \"Verifier\", \"CmdType\": \"printAllHashCWL\", \"StatusCallbackURI\": \"http://localhost:8888/api/v1/services/notification\"}"
+curl -X POST "127.0.0.1:56001/api/v1/orchestration/securemgr" -H "accept: applicationnt-Type: application/json" -H "Authorization: $EDGE_ORCHESTRATION_TOKEN" -d "{ \"SecureMgr\": \"Verifier\", \"CmdType\": \"printAllHashCWL\"}"
 ```
 ---
 

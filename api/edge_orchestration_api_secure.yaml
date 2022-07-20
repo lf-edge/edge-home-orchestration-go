@@ -102,9 +102,6 @@ definitions:
           - {"ExecutionType":"native", "ExecCmd":["hellow-world"]}
           - {"ExecutionType":"container", "ExecCmd":["docker", "run", "hello-world@sha256:fc6a51919cfeb2e6763f62b6d9e8815acbf7cd2e476ea353743570610737b752"]}
           - {"ExecutionType":"android", "ExecCmd":["com.example.hello-world"]}
-      StatusCallbackURI:
-        type: string
-        example: "http://192.168.10.151:9090/example/notification"
 
   handle:
     required:
@@ -135,9 +132,6 @@ definitions:
         type: array
         example:
           - {"ContainerHash": "fc6a51919cfeb2e6763f62b6d9e8815acbf7cd2e476ea353743570610737b752",}
-      StatusCallbackURI:
-        type: string
-        example: "http://192.168.10.151:9090/example/notification"
 
   unauthorizederror:
     description: Access token is missing or invalid
