@@ -167,7 +167,7 @@ REST API
     ```
 - Curl Example:
 ```
-curl -X POST "IP:56001/api/v1/orchestration/services" -H "accept: application/json" -H "Content-Type: application/json" -d "{ \"ServiceRequester\": \"curl\", \"ServiceName\": \"ls\", \"ServiceInfo\": [{ \"ExecutionType\": \"native\", \"ExecCmd\": [ \"ls\"]}]}"
+curl -X POST "127.0.0.1:56001/api/v1/orchestration/services" -H "accept: application/json" -H "Content-Type: application/json" -d "{ \"ServiceRequester\": \"curl\", \"ServiceName\": \"ls\", \"ServiceInfo\": [{ \"ExecutionType\": \"native\", \"ExecCmd\": [ \"ls\"]}]}"
 ```
 Response:
 ```
