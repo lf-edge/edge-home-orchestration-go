@@ -168,25 +168,16 @@ func convertServiceEntrytoDB(data *zeroconf.ServiceEntry) (newDevice Orchestrati
 	for _, val := range data.AddrIPv4 {
 		newDevice.IPv4 = append(newDevice.IPv4, val.String())
 	}
-	//Todo : Remove
-	//tmp error defense code
-	//from old version
-	if len(data.Text) < 2 {
-		newDevice.ServiceList = data.Text
-	} else {
-		//Checking for values from android
-		for _, val := range data.Text {
-			if strings.Contains(val, "ExecType=") {
-				execType := strings.Split(val, "=")
-				newDevice.ExecutionType = execType[1]
-			}
-			if strings.Contains(val, "Platform=") {
-				platform := strings.Split(val, "Platform=")
-				newDevice.Platform = platform[1]
-			}
-		}
-		if len(data.Text) > 2 {
-			newDevice.ServiceList = append(newDevice.ServiceList, data.Text[2:]...)
+
+	for _, val := range data.Text {
+		if strings.Contains(val, "ExecType=") {
+			execType := strings.Split(val, "=")
+			newDevice.ExecutionType = execType[1]
+		} else if strings.Contains(val, "Platform=") {
+			platform := strings.Split(val, "Platform=")
+			newDevice.Platform = platform[1]
+		} else {
+			newDevice.ServiceList = append(newDevice.ServiceList, val)
 		}
 	}
 	return
