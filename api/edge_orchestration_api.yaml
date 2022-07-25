@@ -59,9 +59,6 @@ definitions:
           - {"ExecutionType":"native", "ExecCmd":["hellow-world"]}
           - {"ExecutionType":"container", "ExecCmd":["docker", "run", "hello-world"]}
           - {"ExecutionType":"android", "ExecCmd":["com.example.hello-world"]}
-      StatusCallbackURI:
-        type: string
-        example: "http://192.168.10.151:9090/example/notification"
 
   handle:
     required:

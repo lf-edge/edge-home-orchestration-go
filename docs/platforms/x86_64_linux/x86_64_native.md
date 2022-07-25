@@ -162,13 +162,12 @@ REST API
             "ExecCmd": [
                 "ls"
             ]
-        }],
-        "StatusCallbackURI": "http://localhost:8888/api/v1/services/notification"
+        }]
     }
     ```
 - Curl Example:
 ```
-curl -X POST "IP:56001/api/v1/orchestration/services" -H "accept: application/json" -H "Content-Type: application/json" -d "{ \"ServiceRequester\": \"curl\", \"ServiceName\": \"ls\", \"ServiceInfo\": [{ \"ExecutionType\": \"native\", \"ExecCmd\": [ \"ls\"]}], \"StatusCallbackURI\": \"http://localhost:8888/api/v1/services/notification\"}"
+curl -X POST "127.0.0.1:56001/api/v1/orchestration/services" -H "accept: application/json" -H "Content-Type: application/json" -d "{ \"ServiceRequester\": \"curl\", \"ServiceName\": \"ls\", \"ServiceInfo\": [{ \"ExecutionType\": \"native\", \"ExecCmd\": [ \"ls\"]}]}"
 ```
 Response:
 ```
@@ -212,7 +211,7 @@ You need to add a JSON Web Token into request header `Authorization: {token}`. M
 ```
 
 ```
-curl -X POST "127.0.0.1:56001/api/v1/orchestration/services" -H "accept: application/json" -H "Content-Type: application/json" -H "Authorization: $EDGE_ORCHESTRATION_TOKEN" -d "{ \"ServiceRequester\": \"curl\", \"ServiceName\": \"ls\", \"ServiceInfo\": [{ \"ExecutionType\": \"native\", \"ExecCmd\": [ \"ls\"]}], \"StatusCallbackURI\": \"http://localhost:8888/api/v1/services/notification\"}"
+curl -X POST "127.0.0.1:56001/api/v1/orchestration/services" -H "accept: application/json" -H "Content-Type: application/json" -H "Authorization: $EDGE_ORCHESTRATION_TOKEN" -d "{ \"ServiceRequester\": \"curl\", \"ServiceName\": \"ls\", \"ServiceInfo\": [{ \"ExecutionType\": \"native\", \"ExecCmd\": [ \"ls\"]}]}"
 ```
 Response:
 ```
