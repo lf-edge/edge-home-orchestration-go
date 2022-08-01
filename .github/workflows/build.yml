@@ -44,6 +44,7 @@ jobs:
           echo "$ANDROID_SDK/cmdline-tools/tools:$ANDROID_SDK/platform-tools" >> $GITHUB_PATH
           cd ndk/21.3.6528147
           export ANDROID_NDK_HOME=`pwd`
+          echo "ANDROID_NDK_HOME=$ANDROID_NDK_HOME" >> $GITHUB_ENV
           export PATH=$PATH:$ANDROID_NDK_HOME
           echo "$ANDROID_NDK_HOME" >> $GITHUB_PATH
       
