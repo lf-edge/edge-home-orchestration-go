@@ -25,6 +25,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/gorilla/mux"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/commandvalidator"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/requestervalidator"
@@ -42,6 +43,7 @@ const (
 	doesNotSetKey    = " does not set key"
 	cannotDecryption = " cannot decryption "
 	cannotEncryption = " cannot encryption "
+	devID            = "devID"
 )
 
 // Handler struct
@@ -88,7 +90,7 @@ func init() {
 		restinterface.Route{
 			Name:        "APIV1ScoringmgrScoreLibnameGet",
 			Method:      strings.ToUpper("Get"),
-			Pattern:     "/api/v1/scoringmgr/score",
+			Pattern:     "/api/v1/scoringmgr/score/{" + devID + "}",
 			HandlerFunc: handler.APIV1ScoringmgrScoreLibnameGet,
 		},
 
@@ -258,17 +260,10 @@ func (h *Handler) APIV1ScoringmgrScoreLibnameGet(w http.ResponseWriter, r *http.
 		return
 	}
 
-	encryptBytes, _ := ioutil.ReadAll(r.Body)
-	Info, err := h.Key.DecryptByteToJSON(encryptBytes)
-	if err != nil {
-		log.Error(logPrefix, cannotDecryption, err.Error())
-		h.helper.Response(w, nil, http.StatusServiceUnavailable)
-		return
-	}
+	vars := mux.Vars(r)
+	devID := vars["devID"]
 
-	devID := Info["devID"]
-
-	scoreValue, err := h.api.GetScore(devID.(string))
+	scoreValue, err := h.api.GetScore(devID)
 	if err != nil {
 		log.Error(logPrefix, " GetScore fail : ", err.Error())
 		h.helper.Response(w, nil, http.StatusInternalServerError)
