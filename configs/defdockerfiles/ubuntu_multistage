@@ -3,7 +3,7 @@ FROM --platform=$TARGETPLATFORM ubuntu:18.04 AS builder
 
 # environment variables
 ARG TARGETPLATFORM
-ENV GOVERSION=1.16.6
+ENV GOVERSION=1.19
 ENV GOPATH=/usr/local/go
 ENV TARGET_DIR=/edge-orchestration
 

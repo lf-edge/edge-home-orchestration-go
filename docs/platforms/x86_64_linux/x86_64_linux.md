@@ -37,7 +37,7 @@ Please see the below [How to work](#how-to-work) to know how to run Edge Orchest
 `$ sudo usermod -aG docker $USER`
 
 - go compiler
-    - Version: 1.16.6 (or above)
+    - Version: 1.19 (or above)
     - [How to install](https://golang.org/dl/)
 
 > To build Edge Orchestrator from Go sources, you need to set GOPATH environment variable:  
@@ -48,11 +48,11 @@ Please see the below [How to work](#how-to-work) to know how to run Edge Orchest
 > Recommendation: Do not install the `gocov` and `gocov-html` utilities from the `edge-home-orchestration-go` folder.
   - [gocov](https://pkg.go.dev/github.com/axw/gocov)
   ```
-  go get github.com/axw/gocov/gocov
+  go install github.com/axw/gocov/gocov@latest
   ```
    - [gocov-html](https://github.com/matm/gocov-html#gocov-html-export)
   ```
-  go get github.com/matm/gocov-html
+  go install github.com/matm/gocov-html@latest
   ```
   - [staticcheck](https://staticcheck.io)
   ```

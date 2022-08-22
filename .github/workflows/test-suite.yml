@@ -17,11 +17,11 @@ jobs:
       - name: Setup Golang
         uses: actions/setup-go@77b162d042858409656f087cab0246511e670694 # v1
         with:
-          go-version: '1.16.6'
+          go-version: '1.19'
 
       - name: Set env vars (gocov)
         run: |
-          go get github.com/axw/gocov/gocov@b6eca663ebb7e7ef9798914d19f53ba2c6f74c96
+          go install github.com/axw/gocov/gocov@b6eca663ebb7e7ef9798914d19f53ba2c6f74c96
           echo "$HOME/go/bin" >> $GITHUB_PATH
           sudo mkdir -p /var/edge-orchestration/mnedc
           echo -e 'server-ip: 192.168.0.125\nport: 3334' | sudo tee /var/edge-orchestration/mnedc/client-config.yaml
@@ -35,5 +35,6 @@ jobs:
 
       - name: Run the Test Suite
         run: |
+          GO111MODULE=on go mod tidy
           GO111MODULE=on go mod vendor
           gocov test $(go list ./internal/... | grep -v mock) -coverprofile=/dev/null
