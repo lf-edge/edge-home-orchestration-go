@@ -130,19 +130,19 @@ func init() {
 	helper = dbhelper.GetInstance()
 }
 
-//RequestCloudSyncPublish handles the request for cloud syncing
+// RequestCloudSyncPublish handles the request for cloud syncing
 func (orcheEngine *orcheImpl) RequestCloudSyncPublish(host string, appID string, message string, topic string) string {
 	log.Info(cloudsyncLogPrefix, "Requesting cloud sync publish")
 	return orcheEngine.cloudsyncIns.RequestPublish(host, appID, message, topic)
 }
 
-//RequestCloudSyncSubscribe handles the request for cloud subscribing
+// RequestCloudSyncSubscribe handles the request for cloud subscribing
 func (orcheEngine *orcheImpl) RequestCloudSyncSubscribe(host string, appID string, topic string) string {
 	log.Info(cloudsyncLogPrefix, "Requesting cloud sync subscribe")
 	return orcheEngine.cloudsyncIns.RequestSubscribe(host, appID, topic)
 }
 
-//RequestSubscribedData request for the data on subscribed topic
+// RequestSubscribedData request for the data on subscribed topic
 func (orcheEngine *orcheImpl) RequestSubscribedData(appID string, topic string, host string) string {
 	log.Info(cloudsyncLogPrefix, "Requesting SubscribedData")
 	return orcheEngine.cloudsyncIns.RequestSubscribedData(appID, topic, host)

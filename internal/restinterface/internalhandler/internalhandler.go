@@ -328,7 +328,7 @@ func (h *Handler) APIV1ScoringmgrResourceGet(w http.ResponseWriter, r *http.Requ
 	h.helper.Response(w, respEncryptBytes, http.StatusOK)
 }
 
-//APIV1DiscoverymgrMNEDCDeviceInfoPost handles device info from MNEDC server
+// APIV1DiscoverymgrMNEDCDeviceInfoPost handles device info from MNEDC server
 func (h *Handler) APIV1DiscoverymgrMNEDCDeviceInfoPost(w http.ResponseWriter, r *http.Request) {
 	log.Info(logPrefix, " APIV1DiscoveryFromMNEDCServer")
 	if !h.isSetAPI {
@@ -363,7 +363,7 @@ func (h *Handler) APIV1DiscoverymgrMNEDCDeviceInfoPost(w http.ResponseWriter, r 
 	handler.helper.Response(w, nil, http.StatusOK)
 }
 
-//APIV1DiscoverymgrOrchestrationInfoGet handles device info requests from peers
+// APIV1DiscoverymgrOrchestrationInfoGet handles device info requests from peers
 func (h *Handler) APIV1DiscoverymgrOrchestrationInfoGet(w http.ResponseWriter, r *http.Request) {
 	log.Info(logPrefix, " APIV1DiscoverymgrOrchestrationInfoGet")
 	if !h.isSetAPI {

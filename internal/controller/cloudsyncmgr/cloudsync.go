@@ -42,7 +42,7 @@ type CloudSync interface {
 	RequestSubscribedData(appID string, topic string, host string) string
 }
 
-//CloudSyncImpl struct
+// CloudSyncImpl struct
 type CloudSyncImpl struct{}
 
 var (

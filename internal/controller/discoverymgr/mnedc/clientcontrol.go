@@ -27,7 +27,7 @@ import (
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/discoverymgr/mnedc/client"
 )
 
-//ClientImpl structure
+// ClientImpl structure
 type ClientImpl struct {
 	clientAPI restclient.Clienter
 	tls.HasCertificate
@@ -50,7 +50,7 @@ func GetClientInstance() *ClientImpl {
 	return clientIns
 }
 
-//StartMNEDCClient starts the MNEDC client
+// StartMNEDCClient starts the MNEDC client
 func (c *ClientImpl) StartMNEDCClient(deviceIDPath string, configPath string) {
 
 	//deviceID, err := discoveryIns.GetDeviceID()
@@ -80,7 +80,7 @@ func (c *ClientImpl) StartMNEDCClient(deviceIDPath string, configPath string) {
 	}
 }
 
-//RegisterToMNEDCServer registers with MNEDC server
+// RegisterToMNEDCServer registers with MNEDC server
 func (c *ClientImpl) RegisterToMNEDCServer(deviceID string, configPath string) error {
 	_, err := mnedcClientIns.CreateClient(deviceID, configPath, clientIns.IsSetCert)
 	if err != nil {
@@ -90,7 +90,7 @@ func (c *ClientImpl) RegisterToMNEDCServer(deviceID string, configPath string) e
 	return nil
 }
 
-//SetClient sets the client API
+// SetClient sets the client API
 func (c *ClientImpl) SetClient(clientAPI restclient.Clienter) {
 	c.clientAPI = clientAPI
 	//mnedcClientIns.SetClient(clientAPI)

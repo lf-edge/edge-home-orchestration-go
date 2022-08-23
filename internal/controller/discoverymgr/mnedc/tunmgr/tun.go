@@ -28,7 +28,7 @@ import (
 	"github.com/vishvananda/netlink"
 )
 
-//TunImpl is a struct for Tun related methods
+// TunImpl is a struct for Tun related methods
 type TunImpl struct{}
 
 var (
@@ -40,19 +40,19 @@ func init() {
 	// Do nothing because there is no need to initialize anything
 }
 
-//Tun interface declares methods related to setting tun network interface
+// Tun interface declares methods related to setting tun network interface
 type Tun interface {
 	CreateTUN() (*water.Interface, error)
 	SetTUNIP(iName string, localAddr net.IP, addr *net.IPNet, debug bool) error
 	SetTUNStatus(iName string, up bool, debug bool) error
 }
 
-//GetInstance returns Tun interface instance
+// GetInstance returns Tun interface instance
 func GetInstance() Tun {
 	return tunIns
 }
 
-//CreateTUN creates a virtual tun interface
+// CreateTUN creates a virtual tun interface
 func (TunImpl) CreateTUN() (*water.Interface, error) {
 	intf, err := water.New(water.Config{
 		DeviceType: water.TUN,
@@ -61,7 +61,7 @@ func (TunImpl) CreateTUN() (*water.Interface, error) {
 	return intf, err
 }
 
-//SetTUNIP sets an IP to the interface
+// SetTUNIP sets an IP to the interface
 func (TunImpl) SetTUNIP(iName string, localAddr net.IP, addr *net.IPNet, debug bool) error {
 	link, err := netlink.LinkByName(iName)
 	if err != nil {
@@ -79,7 +79,7 @@ func (TunImpl) SetTUNIP(iName string, localAddr net.IP, addr *net.IPNet, debug b
 	return nil
 }
 
-//SetTUNStatus starts/stops an interface
+// SetTUNStatus starts/stops an interface
 func (TunImpl) SetTUNStatus(iName string, up bool, debug bool) error {
 	statusString := "down"
 	if up {

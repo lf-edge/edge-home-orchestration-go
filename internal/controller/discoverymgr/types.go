@@ -15,7 +15,7 @@
  *
  *******************************************************************************/
 
-//Package discoverymgr provides functions to register local device to network and find other orchestration devices
+// Package discoverymgr provides functions to register local device to network and find other orchestration devices
 package discoverymgr
 
 import (

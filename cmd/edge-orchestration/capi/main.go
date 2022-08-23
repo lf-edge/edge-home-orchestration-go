@@ -130,6 +130,7 @@ var (
 )
 
 // OrchestrationInit runs orchestration service and discovers remote orchestration services
+//
 //export OrchestrationInit
 func OrchestrationInit(secure C.int, mnedc C.int) C.int {
 	flag.BoolVar(&flagVersion, "v", false, "if true, print version and exit")
@@ -240,6 +241,7 @@ func OrchestrationInit(secure C.int, mnedc C.int) C.int {
 }
 
 // OrchestrationRequestService performs request from service applications which uses orchestration service
+//
 //export OrchestrationRequestService
 func OrchestrationRequestService(cAppName *C.char, cSelfSelection C.int, cRequester *C.char, serviceInfo *C.RequestServiceInfo, count C.int) C.ResponseService {
 	log.Printf("%s OrchestrationRequestService", logPrefix)
@@ -296,6 +298,7 @@ func OrchestrationRequestService(cAppName *C.char, cSelfSelection C.int, cReques
 type customHandler struct{}
 
 // SetHandler sets handler
+//
 //export SetHandler
 func SetHandler(iGetter C.identityGetterFunc, kGetter C.keyGetterFunc) {
 	C.setHandler(iGetter, kGetter)
@@ -306,6 +309,7 @@ var count int
 var mtx sync.Mutex
 
 // PrintLog provides logging interface
+//
 //export PrintLog
 func PrintLog(cMsg *C.char) (count C.int) {
 	mtx.Lock()

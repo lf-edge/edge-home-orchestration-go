@@ -66,7 +66,7 @@ type Discovery interface {
 	cipher.Setter
 }
 
-//DiscoveryImpl Structure
+// DiscoveryImpl Structure
 type DiscoveryImpl struct {
 	client.HasClient
 	cipher.HasCipher
@@ -263,7 +263,7 @@ func (d *DiscoveryImpl) AddDeviceInfo(deviceID string, virtualAddr string, priva
 	}
 }
 
-//GetOrchestrationInfo returns the orchestration info of the device
+// GetOrchestrationInfo returns the orchestration info of the device
 func (DiscoveryImpl) GetOrchestrationInfo() (platform string, executionType string, serviceList []string, err error) {
 
 	log.Println(logPrefix, "Orch info requested")
@@ -462,7 +462,7 @@ func startServer(deviceUUID string, platform string, executionType string) {
 	setServiceDB(serviceInfo)
 }
 
-//NotifyMNEDCBroadcastServer registers to MNEDC
+// NotifyMNEDCBroadcastServer registers to MNEDC
 func (d *DiscoveryImpl) NotifyMNEDCBroadcastServer() error {
 	log.Println(logPrefix, "Registering to Broadcast server")
 	isMNEDCConnected = true
@@ -692,13 +692,13 @@ func (d *DiscoveryImpl) setNewServiceList(serverTXT []string) {
 	}
 }
 
-//MNEDCClosedCallback handles discovery behaviour when MNEDC connection is closed
+// MNEDCClosedCallback handles discovery behaviour when MNEDC connection is closed
 func (d *DiscoveryImpl) MNEDCClosedCallback() {
 	isMNEDCConnected = false
 	//delete devices with virtual IPs
 }
 
-//MNEDCReconciledCallback handles discovery behaviour when MNEDC connection is closed
+// MNEDCReconciledCallback handles discovery behaviour when MNEDC connection is closed
 func (d *DiscoveryImpl) MNEDCReconciledCallback() {
 	isMNEDCConnected = true
 	err := d.NotifyMNEDCBroadcastServer()
@@ -707,12 +707,12 @@ func (d *DiscoveryImpl) MNEDCReconciledCallback() {
 	}
 }
 
-//StartMNEDCClient Starts MNEDC client
+// StartMNEDCClient Starts MNEDC client
 func (d *DiscoveryImpl) StartMNEDCClient(deviceIDFilePath, mnedcServerConfig string) {
 	mnedc.GetClientInstance().StartMNEDCClient(deviceIDFilePath, mnedcServerConfig)
 }
 
-//StartMNEDCServer Starts MNEDC server
+// StartMNEDCServer Starts MNEDC server
 func (d *DiscoveryImpl) StartMNEDCServer(deviceIDFilePath string) {
 	mnedc.GetServerInstance().StartMNEDCServer(deviceIDFilePath)
 }

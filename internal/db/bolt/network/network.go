@@ -119,7 +119,7 @@ func (Query) Set(info Info) error {
 	return nil
 }
 
-//Update updates the network info for id
+// Update updates the network info for id
 func (Query) Update(info Info) error {
 	data, err := db.Get([]byte(info.ID))
 	if err != nil {

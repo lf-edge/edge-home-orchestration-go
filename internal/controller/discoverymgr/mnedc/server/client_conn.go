@@ -21,7 +21,7 @@ import (
 	"net"
 )
 
-//clientConnection structure for client
+// clientConnection structure for client
 type clientConnection struct {
 	conn            net.Conn
 	server          *Server
@@ -44,7 +44,7 @@ func (c *clientConnection) initClient(s *Server) {
 	go c.sendRoutine()
 }
 
-//reads from the cleint's connection
+// reads from the cleint's connection
 func (c *clientConnection) recvRoutine(sink chan *NetPacketIP) {
 	logPrefix := logTag + "[ClientRecvRoutine]"
 
@@ -64,7 +64,7 @@ func (c *clientConnection) recvRoutine(sink chan *NetPacketIP) {
 	}
 }
 
-//writes to the client connection
+// writes to the client connection
 func (c *clientConnection) sendRoutine() {
 	logPrefix := logTag + "[ClientSendRoutine]"
 	for c.isConnected && c.server.isAlive {

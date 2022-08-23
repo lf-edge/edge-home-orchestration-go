@@ -44,16 +44,17 @@ var (
 
 // CreateFileSystem creates a file system necessary for the work of the edge-orchestration
 // ├── var
-//     └── edge-orchestration
-//         ├── apps
-//         ├── certs
-//         ├── data
-//         │   └── db
-//         ├── datastorage
-//         ├── device
-//         ├── log
-//         ├── mnedc
-//         └── user
+//
+//	└── edge-orchestration
+//	    ├── apps
+//	    ├── certs
+//	    ├── data
+//	    │   └── db
+//	    ├── datastorage
+//	    ├── device
+//	    ├── log
+//	    ├── mnedc
+//	    └── user
 func CreateFileSystem(edgeDir string) error {
 	for _, dir := range edgeDirs {
 		if err := os.MkdirAll(edgeDir+dir, os.ModePerm); err != nil {

@@ -33,18 +33,18 @@ import (
 	"github.com/songgao/water/waterutil"
 )
 
-//NetPacket defines the packet struct
+// NetPacket defines the packet struct
 type NetPacket struct {
 	Packet []byte
 }
 
-//NetPacketIP defines the IP packet struct
+// NetPacketIP defines the IP packet struct
 type NetPacketIP struct {
 	Packet   *NetPacket
 	ClientID string
 }
 
-//IPTypes defines struct that holds virtual IP and privateIP
+// IPTypes defines struct that holds virtual IP and privateIP
 type IPTypes struct {
 	VirtualIP string
 	PrivateIP string
@@ -64,7 +64,7 @@ var (
 	networkIns     networkhelper.Network
 )
 
-//Server defines MNEDC server struct
+// Server defines MNEDC server struct
 type Server struct {
 	listener                net.Listener
 	intf                    *water.Interface
@@ -82,7 +82,7 @@ type Server struct {
 	clientIPInfoByDeviceID  map[string]IPTypes
 }
 
-//MNEDCServer declares methods related to MNEDC server
+// MNEDCServer declares methods related to MNEDC server
 type MNEDCServer interface {
 	CreateServer(string, string, bool) (*Server, error)
 	Run()
@@ -108,12 +108,12 @@ func init() {
 	networkIns = networkhelper.GetInstance()
 }
 
-//GetInstance returns server instance
+// GetInstance returns server instance
 func GetInstance() MNEDCServer {
 	return serverIns
 }
 
-//CreateServer creates a Server structure and returns it
+// CreateServer creates a Server structure and returns it
 func (s *Server) CreateServer(address, port string, isSecure bool) (*Server, error) {
 	logPrefix := logTag + "[NewServer]"
 
@@ -164,7 +164,7 @@ func (s *Server) CreateServer(address, port string, isSecure bool) (*Server, err
 	return s, nil
 }
 
-//Run starts the server and starts to accept clients
+// Run starts the server and starts to accept clients
 func (s *Server) Run() {
 	go s.AcceptRoutine()   //handle new Client connection
 	go s.DispatchRoutine() //handle packets and route them to proper place
@@ -174,7 +174,7 @@ func (s *Server) Run() {
 	log.Println(logTag, "Server started")
 }
 
-//AcceptRoutine accepts client connections
+// AcceptRoutine accepts client connections
 func (s *Server) AcceptRoutine() {
 	logPrefix := logTag + "[acceptRoutine]"
 
@@ -189,7 +189,7 @@ func (s *Server) AcceptRoutine() {
 	}
 }
 
-//HandleConnection handles new client registration
+// HandleConnection handles new client registration
 func (s *Server) HandleConnection(conn net.Conn) {
 
 	logPrefix := logTag + "[handleConnection]"
@@ -232,7 +232,7 @@ func (s *Server) HandleConnection(conn net.Conn) {
 	c.initClient(s)
 }
 
-//SetVirtualIP builds the parameters to be sent to client
+// SetVirtualIP builds the parameters to be sent to client
 func (s *Server) SetVirtualIP(deviceID string) string {
 
 	var ip string
@@ -251,7 +251,7 @@ func (s *Server) SetVirtualIP(deviceID string) string {
 	return ip
 }
 
-//DispatchRoutine sends packets from inboundIPPkts/inboundDevPkts to client/TUN.
+// DispatchRoutine sends packets from inboundIPPkts/inboundDevPkts to client/TUN.
 func (s *Server) DispatchRoutine() {
 	for s.isAlive {
 		select {
@@ -263,7 +263,7 @@ func (s *Server) DispatchRoutine() {
 	}
 }
 
-//Route channels the packet to appropriate destination
+// Route channels the packet to appropriate destination
 func (s *Server) Route(pkt *NetPacket) {
 	logPrefix := logTag + "[route]"
 
@@ -285,7 +285,7 @@ func (s *Server) Route(pkt *NetPacket) {
 	}
 }
 
-//SetClientAddress puts the device ID in the map
+// SetClientAddress puts the device ID in the map
 func (s *Server) SetClientAddress(deviceID string, addr string) {
 	s.clientsLock.Lock()
 	defer s.clientsLock.Unlock()
@@ -293,7 +293,7 @@ func (s *Server) SetClientAddress(deviceID string, addr string) {
 	s.clientIDByAddress[addr] = deviceID
 }
 
-//SetClientIP saves new device ipInfo from broadcast server
+// SetClientIP saves new device ipInfo from broadcast server
 func (s *Server) SetClientIP(deviceID, privateIP, virtualIP string) {
 	ipInfo := IPTypes{
 		PrivateIP: privateIP,
@@ -302,7 +302,7 @@ func (s *Server) SetClientIP(deviceID, privateIP, virtualIP string) {
 	s.clientIPInfoByDeviceID[deviceID] = ipInfo
 }
 
-//RemoveClient removes a client connection
+// RemoveClient removes a client connection
 func (s *Server) RemoveClient(deviceID string) {
 	s.clientsLock.Lock()
 	defer s.clientsLock.Unlock()
@@ -321,12 +321,12 @@ func (s *Server) RemoveClient(deviceID string) {
 	delete(s.clientIPInfoByDeviceID, deviceID)
 }
 
-//GetClientIPMap returns clientIPInfoByDeviceID map to proxy server
+// GetClientIPMap returns clientIPInfoByDeviceID map to proxy server
 func (s *Server) GetClientIPMap() map[string]IPTypes {
 	return s.clientIPInfoByDeviceID
 }
 
-//TunReadRoutine reads from tun virtual interface and sends the packet to server
+// TunReadRoutine reads from tun virtual interface and sends the packet to server
 func (s *Server) TunReadRoutine() {
 	for s.isAlive {
 		vpnbuf := make([]byte, packetSize)
@@ -341,7 +341,7 @@ func (s *Server) TunReadRoutine() {
 	}
 }
 
-//TunWriteRoutine reads the outgoing packets from server and writes on tun virtual Interface
+// TunWriteRoutine reads the outgoing packets from server and writes on tun virtual Interface
 func (s *Server) TunWriteRoutine() {
 	for s.isAlive {
 		pkt := <-s.outgoingChannel
@@ -370,12 +370,12 @@ func (s *Server) Close() error {
 	return err
 }
 
-//GetVirtualIP returns the server virtualIP
+// GetVirtualIP returns the server virtualIP
 func (s *Server) GetVirtualIP() string {
 	return s.virtualIP.String()
 }
 
-//generateServerIP generates a virtual IP for the server
+// generateServerIP generates a virtual IP for the server
 func generateServerIP() net.IP {
 	privateIP, err := networkIns.GetOutboundIP()
 	if err != nil {

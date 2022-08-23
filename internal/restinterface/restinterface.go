@@ -35,7 +35,7 @@ type Route struct {
 // Routes type
 type Routes []Route
 
-//IRestRoutes is the interface implemented by Get/Set for REST API
+// IRestRoutes is the interface implemented by Get/Set for REST API
 type IRestRoutes interface {
 	cipher.Setter
 	GetRoutes() Routes

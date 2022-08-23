@@ -194,7 +194,7 @@ func (c restClientImpl) DoGetResourceRemoteDevice(devID string, endpoint string)
 	return
 }
 
-//DoGetOrchestrationInfo requests for orchestration info from endpoint
+// DoGetOrchestrationInfo requests for orchestration info from endpoint
 func (c restClientImpl) DoGetOrchestrationInfo(endpoint string) (string, string, []string, error) {
 	if !c.IsSetKey {
 		return "", "", []string{}, errors.New("[" + logPrefix + "] does not set key")
@@ -240,7 +240,7 @@ func (c restClientImpl) DoGetOrchestrationInfo(endpoint string) (string, string,
 	return platform, executionType, serviceList, nil
 }
 
-//DoNotifyMNEDCBroadcastServer sends the device details to MNEDC server
+// DoNotifyMNEDCBroadcastServer sends the device details to MNEDC server
 func (c restClientImpl) DoNotifyMNEDCBroadcastServer(endpoint string, port int, deviceID string, privateIP string, virtualIP string) error {
 	if !c.IsSetKey {
 		return errors.New("[" + logPrefix + "] does not set key")

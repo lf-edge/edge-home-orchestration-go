@@ -40,12 +40,12 @@ const (
 	logTag = "[mnedcclient]"
 )
 
-//NetPacket defines the packet struct
+// NetPacket defines the packet struct
 type NetPacket struct {
 	Packet []byte
 }
 
-//Client defines the MNEDC client struct
+// Client defines the MNEDC client struct
 type Client struct {
 	conn            net.Conn
 	incomingChannel chan *NetPacket
@@ -79,7 +79,7 @@ const (
 	mnedcBroadcastServerPort = 3333
 )
 
-//MNEDCClient declares methods related to MNEDC client
+// MNEDCClient declares methods related to MNEDC client
 type MNEDCClient interface {
 	Run()
 	CreateClient(string, string, bool) (*Client, error)
@@ -110,12 +110,12 @@ type serverConf struct {
 	Port     string `yaml:"port"`
 }
 
-//GetInstance returns MNEDCClient interface instance
+// GetInstance returns MNEDCClient interface instance
 func GetInstance() MNEDCClient {
 	return clientIns
 }
 
-//CreateClient creates the MNEDC client
+// CreateClient creates the MNEDC client
 func (c *Client) CreateClient(deviceID, configPath string, isSecure bool) (*Client, error) {
 	logPrefix := logTag + "[CreateClient]"
 
@@ -189,7 +189,7 @@ func (c *Client) CreateClient(deviceID, configPath string, isSecure bool) (*Clie
 	}
 }
 
-//Run starts the MNEDC client
+// Run starts the MNEDC client
 func (c *Client) Run() {
 	go c.StartSendRoutine()
 	go c.StartRecvRoutine()
@@ -197,7 +197,7 @@ func (c *Client) Run() {
 	go c.TunWriteRoutine()
 }
 
-//StartSendRoutine reads from incomingChannel and writes on server connection
+// StartSendRoutine reads from incomingChannel and writes on server connection
 func (c *Client) StartSendRoutine() {
 
 	for c.isAlive {
@@ -223,7 +223,7 @@ func (c *Client) StartSendRoutine() {
 	}
 }
 
-//StartRecvRoutine reads from server connection and writes on outgoingChannel
+// StartRecvRoutine reads from server connection and writes on outgoingChannel
 func (c *Client) StartRecvRoutine() {
 	for c.isAlive {
 
@@ -253,7 +253,7 @@ func dropSendBuffer(buffer chan *NetPacket) {
 	}
 }
 
-//ParseVirtualIP parses the parameters sent by server
+// ParseVirtualIP parses the parameters sent by server
 func (c *Client) ParseVirtualIP(parameters string) error {
 	virtualIP, virtualNetMask, err := net.ParseCIDR(parameters + "/24")
 	if err != nil {
@@ -287,7 +287,7 @@ func (c *Client) Close() error {
 	return err
 }
 
-//HandleError handles the error occurred in MNEDC client connection
+// HandleError handles the error occurred in MNEDC client connection
 func (c *Client) HandleError(err error) {
 	logPrefix := "[hadError]"
 	log.Println(logTag, logPrefix, err.Error(), ", Connection problem detected. Re-connecting.")
@@ -376,7 +376,7 @@ func (c *Client) HandleError(err error) {
 	}
 }
 
-//TunReadRoutine reads from TUN interface and writes on incomingChannel
+// TunReadRoutine reads from TUN interface and writes on incomingChannel
 func (c *Client) TunReadRoutine() {
 
 	for c.isAlive {
@@ -395,7 +395,7 @@ func (c *Client) TunReadRoutine() {
 	}
 }
 
-//TunWriteRoutine reads from outgoingChannel and writes on TUN interface
+// TunWriteRoutine reads from outgoingChannel and writes on TUN interface
 func (c *Client) TunWriteRoutine() {
 
 	for c.isAlive {
@@ -413,14 +413,14 @@ func (c *Client) TunWriteRoutine() {
 	}
 }
 
-//NotifyClose handles the case when MNEDC connection is closed
+// NotifyClose handles the case when MNEDC connection is closed
 func (c *Client) NotifyClose() {
 	logPrefix := "[NotifyClose]"
 	log.Println(logPrefix, "MNEDC connection closed")
 	//discoveryIns.MNEDCClosedCallback()
 }
 
-//ConnectionReconciled handles the case when MNEDC connection is re-established
+// ConnectionReconciled handles the case when MNEDC connection is re-established
 func (c *Client) ConnectionReconciled() {
 	logPrefix := "[connectionReIstablish]"
 	log.Println(logPrefix, "MNEDC connection reistablished")
@@ -429,7 +429,7 @@ func (c *Client) ConnectionReconciled() {
 	c.NotifyBroadcastServer(c.configPath)
 }
 
-//NotifyBroadcastServer sends request to broadcast server
+// NotifyBroadcastServer sends request to broadcast server
 func (c *Client) NotifyBroadcastServer(configPath string) error {
 	logPrefix := "[RegisterBroadcast]"
 	log.Println(logTag, "Registering to Broadcast server")
@@ -474,7 +474,7 @@ func (c *Client) NotifyBroadcastServer(configPath string) error {
 	return nil
 }
 
-//SetClient sets the rest client
+// SetClient sets the rest client
 func (c *Client) SetClient(clientAPI restclient.Clienter) {
 	c.clientAPI = clientAPI
 }

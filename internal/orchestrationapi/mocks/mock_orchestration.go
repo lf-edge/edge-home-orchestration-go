@@ -110,7 +110,7 @@ func (m *MockOrcheExternalAPI) RequestCloudSyncPublish(arg0 string, arg1 string,
 	return ret0
 }
 
-//  RequestCloudSyncPublish indicates an expected call of RequestCloudSyncPublish
+// RequestCloudSyncPublish indicates an expected call of RequestCloudSyncPublish
 func (mr *MockOrcheExternalAPIMockRecorder) RequestCloudSyncPublish(arg0, arg1 interface{}, arg2 interface{}, arg3 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RequestCloudSyncPublish", reflect.TypeOf((*MockOrcheExternalAPI)(nil).RequestCloudSyncPublish), arg0, arg1, arg2, arg3)
