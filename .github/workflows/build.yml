@@ -10,7 +10,7 @@ jobs:
       fail-fast: false
       matrix:
         arch: [x86c, x86_64c, armc, arm64c, x86_64n, x86_64a]
-        os: [ubuntu-18.04, ubuntu-20.04]
+        os: [ubuntu-20.04]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@629c2de402a417ea7690ca6ce3f33229e27606a5 # v2

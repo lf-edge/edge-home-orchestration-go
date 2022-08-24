@@ -1,7 +1,7 @@
 # Docker image for "edge-orchestration"
-### ubuntu:18.04
+### ubuntu:20.04
 ARG PLATFORM
-FROM $PLATFORM/ubuntu:18.04
+FROM $PLATFORM/ubuntu:20.04
 
 # environment variables
 ENV TARGET_DIR=/edge-orchestration
