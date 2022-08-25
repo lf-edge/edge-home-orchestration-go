@@ -239,7 +239,7 @@ func TestDoNotifyAppStatusRemoteDevice(t *testing.T) {
 	})
 }
 
-func TestDoGetScoreRemoteDevice(t *testing.T) {
+func TestDoScoreRemoteDevice(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -256,22 +256,22 @@ func TestDoGetScoreRemoteDevice(t *testing.T) {
 			client.setHelper(mockHelper)
 
 			client.IsSetKey = false
-			_, err := client.DoGetScoreRemoteDevice("", "")
+			_, err := client.DoScoreRemoteDevice("", "")
 			if err == nil {
 				t.Error("expect error is not nil, but nil")
 			}
 		})
-		t.Run("DoGetWithBody", func(t *testing.T) {
+		t.Run("DoPost", func(t *testing.T) {
 			t.Run("ReturnError", func(t *testing.T) {
 				client.SetCipher(mockCipher)
 				client.setHelper(mockHelper)
 				gomock.InOrder(
 					mockHelper.EXPECT().MakeTargetURL(gomock.Any(), gomock.Any(), gomock.Any()).Return(""),
 					mockCipher.EXPECT().EncryptJSONToByte(gomock.Any()).Return(nil, nil),
-					mockHelper.EXPECT().DoGetWithBody(gomock.Any(), gomock.Any()).Return(nil, http.StatusOK, errors.New("")),
+					mockHelper.EXPECT().DoPost(gomock.Any(), gomock.Any()).Return(nil, http.StatusOK, errors.New("")),
 				)
 
-				_, err := client.DoGetScoreRemoteDevice("", "")
+				_, err := client.DoScoreRemoteDevice("", "")
 				if err == nil {
 					t.Error("expect error is not nil, but nil")
 				}
@@ -282,10 +282,10 @@ func TestDoGetScoreRemoteDevice(t *testing.T) {
 				gomock.InOrder(
 					mockHelper.EXPECT().MakeTargetURL(gomock.Any(), gomock.Any(), gomock.Any()).Return(""),
 					mockCipher.EXPECT().EncryptJSONToByte(gomock.Any()).Return(nil, nil),
-					mockHelper.EXPECT().DoGetWithBody(gomock.Any(), gomock.Any()).Return(nil, http.StatusInternalServerError, nil),
+					mockHelper.EXPECT().DoPost(gomock.Any(), gomock.Any()).Return(nil, http.StatusInternalServerError, nil),
 				)
 
-				_, err := client.DoGetScoreRemoteDevice("", "")
+				_, err := client.DoScoreRemoteDevice("", "")
 				if err == nil {
 					t.Error("expect error is not nil, but nil")
 				}
@@ -299,7 +299,7 @@ func TestDoGetScoreRemoteDevice(t *testing.T) {
 				mockCipher.EXPECT().EncryptJSONToByte(gomock.Any()).Return(nil, errors.New("")),
 			)
 
-			_, err := client.DoGetScoreRemoteDevice("", "")
+			_, err := client.DoScoreRemoteDevice("", "")
 			if err == nil {
 				t.Error("expect error is not nil, but nil")
 			}
@@ -310,11 +310,11 @@ func TestDoGetScoreRemoteDevice(t *testing.T) {
 			gomock.InOrder(
 				mockHelper.EXPECT().MakeTargetURL(gomock.Any(), gomock.Any(), gomock.Any()).Return(""),
 				mockCipher.EXPECT().EncryptJSONToByte(gomock.Any()).Return(nil, nil),
-				mockHelper.EXPECT().DoGetWithBody(gomock.Any(), gomock.Any()).Return(nil, http.StatusOK, nil),
+				mockHelper.EXPECT().DoPost(gomock.Any(), gomock.Any()).Return(nil, http.StatusOK, nil),
 				mockCipher.EXPECT().DecryptByteToJSON(gomock.Any()).Return(nil, errors.New("")),
 			)
 
-			_, err := client.DoGetScoreRemoteDevice("", "")
+			_, err := client.DoScoreRemoteDevice("", "")
 			if err == nil {
 				t.Error("expect error is not nil, but nil")
 			}
@@ -329,11 +329,11 @@ func TestDoGetScoreRemoteDevice(t *testing.T) {
 			gomock.InOrder(
 				mockHelper.EXPECT().MakeTargetURL(gomock.Any(), gomock.Any(), gomock.Any()).Return(""),
 				mockCipher.EXPECT().EncryptJSONToByte(gomock.Any()).Return(nil, nil),
-				mockHelper.EXPECT().DoGetWithBody(gomock.Any(), gomock.Any()).Return(nil, http.StatusOK, nil),
+				mockHelper.EXPECT().DoPost(gomock.Any(), gomock.Any()).Return(nil, http.StatusOK, nil),
 				mockCipher.EXPECT().DecryptByteToJSON(gomock.Any()).Return(respMsg, nil),
 			)
 
-			_, err := client.DoGetScoreRemoteDevice("", "")
+			_, err := client.DoScoreRemoteDevice("", "")
 			if err == nil {
 				t.Error("expect error is not nil, but nil")
 			}
@@ -350,11 +350,11 @@ func TestDoGetScoreRemoteDevice(t *testing.T) {
 		gomock.InOrder(
 			mockHelper.EXPECT().MakeTargetURL(gomock.Any(), gomock.Any(), gomock.Any()).Return(""),
 			mockCipher.EXPECT().EncryptJSONToByte(gomock.Any()).Return(nil, nil),
-			mockHelper.EXPECT().DoGetWithBody(gomock.Any(), gomock.Any()).Return(nil, http.StatusOK, nil),
+			mockHelper.EXPECT().DoPost(gomock.Any(), gomock.Any()).Return(nil, http.StatusOK, nil),
 			mockCipher.EXPECT().DecryptByteToJSON(gomock.Any()).Return(respMsg, nil),
 		)
 
-		score, err := client.DoGetScoreRemoteDevice("", "")
+		score, err := client.DoScoreRemoteDevice("", "")
 		if err != nil {
 			t.Error("expect error is nil, but not nil")
 		} else if score != float64(1.0) {

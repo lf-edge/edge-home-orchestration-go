@@ -86,9 +86,9 @@ func TestRequestService(t *testing.T) {
 			mockDBHelper.EXPECT().GetDeviceInfoWithService(gomock.Eq(appName), gomock.Any(), gomock.Any()).Return(candidateInfos, nil),
 			mockSystemDBExecutor.EXPECT().Get("id").Return(sysInfo, nil),
 			mockNetwork.EXPECT().GetIPs().Return([]string{""}, nil),
-			mockClient.EXPECT().DoGetScoreRemoteDevice(gomock.Any(), gomock.Any()).Return(scores[0], nil),
-			mockClient.EXPECT().DoGetScoreRemoteDevice(gomock.Any(), gomock.Any()).Return(scores[1], nil),
-			mockClient.EXPECT().DoGetScoreRemoteDevice(gomock.Any(), gomock.Any()).Return(scores[2], nil),
+			mockClient.EXPECT().DoScoreRemoteDevice(gomock.Any(), gomock.Any()).Return(scores[0], nil),
+			mockClient.EXPECT().DoScoreRemoteDevice(gomock.Any(), gomock.Any()).Return(scores[1], nil),
+			mockClient.EXPECT().DoScoreRemoteDevice(gomock.Any(), gomock.Any()).Return(scores[2], nil),
 			mockNetwork.EXPECT().GetIPs().Return([]string{""}, nil),
 			mockService.EXPECT().Execute(gomock.Any(), appName, gomock.Any(), gomock.Any(), gomock.Any()),
 		)

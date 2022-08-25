@@ -355,7 +355,7 @@ func (orcheEngine orcheImpl) gatherDevicesScore(candidates []dbhelper.ExecutionC
 				}
 				score, err = orcheEngine.GetScore(info.Value)
 			} else {
-				score, err = orcheEngine.clientAPI.DoGetScoreRemoteDevice(info.Value, cand.Endpoint[0])
+				score, err = orcheEngine.clientAPI.DoScoreRemoteDevice(info.Value, cand.Endpoint[0])
 			}
 
 			if err != nil {
