@@ -48,14 +48,14 @@ func (client *Client) Connect() error {
 	return nil
 }
 
-//onConnect callback is called on successful connection to broker
+// onConnect callback is called on successful connection to broker
 func (client *Client) onConnect() MQTT.OnConnectHandler {
 	log.Info("Running MQTT.OnConnectHandler")
 	//Adding the subcription if needed for client
 	return nil
 }
 
-//onConnectionLost callback is called in case of disconnection from broker
+// onConnectionLost callback is called in case of disconnection from broker
 func (client *Client) onConnectionLost() MQTT.ConnectionLostHandler {
 	log.Warn(logPrefix, "Connection to the client is disconnected")
 	return nil
@@ -120,7 +120,7 @@ func StartMQTTClient(brokerURL string, appID string, mqttPort uint) string {
 	return ""
 }
 
-//Publish is used to publish the client data to the cloud
+// Publish is used to publish the client data to the cloud
 func (client *Client) Publish(message string, topic string) error {
 
 	log.Info(logPrefix, "Publishing the data to cloud")
@@ -144,7 +144,7 @@ var messageHandler MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Messa
 	addPublishedData(msg.Topic(), path[0].Hostname(), string(msg.Payload()))
 }
 
-//Subscribe is used to subscribe to a topic
+// Subscribe is used to subscribe to a topic
 func (client *Client) Subscribe(topic string, appID string) error {
 	log.Info(logPrefix, "Subscribing to ", logmgr.SanitizeUserInput(topic)) // lgtm [go/log-injection]
 	mqttClient := client.Client

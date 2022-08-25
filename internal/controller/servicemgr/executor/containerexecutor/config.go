@@ -944,7 +944,8 @@ func parseWindowsDevice(device string) (container.DeviceMapping, error) {
 
 // validateDeviceCgroupRule validates a device cgroup rule string format
 // It will make sure 'val' is in the form:
-//    'type major:minor mode'
+//
+//	'type major:minor mode'
 func validateDeviceCgroupRule(val string) (string, error) {
 	if deviceCgroupRuleRegexp.MatchString(val) {
 		return val, nil
@@ -988,7 +989,9 @@ func validateDevice(val string, serverOS string) (string, error) {
 // validateLinuxPath is the implementation of validateDevice knowing that the
 // target server operating system is a Linux daemon.
 // It will make sure 'val' is in the form:
-//    [host-dir:]container-path[:mode]
+//
+//	[host-dir:]container-path[:mode]
+//
 // It also validates the device mode.
 func validateLinuxPath(val string, validator func(string) bool) (string, error) {
 	var containerPath string

@@ -32,7 +32,7 @@ import (
 	"github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/tls"
 )
 
-//ServerImpl structure
+// ServerImpl structure
 type ServerImpl struct {
 	cipher.HasCipher
 	tls.HasCertificate
@@ -58,7 +58,7 @@ func GetServerInstance() *ServerImpl {
 	return serverIns
 }
 
-//StartMNEDCServer starts the MNEDC server on the machine
+// StartMNEDCServer starts the MNEDC server on the machine
 func (ServerImpl) StartMNEDCServer(deviceIDPath string) {
 
 	//deviceID, err := discoveryIns.GetDeviceID()

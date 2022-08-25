@@ -100,7 +100,7 @@ func createServerConfig() (*tls.Config, error) {
 	}, nil
 }
 
-//NetworkUtil interface declares the network methods
+// NetworkUtil interface declares the network methods
 type NetworkUtil interface {
 	ConnectToHost(string, string, bool) (net.Conn, error)
 	WriteTo(net.Conn, []byte) error
@@ -108,12 +108,12 @@ type NetworkUtil interface {
 	ListenIP(address string, isSecure bool) (net.Listener, error)
 }
 
-//GetInstance returns the NetworkUtil instance
+// GetInstance returns the NetworkUtil instance
 func GetInstance() NetworkUtil {
 	return networkUtilIns
 }
 
-//ConnectToHost connects to a tcp host
+// ConnectToHost connects to a tcp host
 func (networkUtilImpl) ConnectToHost(ip string, port string, isSecure bool) (net.Conn, error) {
 	if !isSecure {
 		conn, err := net.Dial("tcp", ip+":"+port)
@@ -130,7 +130,7 @@ func (networkUtilImpl) ConnectToHost(ip string, port string, isSecure bool) (net
 
 }
 
-//WriteTo writes on a connection
+// WriteTo writes on a connection
 func (networkUtilImpl) WriteTo(conn net.Conn, data []byte) error {
 	if conn != nil {
 		_, err := conn.Write(data)
@@ -139,7 +139,7 @@ func (networkUtilImpl) WriteTo(conn net.Conn, data []byte) error {
 	return errors.New("connection is nil")
 }
 
-//ReadFrom reads from a connection
+// ReadFrom reads from a connection
 func (networkUtilImpl) ReadFrom(conn net.Conn) (int, []byte, error) {
 	if conn != nil {
 		buf := make([]byte, 1024)
@@ -149,7 +149,7 @@ func (networkUtilImpl) ReadFrom(conn net.Conn) (int, []byte, error) {
 	return -1, []byte(""), errors.New("connection is nil")
 }
 
-//ListenIP starts tcp server at given address
+// ListenIP starts tcp server at given address
 func (networkUtilImpl) ListenIP(address string, isSecure bool) (net.Listener, error) {
 	if !isSecure {
 		listener, err := net.Listen("tcp", address)

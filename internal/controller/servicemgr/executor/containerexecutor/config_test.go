@@ -679,84 +679,84 @@ func TestParseLoggingOpts(t *testing.T) {
 }
 
 /*
-func TestParseEnvfileVariables(t *testing.T) {
-	e := "open nonexistent: no such file or directory"
-	if runtime.GOOS == "windows" {
-		e = "open nonexistent: The system cannot find the file specified."
-	}
-	// env ko
-	if _, _, _, err := parseRun([]string{"--env-file=nonexistent", "img", "cmd"}); err == nil || err.Error() != e {
-		t.Fatalf("Expected an error with message '%s', got %v", e, err)
-	}
-	// env ok
-	config, _, _, err := parseRun([]string{"--env-file=testdata/valid.env", "img", "cmd"})
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(config.Env) != 1 || config.Env[0] != "ENV1=value1" {
-		t.Fatalf("Expected a config with [ENV1=value1], got %v", config.Env)
-	}
-	config, _, _, err = parseRun([]string{"--env-file=testdata/valid.env", "--env=ENV2=value2", "img", "cmd"})
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(config.Env) != 2 || config.Env[0] != "ENV1=value1" || config.Env[1] != "ENV2=value2" {
-		t.Fatalf("Expected a config with [ENV1=value1 ENV2=value2], got %v", config.Env)
-	}
-}
-
-func TestParseEnvfileVariablesWithBOMUnicode(t *testing.T) {
-	// UTF8 with BOM
-	config, _, _, err := parseRun([]string{"--env-file=testdata/utf8.env", "img", "cmd"})
-	if err != nil {
-		t.Fatal(err)
-	}
-	env := []string{"FOO=BAR", "HELLO=" + string([]byte{0xe6, 0x82, 0xa8, 0xe5, 0xa5, 0xbd}), "BAR=FOO"}
-	if len(config.Env) != len(env) {
-		t.Fatalf("Expected a config with %d env variables, got %v: %v", len(env), len(config.Env), config.Env)
-	}
-	for i, v := range env {
-		if config.Env[i] != v {
-			t.Fatalf("Expected a config with [%s], got %v", v, []byte(config.Env[i]))
+	func TestParseEnvfileVariables(t *testing.T) {
+		e := "open nonexistent: no such file or directory"
+		if runtime.GOOS == "windows" {
+			e = "open nonexistent: The system cannot find the file specified."
+		}
+		// env ko
+		if _, _, _, err := parseRun([]string{"--env-file=nonexistent", "img", "cmd"}); err == nil || err.Error() != e {
+			t.Fatalf("Expected an error with message '%s', got %v", e, err)
+		}
+		// env ok
+		config, _, _, err := parseRun([]string{"--env-file=testdata/valid.env", "img", "cmd"})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if len(config.Env) != 1 || config.Env[0] != "ENV1=value1" {
+			t.Fatalf("Expected a config with [ENV1=value1], got %v", config.Env)
+		}
+		config, _, _, err = parseRun([]string{"--env-file=testdata/valid.env", "--env=ENV2=value2", "img", "cmd"})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if len(config.Env) != 2 || config.Env[0] != "ENV1=value1" || config.Env[1] != "ENV2=value2" {
+			t.Fatalf("Expected a config with [ENV1=value1 ENV2=value2], got %v", config.Env)
 		}
 	}
 
-	// UTF16 with BOM
-	e := "contains invalid utf8 bytes at line"
-	if _, _, _, err := parseRun([]string{"--env-file=testdata/utf16.env", "img", "cmd"}); err == nil || !strings.Contains(err.Error(), e) {
-		t.Fatalf("Expected an error with message '%s', got %v", e, err)
-	}
-	// UTF16BE with BOM
-	if _, _, _, err := parseRun([]string{"--env-file=testdata/utf16be.env", "img", "cmd"}); err == nil || !strings.Contains(err.Error(), e) {
-		t.Fatalf("Expected an error with message '%s', got %v", e, err)
-	}
-}
+	func TestParseEnvfileVariablesWithBOMUnicode(t *testing.T) {
+		// UTF8 with BOM
+		config, _, _, err := parseRun([]string{"--env-file=testdata/utf8.env", "img", "cmd"})
+		if err != nil {
+			t.Fatal(err)
+		}
+		env := []string{"FOO=BAR", "HELLO=" + string([]byte{0xe6, 0x82, 0xa8, 0xe5, 0xa5, 0xbd}), "BAR=FOO"}
+		if len(config.Env) != len(env) {
+			t.Fatalf("Expected a config with %d env variables, got %v: %v", len(env), len(config.Env), config.Env)
+		}
+		for i, v := range env {
+			if config.Env[i] != v {
+				t.Fatalf("Expected a config with [%s], got %v", v, []byte(config.Env[i]))
+			}
+		}
 
-func TestParseLabelfileVariables(t *testing.T) {
-	e := "open nonexistent: no such file or directory"
-	if runtime.GOOS == "windows" {
-		e = "open nonexistent: The system cannot find the file specified."
+		// UTF16 with BOM
+		e := "contains invalid utf8 bytes at line"
+		if _, _, _, err := parseRun([]string{"--env-file=testdata/utf16.env", "img", "cmd"}); err == nil || !strings.Contains(err.Error(), e) {
+			t.Fatalf("Expected an error with message '%s', got %v", e, err)
+		}
+		// UTF16BE with BOM
+		if _, _, _, err := parseRun([]string{"--env-file=testdata/utf16be.env", "img", "cmd"}); err == nil || !strings.Contains(err.Error(), e) {
+			t.Fatalf("Expected an error with message '%s', got %v", e, err)
+		}
 	}
-	// label ko
-	if _, _, _, err := parseRun([]string{"--label-file=nonexistent", "img", "cmd"}); err == nil || err.Error() != e {
-		t.Fatalf("Expected an error with message '%s', got %v", e, err)
+
+	func TestParseLabelfileVariables(t *testing.T) {
+		e := "open nonexistent: no such file or directory"
+		if runtime.GOOS == "windows" {
+			e = "open nonexistent: The system cannot find the file specified."
+		}
+		// label ko
+		if _, _, _, err := parseRun([]string{"--label-file=nonexistent", "img", "cmd"}); err == nil || err.Error() != e {
+			t.Fatalf("Expected an error with message '%s', got %v", e, err)
+		}
+		// label ok
+		config, _, _, err := parseRun([]string{"--label-file=testdata/valid.label", "img", "cmd"})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if len(config.Labels) != 1 || config.Labels["LABEL1"] != "value1" {
+			t.Fatalf("Expected a config with [LABEL1:value1], got %v", config.Labels)
+		}
+		config, _, _, err = parseRun([]string{"--label-file=testdata/valid.label", "--label=LABEL2=value2", "img", "cmd"})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if len(config.Labels) != 2 || config.Labels["LABEL1"] != "value1" || config.Labels["LABEL2"] != "value2" {
+			t.Fatalf("Expected a config with [LABEL1:value1 LABEL2:value2], got %v", config.Labels)
+		}
 	}
-	// label ok
-	config, _, _, err := parseRun([]string{"--label-file=testdata/valid.label", "img", "cmd"})
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(config.Labels) != 1 || config.Labels["LABEL1"] != "value1" {
-		t.Fatalf("Expected a config with [LABEL1:value1], got %v", config.Labels)
-	}
-	config, _, _, err = parseRun([]string{"--label-file=testdata/valid.label", "--label=LABEL2=value2", "img", "cmd"})
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(config.Labels) != 2 || config.Labels["LABEL1"] != "value1" || config.Labels["LABEL2"] != "value2" {
-		t.Fatalf("Expected a config with [LABEL1:value1 LABEL2:value2], got %v", config.Labels)
-	}
-}
 */
 func TestParseEntryPoint(t *testing.T) {
 	config, _, _, err := parseRun([]string{"--entrypoint=anything", "cmd", "img"})

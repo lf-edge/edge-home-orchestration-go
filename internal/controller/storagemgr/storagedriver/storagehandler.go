@@ -180,7 +180,7 @@ func (handler StorageHandler) processAsyncGetRequest(writer http.ResponseWriter,
 	handler.helper.Response(writer, resp, http.StatusOK)
 }
 
-//addEvent is used to handle the add event Post requests
+// addEvent is used to handle the add event Post requests
 func (handler StorageHandler) addEvent(writer http.ResponseWriter, request *http.Request) {
 	readingAPI := "/api/v1/" + event
 	serverIP, readingPort, err := config.GetServerIP(configPath)
@@ -293,7 +293,7 @@ func (handler StorageHandler) processAsyncPostRequest(writer http.ResponseWriter
 	handler.asyncValues <- asyncValues
 }
 
-//processDeleteRequest is used to handle the Async Delete Request
+// processDeleteRequest is used to handle the Async Delete Request
 func (handler StorageHandler) processDeleteRequest(writer http.ResponseWriter, request *http.Request) {
 	vars := mux.Vars(request)
 	ID := vars[eventIDKey]

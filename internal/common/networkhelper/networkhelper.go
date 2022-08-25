@@ -104,7 +104,7 @@ func (networkImpl) GetIPs() ([]string, error) {
 	return ipsStr, netInfo.netError
 }
 
-//GetMACAddress returns MAC address
+// GetMACAddress returns MAC address
 func (networkImpl) GetMACAddress() (string, error) {
 	if netInfo.netError == nil {
 		return netInfo.addrInfos[0].macAddr, nil
@@ -112,7 +112,7 @@ func (networkImpl) GetMACAddress() (string, error) {
 	return "", netInfo.netError
 }
 
-//GetNetInterface returns wl network interface
+// GetNetInterface returns wl network interface
 func (networkImpl) GetNetInterface() ([]net.Interface, error) {
 	if netInfo.netError == nil {
 		return netInfo.netInterface, nil
@@ -120,7 +120,7 @@ func (networkImpl) GetNetInterface() ([]net.Interface, error) {
 	return nil, netInfo.netError
 }
 
-//GetVirtualIP returns Virtual IP of the device
+// GetVirtualIP returns Virtual IP of the device
 func (networkImpl) GetVirtualIP() (string, error) {
 	log.Println(logPrefix, "Virtual IP asked")
 	if netInfo.netError == nil {

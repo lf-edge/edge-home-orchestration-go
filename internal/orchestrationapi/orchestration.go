@@ -268,12 +268,12 @@ func (o orcheImpl) RequestVerifierConf(containerInfo verifier.RequestVerifierCon
 	return o.verifierIns.RequestVerifierConf(containerInfo)
 }
 
-//GetOrchestrationInfo gets orchestration info of the device
+// GetOrchestrationInfo gets orchestration info of the device
 func (o orcheImpl) GetOrchestrationInfo() (platform string, executionType string, serviceList []string, err error) {
 	return o.discoverIns.GetOrchestrationInfo()
 }
 
-//HandleDeviceInfo gets the peer's public and private Ip from relay server
+// HandleDeviceInfo gets the peer's public and private Ip from relay server
 func (o orcheImpl) HandleDeviceInfo(deviceID string, virtualAddr string, privateAddr string) {
 	o.discoverIns.AddDeviceInfo(deviceID, virtualAddr, privateAddr)
 }

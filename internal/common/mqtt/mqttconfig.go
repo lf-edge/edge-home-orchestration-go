@@ -130,7 +130,7 @@ func addPublishedData(topic string, host string, message string) {
 	publishData[Key{topic, host}] = message
 }
 
-//GetPublishedData is used to get the data for topic subscribed
+// GetPublishedData is used to get the data for topic subscribed
 func GetPublishedData(topic string, clientID string, host string) string {
 	list := subscriptionInfo[Key{topic, host}]
 	for _, ID := range list {
@@ -142,7 +142,7 @@ func GetPublishedData(topic string, clientID string, host string) string {
 
 }
 
-//SetBrokerURL returns the broker url for connection
+// SetBrokerURL returns the broker url for connection
 func (c *Client) SetBrokerURL() string {
 	return fmt.Sprintf("%s://%s:%d", c.protocol, c.Host, c.Port)
 }
@@ -156,7 +156,7 @@ func checkforConnection(brokerURL string, mqttClient *Client, mqttPort uint) int
 	return strings.Compare(connURL, mqttClient.URL)
 }
 
-//NewTLSConfig creates a tls config for mqtt client
+// NewTLSConfig creates a tls config for mqtt client
 func NewTLSConfig(certsPath string) (*tls.Config, error) {
 	caCertPEM, err := ioutil.ReadFile(certsPath + "/ca-crt.pem")
 	if err != nil {

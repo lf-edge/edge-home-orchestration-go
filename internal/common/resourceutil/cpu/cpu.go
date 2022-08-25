@@ -42,7 +42,7 @@ const (
 	CPUTotal
 )
 
-//InfoStat struct
+// InfoStat struct
 type InfoStat struct {
 	Mhz  float64
 	core int
