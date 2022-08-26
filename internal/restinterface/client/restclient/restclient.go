@@ -21,9 +21,10 @@ package restclient
 import (
 	"errors"
 	"fmt"
-	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
 	"net/http"
 	"strings"
+
+	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
 
 	"github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/cipher"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/client"
@@ -122,9 +123,9 @@ func (c restClientImpl) DoNotifyAppStatusRemoteDevice(statusNotificationInfo map
 	return nil
 }
 
-// DoGetScoreRemoteDevice  sends request to remote orchestration (APIV1ScoringmgrScoreLibnameGet) to get score
-func (c restClientImpl) DoGetScoreRemoteDevice(devID string, endpoint string) (scoreValue float64, err error) {
-	log.Printf("%s DoGetScoreRemoteDevice : endpoint[%v]", logPrefix, endpoint)
+// DoScoreRemoteDevice  sends request to remote orchestration (APIV1ScoringmgrScoreLibnameGet) to get score
+func (c restClientImpl) DoScoreRemoteDevice(devID string, endpoint string) (scoreValue float64, err error) {
+	log.Printf("%s DoScoreRemoteDevice : endpoint[%v]", logPrefix, endpoint)
 	if !c.IsSetKey {
 		return scoreValue, errors.New(logPrefix + " does not set key")
 	}
@@ -140,7 +141,7 @@ func (c restClientImpl) DoGetScoreRemoteDevice(devID string, endpoint string) (s
 		return scoreValue, errors.New(logPrefix + " can not encryption " + err.Error())
 	}
 
-	respBytes, code, err := c.helper.DoGetWithBody(targetURL, encryptBytes)
+	respBytes, code, err := c.helper.DoPost(targetURL, encryptBytes)
 	if err != nil || code != http.StatusOK {
 		return scoreValue, errors.New(logPrefix + " get return error")
 	}

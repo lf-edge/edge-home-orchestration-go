@@ -86,10 +86,10 @@ func init() {
 		},
 
 		restinterface.Route{
-			Name:        "APIV1ScoringmgrScoreLibnameGet",
-			Method:      strings.ToUpper("Get"),
+			Name:        "APIV1ScoringmgrScoreLibnamePost",
+			Method:      strings.ToUpper("Post"),
 			Pattern:     "/api/v1/scoringmgr/score",
-			HandlerFunc: handler.APIV1ScoringmgrScoreLibnameGet,
+			HandlerFunc: handler.APIV1ScoringmgrScoreLibnamePost,
 		},
 
 		restinterface.Route{
@@ -245,9 +245,9 @@ func (h *Handler) APIV1ServicemgrServicesNotificationServiceIDPost(w http.Respon
 	handler.helper.Response(w, nil, http.StatusOK)
 }
 
-// APIV1ScoringmgrScoreLibnameGet handles scoring request from remote orchestration
-func (h *Handler) APIV1ScoringmgrScoreLibnameGet(w http.ResponseWriter, r *http.Request) {
-	log.Info(logPrefix, " APIV1ScoringmgrScoreLibnameGet")
+// APIV1ScoringmgrScoreLibnamePost handles scoring request from remote orchestration
+func (h *Handler) APIV1ScoringmgrScoreLibnamePost(w http.ResponseWriter, r *http.Request) {
+	log.Info(logPrefix, " APIV1ScoringmgrScoreLibnamePost")
 	if !h.isSetAPI {
 		log.Error(logPrefix, doesNotSetAPI)
 		h.helper.Response(w, nil, http.StatusServiceUnavailable)

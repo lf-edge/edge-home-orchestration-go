@@ -31,7 +31,7 @@ type Clienter interface {
 	DoNotifyAppStatusRemoteDevice(statusNotificationInfo map[string]interface{}, appID uint64, target string) (err error)
 
 	// for scoringmgr
-	DoGetScoreRemoteDevice(devID string, endpoint string) (scoreValue float64, err error)
+	DoScoreRemoteDevice(devID string, endpoint string) (scoreValue float64, err error)
 	DoGetResourceRemoteDevice(devID string, endpoint string) (respMsg map[string]interface{}, err error)
 	// for discoverymgr
 	DoGetOrchestrationInfo(endpoint string) (platform string, executionType string, serviceList []string, err error)

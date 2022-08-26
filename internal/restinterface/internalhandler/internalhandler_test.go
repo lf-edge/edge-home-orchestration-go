@@ -273,7 +273,7 @@ func TestAPIV1ScoringmgrScoreLibnameGet(t *testing.T) {
 			mockHelper.EXPECT().Response(gomock.Any(), gomock.Any(), gomock.Eq(http.StatusServiceUnavailable))
 
 			handler.isSetAPI = false
-			handler.APIV1ScoringmgrScoreLibnameGet(w, r)
+			handler.APIV1ScoringmgrScoreLibnamePost(w, r)
 		})
 		t.Run("IsNotSetKey", func(t *testing.T) {
 			handler.SetOrchestrationAPI(mockOrchestration)
@@ -281,7 +281,7 @@ func TestAPIV1ScoringmgrScoreLibnameGet(t *testing.T) {
 			mockHelper.EXPECT().Response(gomock.Any(), gomock.Any(), gomock.Eq(http.StatusServiceUnavailable))
 
 			handler.IsSetKey = false
-			handler.APIV1ScoringmgrScoreLibnameGet(w, r)
+			handler.APIV1ScoringmgrScoreLibnamePost(w, r)
 		})
 		t.Run("DecryptionFail", func(t *testing.T) {
 			handler.SetCipher(mockCipher)
@@ -292,7 +292,7 @@ func TestAPIV1ScoringmgrScoreLibnameGet(t *testing.T) {
 				mockHelper.EXPECT().Response(gomock.Any(), gomock.Any(), gomock.Eq(http.StatusServiceUnavailable)),
 			)
 
-			handler.APIV1ScoringmgrScoreLibnameGet(w, r)
+			handler.APIV1ScoringmgrScoreLibnamePost(w, r)
 		})
 		t.Run("GetScoreFail", func(t *testing.T) {
 			handler.SetCipher(mockCipher)
@@ -304,7 +304,7 @@ func TestAPIV1ScoringmgrScoreLibnameGet(t *testing.T) {
 				mockHelper.EXPECT().Response(gomock.Any(), gomock.Any(), gomock.Eq(http.StatusInternalServerError)),
 			)
 
-			handler.APIV1ScoringmgrScoreLibnameGet(w, r)
+			handler.APIV1ScoringmgrScoreLibnamePost(w, r)
 		})
 		t.Run("EncryptionFail", func(t *testing.T) {
 			handler.SetCipher(mockCipher)
@@ -317,7 +317,7 @@ func TestAPIV1ScoringmgrScoreLibnameGet(t *testing.T) {
 				mockHelper.EXPECT().Response(gomock.Any(), gomock.Any(), gomock.Eq(http.StatusServiceUnavailable)),
 			)
 
-			handler.APIV1ScoringmgrScoreLibnameGet(w, r)
+			handler.APIV1ScoringmgrScoreLibnamePost(w, r)
 		})
 	})
 
@@ -332,7 +332,7 @@ func TestAPIV1ScoringmgrScoreLibnameGet(t *testing.T) {
 			mockHelper.EXPECT().Response(gomock.Any(), gomock.Any(), gomock.Eq(http.StatusOK)),
 		)
 
-		handler.APIV1ScoringmgrScoreLibnameGet(w, r)
+		handler.APIV1ScoringmgrScoreLibnamePost(w, r)
 	})
 }
 
