@@ -1,5 +1,5 @@
 # Docker image for "edge-orchestration"
-FROM --platform=$TARGETPLATFORM ubuntu:18.04 AS builder
+FROM --platform=$TARGETPLATFORM ubuntu:20.04 AS builder
 
 # environment variables
 ARG TARGETPLATFORM
@@ -19,7 +19,7 @@ RUN script/install-golang.sh
 ARG TARGETVERSION
 RUN make buildx_binary VERSION=$TARGETVERSION
 
-FROM ubuntu:18.04
+FROM ubuntu:20.04
 
 # environment variables
 ENV TARGET_DIR=/edge-orchestration
