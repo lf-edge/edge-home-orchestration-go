@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@629c2de402a417ea7690ca6ce3f33229e27606a5 # v2
 
       - name: Setup Golang
-        uses: actions/setup-go@77b162d042858409656f087cab0246511e670694 # v1
+        uses: actions/setup-go@268d8c0ca0432bb2cf416faae41297df9d262d7f # v1
         with:
           go-version: '1.19'
 
