@@ -17,7 +17,7 @@ jobs:
       - name: Setup Golang
         uses: actions/setup-go@77b162d042858409656f087cab0246511e670694 # v1
         with:
-          go-version: '1.16.6'
+          go-version: '1.19'
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@8b122486cedac8393e77aa9734c3528886e4a1a8 # v2
