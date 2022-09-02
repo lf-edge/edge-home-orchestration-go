@@ -29,7 +29,7 @@ require (
 	github.com/stretchr/testify v1.8.0
 	github.com/vishvananda/netlink v1.1.1-0.20210330154013-f5de75959ad5
 	go.etcd.io/bbolt v1.3.6
-	gopkg.in/ini.v1 v1.66.6
+	gopkg.in/ini.v1 v1.67.0
 	gopkg.in/yaml.v3 v3.0.1
 	gotest.tools/v3 v3.3.0
 )
