@@ -20,7 +20,7 @@ package internalhandler
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net"
 	"net/http"
 	"strings"
@@ -134,8 +134,7 @@ func (h *Handler) SetCertificateFilePath(path string) {
 
 // APIV1Ping handles ping request from remote orchestration
 func (h *Handler) APIV1Ping(w http.ResponseWriter, r *http.Request) {
-	var responseBytes []byte
-	responseBytes = []byte("Pong\n")
+	var responseBytes = []byte("Pong\n")
 	h.helper.Response(w, responseBytes, http.StatusOK)
 }
 
@@ -153,7 +152,7 @@ func (h *Handler) APIV1ServicemgrServicesPost(w http.ResponseWriter, r *http.Req
 	}
 
 	remoteAddr, _, _ := net.SplitHostPort(r.RemoteAddr)
-	encryptBytes, _ := ioutil.ReadAll(r.Body)
+	encryptBytes, _ := io.ReadAll(r.Body)
 
 	appInfo, err := h.Key.DecryptByteToJSON(encryptBytes)
 	if err != nil {
@@ -224,7 +223,7 @@ func (h *Handler) APIV1ServicemgrServicesNotificationServiceIDPost(w http.Respon
 		return
 	}
 
-	encryptBytes, _ := ioutil.ReadAll(r.Body)
+	encryptBytes, _ := io.ReadAll(r.Body)
 
 	statusNotification, err := h.Key.DecryptByteToJSON(encryptBytes)
 	if err != nil {
@@ -258,7 +257,7 @@ func (h *Handler) APIV1ScoringmgrScoreLibnamePost(w http.ResponseWriter, r *http
 		return
 	}
 
-	encryptBytes, _ := ioutil.ReadAll(r.Body)
+	encryptBytes, _ := io.ReadAll(r.Body)
 	Info, err := h.Key.DecryptByteToJSON(encryptBytes)
 	if err != nil {
 		log.Error(logPrefix, cannotDecryption, err.Error())
@@ -301,7 +300,7 @@ func (h *Handler) APIV1ScoringmgrResourceGet(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	encryptBytes, _ := ioutil.ReadAll(r.Body)
+	encryptBytes, _ := io.ReadAll(r.Body)
 	Info, err := h.Key.DecryptByteToJSON(encryptBytes)
 	if err != nil {
 		log.Error(logPrefix, cannotDecryption, err.Error())
@@ -341,7 +340,7 @@ func (h *Handler) APIV1DiscoverymgrMNEDCDeviceInfoPost(w http.ResponseWriter, r 
 		return
 	}
 
-	encryptBytes, _ := ioutil.ReadAll(r.Body)
+	encryptBytes, _ := io.ReadAll(r.Body)
 	Info, err := h.Key.DecryptByteToJSON(encryptBytes)
 
 	if err != nil {

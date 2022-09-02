@@ -20,7 +20,6 @@ package authorizer
 
 import (
 	"errors"
-	"io/ioutil"
 	"net/http"
 	"os"
 
@@ -93,7 +92,7 @@ func Init(rbacRulePath string) {
 	}
 	rbacPolicyFilePath = rbacRulePath + "/" + rbacPolicyFileName
 	if _, err := os.Stat(rbacPolicyFilePath); err != nil {
-		err = ioutil.WriteFile(rbacPolicyFilePath, []byte(policyTemplate), 0664)
+		err = os.WriteFile(rbacPolicyFilePath, []byte(policyTemplate), 0664)
 		if err != nil {
 			log.Panic(logPrefix, "Cannot create ", rbacPolicyFilePath, ": ", err)
 		}
@@ -101,7 +100,7 @@ func Init(rbacRulePath string) {
 
 	rbacAuthModelFilePath = rbacRulePath + "/" + rbacAuthModelFileName
 	if _, err := os.Stat(rbacAuthModelFilePath); err != nil {
-		err = ioutil.WriteFile(rbacAuthModelFilePath, []byte(authModelTemplate), 0664)
+		err = os.WriteFile(rbacAuthModelFilePath, []byte(authModelTemplate), 0664)
 		if err != nil {
 			log.Panic(logPrefix, "Cannot create ", rbacAuthModelFilePath, ": ", err)
 		}

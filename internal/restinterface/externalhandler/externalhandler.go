@@ -19,7 +19,7 @@
 package externalhandler
 
 import (
-	"io/ioutil"
+	"io"
 	"net/http"
 	"regexp"
 	"strconv"
@@ -162,7 +162,7 @@ func (h *Handler) APIV1RequestServicePost(w http.ResponseWriter, r *http.Request
 	)
 
 	//request
-	encryptBytes, _ := ioutil.ReadAll(r.Body)
+	encryptBytes, _ := io.ReadAll(r.Body)
 
 	appCommand, err := h.Key.DecryptByteToJSON(encryptBytes)
 	if err != nil {
@@ -310,7 +310,7 @@ func (h *Handler) APIV1RequestSecuremgrPost(w http.ResponseWriter, r *http.Reque
 	)
 
 	//request
-	encryptBytes, _ := ioutil.ReadAll(r.Body)
+	encryptBytes, _ := io.ReadAll(r.Body)
 
 	appCommand, err := h.Key.DecryptByteToJSON(encryptBytes)
 	if err != nil {
@@ -426,7 +426,7 @@ func (h *Handler) APIV1RequestCloudSyncmgrPublish(w http.ResponseWriter, r *http
 	)
 
 	//request
-	encryptBytes, _ := ioutil.ReadAll(r.Body)
+	encryptBytes, _ := io.ReadAll(r.Body)
 
 	//Decrypt the request in json format
 	appCommand, err := h.Key.DecryptByteToJSON(encryptBytes)
@@ -512,7 +512,7 @@ func (h *Handler) APIV1RequestCloudSyncmgrSubscribe(w http.ResponseWriter, r *ht
 	)
 
 	//request
-	encryptBytes, _ := ioutil.ReadAll(r.Body)
+	encryptBytes, _ := io.ReadAll(r.Body)
 
 	//Decrypt the request in json format
 	appCommand, err := h.Key.DecryptByteToJSON(encryptBytes)

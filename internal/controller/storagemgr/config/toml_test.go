@@ -18,7 +18,6 @@
 package config
 
 import (
-	"io/ioutil"
 	"os"
 	"testing"
 )
@@ -38,7 +37,7 @@ func createMockFile() {
 
 	b, err := TomlMarshal()
 	if err == nil {
-		ioutil.WriteFile(testFilePath, b, 0644)
+		os.WriteFile(testFilePath, b, 0644)
 	}
 }
 

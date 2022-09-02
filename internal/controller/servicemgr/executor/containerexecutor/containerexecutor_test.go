@@ -19,7 +19,7 @@ package containerexecutor
 
 import (
 	"errors"
-	"io/ioutil"
+	"io"
 	"reflect"
 	"strings"
 	"sync"
@@ -69,7 +69,7 @@ var (
 	errCh      = make(chan error)
 
 	reader     = strings.NewReader("Hello,World")
-	readCloser = ioutil.NopCloser(reader)
+	readCloser = io.NopCloser(reader)
 )
 
 func initializeMock(t *testing.T) (*mocks.MockCEImpl, *notificationMock.MockNotification, *clientApiMock.MockClienter) {

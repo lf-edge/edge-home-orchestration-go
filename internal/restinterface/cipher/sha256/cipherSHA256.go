@@ -27,7 +27,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
+	"os"
 
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
 
@@ -46,7 +46,7 @@ var (
 // GetCipher set passphrase for ciphering
 func GetCipher(cipherKeyFilePath string) c.IEdgeCipherer {
 	SHA256Cipher := new(Cipher)
-	passphrase, err := ioutil.ReadFile(cipherKeyFilePath)
+	passphrase, err := os.ReadFile(cipherKeyFilePath)
 	if err != nil {
 		SHA256Cipher.passphrase = []byte{}
 		log.Println("len :", len(SHA256Cipher.passphrase))

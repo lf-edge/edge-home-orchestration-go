@@ -19,8 +19,8 @@ package client
 
 import (
 	"errors"
-	"io/ioutil"
 	"net"
+	"os"
 	"sync"
 	"time"
 
@@ -482,7 +482,7 @@ func (c *Client) SetClient(clientAPI restclient.Clienter) {
 // getMNEDCServerAddress fetches the IP and Port of the server
 func getMNEDCServerAddress(path string) (string, string, error) {
 	c := serverConf{}
-	yamlFile, err := ioutil.ReadFile(path)
+	yamlFile, err := os.ReadFile(path)
 	if err != nil {
 		return "", "", err
 	}

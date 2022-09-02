@@ -21,7 +21,6 @@ package configuremgr
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -85,7 +84,7 @@ func (cfgMgr ConfigureMgr) SetConfigPath(configPath string) error {
 // Watch implements Watcher interface with ConfigureMgr struct
 func (cfgMgr ConfigureMgr) Watch(notifier Notifier) {
 	// logic for already installed configuration
-	files, err := ioutil.ReadDir(cfgMgr.confpath)
+	files, err := os.ReadDir(cfgMgr.confpath)
 	if err != nil {
 		log.Fatal(err)
 	}

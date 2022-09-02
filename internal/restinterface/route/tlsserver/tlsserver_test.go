@@ -18,7 +18,6 @@
 package tlsserver
 
 import (
-	"io/ioutil"
 	"os"
 	"testing"
 	"time"
@@ -122,7 +121,7 @@ func TestCreateServerConfig(t *testing.T) {
 			if err := os.MkdirAll(fakeCertsPath, os.ModePerm); err != nil {
 				t.Error(err.Error())
 			}
-			if err := ioutil.WriteFile(fakeCertsPath+"/ca-crt.pem", []byte("hello"), 0444); err != nil {
+			if err := os.WriteFile(fakeCertsPath+"/ca-crt.pem", []byte("hello"), 0444); err != nil {
 				t.Error(err.Error())
 			}
 
@@ -141,7 +140,7 @@ func TestCreateServerConfig(t *testing.T) {
 			if err := os.MkdirAll(fakeCertsPath, os.ModePerm); err != nil {
 				t.Error(err.Error())
 			}
-			if err := ioutil.WriteFile(fakeCertsPath+"/ca-crt.pem", []byte(fakeCASert), 0444); err != nil {
+			if err := os.WriteFile(fakeCertsPath+"/ca-crt.pem", []byte(fakeCASert), 0444); err != nil {
 				t.Error(err.Error())
 			}
 			if _, err := createServerConfig(fakeCertsPath); err == nil {
@@ -158,14 +157,14 @@ func TestCreateServerConfig(t *testing.T) {
 			t.Error(err.Error())
 		}
 
-		if err := ioutil.WriteFile(fakeCertsPath+"/ca-crt.pem", []byte(fakeCASert), 0444); err != nil {
+		if err := os.WriteFile(fakeCertsPath+"/ca-crt.pem", []byte(fakeCASert), 0444); err != nil {
 			t.Error(err.Error())
 		}
 
-		if err := ioutil.WriteFile(fakeCertsPath+"/hen-crt.pem", []byte(fakeHENSert), 0444); err != nil {
+		if err := os.WriteFile(fakeCertsPath+"/hen-crt.pem", []byte(fakeHENSert), 0444); err != nil {
 			t.Error(err.Error())
 		}
-		if err := ioutil.WriteFile(fakeCertsPath+"/hen-key.pem", []byte(fakeHENKey), 0444); err != nil {
+		if err := os.WriteFile(fakeCertsPath+"/hen-key.pem", []byte(fakeHENKey), 0444); err != nil {
 			t.Error(err.Error())
 		}
 		if _, err := createServerConfig(fakeCertsPath); err != nil {
@@ -184,13 +183,13 @@ func TestListenAndServe(t *testing.T) {
 		if err := os.MkdirAll(fakeCertsPath, os.ModePerm); err != nil {
 			t.Error(err.Error())
 		}
-		if err := ioutil.WriteFile(fakeCertsPath+"/ca-crt.pem", []byte(fakeCASert), 0444); err != nil {
+		if err := os.WriteFile(fakeCertsPath+"/ca-crt.pem", []byte(fakeCASert), 0444); err != nil {
 			t.Error(err.Error())
 		}
-		if err := ioutil.WriteFile(fakeCertsPath+"/hen-crt.pem", []byte(fakeHENSert), 0444); err != nil {
+		if err := os.WriteFile(fakeCertsPath+"/hen-crt.pem", []byte(fakeHENSert), 0444); err != nil {
 			t.Error(err.Error())
 		}
-		if err := ioutil.WriteFile(fakeCertsPath+"/hen-key.pem", []byte(fakeHENKey), 0444); err != nil {
+		if err := os.WriteFile(fakeCertsPath+"/hen-key.pem", []byte(fakeHENKey), 0444); err != nil {
 			t.Error(err.Error())
 		}
 
@@ -225,7 +224,7 @@ func TestListenAndServe(t *testing.T) {
 			if err := os.MkdirAll(fakeCertsPath, os.ModePerm); err != nil {
 				t.Error(err.Error())
 			}
-			if err := ioutil.WriteFile(fakeCertsPath+"/ca-crt.pem", []byte(""), 0444); err != nil {
+			if err := os.WriteFile(fakeCertsPath+"/ca-crt.pem", []byte(""), 0444); err != nil {
 				t.Error(err.Error())
 			}
 
@@ -243,7 +242,7 @@ func TestListenAndServe(t *testing.T) {
 			if err := os.MkdirAll(fakeCertsPath, os.ModePerm); err != nil {
 				t.Error(err.Error())
 			}
-			if err := ioutil.WriteFile(fakeCertsPath+"/ca-crt.pem", []byte(fakeCASert), 0444); err != nil {
+			if err := os.WriteFile(fakeCertsPath+"/ca-crt.pem", []byte(fakeCASert), 0444); err != nil {
 				t.Error(err.Error())
 			}
 
@@ -261,13 +260,13 @@ func TestListenAndServe(t *testing.T) {
 			if err := os.MkdirAll(fakeCertsPath, os.ModePerm); err != nil {
 				t.Error(err.Error())
 			}
-			if err := ioutil.WriteFile(fakeCertsPath+"/ca-crt.pem", []byte(fakeCASert), 0444); err != nil {
+			if err := os.WriteFile(fakeCertsPath+"/ca-crt.pem", []byte(fakeCASert), 0444); err != nil {
 				t.Error(err.Error())
 			}
-			if err := ioutil.WriteFile(fakeCertsPath+"/hen-crt.pem", []byte(fakeHENSert), 0444); err != nil {
+			if err := os.WriteFile(fakeCertsPath+"/hen-crt.pem", []byte(fakeHENSert), 0444); err != nil {
 				t.Error(err.Error())
 			}
-			if err := ioutil.WriteFile(fakeCertsPath+"/hen-key.pem", []byte(fakeHENKey), 0444); err != nil {
+			if err := os.WriteFile(fakeCertsPath+"/hen-key.pem", []byte(fakeHENKey), 0444); err != nil {
 				t.Error(err.Error())
 			}
 

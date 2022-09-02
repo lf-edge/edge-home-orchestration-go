@@ -21,7 +21,7 @@ package resthelper
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
@@ -108,7 +108,7 @@ func (h helperImpl) DoGet(targetURL string) (respBytes []byte, statusCode int, e
 	defer resp.Body.Close()
 
 	statusCode = resp.StatusCode
-	respBytes, err = ioutil.ReadAll(resp.Body)
+	respBytes, err = io.ReadAll(resp.Body)
 	if err != nil {
 		log.Printf("[%s] read resp.Body failed !!, err = %v", logmgr.SanitizeUserInput(targetURL), err) // lgtm [go/log-injection]
 		return
@@ -141,7 +141,7 @@ func (h helperImpl) DoGetWithBody(targetURL string, bodybytes []byte) (respBytes
 	defer resp.Body.Close()
 
 	statusCode = resp.StatusCode
-	respBytes, err = ioutil.ReadAll(resp.Body)
+	respBytes, err = io.ReadAll(resp.Body)
 	if err != nil {
 		log.Println("read resp.Body failed !!", err)
 	}
@@ -173,7 +173,7 @@ func (h helperImpl) DoPost(targetURL string, bodybytes []byte) (respBytes []byte
 	defer resp.Body.Close()
 
 	statusCode = resp.StatusCode
-	respBytes, err = ioutil.ReadAll(resp.Body)
+	respBytes, err = io.ReadAll(resp.Body)
 	if err != nil {
 		log.Println("read resp.Body failed !!", err)
 		return
@@ -197,7 +197,7 @@ func (h helperImpl) DoDelete(targetURL string) (respBytes []byte, statusCode int
 	defer resp.Body.Close()
 
 	statusCode = resp.StatusCode
-	respBytes, err = ioutil.ReadAll(resp.Body)
+	respBytes, err = io.ReadAll(resp.Body)
 	if err != nil {
 		log.Println("read resp.Body failed !!", err)
 		return

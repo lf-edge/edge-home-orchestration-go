@@ -21,7 +21,7 @@ package dummy
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"os"
 
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
 
@@ -40,7 +40,7 @@ var (
 // GetCipher set passphrase for ciphering
 func GetCipher(cipherKeyFilePath string) c.IEdgeCipherer {
 	dummyCipher := new(Cipher)
-	passphrase, err := ioutil.ReadFile(cipherKeyFilePath)
+	passphrase, err := os.ReadFile(cipherKeyFilePath)
 	if err != nil {
 		dummyCipher.passphrase = []byte{}
 		log.Info("can't read passphrase key from keyFilePath - ", err)

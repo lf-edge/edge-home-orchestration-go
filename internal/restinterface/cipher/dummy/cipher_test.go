@@ -19,7 +19,6 @@ package dummy
 
 import (
 	"encoding/json"
-	"io/ioutil"
 	"os"
 	"strings"
 	"testing"
@@ -35,7 +34,7 @@ func TestGetCipher(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		defer os.RemoveAll(fakeCipherKeyFile)
 
-		err := ioutil.WriteFile(fakeCipherKeyFile, []byte("edge-orchestration"), 0666)
+		err := os.WriteFile(fakeCipherKeyFile, []byte("edge-orchestration"), 0666)
 		if err != nil {
 			t.Error(err.Error())
 		}

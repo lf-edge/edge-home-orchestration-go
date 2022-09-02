@@ -23,9 +23,9 @@ import (
 	"crypto/x509"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 )
@@ -49,7 +49,7 @@ func init() {
 }
 
 func createClientConfig(certspath string) (*tls.Config, error) {
-	caCertPEM, err := ioutil.ReadFile(certspath + "/ca-crt.pem")
+	caCertPEM, err := os.ReadFile(certspath + "/ca-crt.pem")
 	if err != nil {
 		log.Panic(err.Error())
 		return nil, err

@@ -17,7 +17,6 @@
 package mqtt
 
 import (
-	"io/ioutil"
 	"os"
 	"strings"
 	"testing"
@@ -134,7 +133,7 @@ func TestNewTLSConfig(t *testing.T) {
 				t.Error(err.Error())
 			}
 
-			if err := ioutil.WriteFile(fakeCertsPath+"/ca-crt.pem", []byte("hello"), 0444); err != nil {
+			if err := os.WriteFile(fakeCertsPath+"/ca-crt.pem", []byte("hello"), 0444); err != nil {
 				t.Error(err.Error())
 			}
 
@@ -155,7 +154,7 @@ func TestNewTLSConfig(t *testing.T) {
 				t.Error(err.Error())
 			}
 
-			if err := ioutil.WriteFile(fakeCertsPath+"/ca-crt.pem", []byte(fakeCASert), 0444); err != nil {
+			if err := os.WriteFile(fakeCertsPath+"/ca-crt.pem", []byte(fakeCASert), 0444); err != nil {
 				t.Error(err.Error())
 			}
 
@@ -172,14 +171,14 @@ func TestNewTLSConfig(t *testing.T) {
 			t.Error(err.Error())
 		}
 
-		if err := ioutil.WriteFile(fakeCertsPath+"/ca-crt.pem", []byte(fakeCASert), 0444); err != nil {
+		if err := os.WriteFile(fakeCertsPath+"/ca-crt.pem", []byte(fakeCASert), 0444); err != nil {
 			t.Error(err.Error())
 		}
 
-		if err := ioutil.WriteFile(fakeCertsPath+"/hen-crt.pem", []byte(fakeHENSert), 0444); err != nil {
+		if err := os.WriteFile(fakeCertsPath+"/hen-crt.pem", []byte(fakeHENSert), 0444); err != nil {
 			t.Error(err.Error())
 		}
-		if err := ioutil.WriteFile(fakeCertsPath+"/hen-key.pem", []byte(fakeHENKey), 0444); err != nil {
+		if err := os.WriteFile(fakeCertsPath+"/hen-key.pem", []byte(fakeHENKey), 0444); err != nil {
 			t.Error(err.Error())
 		}
 		if _, err := NewTLSConfig(fakeCertsPath); err != nil {

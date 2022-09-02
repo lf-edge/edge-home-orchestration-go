@@ -18,7 +18,7 @@
 package resthelper
 
 import (
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"strconv"
@@ -192,7 +192,7 @@ func TestResponse(t *testing.T) {
 				t.Error("unexpected code")
 			} else if w.Header().Get("Content-Type") != contentsType {
 				t.Error("unexpected content type")
-			} else if s, _ := ioutil.ReadAll(w.Body); string(s) != body {
+			} else if s, _ := io.ReadAll(w.Body); string(s) != body {
 				t.Error("unexpected body")
 			}
 		})
@@ -204,7 +204,7 @@ func TestResponse(t *testing.T) {
 				t.Error("unexpected code")
 			} else if w.Header().Get("Content-Type") != contentsType {
 				t.Error("unexpected content type")
-			} else if s, _ := ioutil.ReadAll(w.Body); len(s) > 0 {
+			} else if s, _ := io.ReadAll(w.Body); len(s) > 0 {
 				t.Error("unexpected body")
 			}
 		})

@@ -19,7 +19,6 @@ package senderresolver
 
 import (
 	"errors"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -81,7 +80,7 @@ func GetNameByPort(port int64) (string, error) {
 }
 
 func getData() ([]string, error) {
-	data, err := ioutil.ReadFile(procNetTCP)
+	data, err := os.ReadFile(procNetTCP)
 	if err != nil {
 		return nil, err
 	}
@@ -103,7 +102,7 @@ func removeEmpty(array []string) []string {
 func getProcess(pid string) (string, error) {
 	fp := processInfoPath + "/" + pid + "/comm"
 
-	data, err := ioutil.ReadFile(fp)
+	data, err := os.ReadFile(fp)
 	if err != nil {
 		return "", err
 	}

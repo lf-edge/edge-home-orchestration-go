@@ -22,7 +22,9 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
-	"io/ioutil"
+
+	// "io/ioutil"
+
 	"os"
 	"strings"
 	"sync"
@@ -158,7 +160,7 @@ func checkforConnection(brokerURL string, mqttClient *Client, mqttPort uint) int
 
 // NewTLSConfig creates a tls config for mqtt client
 func NewTLSConfig(certsPath string) (*tls.Config, error) {
-	caCertPEM, err := ioutil.ReadFile(certsPath + "/ca-crt.pem")
+	caCertPEM, err := os.ReadFile(certsPath + "/ca-crt.pem")
 	if err != nil {
 		log.Panic(logPrefix, err.Error())
 		return nil, err

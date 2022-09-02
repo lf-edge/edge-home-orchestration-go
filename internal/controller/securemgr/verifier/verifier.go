@@ -20,7 +20,6 @@ package verifier
 
 import (
 	"errors"
-	"io/ioutil"
 	"os"
 	"strings"
 
@@ -82,10 +81,10 @@ func init() {
 // initContainerWhiteList fills the containerWhiteList by reading the information
 // from the file if it exists or creates it otherwise
 func initContainerWhiteList() error {
-	fileContent, err := ioutil.ReadFile(cwlFilePath)
+	fileContent, err := os.ReadFile(cwlFilePath)
 	if err != nil {
 		containerWhiteList = nil
-		err = ioutil.WriteFile(cwlFilePath, []byte(""), 0666)
+		err = os.WriteFile(cwlFilePath, []byte(""), 0666)
 		if err != nil {
 			log.Error(logPrefix, cannotCreateFile, cwlFileName, ": ", err)
 		}
@@ -152,10 +151,10 @@ func (VerificationImpl) ContainerIsInWhiteList(containerName string) error {
 // addHashToContainerWhiteList add the hash to containerWhiteList
 // if it exists then ignore this command
 func addHashToContainerWhiteList(hash string) error {
-	fileContent, err := ioutil.ReadFile(cwlFilePath)
+	fileContent, err := os.ReadFile(cwlFilePath)
 	if err != nil {
 		fileContentStr := hash + "\n"
-		err = ioutil.WriteFile(cwlFilePath, []byte(fileContentStr), 0666)
+		err = os.WriteFile(cwlFilePath, []byte(fileContentStr), 0666)
 		if err != nil {
 			log.Error(logPrefix, cannotCreateFile, cwlFileName, err)
 			return err
@@ -175,7 +174,7 @@ func addHashToContainerWhiteList(hash string) error {
 			}
 		}
 		fileContentStr = fileContentStr + hash + "\n"
-		err = ioutil.WriteFile(cwlFilePath, []byte(fileContentStr), 0666)
+		err = os.WriteFile(cwlFilePath, []byte(fileContentStr), 0666)
 		if err != nil {
 			log.Error(logPrefix, cannotCreateFile, cwlFileName, err)
 			return err
@@ -188,9 +187,9 @@ func addHashToContainerWhiteList(hash string) error {
 // delHashFromContainerWhiteList deletes the hash from containerWhiteList file,
 // if hash is absent then ignore this command
 func delHashFromContainerWhiteList(hash string) error {
-	fileContent, err := ioutil.ReadFile(cwlFilePath)
+	fileContent, err := os.ReadFile(cwlFilePath)
 	if err != nil {
-		err = ioutil.WriteFile(cwlFilePath, []byte(""), 0666)
+		err = os.WriteFile(cwlFilePath, []byte(""), 0666)
 		if err != nil {
 			log.Error(logPrefix, cannotCreateFile, cwlFileName, err)
 			return err
@@ -203,7 +202,7 @@ func delHashFromContainerWhiteList(hash string) error {
 			return nil
 		}
 		fileContentStr = fileContentStr[:digestIndex] + fileContentStr[digestIndex+65:]
-		err = ioutil.WriteFile(cwlFilePath, []byte(fileContentStr), 0666)
+		err = os.WriteFile(cwlFilePath, []byte(fileContentStr), 0666)
 		if err != nil {
 			log.Error(logPrefix, cannotCreateFile, cwlFileName, err)
 			return err
@@ -219,7 +218,7 @@ func delHashFromContainerWhiteList(hash string) error {
 
 // delAllHashFromContainerWhiteList deletes all hashes from containerWhiteList file
 func delAllHashFromContainerWhiteList() error {
-	err := ioutil.WriteFile(cwlFilePath, []byte(""), 0666)
+	err := os.WriteFile(cwlFilePath, []byte(""), 0666)
 	if err != nil {
 		log.Error(logPrefix, cannotCreateFile, cwlFileName, err)
 		return err
