@@ -61,7 +61,5 @@ func (r *requesters) StoreRequesterInfo(serviceName string, requesters []string)
 	defer r.mutex.Unlock()
 
 	r.requesterInfos[serviceName] = make([]string, len(requesters))
-	for idx, req := range requesters {
-		r.requesterInfos[serviceName][idx] = req
-	}
+	copy(r.requesterInfos[serviceName], requesters)
 }

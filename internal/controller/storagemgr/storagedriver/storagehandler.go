@@ -21,7 +21,7 @@ import (
 	"context"
 	b64 "encoding/base64"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"math"
 	"net/http"
 	"time"
@@ -191,7 +191,7 @@ func (handler StorageHandler) addEvent(writer http.ResponseWriter, request *http
 	}
 
 	requestURL := handler.helper.MakeTargetURL(serverIP, readingPort, readingAPI)
-	reqBody, err := ioutil.ReadAll(request.Body)
+	reqBody, err := io.ReadAll(request.Body)
 	if err != nil {
 		http.Error(writer, "Error in getting body", http.StatusBadRequest)
 	}
@@ -323,7 +323,7 @@ func (handler StorageHandler) readBodyAsString(request *http.Request) (string, e
 	}
 
 	defer request.Body.Close()
-	body, err := ioutil.ReadAll(request.Body)
+	body, err := io.ReadAll(request.Body)
 	if err != nil {
 		return "", err
 	}
@@ -341,7 +341,7 @@ func (handler StorageHandler) readBodyAsBinary(request *http.Request) ([]byte, e
 	}
 
 	defer request.Body.Close()
-	body, err := ioutil.ReadAll(request.Body)
+	body, err := io.ReadAll(request.Body)
 	if err != nil {
 		return nil, err
 	}

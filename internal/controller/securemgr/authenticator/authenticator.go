@@ -22,7 +22,6 @@ import (
 	"crypto/rsa"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"math/rand"
 	"net/http"
 	"os"
@@ -80,17 +79,17 @@ func Init(passPhraseJWTPath string) {
 	passPhraseJWTFilePath = passPhraseJWTPath + "/" + passPhraseJWTFileName
 
 	var err error
-	passphrase, err = ioutil.ReadFile(passPhraseJWTFilePath)
+	passphrase, err = os.ReadFile(passPhraseJWTFilePath)
 	if err != nil {
 		rand.Seed(time.Now().UnixNano())
 		passphrase = []byte(randString(16))
-		err = ioutil.WriteFile(passPhraseJWTFilePath, passphrase, 0666)
+		err = os.WriteFile(passPhraseJWTFilePath, passphrase, 0666)
 		if err != nil {
 			log.Error(logPrefix, "Cannot create passPhraseJWT.txt: ", err)
 		}
 	}
 
-	verifyBytes, err := ioutil.ReadFile(passPhraseJWTPath + "/" + pubKeyPath)
+	verifyBytes, err := os.ReadFile(passPhraseJWTPath + "/" + pubKeyPath)
 	if err != nil {
 		log.Error(logPrefix, err)
 	} else {

@@ -18,7 +18,7 @@
 package mnedcmgr
 
 import (
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strconv"
 
@@ -100,7 +100,7 @@ func startMNEDCBroadcastServer() {
 func handleClientInfo(w http.ResponseWriter, r *http.Request) {
 	log.Println("Registered")
 
-	encryptBytes, _ := ioutil.ReadAll(r.Body)
+	encryptBytes, _ := io.ReadAll(r.Body)
 	Info, err := serverIns.Key.DecryptByteToJSON(encryptBytes)
 
 	if err != nil {

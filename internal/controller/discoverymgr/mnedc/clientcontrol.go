@@ -18,9 +18,10 @@
 package mnedcmgr
 
 import (
-	"github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/tls"
-	"io/ioutil"
+	"os"
 	"time"
+
+	"github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/tls"
 
 	restclient "github.com/lf-edge/edge-home-orchestration-go/internal/restinterface/client"
 	//"controller/discoverymgr"
@@ -98,7 +99,7 @@ func (c *ClientImpl) SetClient(clientAPI restclient.Clienter) {
 
 func getDeviceID(path string) (string, error) {
 	logPrefix := "[GetDeviceID]"
-	UUIDv4, err := ioutil.ReadFile(path)
+	UUIDv4, err := os.ReadFile(path)
 
 	if err != nil {
 		log.Println(logPrefix, "No saved UUID : ", err.Error())

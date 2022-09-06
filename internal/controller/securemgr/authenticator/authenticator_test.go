@@ -17,7 +17,6 @@
 package authenticator
 
 import (
-	"io/ioutil"
 	"os"
 	"testing"
 )
@@ -67,14 +66,14 @@ func TestInit(t *testing.T) {
 			t.Error(err.Error())
 		}
 
-		err := ioutil.WriteFile(fakejwtPath+"/"+pubKeyPath, []byte(fakejwtpubKey), 0666)
+		err := os.WriteFile(fakejwtPath+"/"+pubKeyPath, []byte(fakejwtpubKey), 0666)
 		if err != nil {
 			t.Error(err.Error())
 		}
 		Init(fakejwtPath)
 		os.RemoveAll(fakejwtPath + "/" + pubKeyPath)
 
-		err = ioutil.WriteFile(fakejwtPath+"/"+pubKeyPath, []byte(""), 0666)
+		err = os.WriteFile(fakejwtPath+"/"+pubKeyPath, []byte(""), 0666)
 		if err != nil {
 			t.Error(err.Error())
 		}

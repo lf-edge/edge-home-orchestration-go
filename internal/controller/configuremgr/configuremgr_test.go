@@ -18,7 +18,6 @@
 package configuremgr
 
 import (
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -82,8 +81,7 @@ func TestBasicMockConfigureMgr(t *testing.T) {
 	os.Mkdir(defaultConfPath, 0775)
 	defer os.RemoveAll(defaultConfPath)
 
-	var contextNoti Notifier
-	contextNoti = new(dummyNoti)
+	var contextNoti Notifier = new(dummyNoti)
 	src := "testdata/score"
 
 	t.Run("Success", func(t *testing.T) {
@@ -98,13 +96,13 @@ func TestBasicMockConfigureMgr(t *testing.T) {
 		if err != nil {
 			t.Errorf(err.Error())
 		} else {
-			files, err := ioutil.ReadDir(src)
+			files, err := os.ReadDir(src)
 			if err != nil {
 				t.Error(err.Error())
 			}
 			for _, file := range files {
-				fileContent, _ := ioutil.ReadFile(filepath.Join(src, file.Name()))
-				err = ioutil.WriteFile(filepath.Join(dir, file.Name()), []byte(fileContent), 0664)
+				fileContent, _ := os.ReadFile(filepath.Join(src, file.Name()))
+				err = os.WriteFile(filepath.Join(dir, file.Name()), []byte(fileContent), 0664)
 				if err != nil {
 					t.Errorf(err.Error())
 				}

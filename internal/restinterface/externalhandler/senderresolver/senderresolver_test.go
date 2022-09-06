@@ -18,7 +18,6 @@
 package senderresolver
 
 import (
-	"io/ioutil"
 	"os"
 	"testing"
 
@@ -166,7 +165,7 @@ func TestGetNameByPort(t *testing.T) {
 		}
 
 		procNetTCP = fakeProcNetTCP
-		err = ioutil.WriteFile(procNetTCP, []byte(test), 0644)
+		err = os.WriteFile(procNetTCP, []byte(test), 0644)
 		if err != nil {
 			t.Error(unexpectedError, err.Error())
 		}
@@ -176,7 +175,7 @@ func TestGetNameByPort(t *testing.T) {
 			t.Error(unexpectedSuccess)
 		}
 
-		err = ioutil.WriteFile(procNetTCP, []byte(test1), 0644)
+		err = os.WriteFile(procNetTCP, []byte(test1), 0644)
 		if err != nil {
 			t.Error(unexpectedError, err.Error())
 		}

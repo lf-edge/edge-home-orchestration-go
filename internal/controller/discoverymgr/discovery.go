@@ -18,7 +18,6 @@
 package discoverymgr
 
 import (
-	"io/ioutil"
 	"net"
 	"os"
 	"reflect"
@@ -381,7 +380,7 @@ func detectNetworkChgRoutine() {
 
 func setDeviceID(UUIDPath string) (UUIDstr string, err error) {
 
-	UUIDv4, err := ioutil.ReadFile(UUIDPath)
+	UUIDv4, err := os.ReadFile(UUIDPath)
 
 	if err != nil {
 		log.Println(logPrefix, "No saved UUID : ", err)
@@ -389,7 +388,7 @@ func setDeviceID(UUIDPath string) (UUIDstr string, err error) {
 
 		UUIDstr = UUIDv4New.String()
 
-		err = ioutil.WriteFile(UUIDPath, []byte(UUIDstr), 0644)
+		err = os.WriteFile(UUIDPath, []byte(UUIDstr), 0644)
 		if err != nil {
 			log.Println(logPrefix, "Error Write UUID : ", err)
 		}
@@ -875,7 +874,7 @@ func getServiceFromEnv() string {
 // getMNEDCServerAddress fetches the IP and Port of the server
 func getMNEDCServerAddress(path string) (string, string, error) {
 	c := serverConf{}
-	yamlFile, err := ioutil.ReadFile(path)
+	yamlFile, err := os.ReadFile(path)
 	if err != nil {
 		return "", "", err
 	}

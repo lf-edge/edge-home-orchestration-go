@@ -21,8 +21,8 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"errors"
-	"io/ioutil"
 	"net"
+	"os"
 
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
 )
@@ -46,7 +46,7 @@ func init() {
 }
 
 func createClientConfig() (*tls.Config, error) {
-	caCertPEM, err := ioutil.ReadFile(caCert)
+	caCertPEM, err := os.ReadFile(caCert)
 	if err != nil {
 		return nil, err
 	}
@@ -73,7 +73,7 @@ func createClientConfig() (*tls.Config, error) {
 }
 
 func createServerConfig() (*tls.Config, error) {
-	caCertPEM, err := ioutil.ReadFile(caCert)
+	caCertPEM, err := os.ReadFile(caCert)
 	if err != nil {
 		return nil, err
 	}

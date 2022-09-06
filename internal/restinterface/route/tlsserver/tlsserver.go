@@ -20,10 +20,10 @@ package tlsserver
 import (
 	"net"
 	"net/http"
+	"os"
 
 	"crypto/tls"
 	"crypto/x509"
-	"io/ioutil"
 
 	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
 )
@@ -48,7 +48,7 @@ type TLSServer struct {
 }
 
 func createServerConfig(certspath string) (*tls.Config, error) {
-	caCertPEM, err := ioutil.ReadFile(certspath + "/ca-crt.pem")
+	caCertPEM, err := os.ReadFile(certspath + "/ca-crt.pem")
 	if err != nil {
 		log.Panic(logPrefix, err.Error())
 		return nil, err

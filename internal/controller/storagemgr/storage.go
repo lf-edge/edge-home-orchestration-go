@@ -19,7 +19,6 @@ package storagemgr
 
 import (
 	"errors"
-	"io/ioutil"
 	"os"
 	"strings"
 
@@ -156,7 +155,7 @@ func saveToml(host string) (err error) {
 
 	b, err := config.TomlMarshal()
 	if err == nil {
-		err = ioutil.WriteFile(dataStorageConfFolder+"/configuration.toml", b, 0644)
+		err = os.WriteFile(dataStorageConfFolder+"/configuration.toml", b, 0644)
 	}
 	return
 }
@@ -237,7 +236,7 @@ func saveYaml() (err error) {
 	config.SetYaml(deviceName, manufacture, model, description, label, resource)
 	b, err := config.YamlMarshal()
 	if err == nil {
-		err = ioutil.WriteFile(dataStorageConfFolder+"/datastorage-device.yaml", b, 0644)
+		err = os.WriteFile(dataStorageConfFolder+"/datastorage-device.yaml", b, 0644)
 	}
 	return
 }
