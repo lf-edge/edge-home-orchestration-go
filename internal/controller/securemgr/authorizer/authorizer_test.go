@@ -26,6 +26,8 @@ const (
 	fakerbacPath              = "fakerbac"
 	fakerbacPolicyFilePath    = fakerbacPath + "/" + rbacPolicyFileName
 	fakerbacAuthModelFilePath = fakerbacPath + "/" + rbacAuthModelFileName
+	unexpectedSuccess         = "unexpected success"
+	unexpectedFail            = "unexpected fail"
 )
 
 func TestInit(t *testing.T) {
@@ -84,12 +86,12 @@ func TestInit(t *testing.T) {
 func TestFindByName(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		if _, err := users.findByName("Admin"); err != nil {
-			t.Error("unexpected success")
+			t.Error(unexpectedFail)
 		}
 	})
 	t.Run("Error", func(t *testing.T) {
 		if _, err := users.findByName("admin"); err == nil {
-			t.Error("unexpected success")
+			t.Error(unexpectedSuccess)
 		}
 	})
 
@@ -103,7 +105,7 @@ func TestAuthorizer(t *testing.T) {
 		}
 
 		if err := Authorizer("Admin", req); err != nil {
-			t.Error("unexpected fail")
+			t.Error(unexpectedFail)
 		}
 	})
 	t.Run("Error", func(t *testing.T) {
@@ -113,16 +115,68 @@ func TestAuthorizer(t *testing.T) {
 		}
 
 		if err := Authorizer("admin", req); err == nil {
-			t.Error("unexpected success")
+			t.Error(unexpectedSuccess)
 		}
 
-		if err := Authorizer("Member", req); err == nil {
-			t.Error("unexpected success")
+		if err := Authorizer("member", req); err == nil {
+			t.Error(unexpectedSuccess)
 		}
 
 		users = append(users, User{Name: "Member1", Role: ""})
 		if err := Authorizer("Member1", req); err == nil {
-			t.Error("unexpected success")
+			t.Error(unexpectedSuccess)
 		}
+	})
+}
+
+func FuzzTestFindByName(f *testing.F) {
+	testcases := []string{"Admin", "!12345"}
+	for _, tc := range testcases {
+		f.Add(tc) // Use f.Add to provide a seed corpus
+	}
+
+	users = append(users, User{Name: "Admin", Role: "admin"})
+	users = append(users, User{Name: "Member", Role: "member"})
+
+	f.Fuzz(func(t *testing.T, orig string) {
+
+		if _, err := users.findByName(orig); err != nil {
+			return
+		}
+		if orig == "Admin" || orig == "Member" {
+			return
+		}
+		t.Error(unexpectedSuccess)
+	})
+}
+
+func FuzzTestAuthorizer(f *testing.F) {
+
+	defer func() {
+		os.RemoveAll(fakerbacPath)
+	}()
+
+	testcases := []string{"Admin", "Member", "!12345"}
+	for _, tc := range testcases {
+		f.Add(tc) // Use f.Add to provide a seed corpus
+	}
+
+	Init(fakerbacPath)
+
+	req, err := http.NewRequest("POST", "/api/v1/orchestration/securemgr", nil)
+	if err != nil {
+		return
+	}
+
+	f.Fuzz(func(t *testing.T, orig string) {
+
+		if err := Authorizer(orig, req); err != nil {
+			return
+		}
+
+		if orig == "Admin" || orig == "Member" {
+			return
+		}
+		t.Error(unexpectedSuccess)
 	})
 }

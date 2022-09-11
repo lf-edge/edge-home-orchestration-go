@@ -230,6 +230,10 @@ lint:
 staticcheck:
 	$(Q) -staticcheck ./...
 
+fuzz:
+	$(call print_header, "Run Fuzzer (go test -fuzz)")
+	$(Q) ./tools/fuzz-all.sh $1
+
 ## format go files
 fmt:
 	$(Q) make clean
@@ -247,6 +251,7 @@ help:
 	@echo '    clean              Remove binaries, artifacts.'
 	@echo '    create_context     Prepare configuration.'
 	@echo '    fmt                Run: gofmt -s -w ./ .'
+	@echo '    fuzz               Run: go test -fuzz .'
 	@echo '    help               Show this help screen.'
 	@echo '    lint               Run golint and go vet.'
 	@echo '    menuconfig         Change configuration by kconfig-frontends.'
@@ -257,7 +262,7 @@ help:
 	@echo ''
 
 ## define build target not a file
-.PHONY: all build test clean lint fmt help staticcheck run stop binary
+.PHONY: all binary build clean fmt fuzz help lint run staticcheck stop test
 
 define stop_docker_container
 	$(call print_header, "Stop Docker container")

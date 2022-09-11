@@ -24,6 +24,7 @@ web/package-lock.json
 
 # Test binary, build with `go test -c`
 *.test
+*testdata/
 
 # Output of build
 *.o
