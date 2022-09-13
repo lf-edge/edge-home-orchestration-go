@@ -1,0 +1,27 @@
+name: Go fuzz test
+on: [push, pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  test-suite:
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        os: [ubuntu-20.04]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b # v2
+
+      - name: Setup Golang
+        uses: actions/setup-go@268d8c0ca0432bb2cf416faae41297df9d262d7f # v1
+        with:
+          go-version: '1.19'
+
+      - name: Fuzz test
+        run: |
+          GO111MODULE=on go mod tidy
+          GO111MODULE=on go mod vendor
+          ./tools/fuzz-all.sh 30
