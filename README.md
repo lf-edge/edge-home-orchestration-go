@@ -6,6 +6,7 @@
 [![CodeQL Analysis](https://github.com/lf-edge/edge-home-orchestration-go/workflows/CodeQL%20Analysis/badge.svg)](https://github.com/lf-edge/edge-home-orchestration-go/actions?query=workflow%3A%22CodeQL+Analysis%22)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=lf-edge_edge-home-orchestration-go&metric=alert_status)](https://sonarcloud.io/dashboard?id=lf-edge_edge-home-orchestration-go)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/4336/badge)](https://bestpractices.coreinfrastructure.org/projects/4336)
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/lf-edge/edge-home-orchestration-go/badge)](https://api.securityscorecards.dev/projects/github.com/lf-edge/edge-home-orchestration-go)
 [![RepoSize](https://img.shields.io/github/repo-size/lf-edge/edge-home-orchestration-go.svg)](https://github.com/lf-edge/edge-home-orchestration-go)
 [![Release](https://img.shields.io/github/v/release/lf-edge/edge-home-orchestration-go.svg)](https://github.com/lf-edge/edge-home-orchestration-go/releases)
 [![LICENSE](https://img.shields.io/github/license/lf-edge/edge-home-orchestration-go.svg)](https://github.com/lf-edge/edge-home-orchestration-go/blob/master/LICENSE)
