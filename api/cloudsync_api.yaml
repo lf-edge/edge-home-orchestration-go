@@ -1,0 +1,139 @@
+openapi: 3.0.3
+info:
+  title: CloudSync API Document
+  version: v1-20220927
+  description:
+    This provides the functionality to publish/subscribe to a topic on mqtt broker running on AWS instance
+  
+paths:
+  /api/v1/orchestration/cloudsyncmgr/subscribe:
+    post:
+      tags:
+        - CloudSync
+      summary: ""
+      description: ""
+      operationId: subscribe
+      requestBody:
+        description: subscribe to MQTT broker running on url for the given topic
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/subscribebody'
+
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscribeResponse'
+  /api/v1/orchestration/cloudsyncmgr/publish:
+    post:
+      tags:
+        - CloudSync
+      summary: ""
+      description: ""
+      operationId: publish
+      requestBody:
+        description: publish to MQTT broker running on url for the given topic
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/publishbody'
+
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublishResponse'
+  /api/v1/orchestration/cloudsyncmgr/getsubscribedata/{host}/{topic}/{appID}:
+   get:
+      tags:
+        - CloudSync
+      summary: ""
+      description: ""
+      operationId: getSubscribeddata
+      parameters:
+        - name: host
+          in: path
+          description: url of the mqtt broker
+          required: true
+          schema:
+            type: string
+        - name: topic
+          in: path
+          description: topic for which the message is required
+          required: true
+          schema:
+            type: string
+        - name: appID
+          in: path
+          description: id of the app which has subscribed to mentioned topic
+          required: true
+          schema:
+            type: string
+           
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetDataResponse'      
+        '404':
+          description: Page not found
+    
+components:
+  schemas:
+    subscribebody:
+      properties:
+        appid:
+          type: string
+          example: com.samsung.facerecog
+        topic:
+          type: string
+          example: doggie
+        url:
+          type: string
+          example: ec2-184-73-83-74.compute-1.amazonaws.com
+    publishbody:
+      properties:
+        appid:
+          type: string
+          example: com.samsung.facerecog
+        payload:
+          type: string
+          example: Test Data from Sample app
+        topic:
+          type: string
+          example: doggie
+        url:
+          type: string
+          example: ec2-184-73-83-74.compute-1.amazonaws.com
+    SubscribeResponse:
+      properties:
+        Message:
+          type: string
+          example: Successfully subscribed to the topic doggie 
+    PublishResponse:
+      properties:
+        Message:
+          type: string
+          example: Data published successfully to Cloud tcp://ec2-184-73-83-74.compute-1.amazonaws.com:1883
+        RemoteTargetInfo:
+          type: string
+          example: ""
+        ServiceName:
+          type: string
+          example: ""
+    GetDataResponse:
+      properties:
+        Message:
+          type: string
+          example: Data published will be received
+        
+    
