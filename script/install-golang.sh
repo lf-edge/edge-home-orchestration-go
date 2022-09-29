@@ -11,6 +11,6 @@ elif [ $TARGETPLATFORM = "linux/arm/v7" ]; then
     arch="armv6l"
 fi
 
-wget https://golang.org/dl/go$GOVERSION.linux-$arch.tar.gz && \
+wget --no-check-certificate https://golang.org/dl/go$GOVERSION.linux-$arch.tar.gz && \
 tar -C /usr/local -xzf go$GOVERSION.linux-$arch.tar.gz && \
 ln -s $GOPATH/bin/go /usr/bin/
