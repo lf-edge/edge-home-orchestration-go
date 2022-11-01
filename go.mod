@@ -11,7 +11,7 @@ require (
 	github.com/eclipse/paho.mqtt.golang v1.4.1
 	github.com/edgexfoundry/device-sdk-go v1.4.0
 	github.com/edgexfoundry/go-mod-core-contracts v0.1.115
-	github.com/fsnotify/fsnotify v1.5.4
+	github.com/fsnotify/fsnotify v1.6.0
 	github.com/golang-jwt/jwt/v4 v4.4.2
 	github.com/golang/mock v1.4.4
 	github.com/gomodule/redigo v1.8.9
@@ -91,7 +91,7 @@ require (
 	golang.org/x/crypto v0.0.0-20210322153248-0c34fe9e7dc2 // indirect
 	golang.org/x/net v0.0.0-20210405180319-a5a99cb37ef4 // indirect
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
-	golang.org/x/sys v0.0.0-20220715151400-c0bba94af5f8 // indirect
+	golang.org/x/sys v0.0.0-20220908164124-27713097b956 // indirect
 	golang.org/x/time v0.0.0-20220609170525-579cf78fd858 // indirect
 	google.golang.org/genproto v0.0.0-20201110150050-8816d57aaa9a // indirect
 	google.golang.org/grpc v1.47.0 // indirect
