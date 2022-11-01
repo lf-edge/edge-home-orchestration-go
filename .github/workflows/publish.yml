@@ -45,7 +45,7 @@ jobs:
           cp configs/defdockerfiles/ubuntu_multistage Dockerfile
 
       - name: Build and push
-        uses: docker/build-push-action@c84f38281176d4c9cdb1626ffafcd6b3911b5d94 # v3
+        uses: docker/build-push-action@c56af957549030174b10d6867f20e78cfd7debc5 # v3
         with:
           context: .
           build-args: TARGETVERSION=v${{ steps.meta.outputs.version }}
