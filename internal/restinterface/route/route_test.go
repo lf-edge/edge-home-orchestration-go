@@ -116,16 +116,26 @@ func TestStart(t *testing.T) {
 		return
 	}
 	router.Start()
+}
 
-	routers := NewRestRouterWithCerti(fakeCertsPath)
-	if routers == nil {
+func TestStartSecureRoute(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	router := NewRestRouterWithCerti(fakeCertsPath)
+	if router == nil {
 		t.Error(unexpectedFail)
 		return
 	}
-	routers.Start()
+	router.Start()
+}
 
-	routere := NewRestRouter()
-	if routere == nil {
+func TestStartFakeRoute(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	router := NewRestRouter()
+	if router == nil {
 		t.Error(unexpectedFail)
 		return
 	}
@@ -133,10 +143,10 @@ func TestStart(t *testing.T) {
 		restinterface.HasRoutes
 		cipher.HasCipher
 	}
-	routere.Add(&fakeRouter{})
-	routere.Add(externalhandler.GetHandler())
-	if routere.routerExternal == nil {
+	router.Add(&fakeRouter{})
+	router.Add(externalhandler.GetHandler())
+	if router.routerExternal == nil {
 		t.Error("unexpected not set external handler")
 	}
-	routere.Start()
+	router.Start()
 }
