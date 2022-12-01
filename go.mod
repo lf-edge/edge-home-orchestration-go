@@ -12,7 +12,7 @@ require (
 	github.com/edgexfoundry/device-sdk-go v1.4.0
 	github.com/edgexfoundry/go-mod-core-contracts v0.1.115
 	github.com/fsnotify/fsnotify v1.6.0
-	github.com/golang-jwt/jwt/v4 v4.4.2
+	github.com/golang-jwt/jwt/v4 v4.4.3
 	github.com/golang/mock v1.4.4
 	github.com/gomodule/redigo v1.8.9
 	github.com/gorilla/mux v1.8.0
