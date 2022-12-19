@@ -37,6 +37,7 @@ We are releasing patches to eliminate vulnerabilities, you can see below:
 | 1.1.9       | Fixed        |                    | CVE-2022-23648                                 |
 | 1.1.11      | Fixed        |                    | CVE-2021-3121                                  |
 | 1.1.14      | Fixed        |                    | CVE-2022-28948, CVE-2021-41092, CVE-2022-31030 |
+| 1.2.1       | Fixed        |                    | CVE-2022-23471                                 |
 
 ### 2.2 Vulnerability Report
 
