@@ -11,7 +11,7 @@ jobs:
   pull-request-reviewer-reminder: 
     runs-on: ubuntu-latest
     steps:
-      - uses: tommykw/pull-request-reviewer-reminder-action@bc62999543e1220874b74e4c500a2559f5dfe42e # v1
+      - uses: tommykw/pull-request-reviewer-reminder-action@5d110f904528e96d48accfac688540e95cf382fe # v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }} # Required
           reminder_message: 'One business day has passed since the review started. Give priority to reviews as much as possible. 🙏' # Required. Messages to send to reviewers on Github.
