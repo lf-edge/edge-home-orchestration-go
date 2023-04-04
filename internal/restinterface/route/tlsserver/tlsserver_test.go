@@ -114,6 +114,8 @@ func TestCreateServerConfig(t *testing.T) {
 				}
 			}()
 
+			os.RemoveAll(fakeCertsPath)
+
 			if _, err := createServerConfig(fakeCertsPath); err == nil {
 				t.Error(unexpectedSuccess)
 			}
@@ -199,7 +201,10 @@ func TestListenAndServe(t *testing.T) {
 			s.listener.Close()
 		}()
 		s.ListenAndServe(addr, nil)
+		time.Sleep(1 * time.Second)
+
 	})
+
 	t.Run("Fail", func(t *testing.T) {
 		t.Run("AbsentCertsPath", func(t *testing.T) {
 			defer func() {
@@ -210,8 +215,12 @@ func TestListenAndServe(t *testing.T) {
 			}()
 
 			s := TLSServer{Certspath: fakeCertsPath}
+			go func() {
+				time.Sleep(2 * time.Second)
+				s.listener.Close()
+			}()
 			s.ListenAndServe(addr, nil)
-
+			time.Sleep(1 * time.Second)
 		})
 		t.Run("WrongCACrtFmt", func(t *testing.T) {
 			defer func() {
@@ -229,7 +238,12 @@ func TestListenAndServe(t *testing.T) {
 			}
 
 			s := TLSServer{Certspath: fakeCertsPath}
+			go func() {
+				time.Sleep(2 * time.Second)
+				s.listener.Close()
+			}()
 			s.ListenAndServe(addr, nil)
+			time.Sleep(1 * time.Second)
 		})
 		t.Run("AbsentHenCrtKey", func(t *testing.T) {
 			defer func() {
@@ -247,7 +261,12 @@ func TestListenAndServe(t *testing.T) {
 			}
 
 			s := TLSServer{Certspath: fakeCertsPath}
+			go func() {
+				time.Sleep(2 * time.Second)
+				s.listener.Close()
+			}()
 			s.ListenAndServe(addr, nil)
+			time.Sleep(1 * time.Second)
 		})
 		t.Run("BadAddr", func(t *testing.T) {
 			defer func() {
@@ -271,7 +290,12 @@ func TestListenAndServe(t *testing.T) {
 			}
 
 			s := TLSServer{Certspath: fakeCertsPath}
+			go func() {
+				time.Sleep(2 * time.Second)
+				s.listener.Close()
+			}()
 			s.ListenAndServe("_", nil)
+			time.Sleep(1 * time.Second)
 		})
 	})
 }

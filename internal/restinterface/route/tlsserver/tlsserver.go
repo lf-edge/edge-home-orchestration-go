@@ -80,9 +80,11 @@ func createServerConfig(certspath string) (*tls.Config, error) {
 // ListenAndServe listens HTTPS connection and calls Serve with handler to handle requests on incoming connections.
 func (s *TLSServer) ListenAndServe(addr string, handler http.Handler) {
 
-	config, _ := createServerConfig(s.Certspath)
+	config, err := createServerConfig(s.Certspath)
+	if err != nil {
+		log.Panic(logPrefix, "create tls configuration failed: ", err.Error())
+	}
 
-	var err error
 	s.listener, err = tls.Listen("tcp", addr, config)
 	if err != nil {
 		log.Panic(logPrefix, "listen failed: ", err.Error())
