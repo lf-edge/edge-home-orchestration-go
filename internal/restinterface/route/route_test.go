@@ -118,18 +118,6 @@ func TestStart(t *testing.T) {
 	router.Start()
 }
 
-func TestStartSecureRoute(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	router := NewRestRouterWithCerti(fakeCertsPath)
-	if router == nil {
-		t.Error(unexpectedFail)
-		return
-	}
-	router.Start()
-}
-
 func TestStartFakeRoute(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -147,6 +135,18 @@ func TestStartFakeRoute(t *testing.T) {
 	router.Add(externalhandler.GetHandler())
 	if router.routerExternal == nil {
 		t.Error("unexpected not set external handler")
+	}
+	router.Start()
+}
+
+func TestStartSecureRoute(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	router := NewRestRouterWithCerti(fakeCertsPath)
+	if router == nil {
+		t.Error(unexpectedFail)
+		return
 	}
 	router.Start()
 }
