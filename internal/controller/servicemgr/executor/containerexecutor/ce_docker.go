@@ -60,7 +60,7 @@ func newCEDocker() (ceDocker *CEDocker) {
 
 // Create is to create container
 func (ce CEDocker) Create(conf *container.Config, hostConf *container.HostConfig, networkConf *network.NetworkingConfig) (resp container.ContainerCreateCreatedBody, err error) {
-	resp, err = ce.cli.ContainerCreate(ce.ctx, conf, hostConf, networkConf, "")
+	resp, err = ce.cli.ContainerCreate(ce.ctx, conf, hostConf, networkConf, nil, "")
 	return
 }
 
