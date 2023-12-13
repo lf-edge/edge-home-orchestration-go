@@ -1,33 +1,58 @@
 name: Fossology check
-on: [push, pull_request]
+on: [pull_request]
 
-permissions:
-  contents: read
+# permissions:
+#   contents: read
 
 jobs:
-  fossology:
-    runs-on: ubuntu-latest
-    
-    container:
-      image: fossology/fossology:scanner
-
+  check-license:
+    name: Check license
+    runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9
-
-      - name: Fossology run
-        run: |
-          export GITHUB_TOKEN=${{secrets.GITHUB_TOKEN}}
-          export GITHUB_PULL_REQUEST="None"
-          /bin/fossologyscanner repo nomos ojo copyright keyword
-        continue-on-error: true
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+      - run: |
+          docker run --rm --name "fossologyscanner" -w "/opt/repo" -v ${PWD}:/opt/repo \
+            -e GITHUB_TOKEN=${{ github.token }} \
+            -e GITHUB_PULL_REQUEST=${{ github.event.number }} \
+            -e GITHUB_REPOSITORY=${{ github.repository }} \
+            -e GITHUB_REPO_URL=${{ github.repositoryUrl }} \
+            -e GITHUB_REPO_OWNER=${{ github.repository_owner }} \
+            -e GITHUB_API=${{ github.api_url }} \
+            -e GITHUB_ACTIONS=true \
+            fossology/fossology:scanner "/bin/fossologyscanner" --report TEXT repo nomos ojo
+      # Upload artifact
+      - uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce
         with:
           name: scan-fossology-report
           path: ./results
 
-      - name: Artifact download
-        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a
+      # Artifact download
+      - uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a
+        with:
+         name: scan-fossology-report
+
+  check-copyright:
+    name: Check copyright
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+      - run: |
+          docker run --rm --name "fossologyscanner" -w "/opt/repo" -v ${PWD}:/opt/repo \
+            -e GITHUB_TOKEN=${{ github.token }} \
+            -e GITHUB_PULL_REQUEST=${{ github.event.number }} \
+            -e GITHUB_REPOSITORY=${{ github.repository }} \
+            -e GITHUB_API=${{ github.api_url }} \
+            -e GITHUB_REPO_URL=${{ github.repositoryUrl }} \
+            -e GITHUB_REPO_OWNER=${{ github.repository_owner }} \
+            -e GITHUB_ACTIONS=true \
+            fossology/fossology:scanner "/bin/fossologyscanner" --report TEXT repo copyright keyword
+      # Upload artifact
+      - uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce
         with:
           name: scan-fossology-report
+          path: ./results
+
+      # Artifact download
+      - uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a
+        with:
+         name: scan-fossology-report
