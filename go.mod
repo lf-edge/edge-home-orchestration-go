@@ -15,7 +15,7 @@ require (
 	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/golang/mock v1.4.4
 	github.com/gomodule/redigo v1.8.9
-	github.com/gorilla/mux v1.8.0
+	github.com/gorilla/mux v1.8.1
 	github.com/grandcat/zeroconf v1.0.0
 	github.com/leemcloughlin/logfile v0.0.0-20201123203928-cff1c8a30a10
 	github.com/pelletier/go-toml v1.9.5
