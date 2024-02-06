@@ -1,12 +1,12 @@
 name: Fossology check
-on: [pull_request]
+on: [pull_request, push]
 
-# permissions:
-#   contents: read
+permissions:
+  contents: read
 
 jobs:
   check-license:
-    name: Check license
+    name: Check license, copyright, keyword
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
@@ -19,40 +19,14 @@ jobs:
             -e GITHUB_REPO_OWNER=${{ github.repository_owner }} \
             -e GITHUB_API=${{ github.api_url }} \
             -e GITHUB_ACTIONS=true \
-            fossology/fossology:scanner "/bin/fossologyscanner" --report TEXT repo nomos ojo
+            fossology/fossology:scanner "/bin/fossologyscanner" --report TEXT repo nomos ojo copyright keyword
       # Upload artifact
-      - uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32
+      - uses: actions/upload-artifact@26f96dfa697d77e81fd5907df203aa23a56210a8
         with:
           name: scan-fossology-report
           path: ./results
 
       # Artifact download
-      - uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a
-        with:
-         name: scan-fossology-report
-
-  check-copyright:
-    name: Check copyright
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
-      - run: |
-          docker run --rm --name "fossologyscanner" -w "/opt/repo" -v ${PWD}:/opt/repo \
-            -e GITHUB_TOKEN=${{ github.token }} \
-            -e GITHUB_PULL_REQUEST=${{ github.event.number }} \
-            -e GITHUB_REPOSITORY=${{ github.repository }} \
-            -e GITHUB_API=${{ github.api_url }} \
-            -e GITHUB_REPO_URL=${{ github.repositoryUrl }} \
-            -e GITHUB_REPO_OWNER=${{ github.repository_owner }} \
-            -e GITHUB_ACTIONS=true \
-            fossology/fossology:scanner "/bin/fossologyscanner" --report TEXT repo copyright keyword
-      # Upload artifact
-      - uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32
-        with:
-          name: scan-fossology-report
-          path: ./results
-
-      # Artifact download
-      - uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a
+      - uses: actions/download-artifact@6b208ae046db98c579e8a3aa621ab581ff575935
         with:
          name: scan-fossology-report
