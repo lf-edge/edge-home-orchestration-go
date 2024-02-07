@@ -75,9 +75,34 @@ add the files/changes you want to commit to the staging area with
 git add path/to/my/file.go
 ```
 
-Commit your changes with a descriptive commit message. Make sure to mention the ticket number with #XXX so github will automatically link your commit with the ticket:
+Commit your changes with a descriptive commit message. Make sure to mention the issue number with `#XXX` so that GitHub will automatically link your commit with the issue. Additionally, use appropriate commit message prefixes to categorize your changes.
+
+   - **feat**: Introduce a new feature or enhancement.
+   - **fix**: Address a bug or resolve an issue.
+   - **chore**: Perform routine tasks or maintenance.
+   - **docs**: Make changes to documentation.
+   - **style**: Implement code style changes (e.g., formatting).
+   - **test**: Modify or add tests.
+   - **refactor**: Implement code refactoring.
+   - **perf**: Performance Improvements.
+   - **build**: Any changes in build conditions.
+   - **ci**: Implement any continuous integration changes.
+   - **revert**: Revert to previous code state.
+
+   For example:
+
 ```sh
-git commit -m "A brief description of this change which fixes #42 goes here" --signoff
+   git commit -m "feat: A brief description of this new feature which resolves #42" --signoff
+   git commit -m "fix: A brief description of this bug fix which fixes #42" --signoff
+   git commit -m "chore: A brief description of routine tasks or maintenance" --signoff
+   git commit -m "docs: A brief description of documentation changes" --signoff
+   git commit -m "style: A brief description of code style changes (e.g., formatting)" --signoff
+   git commit -m "test: A brief description of changes related to testing" --signoff
+   git commit -m "refactor: A brief description of code refactoring" --signoff
+   git commit -m "perf: A brief description of performance improvements" --signoff
+   git commit -m "build: A brief description of build conditions" --signoff
+   git commit -m "ci: A brief description of continuous integration changes" --signoff
+   git commit -m "revert: A brief description of revert previous code state" --signoff
 ```
 
 #### 9. Pull the latest Edge Orchestration code from upstream into your branch
