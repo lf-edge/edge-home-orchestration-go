@@ -1,4 +1,4 @@
-name: Publish Containers
+name: Creating release & publishing container
 on:
   push:
     tags:
@@ -53,3 +53,57 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+  # Create Release
+  create-release:
+    permissions:
+      contents: write  # for marvinpinto/action-automatic-releases to generate pre-release
+    name: Create Release
+    runs-on: "ubuntu-latest"
+
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@eb238b55efaa70779f274895e782ed17c84f2895 # v2.6.1
+        with:
+          egress-policy: audit
+
+      - uses: marvinpinto/action-automatic-releases@d68defdd11f9dcc7f52f35c1b7c236ee7513bcc1
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          prerelease: false
+          title: "Edge-Orchestration ${{ github.ref_name }}"
+
+  # Generate Hashes
+  generate_hashes:
+    needs: [create-release]
+    runs-on: ubuntu-latest
+    name: Generate Hashes
+    outputs:
+      hashes: ${{ steps.hash.outputs.hashes }}
+    steps:
+      - name: Download Source Code Assets
+        run: |
+          VERSION=${{ github.ref_name }}
+          wget https://github.com/${{ github.repository }}/archive/refs/tags/${VERSION}.tar.gz
+          wget https://github.com/${{ github.repository }}/archive/refs/tags/${VERSION}.zip
+          mv ${VERSION}.tar.gz edge-home-orchestration-go-${VERSION:1}.tar.gz
+          mv ${VERSION}.zip edge-home-orchestration-go-${VERSION:1}.zip
+
+      - name: Generate hashes
+        id: hash
+        run: |
+          VERSION=${{ github.ref_name }}
+          echo "hashes=$(sha256sum edge-home-orchestration-go-${VERSION:1}.tar.gz edge-home-orchestration-go-${VERSION:1}.zip | base64 -w0)" >> "$GITHUB_OUTPUT"
+
+  provenance:
+    needs: [generate_hashes, create-release]
+    name: Generate Provenance
+    permissions:
+      actions: read # To read the workflow path.
+      id-token: write # To sign the provenance.
+      contents: write # To add assets to a release.
+
+    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v1.9.0
+    with:
+      base64-subjects: "${{ needs.generate_hashes.outputs.hashes }}"
+      upload-assets: true # Optional: Upload to a new release
