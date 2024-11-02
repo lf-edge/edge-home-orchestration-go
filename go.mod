@@ -1,6 +1,6 @@
 module github.com/lf-edge/edge-home-orchestration-go
 
-go 1.19
+go 1.23
 
 require (
 	github.com/casbin/casbin v1.9.1

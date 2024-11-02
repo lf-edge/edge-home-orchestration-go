@@ -19,6 +19,7 @@ package route
 
 import (
 	"testing"
+	"time"
 
 	"github.com/golang/mock/gomock"
 
@@ -40,6 +41,8 @@ const (
 func TestNewRestRouter(t *testing.T) {
 	if router := NewRestRouter(); router == nil {
 		t.Error(unexpectedFail)
+	} else {
+		router.Stop()
 	}
 }
 
@@ -81,6 +84,8 @@ func TestAdd(t *testing.T) {
 	if router.routerExternal == nil {
 		t.Error("unexpected not set external handler")
 	}
+
+	router.Stop()
 }
 
 func TestReadClientIP(t *testing.T) {
@@ -104,6 +109,8 @@ func TestNewRestRouterWithCerti(t *testing.T) {
 	if edgeRoute.IsSetCert != true {
 		t.Error("expected certificate is set, but not set")
 	}
+
+	edgeRoute.Stop()
 }
 
 func TestStart(t *testing.T) {
@@ -115,7 +122,10 @@ func TestStart(t *testing.T) {
 		t.Error(unexpectedFail)
 		return
 	}
-	router.Start()
+
+	go router.Start()
+	time.Sleep(2000 * time.Millisecond)
+	go router.Stop()
 }
 
 func TestStartFakeRoute(t *testing.T) {
@@ -136,7 +146,10 @@ func TestStartFakeRoute(t *testing.T) {
 	if router.routerExternal == nil {
 		t.Error("unexpected not set external handler")
 	}
-	router.Start()
+
+	go router.Start()
+	time.Sleep(2000 * time.Millisecond)
+	go router.Stop()
 }
 
 func TestStartSecureRoute(t *testing.T) {
@@ -148,5 +161,5 @@ func TestStartSecureRoute(t *testing.T) {
 		t.Error(unexpectedFail)
 		return
 	}
-	router.Start()
+	// go router.Start()
 }

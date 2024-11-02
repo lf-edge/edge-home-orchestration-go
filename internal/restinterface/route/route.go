@@ -19,6 +19,7 @@
 package route
 
 import (
+	"context"
 	"net/http"
 	"strconv"
 	"time"
@@ -53,6 +54,9 @@ type RestRouter struct {
 	routerExternal *mux.Router
 
 	tls.HasCertificate
+
+	internalServer *http.Server
+	externalServer *http.Server
 }
 
 // NewRestRouter constructs RestRouter instance
@@ -105,20 +109,53 @@ func (r RestRouter) Start() {
 	r.listenAndServe()
 }
 
+// Stop shuts down both internal and external servers
+func (r RestRouter) Stop() {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	if r.internalServer != nil {
+		if err := r.internalServer.Shutdown(ctx); err != nil {
+			log.Error(logPrefix, "Failed to shut down internal server")
+		}
+	}
+	if r.externalServer != nil {
+		if err := r.externalServer.Shutdown(ctx); err != nil {
+			log.Error(logPrefix, "Failed to shut down external server")
+		}
+	}
+
+}
+
 func (r RestRouter) listenAndServe() {
 	// start internal server
 	switch r.IsSetCert {
 	case true:
 		log.Info(logPrefix, "Internal ListenAndServeTLS")
 		s := tlsserver.TLSServer{Certspath: r.GetCertificateFilePath()}
-		go s.ListenAndServe(":"+strconv.Itoa(ConstInternalPort), r.routerInternal)
+		r.internalServer = &http.Server{
+			Addr:    ":" + strconv.Itoa(ConstInternalPort),
+			Handler: r.routerInternal,
+		}
+		go s.ListenAndServe(r.internalServer.Addr, r.internalServer.Handler)
+		// go s.ListenAndServe(":"+strconv.Itoa(ConstInternalPort), r.routerInternal)
 	default:
 		log.Info(logPrefix, "Internal ListenAndServe")
-		go http.ListenAndServe(":"+strconv.Itoa(ConstInternalPort), r.routerInternal)
+		r.internalServer = &http.Server{
+			Addr:    ":" + strconv.Itoa(ConstInternalPort),
+			Handler: r.routerInternal,
+		}
+		go r.internalServer.ListenAndServe()
+		// go http.ListenAndServe(":"+strconv.Itoa(ConstInternalPort), r.routerInternal)
 	}
 
 	if log.Info(logPrefix, "External ListenAndServe"); r.routerExternal != nil {
-		go http.ListenAndServe(":"+strconv.Itoa(ConstWellknownPort), r.routerExternal)
+		r.externalServer = &http.Server{
+			Addr:    ":" + strconv.Itoa(ConstWellknownPort),
+			Handler: r.routerExternal,
+		}
+		go r.externalServer.ListenAndServe()
+		// go http.ListenAndServe(":"+strconv.Itoa(ConstWellknownPort), r.routerExternal)
 	}
 }
 

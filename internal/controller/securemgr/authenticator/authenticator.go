@@ -59,9 +59,10 @@ func init() {
 var alphabet = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
 func randString(n int) string {
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	b := make([]rune, n)
 	for i := range b {
-		b[i] = alphabet[rand.Intn(len(alphabet))]
+		b[i] = alphabet[r.Intn(len(alphabet))]
 	}
 	return string(b)
 }
@@ -81,7 +82,6 @@ func Init(passPhraseJWTPath string) {
 	var err error
 	passphrase, err = os.ReadFile(passPhraseJWTFilePath)
 	if err != nil {
-		rand.Seed(time.Now().UnixNano())
 		passphrase = []byte(randString(16))
 		err = os.WriteFile(passPhraseJWTFilePath, passphrase, 0666)
 		if err != nil {

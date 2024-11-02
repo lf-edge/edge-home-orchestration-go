@@ -26,11 +26,6 @@ config X86_64
 	---help---
 		"x86_64 architecture"
 
-config X86
-	bool "x86"
-	---help---
-		"x86 architecture"
-
 config ARM
 	bool "arm"
 	---help---

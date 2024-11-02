@@ -32,8 +32,8 @@ Example
 **Test Configuration**:
 * OS type & version: Ubuntu 20.04
 * Hardware: x86-64 (e.g., x86, x86-64, arm, arm64)
-* Toolchain: Docker v20.10 & Go v1.19
-* Edge Orchestration Release: v1.1.x
+* Toolchain: Docker v20.10 & Go v1.23
+* Edge Orchestration Release: v1.2.x
 
 # Checklist:
 

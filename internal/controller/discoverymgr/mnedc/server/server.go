@@ -19,13 +19,13 @@ package server
 
 import (
 	"errors"
-	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
-	"github.com/lf-edge/edge-home-orchestration-go/internal/common/networkhelper"
 	"math/rand"
 	"net"
 	"sync"
 	"time"
 
+	"github.com/lf-edge/edge-home-orchestration-go/internal/common/logmgr"
+	"github.com/lf-edge/edge-home-orchestration-go/internal/common/networkhelper"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/discoverymgr/mnedc/connectionutil"
 	"github.com/lf-edge/edge-home-orchestration-go/internal/controller/discoverymgr/mnedc/tunmgr"
 
@@ -387,11 +387,11 @@ func generateServerIP() net.IP {
 
 	privateIP = privateIP + "/16"
 	_, subnet, _ := net.ParseCIDR(privateIP)
-	rand.Seed(time.Now().UnixNano())
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 
 	for {
 		//Assigning new Virtual IP address in case of clash with Private IP
-		serverVirtualIP = net.IPv4(10, byte(rand.Intn(255)), byte(rand.Intn(255)), 1)
+		serverVirtualIP = net.IPv4(10, byte(r.Intn(255)), byte(r.Intn(255)), 1)
 		if !subnet.Contains(serverVirtualIP) {
 			break
 		}

@@ -37,7 +37,7 @@ Please see the below [How to work](#how-to-work) to know how to run Edge Orchest
 `$ sudo usermod -aG docker $USER`
 
 - go compiler
-    - Version: 1.19 (or above)
+    - Version: 1.23 (or above)
     - [How to install](https://golang.org/dl/)
 
 > To build Edge Orchestrator from Go sources, you need to set GOPATH environment variable:  
