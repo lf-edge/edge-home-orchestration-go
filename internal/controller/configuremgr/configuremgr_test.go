@@ -62,7 +62,7 @@ func TestSetConfigPath(t *testing.T) {
 				t.Errorf("%s != %s", defaultConfPath, configuremgrObj.confpath)
 			}
 		} else {
-			t.Errorf(err.Error())
+			t.Error(err.Error())
 		}
 	})
 	t.Run("No File", func(t *testing.T) {
@@ -94,7 +94,7 @@ func TestBasicMockConfigureMgr(t *testing.T) {
 		os.RemoveAll(dir)
 		err := os.Mkdir(dir, 0775)
 		if err != nil {
-			t.Errorf(err.Error())
+			t.Error(err.Error())
 		} else {
 			files, err := os.ReadDir(src)
 			if err != nil {
@@ -104,7 +104,7 @@ func TestBasicMockConfigureMgr(t *testing.T) {
 				fileContent, _ := os.ReadFile(filepath.Join(src, file.Name()))
 				err = os.WriteFile(filepath.Join(dir, file.Name()), []byte(fileContent), 0664)
 				if err != nil {
-					t.Errorf(err.Error())
+					t.Error(err.Error())
 				}
 			}
 		}

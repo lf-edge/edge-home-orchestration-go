@@ -258,7 +258,7 @@ func TestGetCPUUsage(t *testing.T) {
 
 		cpuUsage, err := resourceIns.GetResource(CPUUsage)
 		if err != nil {
-			t.Errorf(err.Error())
+			t.Error(err.Error())
 		}
 
 		if cpuUsage != dummyCPUPercentResult {
@@ -291,7 +291,7 @@ func TestGetCPUFreq(t *testing.T) {
 
 		cpuFreq, err := resourceIns.GetResource(CPUFreq)
 		if err != nil {
-			t.Errorf(err.Error())
+			t.Error(err.Error())
 		}
 
 		if cpuFreq != dummyCPUFreqResult {
@@ -324,7 +324,7 @@ func TestGetCPUCount(t *testing.T) {
 
 		cpuCount, err := resourceIns.GetResource(CPUCount)
 		if err != nil {
-			t.Errorf(err.Error())
+			t.Error(err.Error())
 		}
 
 		if cpuCount != dummyCPUCountResult {
@@ -357,7 +357,7 @@ func TestGetMemAvailable(t *testing.T) {
 
 		memAvailable, err := resourceIns.GetResource(MemAvailable)
 		if err != nil {
-			t.Errorf(err.Error())
+			t.Error(err.Error())
 		}
 
 		if memAvailable != dummyMemAvailableResult {
@@ -390,7 +390,7 @@ func TestGetMemFree(t *testing.T) {
 
 		memFree, err := resourceIns.GetResource(MemFree)
 		if err != nil {
-			t.Errorf(err.Error())
+			t.Error(err.Error())
 		}
 
 		if memFree != dummyMemFreeResult {
@@ -423,7 +423,7 @@ func TestGetNetMBps(t *testing.T) {
 
 		netMBps, err := resourceIns.GetResource(NetMBps)
 		if err != nil {
-			t.Errorf(err.Error())
+			t.Error(err.Error())
 		}
 
 		if netMBps != dummyNetMBpsResult {
@@ -456,7 +456,7 @@ func TestGetNetBandwidth(t *testing.T) {
 
 		netBandwidth, err := resourceIns.GetResource(NetBandwidth)
 		if err != nil {
-			t.Errorf(err.Error())
+			t.Error(err.Error())
 		}
 
 		if netBandwidth != dummyNetBandwidthResult {

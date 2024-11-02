@@ -1,9 +1,9 @@
 # Docker image for "edge-orchestration"
-FROM --platform=$TARGETPLATFORM ubuntu:20.04 AS builder
+FROM --platform=$TARGETPLATFORM ubuntu:24.04 AS builder
 
 # environment variables
 ARG TARGETPLATFORM
-ENV GOVERSION=1.19.1
+ENV GOVERSION=1.23.2
 ENV GOPATH=/usr/local/go
 ENV TARGET_DIR=/edge-orchestration
 
@@ -19,7 +19,7 @@ RUN script/install-golang.sh
 ARG TARGETVERSION
 RUN make buildx_binary VERSION=$TARGETVERSION
 
-FROM ubuntu:20.04
+FROM ubuntu:24.04
 
 # environment variables
 ENV TARGET_DIR=/edge-orchestration
@@ -44,8 +44,11 @@ COPY --from=builder $TARGET_DIR/$WEB_DIR/$BUILD_DIR $TARGET_DIR/$WEB_DIR/
 RUN mkdir -p $TARGET_DIR/res/
 
 # install required tools
-RUN apt-get update
-RUN apt-get install -y net-tools iproute2
+# RUN apt-get update
+# RUN apt-get install -y net-tools iproute2
+
+RUN apt update
+RUN apt install -y net-tools iproute2
 
 # expose ports
 EXPOSE $HTTP_PORT $MDNS_PORT $ZEROCONF_PORT $MNEDC_PORT $MNEDC_BROADCAST_PORT $UI_PORT

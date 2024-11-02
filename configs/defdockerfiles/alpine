@@ -1,7 +1,6 @@
 # Docker image for "edge-orchestration"
 ### alpine:3.12
-ARG PLATFORM
-FROM $PLATFORM/alpine:3.12
+FROM alpine:3.12
 
 # environment variables
 ENV TARGET_DIR=/edge-orchestration
@@ -12,12 +11,12 @@ ENV MNEDC_BROADCAST_PORT=3333
 ENV ZEROCONF_PORT=42425
 ENV APP_BIN_DIR=bin
 ENV APP_NAME=edge-orchestration
-ENV APP_QEMU_DIR=$APP_BIN_DIR/qemu
+# ENV APP_QEMU_DIR=$APP_BIN_DIR/qemu
 ENV BUILD_DIR=build
 
 # copy files
 COPY $APP_BIN_DIR/$APP_NAME $BUILD_DIR/package/run.sh $TARGET_DIR/
-COPY $APP_QEMU_DIR/ /usr/bin/
+# COPY $APP_QEMU_DIR/ /usr/bin/
 RUN mkdir -p $TARGET_DIR/res/
 
 # install required tools

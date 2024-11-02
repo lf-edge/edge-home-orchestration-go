@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   publish:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - name: Check out the repo
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
@@ -17,7 +17,7 @@ jobs:
       - name: Setup Golang
         uses: actions/setup-go@0a12ed9d6a96ab950c8f026ed9f722fe0da7ef32
         with:
-          go-version: '1.19'
+          go-version: '1.23'
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@49b3bc8e6bdd4a60e6116a5414239cba5943d3cf
@@ -59,7 +59,7 @@ jobs:
     permissions:
       contents: write  # for marvinpinto/action-automatic-releases to generate pre-release
     name: Create Release
-    runs-on: "ubuntu-latest"
+    runs-on: ubuntu-latest
 
     steps:
       - name: Harden Runner

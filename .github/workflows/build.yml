@@ -9,8 +9,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        arch: [x86c, x86_64c, armc, arm64c, x86_64n, x86_64a]
-        os: [ubuntu-20.04]
+        arch: [ x86_64c, armc, arm64c, x86_64n, x86_64a ]
+        os: [ ubuntu-24.04 ]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
@@ -18,13 +18,13 @@ jobs:
       - name: Setup Golang
         uses: actions/setup-go@0a12ed9d6a96ab950c8f026ed9f722fe0da7ef32
         with:
-          go-version: '1.19'
+          go-version: '1.23'
 
-      - name: Install Qemu
-        if:  ${{ matrix.arch != 'x86_64c' && matrix.arch != 'x86_64a' && matrix.arch != 'x86_64n'}}
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y qemu binfmt-support qemu-user-static
+      # - name: Install Qemu
+      #   if:  ${{ matrix.arch != 'x86_64c' && matrix.arch != 'x86_64a' && matrix.arch != 'x86_64n'}}
+      #   run: |
+      #     sudo apt-get update
+      #     sudo apt-get install -y qemu binfmt-support qemu-user-static
 
       - name: Install Android SDK & NDK  
         if:  ${{ matrix.arch == 'x86_64a' }}

@@ -79,7 +79,7 @@ ifeq ($(CONFIG_ARM),y)
 	INTERFACE_OUT_INC_DIR		:= $(INTERFACE_OUT_DIR)/inc/linux_arm
 	INTERFACE_OUT_BIN_DIR		:= $(INTERFACE_OUT_DIR)/bin/linux_arm
 	INTERFACE_OUT_LIB_DIR		:= $(INTERFACE_OUT_DIR)/lib/linux_arm
-	CONTAINER_ARCH="arm32v7"
+	CONTAINER_ARCH="arm/v7"
 	GOARCH=arm
 	CC="arm-linux-gnueabi-gcc"
 	GOARM=7
@@ -88,18 +88,10 @@ else ifeq ($(CONFIG_ARM64),y)
 	INTERFACE_OUT_INC_DIR		:= $(INTERFACE_OUT_DIR)/inc/linux_aarch64
 	INTERFACE_OUT_BIN_DIR		:= $(INTERFACE_OUT_DIR)/bin/linux_aarch64
 	INTERFACE_OUT_LIB_DIR		:= $(INTERFACE_OUT_DIR)/lib/linux_aarch64
-	CONTAINER_ARCH="arm64v8"
+	CONTAINER_ARCH="arm64"
 	GOARCH=arm64
 	CC="aarch64-linux-gnu-gcc"
 	ANDROID_TARGET="android/arm64"
-else ifeq ($(CONFIG_X86),y)
-	INTERFACE_OUT_INC_DIR		:= $(INTERFACE_OUT_DIR)/inc/linux_x86
-	INTERFACE_OUT_BIN_DIR		:= $(INTERFACE_OUT_DIR)/bin/linux_x86
-	INTERFACE_OUT_LIB_DIR		:= $(INTERFACE_OUT_DIR)/lib/linux_x86
-	CONTAINER_ARCH="i386"
-	GOARCH=386
-	CC="gcc"
-	ANDROID_TARGET="android/386"
 else ifeq ($(CONFIG_X86_64),y)
 	INTERFACE_OUT_INC_DIR		:= $(INTERFACE_OUT_DIR)/inc/linux_x86-64
 	INTERFACE_OUT_BIN_DIR		:= $(INTERFACE_OUT_DIR)/bin/linux_x86-64
@@ -155,12 +147,6 @@ define build-object-c
 	$(Q) ls -al $(INTERFACE_OUT_LIB_DIR)
 endef
 
-## edge-orchestration archive
-define build-result
-	tree $(INTERFACE_OUT_DIR)
-	tree $(ANDROID_LIBRARY_OUT_DIR)
-endef
-
 ## edge-orchestration android library build
 build-object-java:
 	$(Q) mkdir -p $(ANDROID_LIBRARY_OUT_DIR)
@@ -181,18 +167,20 @@ build_docker_container:
 	$(call print_header, "Create Docker container $(CONTAINER_ARCH)")
 	-docker rm -f $(PKG_NAME)
 	-docker rmi -f $(DOCKER_IMAGE):$(CONTAINER_VERSION)
-	$(Q) mkdir -p $(BASE_DIR)/bin/qemu
-ifeq ($(CONFIG_ARM),y)
-ifneq ($(shell uname -m),armv7l)
-	$(Q) cp /usr/bin/qemu-arm-static $(BASE_DIR)/bin/qemu
-endif
-endif
-ifeq ($(CONFIG_ARM64),y)
-ifneq ($(shell uname -m),aarch64)
-	$(Q) cp /usr/bin/qemu-aarch64-static $(BASE_DIR)/bin/qemu
-endif
-endif
-	$(DOCKER) build --tag $(DOCKER_IMAGE):$(CONTAINER_VERSION) --file $(BASE_DIR)/Dockerfile --build-arg PLATFORM=$(CONTAINER_ARCH) .
+	-docker buildx create --use
+
+#	$(Q) mkdir -p $(BASE_DIR)/bin/qemu
+#ifeq ($(CONFIG_ARM),y)
+#ifneq ($(shell uname -m),armv7l)
+#	$(Q) cp /usr/bin/qemu-arm-static $(BASE_DIR)/bin/qemu
+#endif
+#endif
+#ifeq ($(CONFIG_ARM64),y)
+#ifneq ($(shell uname -m),aarch64)
+#	$(Q) cp /usr/bin/qemu-aarch64-static $(BASE_DIR)/bin/qemu
+#endif
+#endif
+	$(DOCKER) buildx build --platform linux/$(CONTAINER_ARCH) --tag $(DOCKER_IMAGE):$(CONTAINER_VERSION) --file $(BASE_DIR)/Dockerfile --load .
 	-docker save -o $(BASE_DIR)/bin/edge-orchestration.tar $(DOCKER_IMAGE)
 
 ## go test and coverage
@@ -290,12 +278,12 @@ ifeq ($(CONFIG_CONTAINER),y)
 	make build_docker_container
 else ifeq ($(CONFIG_NATIVE),y)
 	$(call build-object-c)
-	$(call build-result)
+	tree $(INTERFACE_OUT_DIR)
 else ifeq ($(CONFIG_ANDROID),y)
 	$(call print_header, "Target Binary is for Android")
 	$(call print_header, "Create Android archive from Java interface")
 	make build-object-java
-	$(call build-result)
+	tree $(ANDROID_LIBRARY_OUT_DIR)
 endif
 
 binary: check_context
@@ -305,12 +293,12 @@ ifeq ($(CONFIG_CONTAINER),y)
 	$(call build_binary)
 else ifeq ($(CONFIG_NATIVE),y)
 	$(call build-object-c)
-	$(call build-result)
+	tree $(INTERFACE_OUT_DIR)
 else ifeq ($(CONFIG_ANDROID),y)
 	$(call print_header, "Target Binary is for Android")
 	$(call print_header, "Create Android archive from Java interface")
 	make build-object-java
-	$(call build-result)
+	tree $(ANDROID_LIBRARY_OUT_DIR)
 endif
 
 .config:
