@@ -9,7 +9,7 @@ jobs:
     name: Check license, copyright, keyword
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       - run: |
           docker run --rm --name "fossologyscanner" -w "/opt/repo" -v ${PWD}:/opt/repo \
             -e GITHUB_TOKEN=${{ github.token }} \
@@ -21,7 +21,7 @@ jobs:
             -e GITHUB_ACTIONS=true \
             fossology/fossology:scanner "/bin/fossologyscanner" --report TEXT repo nomos ojo copyright keyword
       # Upload artifact
-      - uses: actions/upload-artifact@0b2256b8c012f0828dc542b3febcab082c67f72b
+      - uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882
         with:
           name: scan-fossology-report
           path: ./results
