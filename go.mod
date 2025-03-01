@@ -31,7 +31,7 @@ require (
 	go.etcd.io/bbolt v1.3.10
 	gopkg.in/ini.v1 v1.67.0
 	gopkg.in/yaml.v3 v3.0.1
-	gotest.tools/v3 v3.5.1
+	gotest.tools/v3 v3.5.2
 )
 
 require (
